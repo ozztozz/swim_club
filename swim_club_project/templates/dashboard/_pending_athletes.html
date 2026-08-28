@@ -1,0 +1,47 @@
+{% if pending_athletes %}
+<div class="overflow-x-auto">
+    <table class="table w-full">
+        <thead>
+            <tr>
+                <th>Ad Soyad</th>
+                <th>Veli</th>
+                <th>Doğum Tarihi</th>
+                <th>Katılım Tarihi</th>
+                <th class="text-center">Aksiyon</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for athlete in pending_athletes %}
+            <tr id="athlete-row-{{ athlete.id }}">
+                <td class="font-bold">{{ athlete.first_name }} {{ athlete.last_name }}</td>
+                <td>{{ athlete.parent.get_full_name }}</td>
+                <td>{{ athlete.birth_date|date:"d.m.Y" }}</td>
+                <td>{{ athlete.joined_date|date:"d.m.Y" }}</td>
+                <td class="flex justify-center gap-2">
+                    <!-- Onayla Butonu: HTMX POST isteği atar ve ilgili satırı silip tabloyu günceller -->
+                    <button 
+                        hx-post="{% url 'dashboard-approve-athlete' athlete.id %}" 
+                        hx-target="#pending-athletes-list" 
+                        hx-swap="innerHTML"
+                        class="btn btn-success btn-xs text-white">
+                        Onayla
+                    </button>
+                    <!-- Reddet Butonu -->
+                    <button 
+                        hx-post="{% url 'dashboard-reject-athlete' athlete.id %}" 
+                        hx-target="#pending-athletes-list" 
+                        hx-swap="innerHTML"
+                        class="btn btn-error btn-xs text-white">
+                        Reddet
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-success shadow-lg">
+    <span>✨ Onay bekleyen yeni sporcu kaydı bulunmuyor.</span>
+</div>
+{% endif %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex justify-center items-center h-[70vh]">
+    <div class="card w-96 bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-center block text-2xl font-bold mb-4">Giriş Yap</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-error text-sm p-2 mb-2">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" action="{% url 'user-login' %}">
+                {% csrf_token %}
+                <div class="form-control w-full">
+                    <label class="label"><span class="label-text">Kullanıcı Adı</span></label>
+                    <input type="text" name="username" required class="input input-bordered w-full" />
+                </div>
+
+                <div class="form-control w-full mt-2">
+                    <label class="label"><span class="label-text">Şifre</span></label>
+                    <input type="password" name="password" required class="input input-bordered w-full" />
+                </div>
+
+                <div class="card-actions justify-end mt-6">
+                    <button type="submit" class="btn btn-primary w-full">Giriş</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% if approved_athletes %}
+<div class="overflow-x-auto">
+    <table class="table w-full">
+        <thead>
+            <tr>
+                <th>Sporcu Ad Soyad</th>
+                <th>Veli</th>
+                <th>Doğum Tarihi</th>
+                <th>Lisans / Durum</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for athlete in approved_athletes %}
+            <tr>
+                <td class="font-bold">{{ athlete.first_name }} {{ athlete.last_name }}</td>
+                <td>{{ athlete.parent.get_full_name|default:athlete.parent.username }}</td>
+                <td>{{ athlete.birth_date|date:"d.m.Y" }}</td>
+                <td>
+                    <span class="badge badge-success text-white badge-sm">Aktif / Onaylı</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info shadow-sm">
+    <span>Arama kriterlerinize uygun onaylı sporcu bulunamadı.</span>
+</div>
+{% endif %}
