@@ -1,30 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-8 w-full max-w-full">
     <h1 class="text-3xl font-bold">Yönetici Paneli</h1>
 
     <!-- 1. Onay Bekleyen Sporcular Kartı -->
-    <div class="card bg-base-100 shadow-xl">
+    <div class="card bg-base-100 shadow-xl w-full">
         <div class="card-body">
             <h2 class="card-title text-warning">
                 ⏳ Onay Bekleyen Sporcu Kayıtları
             </h2>
-            <div id="pending-athletes-list" class="mt-4">
+            <div id="pending-athletes-list" class="mt-4 overflow-x-auto">
                 {% include "dashboard/_pending_athletes.html" %}
             </div>
         </div>
     </div>
 
-    <!-- 2. Onaylı Sporcular & Canlı Arama Kartı -->
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+    <!-- 2. Onaylı Sporcular Kartı -->
+    <div class="card bg-base-100 shadow-xl w-full">
+        <div class="card-body p-4 sm:p-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                 <h2 class="card-title text-success">
                     🏊‍♂️ Onaylı Sporcu Listesi
                 </h2>
-                <!-- HTMX Canlı Arama Kutusu -->
-                <div class="form-control w-full md:w-72">
+                <div class="w-full md:w-72">
                     <input 
                         type="text" 
                         name="q" 
@@ -38,11 +37,25 @@
                 </div>
             </div>
 
-            <!-- HTMX Hedef Alanı -->
-            <div id="approved-athletes-list" class="mt-4">
+            <div id="approved-athletes-list" class="w-full overflow-x-auto">
                 {% include "dashboard/_approved_athletes.html" %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modalın yükleneceği hedef alan -->
+<!-- templates/dashboard/index.html dosyasının en altına ekleyin -->
+<div id="modal-container"></div>
+
+<script>
+    // HTMX'ten closeModal olayi tetiklendiginde modali kaldir
+    document.body.addEventListener('closeModal', function() {
+        const modal = document.getElementById('edit_athlete_modal');
+        if (modal) {
+            modal.remove();
+        }
+        document.getElementById('modal-container').innerHTML = '';
+    });
+</script>
 {% endblock %}

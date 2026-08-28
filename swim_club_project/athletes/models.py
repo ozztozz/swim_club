@@ -1,6 +1,7 @@
 # athletes/models.py
 from django.db import models
 from django.conf import settings
+from teams.models import Team
 
 class Athlete(models.Model):
     GENDER_CHOICES = (
@@ -35,6 +36,34 @@ class Athlete(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', verbose_name="Onay Durumu")
     is_active = models.BooleanField(default=False, verbose_name="Aktif Sporcu mu?")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    team = models.ForeignKey(
+        Team,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='athletes',
+        verbose_name="Bağlı Olduğu Takım"
+    )
+    custom_fee = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Özel Aidat Tutar (TL)",
+        help_text="Boş bırakılırsa takımın varsayılan aidatı uygulanır. Burslu için 0 girebilirsiniz."
+    )
+
+    @property
+    def current_monthly_fee(self):
+        """Sporcunun ödemesi gereken güncel net aidat tutarını döner."""
+        if self.custom_fee is not None:
+            return self.custom_fee
+        if self.team:
+            return self.team.monthly_fee
+        return 0.00
+
+
 
     class Meta:
         verbose_name = "Sporcu"
