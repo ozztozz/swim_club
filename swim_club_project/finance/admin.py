@@ -13,6 +13,8 @@ class PaymentRecordAdmin(admin.ModelAdmin):
 class ExpenseCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
 
+    list_editable = ('description',)
+
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
     list_display = ('title', 'category', 'amount', 'expense_date', 'period', 'receipt_no')

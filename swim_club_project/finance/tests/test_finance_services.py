@@ -10,49 +10,71 @@ from finance.services import get_or_create_monthly_payments, get_financial_summa
 User = get_user_model()
 
 class FinanceModelAndServiceTests(TestCase):
+
     def setUp(self):
-        # Create user
+        # Admin kullanıcısı
         self.user = User.objects.create_user(
             username='adminuser',
             password='password123',
+            email='admin@alphakulup.com',  # <-- Benzersiz email
             role='admin'
         )
         
-        # Create Team
+        # Veli kullanıcısı (parent_id kısıtlaması için gerekli)
+        self.parent_user = User.objects.create_user(
+            username='parentuser',
+            password='password123',
+            
+            email='parent@alphakulup.com', # <-- Benzersiz email
+            first_name='Ahmet',
+            last_name='Veli',
+            role='parent'
+        )
+        
+        # Takım
         self.team = Team.objects.create(
             name="A Takımı",
             monthly_fee=Decimal('1500.00'),
             is_active=True
         )
         
-        # Create Approved Athletes
+        # Onaylı Sporcular (parent ve joined_date eklendi)
         self.athlete1 = Athlete.objects.create(
             first_name="Ahmet",
             last_name="Yılmaz",
             birth_date=date(2012, 5, 10),
+            joined_date=date(2026, 1, 1),
+            parent=self.parent_user,  # <-- Eklendi
             gender="M",
             status="approved",
+            is_active=True,
             team=self.team
         )
         self.athlete2 = Athlete.objects.create(
             first_name="Ayşe",
             last_name="Kaya",
             birth_date=date(2013, 8, 20),
+            joined_date=date(2026, 1, 1),
+            parent=self.parent_user,  # <-- Eklendi
             gender="F",
             status="approved",
+            is_active=True,
             team=self.team,
-            custom_fee=Decimal('1000.00')  # Özel burslu/aidatlı
+            custom_fee=Decimal('1000.00')
         )
-        # Pending athlete (should not get payment record)
+        # Onay bekleyen sporcu
         self.athlete_pending = Athlete.objects.create(
             first_name="Mehmet",
             last_name="Demir",
             birth_date=date(2014, 1, 15),
+            joined_date=date(2026, 1, 1),
+            parent=self.parent_user,  # <-- Eklendi
+            is_active=True,
             gender="M",
             status="pending"
         )
         
-        # Create Expense Category
+        # Harcama Kategorisi
         self.category = ExpenseCategory.objects.create(
             name="Havuz Kirası",
             description="Aylık havuz kulvar kiraları"

@@ -1,61 +1,123 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="space-y-8 w-full max-w-full">
-    <h1 class="text-3xl font-bold">Yönetici Paneli</h1>
+<div class="container mx-auto p-6 space-y-6">
 
-    <!-- 1. Onay Bekleyen Sporcular Kartı -->
-    <div class="card bg-base-100 shadow-xl w-full">
-        <div class="card-body">
-            <h2 class="card-title text-warning">
-                ⏳ Onay Bekleyen Sporcu Kayıtları
-            </h2>
-            <div id="pending-athletes-list" class="mt-4 overflow-x-auto">
-                {% include "dashboard/_pending_athletes.html" %}
+    <div class="flex justify-between items-center bg-base-100 p-6 rounded-box shadow">
+        <div>
+            <h1 class="text-2xl font-bold">🏋️‍♂️ Sporcu Yönetim Paneli</h1>
+            <p class="text-sm text-gray-500">Sporcu başvuruları ve kayıtlı sporcuları yönetin.</p>
+        </div>
+        <a href="{% url 'finance-dashboard' %}" class="btn btn-primary">
+            💳 Finans Paneline Git
+        </a>
+    </div>
+
+    <div class="bg-base-100 p-6 rounded-box shadow space-y-6">
+        <!-- Onay Bekleyen Sporcular -->
+        <div>
+            <h3 class="font-bold text-lg mb-3 text-warning">
+                Onay Bekleyen Başvurular ({{ pending_athletes.count }})
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Sporcu</th>
+                            <th>Doğum Tarihi</th>
+                            <th>Cinsiyet</th>
+                            <th>Veli</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for athlete in pending_athletes %}
+                        <tr>
+                            <td class="font-semibold">{{ athlete.get_full_name }}</td>
+                            <td>{{ athlete.birth_date|date:"d.m.Y" }}</td>
+                            <td>{{ athlete.get_gender_display }}</td>
+                            <td>{{ athlete.parent.get_full_name|default:athlete.parent.username }}</td>
+                            <td class="space-x-1">
+                                <button class="btn btn-sm btn-success text-white"
+                                        hx-post="{% url 'dashboard-approve-athlete' athlete.id %}"
+                                        hx-target="closest tr"
+                                        hx-swap="outerHTML">
+                                    Onayla
+                                </button>
+                                <button class="btn btn-sm btn-error text-white"
+                                        hx-post="{% url 'dashboard-reject-athlete' athlete.id %}"
+                                        hx-target="closest tr"
+                                        hx-swap="outerHTML">
+                                    Reddet
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-gray-500">
+                                Onay bekleyen sporcu başvurusu bulunmuyor.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Onaylı Sporcular -->
+        <div>
+            <h3 class="font-bold text-lg mb-3 text-success">
+                Onaylı Sporcular ({{ approved_athletes.count }})
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                        <tr>
+                            <th>Sporcu</th>
+                            <th>Veli</th>
+                            <th>Takım</th>
+                            <th>Aylık Aidat</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approved-athletes-list">
+                        {% for athlete in approved_athletes %}
+                        <tr>
+                            <td class="font-semibold">{{ athlete.get_full_name }}</td>
+                            <td>{{ athlete.parent.get_full_name|default:athlete.parent.username }}</td>
+                            <td>
+                                {% if athlete.team %}
+                                    <span class="badge badge-info text-white">{{ athlete.team.name }}</span>
+                                {% else %}
+                                    <span class="badge badge-ghost text-xs">Takımsız</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-bold text-primary">{{ athlete.current_monthly_fee }} TL</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline btn-secondary"
+                                        hx-get="{% url 'dashboard-edit-athlete-team' athlete.id %}"
+                                        hx-target="#modal-container"
+                                        hx-swap="innerHTML">
+                                    Takım Düzenle
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-gray-500">
+                                Kayıtlı onaylı sporcu bulunmuyor.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- 2. Onaylı Sporcular Kartı -->
-    <div class="card bg-base-100 shadow-xl w-full">
-        <div class="card-body p-4 sm:p-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                <h2 class="card-title text-success">
-                    🏊‍♂️ Onaylı Sporcu Listesi
-                </h2>
-                <div class="w-full md:w-72">
-                    <input 
-                        type="text" 
-                        name="q" 
-                        placeholder="Sporcu veya veli ara..." 
-                        class="input input-bordered w-full input-sm"
-                        hx-get="{% url 'dashboard-search-athletes' %}" 
-                        hx-trigger="keyup changed delay:500ms" 
-                        hx-target="#approved-athletes-list" 
-                        hx-swap="innerHTML"
-                    />
-                </div>
-            </div>
-
-            <div id="approved-athletes-list" class="w-full overflow-x-auto">
-                {% include "dashboard/_approved_athletes.html" %}
-            </div>
-        </div>
-    </div>
 </div>
 
-<!-- Modalın yükleneceği hedef alan -->
-<!-- templates/dashboard/index.html dosyasının en altına ekleyin -->
 <div id="modal-container"></div>
-
-<script>
-    // HTMX'ten closeModal olayi tetiklendiginde modali kaldir
-    document.body.addEventListener('closeModal', function() {
-        const modal = document.getElementById('edit_athlete_modal');
-        if (modal) {
-            modal.remove();
-        }
-        document.getElementById('modal-container').innerHTML = '';
-    });
-</script>
 {% endblock %}

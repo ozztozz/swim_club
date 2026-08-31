@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="w-full max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- Başlık -->
+    <div class="flex justify-between items-center bg-base-100 p-5 rounded-xl border border-base-200 shadow-sm">
+        <div>
+            <h1 class="text-2xl font-bold">⚙️ Aidat & Tarife Yönetimi</h1>
+            <p class="text-sm text-gray-500">Takımların genel ve sporcuların özel ücret geçmişlerini buradan yönetebilirsiniz.</p>
+        </div>
+    </div>
+
+    <!-- Sekmeler (Tabs) -->
+    <div x-data="{ activeTab: 'teams' }" class="space-y-4">
+        <div class="tabs tabs-boxed bg-base-200 p-1 w-fit">
+            <button @click="activeTab = 'teams'" :class="{ 'tab-active': activeTab === 'teams' }" class="tab font-semibold">
+                🏆 Takım Tarifeleri
+            </button>
+            <button @click="activeTab = 'athletes'" :class="{ 'tab-active': activeTab === 'athletes' }" class="tab font-semibold">
+                👤 Özel Sporcu Fiyatları
+            </button>
+        </div>
+
+        <!-- 1. TAKIM TARİFELERİ SEKMESİ -->
+        <div x-show="activeTab === 'teams'" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for team in teams %}
+                <div class="bg-base-100 p-5 rounded-xl border border-base-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-primary">{{ team.name }}</h3>
+                            <span class="badge badge-neutral text-xs">{{ team.athletes.count }} Sporcu</span>
+                        </div>
+                        
+                        <!-- Aktif Fiyat -->
+                        {% with team.fee_histories.first as active_fee %}
+                        <div class="bg-base-200 p-3 rounded-lg my-3">
+                            <span class="text-xs text-gray-500 block font-medium">Mevcut Aktif Fiyat:</span>
+                            <span class="text-2xl font-black text-success">
+                                {% if active_fee %}{{ active_fee.monthly_fee|floatformat:2 }} TL{% else %}Tanımlanmadı{% endif %}
+                            </span>
+                            {% if active_fee %}
+                            <span class="text-[10px] text-gray-400 block mt-1">Geçerlilik: {{ active_fee.start_date|date:"d.m.Y" }} - Devam ediyor</span>
+                            {% endif %}
+                        </div>
+                        {% endwith %}
+
+                        <!-- Fiyat Geçmişi Mini Liste -->
+                        <div class="space-y-1 mt-2">
+                            <span class="text-xs font-bold text-gray-400 uppercase">Tarife Geçmişi</span>
+                            <ul class="text-xs space-y-1 max-h-28 overflow-y-auto pr-1">
+                                {% for history in team.fee_histories.all %}
+                                <li class="flex justify-between border-b border-base-200 py-1">
+                                    <span>{{ history.start_date|date:"d.m.Y" }} - {% if history.end_date %}{{ history.end_date|date:"d.m.Y" }}{% else %}Aktif{% endif %}</span>
+                                    <span class="font-semibold">{{ history.monthly_fee|floatformat:2 }} TL</span>
+                                </li>
+                                {% empty %}
+                                <li class="text-gray-400 text-xs">Geçmiş kayıt bulunamadı.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Güncelle Butonu -->
+                    <button onclick="document.getElementById('modal-team-{{ team.id }}').showModal()" class="btn btn-primary btn-sm w-full">
+                        Tarifeyi Güncelle
+                    </button>
+                </div>
+
+                <!-- Takım Ücreti Güncelleme Modalı -->
+                <dialog id="modal-team-{{ team.id }}" class="modal">
+                    <div class="modal-box">
+                        <h3 class="font-bold text-lg mb-4">{{ team.name }} - Yeni Tarife Belirle</h3>
+                        <form action="{% url 'update-team-fee' team.id %}" method="POST" class="space-y-4">
+                            {% csrf_token %}
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Yeni Aylık Aidat (TL)</span></label>
+                                <input type="number" step="0.01" name="monthly_fee" required class="input input-bordered" placeholder="Örn: 1500.00">
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Geçerlilik Başlangıç Tarihi</span></label>
+                                <input type="date" name="start_date" value="{{ today|date:'Y-m-d' }}" required class="input input-bordered">
+                            </div>
+                            <p class="text-xs text-warning">⚠️ Yeni tarife kaydedildiğinde eski tarife otomatik olarak bu tarihten 1 gün önce sonlandırılacaktır.</p>
+                            <div class="modal-action">
+                                <button type="button" onclick="document.getElementById('modal-team-{{ team.id }}').close()" class="btn btn-ghost">İptal</button>
+                                <button type="submit" class="btn btn-primary">Kaydet ve Uygula</button>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 2. ÖZEL SPORCU FİYATLARI SEKMESİ -->
+        <div x-show="activeTab === 'athletes'" class="bg-base-100 p-5 rounded-xl border border-base-200 shadow-sm space-y-4">
+            <h2 class="font-bold text-lg">Özel İndirimli / Burslu Sporcular</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="table table-sm w-full">
+                    <thead>
+                        <tr>
+                            <th>Sporcu</th>
+                            <th>Takımı</th>
+                            <th>Mevcut Özel Fiyat</th>
+                            <th>Başlangıç Tarihi</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for athlete in athletes %}
+                        {% with athlete.fee_histories.first as active_custom %}
+                        <tr>
+                            <td class="font-bold">{{ athlete.get_full_name }}</td>
+                            <td>{{ athlete.team.name|default:"Takımsız" }}</td>
+                            <td>
+                                {% if active_custom %}
+                                    <span class="badge badge-success text-white font-bold">{{ active_custom.monthly_fee|floatformat:2 }} TL</span>
+                                {% else %}
+                                    <span class="text-gray-400 text-xs">Standart Takım Tarifesi</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-xs text-gray-500">
+                                {% if active_custom %}{{ active_custom.start_date|date:"d.m.Y" }}{% else %}-{% endif %}
+                            </td>
+                            <td>
+                                <button onclick="document.getElementById('modal-athlete-{{ athlete.id }}').showModal()" class="btn btn-xs btn-outline btn-primary">
+                                    Özel Fiyat Tanımla
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Sporcu Fiyat Modalı -->
+                        <dialog id="modal-athlete-{{ athlete.id }}" class="modal">
+                            <div class="modal-box">
+                                <h3 class="font-bold text-lg mb-2">{{ athlete.get_full_name }}</h3>
+                                <p class="text-xs text-gray-500 mb-4">Bu sporcuya özel aylık aidat tutarı belirleyin (Burs, indirim vb.).</p>
+                                <form action="{% url 'add-athlete-custom-fee' athlete.id %}" method="POST" class="space-y-4">
+                                    {% csrf_token %}
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Aylık Özel Aidat Tutarı (TL)</span></label>
+                                        <input type="number" step="0.01" name="monthly_fee" required class="input input-bordered" placeholder="Örn: 750.00">
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Başlangıç Tarihi</span></label>
+                                        <input type="date" name="start_date" value="{{ today|date:'Y-m-d' }}" required class="input input-bordered">
+                                    </div>
+                                    <div class="modal-action">
+                                        <button type="button" onclick="document.getElementById('modal-athlete-{{ athlete.id }}').close()" class="btn btn-ghost">İptal</button>
+                                        <button type="submit" class="btn btn-primary">Özel Fiyatı Kaydet</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </dialog>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

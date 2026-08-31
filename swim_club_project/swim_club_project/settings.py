@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'athletes',
     'teams',
     'finance',
+    "django_data_seed",
 ]
 
 MIDDLEWARE = [
@@ -108,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "tr"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Europe/Istanbul'
 
 USE_I18N = True
 
@@ -165,3 +166,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
+USE_THOUSAND_SEPARATOR = True

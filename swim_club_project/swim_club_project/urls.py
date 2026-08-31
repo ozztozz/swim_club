@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/', include('athletes.urls')),
     path('', include('athletes.urls')), # Dashboard URL'lerini dahil etmek için
+    path('finance/', include('finance.urls')),
 ]
 
 # Geliştirme ortamında medya dosyalarını sunmak için

@@ -1,0 +1,42 @@
+<!-- finance/templates/finance/partials/_payment_row.html -->
+<tr id="payment-row-{{ payment.id }}">
+        <td>
+        {% if payment.status != 'paid' %}
+            <button class="btn btn-sm btn-outline btn-success"
+                    hx-get="{% url 'finance-mark-paid' payment.id %}"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML">
+                Ödeme
+            </button>
+        {% else %}
+            <span class="text-xs text-success font-semibold">✓ Tahsil Edildi</span>
+        {% endif %}
+    </td>
+    <td class="font-semibold">
+        {% if payment.athlete %}
+            {{ payment.athlete.get_full_name }}
+        {% else %}
+            <span class="badge badge-ghost text-xs">Diğer Gelir / {{ payment.get_payment_type_display|default:"Bağış" }}</span>
+        {% endif %}
+    </td>
+    <td>{{ payment.period }}</td>
+    <td>{{ payment.amount |floatformat:2 }} 
+        {% if payment.status == 'paid' %}
+            <span class="badge badge-success text-white">Ödendi</span>
+        {% elif payment.is_overdue %}
+            <span class="badge badge-error text-white">Gecikti</span>
+        {% else %}
+            <span class="badge badge-warning">Bekliyor</span>
+        {% endif %}
+
+    </td>
+
+    <td class="text-xs text-gray-500">
+        {% if payment.status == 'paid' %}
+            {{ payment.paid_at|date:"d.m.Y " }} {{ payment.collected_by.get_full_name|default:payment.collected_by.username }}
+        {% else %}
+            -
+        {% endif %}
+    </td>
+
+</tr>

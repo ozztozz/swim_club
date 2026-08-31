@@ -1,9 +1,47 @@
 from django.db import models
 from django.conf import settings
 from datetime import date
-from athletes.models import Athlete
+from athletes.models import Athlete,Team
+
+
+class TeamFeeHistory(models.Model):
+    """Takımların tarih bazlı fiyat geçmişi"""
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='fee_histories')
+    monthly_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateField(help_text="Fiyatın geçerli olmaya başladığı tarih")
+    end_date = models.DateField(null=True, blank=True, help_text="Boş ise halen geçerlidir")
+
+    class Meta:
+        ordering = ['-start_date']
+
+class AthleteFeeHistory(models.Model):
+    """Sporcuya özel (burs/indirim/özel fiyat) tarih bazlı fiyat geçmişi"""
+    athlete = models.ForeignKey(Athlete, on_delete=models.CASCADE, related_name='fee_histories')
+    monthly_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-start_date']
 
 class PaymentRecord(models.Model):
+    PAYMENT_TYPE_CHOICES = [
+        ('fee', 'Aidat'),
+        ('donation', 'Bağış'),
+        ('membership', 'Üyelik'),
+        ('bank_transfer', 'Banka / Havale Geliri'),
+        ('sponsorship', 'Sponsorluk'),
+        ('event_license', 'Lisans / Etkinlik Ücreti'),
+        ('other', 'Diğer'),
+    ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ('bank', 'Banka Transferi / EFT / Havale'),
+        ('cash', 'Elden / Nakit'),
+        ('credit_card', 'Kredi Kartı'),
+        ('other', 'Diğer'),
+    ]
+
     STATUS_CHOICES = [
         ('pending', 'Bekliyor'),
         ('paid', 'Ödendi'),
@@ -14,18 +52,32 @@ class PaymentRecord(models.Model):
         Athlete, 
         on_delete=models.CASCADE, 
         related_name='payments',
-        verbose_name="Sporcu"
+        verbose_name="Sporcu",
+        null=True,  # Sporcuya bağlı olmayan genel kulüp bağışları/gelirleri için null yapılabilir
+        blank=True
+    )
+    payment_type = models.CharField(
+        max_length=30,
+        choices=PAYMENT_TYPE_CHOICES,
+        default='fee',
+        verbose_name="Ödeme Türü"
+    )
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        default='bank',
+        verbose_name="Ödeme Yöntemi"
     )
     period = models.CharField(
         max_length=7, 
         db_index=True,
         help_text="Format: YYYY-MM (Örn: 2026-08)",
-        verbose_name="Aidat Dönemi"
+        verbose_name="Gelir Dönemi"
     )
     amount = models.DecimalField(
         max_digits=10, 
         decimal_places=2, 
-        verbose_name="Aidat Tutarı (TL)"
+        verbose_name="Tutar (TL)"
     )
     status = models.CharField(
         max_length=20, 
@@ -52,27 +104,28 @@ class PaymentRecord(models.Model):
     notes = models.TextField(
         blank=True, 
         null=True, 
-        verbose_name="Not / Dekont No"
+        verbose_name="Not / Dekont No / Açıklama"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Ödeme Kaydı"
-        verbose_name_plural = "Ödeme Kayıtları"
-        unique_together = ['athlete', 'period']
-        ordering = ['-period', 'athlete__first_name']
+        verbose_name = "Gelir / Ödeme Kaydı"
+        verbose_name_plural = "Gelir / Ödeme Kayıtları"
+        # Unique kısıtı sadece 'aidat' türündeki ödemeler için geçerli olsun diye kaldırma veya şartlı kısıtlama yapılabilir.
+        # Aidatlarda aynı sporcu aynı ay mükerrer olmasın:
+        unique_together = ['athlete', 'period', 'payment_type']
+        ordering = ['-period', 'created_at']
 
     def __str__(self):
-        return f"{self.athlete.get_full_name()} - {self.period} ({self.get_status_display()})"
+        athlete_str = self.athlete.get_full_name() if self.athlete else "Genel Kulüp Geliri"
+        return f"{athlete_str} - {self.get_payment_type_display()} ({self.period}): {self.amount} TL"
 
     @property
     def is_overdue(self):
-        """Ödeme henüz yapılmadıysa ve son ödeme tarihi geçtiyse True döner."""
         if self.status == 'pending' and self.due_date < date.today():
             return True
         return False
-
 
 
 class ExpenseCategory(models.Model):
