@@ -1,6 +1,5 @@
 # athletes/models.py
 from django.db import models
-from django.conf import settings
 from teams.models import Team
 
 class Athlete(models.Model):
@@ -15,15 +14,12 @@ class Athlete(models.Model):
         ('rejected', 'Reddedildi'),
     )
 
-    parent = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='athletes',
-        limit_choices_to={'role': 'parent'},
-        verbose_name="Veli"
-    )
+    parent = models.CharField(max_length=150, verbose_name="Veli")
+    parent_phone = models.CharField(max_length=20, blank=True, default='', verbose_name="Veli Telefonu")
+    parent_email = models.EmailField(blank=True, default='', verbose_name="Veli E-postası")
     first_name = models.CharField(max_length=50, verbose_name="Ad")
     last_name = models.CharField(max_length=50, verbose_name="Soyad")
+    phone_number = models.CharField(max_length=20, blank=True, default='', verbose_name="Sporcu Telefonu")
     tc_identity = models.CharField(max_length=11, unique=True, blank=True, null=True, verbose_name="T.C. Kimlik No")
     birth_date = models.DateField(verbose_name="Doğum Tarihi")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="Cinsiyet")
@@ -53,7 +49,19 @@ class Athlete(models.Model):
         verbose_name="Özel Aidat Tutar (TL)",
         help_text="Boş bırakılırsa takımın varsayılan aidatı uygulanır. Burslu için 0 girebilirsiniz."
     )
-
+    discount_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="İndirim Yüzdesi",
+        help_text="Boş bırakılırsa indirim uygulanmaz."
+    )
+    regular_payment_day = models.PositiveBigIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Düzenli Ödeme Günü"
+    )
     @property
     def current_monthly_fee(self):
         """Sporcunun ödemesi gereken güncel net aidat tutarını döner."""
@@ -62,6 +70,16 @@ class Athlete(models.Model):
         if self.team:
             return self.team.monthly_fee
         return 0.00
+
+    def save(self, *args, **kwargs):
+        # Keep legacy callers working while parent is stored as text.
+        if not isinstance(self.parent, str):
+            parent_user = self.parent
+            full_name = f'{parent_user.first_name} {parent_user.last_name}'.strip()
+            self.parent = full_name or parent_user.email
+            self.parent_email = self.parent_email or parent_user.email
+            self.parent_phone = self.parent_phone or parent_user.phone_number or ''
+        super().save(*args, **kwargs)
 
 
 

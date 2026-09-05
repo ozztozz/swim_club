@@ -1,0 +1,40 @@
+<section id="expense-summary"{% if oob %} hx-swap-oob="outerHTML"{% endif %} class="grid gap-4 md:grid-cols-3">
+    <div class="rounded-2xl bg-primary p-5 text-primary-content shadow-lg shadow-primary/15">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-sm font-medium opacity-80">{{ period }} toplamı</p>
+                <p id="expense-total" class="mt-2 text-3xl font-black">{{ total_expense|floatformat:2 }} TL</p>
+            </div>
+            <span class="rounded-xl bg-white/15 px-3 py-2 text-lg">↗</span>
+        </div>
+        <p class="mt-6 text-xs opacity-75">Seçili dönemde kaydedilen giderler</p>
+    </div>
+    <div class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
+        <p class="text-sm font-medium text-base-content/60">Düzenli ödeme özeti</p>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+            <div>
+                <p class="text-xs text-success">Ödenen</p>
+                <p id="regular-paid-total" class="text-2xl font-black">{{ regular_paid_total|floatformat:2 }} TL</p>
+            </div>
+            <div>
+                <p class="text-xs text-warning">Bekleyen</p>
+                <p id="regular-pending-total" class="text-2xl font-black">{{ regular_pending_total|floatformat:2 }} TL</p>
+            </div>
+        </div>
+        <p class="mt-5 text-xs text-base-content/50">{{ regular_paid_count }} ödenen, {{ regular_pending_count }} bekleyen kayıt</p>
+    </div>
+    <div class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
+        <p class="text-sm font-medium text-base-content/60">Kategori bazlı harcama</p>
+        <div class="mt-3 max-h-24 space-y-2 overflow-y-auto pr-1">
+            {% for category in category_totals %}
+            <div class="flex items-center justify-between gap-3 text-sm">
+                <span class="truncate text-base-content/70">{{ category.name }}</span>
+                <span class="whitespace-nowrap font-bold">{{ category.total|floatformat:2 }} TL</span>
+            </div>
+            {% empty %}
+            <p class="text-sm text-base-content/50">Henüz aktif harcama yok.</p>
+            {% endfor %}
+        </div>
+        <p class="mt-4 text-xs text-base-content/50">Aktif kayıtların kategori toplamı</p>
+    </div>
+</section>

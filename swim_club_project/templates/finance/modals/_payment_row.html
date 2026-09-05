@@ -4,7 +4,7 @@
         {{ payment.athlete.get_full_name|default:"Genel Gelir" }}
     </td>
     <td>{{ payment.period }}</td>
-    <td>{{ payment.amount }} TL</td>
+    <td>{{ payment.amount|floatformat:2 }} TL</td>
     <td>
         {% if payment.status == 'paid' %}
             <span class="badge badge-success text-white">Ödendi</span>

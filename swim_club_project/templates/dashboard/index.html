@@ -1,17 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mx-auto p-6 space-y-6">
+<div class="mx-auto w-full max-w-7xl space-y-8">
 
-    <div class="flex justify-between items-center bg-base-100 p-6 rounded-box shadow">
-        <div>
-            <h1 class="text-2xl font-bold">🏋️‍♂️ Sporcu Yönetim Paneli</h1>
-            <p class="text-sm text-gray-500">Sporcu başvuruları ve kayıtlı sporcuları yönetin.</p>
+    <header class="relative overflow-hidden rounded-3xl bg-neutral px-6 py-8 text-neutral-content shadow-xl sm:px-10 sm:py-10">
+        <div class="relative z-10 max-w-2xl">
+            <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-primary-content/70">Kulüp yönetim merkezi</p>
+            <h1 class="text-3xl font-black tracking-tight sm:text-4xl">Bugün kulübünüzde neler oluyor?</h1>
+            <p class="mt-3 max-w-xl text-sm leading-6 text-neutral-content/70">Takımları, sporcuları ve finans hareketlerini tek bir yerden yönetin.</p>
         </div>
-        <a href="{% url 'finance-dashboard' %}" class="btn btn-primary">
-            💳 Finans Paneline Git
+        <div class="pointer-events-none absolute -right-10 -top-16 h-64 w-64 rounded-full border-[28px] border-primary/20"></div>
+        <div class="pointer-events-none absolute -bottom-24 right-24 h-44 w-44 rounded-full border-[18px] border-secondary/20"></div>
+    </header>
+
+    <section class="grid gap-4 md:grid-cols-3">
+        <a href="{% url 'team-list' %}" class="group rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+            <div class="flex items-start justify-between"><span class="grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="text-xl text-base-content/30 transition group-hover:translate-x-1">→</span></div>
+            <h2 class="mt-5 text-xl font-black">Takımlar</h2><p class="mt-1 text-sm text-base-content/60">Grupları ve antrenör atamalarını yönetin.</p><p class="mt-5 text-2xl font-black text-primary">{{ active_teams|floatformat:0 }} <span class="text-sm font-semibold text-base-content/50">aktif takım</span></p>
         </a>
-    </div>
+        <a href="{% url 'athlete-manage-list' %}" class="group rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm transition hover:-translate-y-1 hover:border-secondary/50 hover:shadow-lg">
+            <div class="flex items-start justify-between"><span class="grid h-12 w-12 place-items-center rounded-xl bg-secondary/10 text-secondary"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></span><span class="text-xl text-base-content/30 transition group-hover:translate-x-1">→</span></div>
+            <h2 class="mt-5 text-xl font-black">Sporcular</h2><p class="mt-1 text-sm text-base-content/60">Kayıtları, profilleri ve takım gruplarını görüntüleyin.</p><p class="mt-5 text-2xl font-black text-secondary">{{ athlete_count|floatformat:0 }} <span class="text-sm font-semibold text-base-content/50">kayıtlı sporcu</span></p>
+        </a>
+        <a href="{% url 'finance-dashboard' %}" class="group rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm transition hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg">
+            <div class="flex items-start justify-between"><span class="grid h-12 w-12 place-items-center rounded-xl bg-accent/10 text-accent"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h3"/></svg></span><span class="text-xl text-base-content/30 transition group-hover:translate-x-1">→</span></div>
+            <h2 class="mt-5 text-xl font-black">Finans</h2><p class="mt-1 text-sm text-base-content/60">Tahsilatları, giderleri ve ödeme planlarını yönetin.</p><p class="mt-5 text-2xl font-black text-accent">{{ pending_payments|floatformat:0 }} <span class="text-sm font-semibold text-base-content/50">bekleyen ödeme</span></p>
+        </a>
+    </section>
 
     <div class="bg-base-100 p-6 rounded-box shadow space-y-6">
         <!-- Onay Bekleyen Sporcular -->
@@ -36,7 +51,7 @@
                             <td class="font-semibold">{{ athlete.get_full_name }}</td>
                             <td>{{ athlete.birth_date|date:"d.m.Y" }}</td>
                             <td>{{ athlete.get_gender_display }}</td>
-                            <td>{{ athlete.parent.get_full_name|default:athlete.parent.username }}</td>
+                            <td>{{ athlete.parent }}</td>
                             <td class="space-x-1">
                                 <button class="btn btn-sm btn-success text-white"
                                         hx-post="{% url 'dashboard-approve-athlete' athlete.id %}"
@@ -86,7 +101,7 @@
                         {% for athlete in approved_athletes %}
                         <tr>
                             <td class="font-semibold">{{ athlete.get_full_name }}</td>
-                            <td>{{ athlete.parent.get_full_name|default:athlete.parent.username }}</td>
+                            <td>{{ athlete.parent }}</td>
                             <td>
                                 {% if athlete.team %}
                                     <span class="badge badge-info text-white">{{ athlete.team.name }}</span>
@@ -94,7 +109,7 @@
                                     <span class="badge badge-ghost text-xs">Takımsız</span>
                                 {% endif %}
                             </td>
-                            <td class="font-bold text-primary">{{ athlete.current_monthly_fee }} TL</td>
+                            <td class="font-bold text-primary">{{ athlete.current_monthly_fee|floatformat:2 }} TL</td>
                             <td>
                                 <button class="btn btn-sm btn-outline btn-secondary"
                                         hx-get="{% url 'dashboard-edit-athlete-team' athlete.id %}"

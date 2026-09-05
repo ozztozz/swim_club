@@ -6,7 +6,7 @@
         <div class="bg-base-200 p-3 rounded-lg mb-4 text-sm space-y-1">
             <p><strong>Sporcu:</strong> {{ payment.athlete.get_full_name|default:"Genel Gelir" }}</p>
             <p><strong>Dönem:</strong> {{ payment.period }}</p>
-            <p><strong>Tutar:</strong> <span class="text-success font-bold">{{ payment.amount }} TL</span></p>
+            <p><strong>Tutar:</strong> <span class="text-success font-bold">{{ payment.amount|floatformat:2 }} TL</span></p>
         </div>
 
         <form hx-post="{% url 'finance-mark-paid' payment.id %}"

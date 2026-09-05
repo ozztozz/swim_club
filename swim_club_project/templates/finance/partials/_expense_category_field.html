@@ -1,0 +1,15 @@
+<div id="category-field" class="form-control sm:col-span-2">
+    <div class="flex items-center justify-between gap-3">
+        <span class="label label-text font-bold">Harcama kategorisi</span>
+        <button type="button"
+                class="btn btn-ghost btn-xs gap-1 text-primary"
+                hx-get="{% url 'expense-category-create' %}"
+                hx-target="#category-field"
+                hx-swap="outerHTML">
+            <span class="text-base leading-none">+</span>
+            Yeni kategori
+        </button>
+    </div>
+    {{ form.category }}
+    {% if form.category.errors %}<span class="label-text-alt text-error">{{ form.category.errors|striptags }}</span>{% endif %}
+</div>

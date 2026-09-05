@@ -1,6 +1,6 @@
 # finance/admin.py
 from django.contrib import admin
-from .models import PaymentRecord, ExpenseCategory, Expense
+from .models import PaymentRecord, ExpenseCategory, Expense,RegularExpense
 
 @admin.register(PaymentRecord)
 class PaymentRecordAdmin(admin.ModelAdmin):
@@ -17,7 +17,14 @@ class ExpenseCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'amount', 'expense_date', 'period', 'receipt_no')
+    list_display = ('reciever', 'category', 'amount', 'expense_date', 'period', 'receipt_no')
     list_filter = ('period', 'category')
     search_fields = ('title', 'receipt_no', 'notes')
     ordering = ('-expense_date',)
+
+@admin.register(RegularExpense)
+class RegularExpenseAdmin(admin.ModelAdmin):
+    list_display = ('reciever', 'category', 'amount', 'paymentDay', 'start_date', 'end_date')
+    list_filter = ('paymentDay', 'category')
+    search_fields = ('reciever', 'notes')
+    ordering = ('-paymentDay',)

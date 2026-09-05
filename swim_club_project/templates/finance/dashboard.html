@@ -16,6 +16,8 @@
             <label class="text-xs font-semibold whitespace-nowrap">Dönem Filtresi:</label>
             <input type="month" name="period" value="{{ period }}" class="input input-bordered input-sm text-xs" onchange="this.form.submit()">
         </form>
+        <a href="{% url 'expense-list' %}?period={{ period }}" class="btn btn-sm btn-outline btn-error">Harcamaları yönet</a>
+        <a href="{% url 'regular-expense-list' %}" class="btn btn-sm btn-outline btn-primary">Düzenli harcamalar</a>
     </div>
 
     <!-- 2. TEK SATIRDA İSTATİSTİK ŞERİDİ (stats-horizontal Zorlaması) -->
@@ -68,12 +70,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for payment in payments %}
-                        {% include 'finance/partials/_payment_row.html' with payment=payment %}
+                    {% for athlete_fee in approved_athletes %}
+                        {% include 'finance/partials/_payment_row.html' with payment=athlete_fee %}
                     {% empty %}
                         <tr>
                             <td colspan="6" class="text-center py-4 text-xs text-gray-500">
-                                Bu döneme ait ödeme kaydı bulunamadı.
+                                Bu döneme ait aidat bilgisi bulunamadı.
                             </td>
                         </tr>
                     {% endfor %}

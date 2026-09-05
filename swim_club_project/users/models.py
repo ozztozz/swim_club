@@ -46,3 +46,8 @@ class User(AbstractUser):
     @property
     def is_finance(self):
         return self.role == self.Role.FINANCE
+
+    @property
+    def athletes(self):
+        from athletes.models import Athlete
+        return Athlete.objects.filter(parent_email=self.email)

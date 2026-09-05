@@ -1,0 +1,44 @@
+<tbody id="regular-expense-list">
+    {% for expense in regular_expenses %}
+    <tr class="border-b border-base-200 last:border-0 {% if expense.end_date and expense.end_date < today %}opacity-60{% endif %}">
+        <td>
+            {% if expense.category %}
+            <span class="badge badge-ghost font-medium">{{ expense.category.name }}</span>
+            {% else %}
+            <span class="text-sm text-base-content/40">Kategorisiz</span>
+            {% endif %}
+        </td>
+        <td>
+            <div class="font-semibold">{{ expense.reciever }}</div>
+            {% if expense.notes %}<div class="max-w-xs truncate text-xs text-base-content/50">{{ expense.notes }}</div>{% endif %}
+        </td>
+        <td class="font-black text-error">{{ expense.amount|floatformat:2 }} TL</td>
+        <td><span class="badge badge-outline">{{ expense.get_frequency_display }}</span></td>
+        <td class="text-sm">{% if expense.paymentDay %}{{ expense.paymentDay }}. gün{% else %}-{% endif %}</td>
+        <td class="text-sm text-base-content/65">
+            {{ expense.start_date|date:'d.m.Y' }}
+            <span class="text-base-content/35">→</span>
+            {% if expense.end_date %}{{ expense.end_date|date:'d.m.Y' }}{% else %}<span class="text-success">Devam ediyor</span>{% endif %}
+        </td>
+        <td class="text-right">
+            <button type="button" class="btn btn-ghost btn-xs text-primary"
+                    hx-get="{% url 'regular-expense-update' expense.pk %}?category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
+                    hx-target="#regular-expense-modal-container"
+                    hx-swap="innerHTML">
+                Düzenle
+            </button>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7" class="py-16 text-center">
+            <div class="mx-auto max-w-sm">
+                <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-base-200 text-2xl">↻</div>
+                <p class="font-bold">Düzenli harcama bulunamadı</p>
+                <p class="mt-1 text-sm text-base-content/50">İlk kaydı eklemek için yukarıdaki butonu kullanın.</p>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+{% if include_summary %}{% include 'finance/partials/_regular_expense_summary.html' with oob=True %}{% endif %}

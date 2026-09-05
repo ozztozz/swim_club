@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'athletes',
     'teams',
     'finance',
+    'rest_framework',
     "django_data_seed",
 ]
 
@@ -167,3 +168,4 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 USE_THOUSAND_SEPARATOR = True
+LANGUAGE_CODE = 'tr-tr'

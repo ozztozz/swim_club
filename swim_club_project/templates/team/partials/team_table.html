@@ -1,0 +1,15 @@
+<div id="team-table" class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3">
+    {% for team in teams %}
+    <a href="{% url 'team-detail' team.pk %}" class="group card border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+        <div class="card-body p-5">
+            <div class="flex items-start justify-between gap-3">
+                <span class="grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                {% if team.is_active %}<span class="badge badge-success badge-outline">Aktif</span>{% else %}<span class="badge badge-ghost">Pasif</span>{% endif %}
+            </div>
+            <h2 class="mt-4 text-xl font-black">{{ team.name }}</h2>
+            <p class="min-h-10 text-sm text-base-content/60">{{ team.description|default:'Takım açıklaması bulunmuyor.' }}</p>
+            <div class="mt-3 flex items-center justify-between border-t border-base-200 pt-3 text-sm"><span class="text-base-content/60">Antrenör</span><span class="font-semibold">{{ team.coaches.count }}</span></div>
+        </div>
+    </a>
+    {% empty %}<div class="col-span-full py-12 text-center text-base-content/60">Kayıt bulunamadı.</div>{% endfor %}
+</div>

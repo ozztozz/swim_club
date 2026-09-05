@@ -37,7 +37,7 @@ class PaymentRecord(models.Model):
 
     PAYMENT_METHOD_CHOICES = [
         ('bank', 'Banka Transferi / EFT / Havale'),
-        ('cash', 'Elden / Nakit'),
+        ('cash', 'Nakit'),
         ('credit_card', 'Kredi Kartı'),
         ('other', 'Diğer'),
     ]
@@ -107,11 +107,10 @@ class PaymentRecord(models.Model):
         verbose_name="Not / Dekont No / Açıklama"
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Gelir / Ödeme Kaydı"
-        verbose_name_plural = "Gelir / Ödeme Kayıtları"
+        verbose_name = "Gelir Kaydı"
+        verbose_name_plural = "Gelir Kayıtları"
         # Unique kısıtı sadece 'aidat' türündeki ödemeler için geçerli olsun diye kaldırma veya şartlı kısıtlama yapılabilir.
         # Aidatlarda aynı sporcu aynı ay mükerrer olmasın:
         unique_together = ['athlete', 'period', 'payment_type']
@@ -134,8 +133,8 @@ class ExpenseCategory(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
 
     class Meta:
-        verbose_name = "Harcama Kategorisi"
-        verbose_name_plural = "Harcama Kategorileri"
+        verbose_name = "Gider Kategorisi"
+        verbose_name_plural = "Gider Kategorileri"
 
     def __str__(self):
         return self.name
@@ -143,7 +142,6 @@ class ExpenseCategory(models.Model):
 
 class Expense(models.Model):
     """Kulüp Harcama/Gider Kaydı"""
-    title = models.CharField(max_length=200, verbose_name="Harcama/Gider Başlığı")
     category = models.ForeignKey(
         ExpenseCategory, 
         on_delete=models.SET_NULL, 
@@ -151,8 +149,22 @@ class Expense(models.Model):
         related_name='expenses',
         verbose_name="Kategori"
     )
+    regular_expense = models.ForeignKey(
+        'RegularExpense',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='generated_expenses',
+        verbose_name="Düzenli gider kaynağı"
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tutar (TL)")
+    reciever = models.CharField(
+        null=True, 
+        blank=True,
+        max_length=200, 
+        verbose_name="Alıcı / Firma / Kişi")
     expense_date = models.DateField(verbose_name="Harcama Tarihi")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
     period = models.CharField(
         max_length=7, 
         db_index=True, 
@@ -168,11 +180,64 @@ class Expense(models.Model):
         verbose_name="Kaydı Oluşturan"
     )
     created_at = models.DateTimeField(auto_now_add=True)
-
+    updated_at = models.DateTimeField(auto_now=True)
+   
     class Meta:
-        verbose_name = "Harcama / Gider Kaydı"
-        verbose_name_plural = "Harcama / Gider Kayıtları"
-        ordering = ['-expense_date']
+        verbose_name = "Gider Kaydı"
+        verbose_name_plural = "Gider Kayıtları"
+        ordering = ['updated_at']
+
+    def save(self, *args, **kwargs):
+        if self.expense_date:
+            self.period = self.expense_date.strftime('%Y-%m')
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.title} - {self.amount} TL ({self.expense_date})"
+        return f"{self.category.name} - {self.amount} TL ({self.expense_date})"
+
+class RegularExpense(models.Model):
+    """Düzenli Giderler (örn: Havuz Kirası, Personel Maaşı)"""
+    category = models.ForeignKey(
+        ExpenseCategory, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name='regular_expenses',
+        verbose_name="Kategori"
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tutar (TL)")
+    reciever = models.CharField(max_length=200, verbose_name="Alıcı / Firma / Kişi")
+    start_date = models.DateField(verbose_name="Başlangıç Tarihi")
+    end_date = models.DateField(null=True, blank=True, verbose_name="Bitiş Tarihi (Opsiyonel)")
+    frequency = models.CharField(
+        max_length=20,
+        choices=[
+            ('monthly', 'Aylık'),
+            ('quarterly', '3 Aylık'),
+            ('yearly', 'Yıllık'),
+        ],
+        default='monthly',
+        verbose_name="Frekans"
+    )
+    paymentDay = models.PositiveSmallIntegerField(
+        default=1,
+        null=True,
+        blank=True,
+        verbose_name="Ödeme Günü",
+        help_text="Örn: 15, 30. Boş bırakılırsa ödeme günü belirtilmemiş olur."
+    )
+    notes = models.TextField(blank=True, null=True, verbose_name="Açıklama / Detay")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="Kaydı Oluşturan"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Düzenli Gider"
+        verbose_name_plural = "Düzenli Giderler"
+        ordering = ['-start_date']
+
+    def __str__(self):
+        return f"{self.category.name} - {self.amount} TL ({self.frequency})"

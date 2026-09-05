@@ -110,28 +110,45 @@ class FinanceModelAndServiceTests(TestCase):
         period = "2026-08"
         payments = get_or_create_monthly_payments(period)
         
-        # Should create records for 2 approved athletes only
-        self.assertEqual(payments.count(), 2)
-        
-        p1 = PaymentRecord.objects.get(athlete=self.athlete1, period=period)
-        p2 = PaymentRecord.objects.get(athlete=self.athlete2, period=period)
-        
+        # Should return annotated athletes without creating records
+        self.assertEqual(len(payments), 2)
+
+        p1 = next(item for item in payments if item.id == self.athlete1.id)
+        p2 = next(item for item in payments if item.id == self.athlete2.id)
+
         self.assertEqual(p1.amount, Decimal('1500.00'))
         self.assertEqual(p2.amount, Decimal('1000.00'))
+        self.assertEqual(p1.payment_status, 'pending')
+        self.assertEqual(p2.payment_status, 'pending')
+        self.assertIsNone(p1.payment_record)
+        self.assertIsNone(p2.payment_record)
+        self.assertEqual(PaymentRecord.objects.filter(period=period, payment_type='fee').count(), 0)
         
-        # Calling function again should not create duplicate records (Idempotency check)
+        # Calling function again should still not create database rows
         payments_again = get_or_create_monthly_payments(period)
-        self.assertEqual(payments_again.count(), 2)
+        self.assertEqual(len(payments_again), 2)
+        self.assertEqual(PaymentRecord.objects.filter(period=period, payment_type='fee').count(), 0)
 
     def test_get_financial_summary(self):
         period = "2026-08"
         get_or_create_monthly_payments(period)
-        
-        # Mark athlete1 payment as paid
-        p1 = PaymentRecord.objects.get(athlete=self.athlete1, period=period)
-        p1.status = 'paid'
-        p1.collected_by = self.user
-        p1.save()
+        PaymentRecord.objects.create(
+            athlete=self.athlete1,
+            period=period,
+            amount=Decimal('1500.00'),
+            status='paid',
+            due_date=date(2026, 8, 15),
+            collected_by=self.user,
+            payment_type='fee'
+        )
+        PaymentRecord.objects.create(
+            athlete=self.athlete2,
+            period=period,
+            amount=Decimal('1000.00'),
+            status='pending',
+            due_date=date(2026, 8, 15),
+            payment_type='fee'
+        )
         
         # Create an expense
         Expense.objects.create(

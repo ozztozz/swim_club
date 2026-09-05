@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-7xl space-y-6">
+    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
+                <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary/10">↻</span>
+                Finans / Düzenli harcamalar
+            </div>
+            <h1 class="text-3xl font-black tracking-tight">Düzenli harcamalar</h1>
+            <p class="mt-1 text-sm text-base-content/60">Tekrarlayan kulüp giderlerini ve ödeme günlerini yönetin.</p>
+        </div>
+        <button class="btn btn-primary gap-2 shadow-lg shadow-primary/20"
+                hx-get="{% url 'regular-expense-create' %}?category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
+                hx-target="#regular-expense-modal-container"
+                hx-swap="innerHTML">
+            <span class="text-xl leading-none">+</span>
+            Yeni düzenli harcama
+        </button>
+    </header>
+
+    {% include 'finance/partials/_regular_expense_summary.html' %}
+
+    <section class="rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[1fr_auto_auto_auto] md:items-end">
+            <label class="form-control">
+                <span class="label label-text text-xs font-bold uppercase tracking-wider">Alıcı / firma ara</span>
+                <input type="search" name="q" value="{{ query }}" placeholder="Firma veya kişi adı" class="input input-bordered input-sm">
+            </label>
+            <label class="form-control">
+                <span class="label label-text text-xs font-bold uppercase tracking-wider">Kategori</span>
+                <select name="category" class="select select-bordered select-sm">
+                    <option value="">Tüm kategoriler</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="form-control">
+                <span class="label label-text text-xs font-bold uppercase tracking-wider">Durum</span>
+                <select name="status" class="select select-bordered select-sm">
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
+                    <option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option>
+                    <option value="expired" {% if status == 'expired' %}selected{% endif %}>Süresi dolmuş</option>
+                </select>
+            </label>
+            <button class="btn btn-neutral btn-sm">Filtrele</button>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr class="text-xs uppercase tracking-wider text-base-content/50">
+                        <th>Kategori</th>
+                        <th>Alıcı / firma</th>
+                        <th>Tutar</th>
+                        <th>Tekrar</th>
+                        <th>Ödeme günü</th>
+                        <th>Geçerlilik</th>
+                        <th class="text-right">İşlem</th>
+                    </tr>
+                </thead>
+                {% include 'finance/partials/_regular_expense_list_response.html' %}
+            </table>
+        </div>
+    </section>
+</div>
+
+<div id="regular-expense-modal-container"></div>
+
+<script>
+    document.body.addEventListener('closeRegularExpenseModal', function () {
+        const modal = document.getElementById('regular_expense_modal');
+        if (modal) modal.remove();
+        document.getElementById('regular-expense-modal-container').innerHTML = '';
+    });
+</script>
+{% endblock %}

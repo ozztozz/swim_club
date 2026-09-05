@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-3xl space-y-6">
+    <a href="{% url 'athlete-manage-list' %}" class="btn btn-ghost btn-sm">← Sporcu listesine dön</a>
+
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <div class="flex flex-col items-center gap-5 border-b border-base-200 p-6 sm:flex-row">
+            {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-28 w-28 rounded-full object-cover ring-4 ring-primary/10">{% else %}<div class="grid h-28 w-28 place-items-center rounded-full bg-primary/10 text-3xl font-black text-primary">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>{% endif %}
+            <div class="text-center sm:text-left">
+                <p class="text-sm font-bold uppercase tracking-widest text-primary">Sporcu profili</p>
+                <h1 class="mt-1 text-3xl font-black">{{ athlete.get_full_name }}</h1>
+                <p class="mt-1 text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takım ataması yok{% endif %}</p>
+                {% if athlete.status == 'approved' %}<span class="badge badge-success badge-outline mt-3">Onaylandı</span>{% elif athlete.status == 'pending' %}<span class="badge badge-warning badge-outline mt-3">Onay bekliyor</span>{% else %}<span class="badge badge-error badge-outline mt-3">Reddedildi</span>{% endif %}
+            </div>
+        </div>
+        <div class="flex justify-end border-b border-base-200 px-6 py-4"><button class="btn btn-primary" hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1" hx-target="#athlete-modal-container" hx-swap="innerHTML">Düzenle</button></div>
+        <dl class="grid gap-5 p-6 sm:grid-cols-2">
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Cinsiyet</dt><dd class="mt-1 font-semibold">{{ athlete.get_gender_display }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Doğum tarihi</dt><dd class="mt-1 font-semibold">{{ athlete.birth_date|date:'d.m.Y' }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Okul</dt><dd class="mt-1 font-semibold">{{ athlete.school|default:'Belirtilmedi' }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Lisans numarası</dt><dd class="mt-1 font-semibold">{{ athlete.license_number|default:'Belirtilmedi' }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Veli</dt><dd class="mt-1 font-semibold">{{ athlete.parent|default:'Belirtilmedi' }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Veli telefonu</dt><dd class="mt-1 font-semibold">{{ athlete.parent_phone|default:'Belirtilmedi' }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Veli e-postası</dt><dd class="mt-1 font-semibold">{{ athlete.parent_email|default:'Belirtilmedi' }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Sporcu telefonu</dt><dd class="mt-1 font-semibold">{{ athlete.phone_number|default:'Belirtilmedi' }}</dd></div>
+            <div><dt class="text-xs font-bold uppercase tracking-wider text-base-content/50">Kulübe katılım</dt><dd class="mt-1 font-semibold">{{ athlete.joined_date|date:'d.m.Y' }}</dd></div>
+        </dl>
+    </section>
+
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <div class="border-b border-base-200 p-6">
+            <p class="text-xs font-bold uppercase tracking-widest text-primary">Ödeme geçmişi</p>
+            <h2 class="mt-1 text-2xl font-black">Aylık ödemeler</h2>
+        </div>
+        <div class="divide-y divide-base-200">
+            {% for item in monthly_payments %}
+            {% include 'athlete/partials/athlete_payment_row.html' %}
+            {% empty %}
+            <p class="p-6 text-sm text-base-content/60">Henüz ödeme dönemi bulunmuyor.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+<div id="athlete-modal-container"></div>
+<div id="athlete-payment-modal-container"></div>
+<div id="athlete-payment-edit-modal-container"></div>
+<script>
+    document.body.addEventListener('closeAthleteModal', function () {
+        const modal = document.getElementById('athlete_modal');
+        if (modal) modal.remove();
+        document.getElementById('athlete-modal-container').innerHTML = '';
+    });
+    document.body.addEventListener('closeAthletePaymentModal', function () {
+        const modal = document.getElementById('athlete_payment_modal');
+        if (modal) modal.remove();
+        document.getElementById('athlete-payment-modal-container').innerHTML = '';
+    });
+    document.body.addEventListener('closeAthletePaymentEditModal', function () {
+        const modal = document.getElementById('athlete_payment_edit_modal');
+        if (modal) modal.remove();
+        document.getElementById('athlete-payment-edit-modal-container').innerHTML = '';
+    });
+</script>
+{% endblock %}

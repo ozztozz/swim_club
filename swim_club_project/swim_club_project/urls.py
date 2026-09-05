@@ -33,8 +33,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')),
     path('api/', include('athletes.urls')),
+    path('athletes/manage/', include('athletes.web_urls')),
     path('', include('athletes.urls')), # Dashboard URL'lerini dahil etmek için
     path('finance/', include('finance.urls')),
+    path('teams/', include('teams.urls')),
 ]
 
 # Geliştirme ortamında medya dosyalarını sunmak için

@@ -45,8 +45,8 @@ def get_athlete_fee_for_period(athlete, period_str):
 
 def get_or_create_monthly_payments(period_str=None):
     """
-    Belirtilen dönem (örn: '2026-08') için onaylı sporcuların 
-    AİDAT ('fee') borç kayıtlarını dinamik kontrol eder ve getirir.
+    Belirtilen dönem (örn: '2026-08') için onaylı sporcuları 
+    dönem aidatı ile birlikte döndürür.
     """
     if not period_str:
         period_str = date.today().strftime('%Y-%m')
@@ -54,42 +54,42 @@ def get_or_create_monthly_payments(period_str=None):
     year, month = map(int, period_str.split('-'))
     target_period_date = date(year, month, 1)
 
-    approved_athletes = Athlete.objects.filter(
+    approved_athletes = list(Athlete.objects.filter(
         status='approved', 
         is_active=True,
         joined_date__lte=target_period_date
-    )
-    
-    # Sadece 'fee' türündeki kayıtların sporcu ID'lerini çekiyoruz
-    existing_athlete_ids = set(
-        PaymentRecord.objects.filter(
-            period=period_str,
-            payment_type='fee'
-        ).values_list('athlete_id', flat=True)
-    )
+    ).select_related('team'))
 
-    new_records = []
     default_due_date = date(year, month, 15)
 
+    existing_payments = PaymentRecord.objects.filter(
+        period=period_str,
+        payment_type='fee',
+        athlete__in=approved_athletes
+    ).select_related('athlete', 'athlete__team')
+    existing_payments_by_athlete_id = {
+        payment.athlete_id: payment for payment in existing_payments
+    }
+
+    annotated_athletes = []
+
     for athlete in approved_athletes:
-        if athlete.id not in existing_athlete_ids:
-            # GÜNCELLEME: Anlık sabit fee yerine o döneme ait dinamik fiyatı çağırıyoruz
-            fee = get_athlete_fee_for_period(athlete, period_str)
-            
-            if fee > 0:
-                new_records.append(PaymentRecord(
-                    athlete=athlete,
-                    payment_type='fee',  # Varsayılan olarak Aidat borcu
-                    period=period_str,
-                    amount=fee,          # O aydaki geçerli tutar yazılır
-                    status='pending',
-                    due_date=default_due_date
-                ))
+        fee = get_athlete_fee_for_period(athlete, period_str)
 
-    if new_records:
-        PaymentRecord.objects.bulk_create(new_records)
+        if fee <= 0:
+            continue
 
-    return PaymentRecord.objects.filter(period=period_str).select_related('athlete', 'athlete__parent', 'athlete__team')
+        payment_record = existing_payments_by_athlete_id.get(athlete.id)
+        athlete.period = period_str
+        athlete.amount = fee
+        athlete.due_date = payment_record.due_date if payment_record else default_due_date
+        athlete.payment_record = payment_record
+        athlete.payment_status = payment_record.status if payment_record else 'pending'
+        athlete.paid_at = payment_record.paid_at if payment_record else None
+        athlete.collected_by = payment_record.collected_by if payment_record else None
+        annotated_athletes.append(athlete)
+
+    return annotated_athletes
 
 def get_financial_summary(period_str=None):
     """

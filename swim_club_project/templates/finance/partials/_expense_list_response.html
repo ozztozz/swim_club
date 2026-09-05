@@ -1,0 +1,16 @@
+<tbody id="expense-list">
+    {% for expense in expenses %}
+        {% include 'finance/partials/_expense_row.html' %}
+    {% empty %}
+    <tr id="empty-expense-state">
+        <td colspan="5" class="py-16 text-center">
+            <div class="mx-auto max-w-sm">
+                <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-base-200 text-2xl">₺</div>
+                <p class="font-bold">Bu filtreye uygun harcama yok</p>
+                <p class="mt-1 text-sm text-base-content/50">Yeni bir kayıt ekleyebilir veya filtreleri değiştirebilirsiniz.</p>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+{% include 'finance/partials/_expense_summary.html' with oob=True %}

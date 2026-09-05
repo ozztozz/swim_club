@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-4xl space-y-6">
+    <a href="{% url 'team-list' %}" class="btn btn-ghost btn-sm">← Takım listesine dön</a>
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <div class="flex flex-col gap-5 border-b border-base-200 p-6 sm:flex-row sm:items-start sm:justify-between sm:p-8">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-widest text-primary">Takım profili</p>
+                <div class="mt-2 flex flex-wrap items-center gap-3"><h1 class="text-3xl font-black">{{ team.name }}</h1>{% if team.is_active %}<span class="badge badge-success badge-outline">Aktif</span>{% else %}<span class="badge badge-ghost">Pasif</span>{% endif %}</div>
+                <p class="mt-3 max-w-2xl text-base-content/60">{{ team.description|default:'Takım açıklaması bulunmuyor.' }}</p>
+            </div>
+            <button class="btn btn-primary" hx-get="{% url 'team-update' team.pk %}?return_to_detail=1" hx-target="#team-modal-container" hx-swap="innerHTML">Düzenle</button>
+        </div>
+        <div class="grid gap-4 border-b border-base-200 p-6 sm:grid-cols-3">
+            <div class="rounded-xl bg-base-200/60 p-4"><p class="text-xs font-bold uppercase tracking-wider text-base-content/50">Antrenör</p><p class="mt-2 text-2xl font-black">{{ team.coaches.count|floatformat:0 }}</p></div>
+            <div class="rounded-xl bg-base-200/60 p-4"><p class="text-xs font-bold uppercase tracking-wider text-base-content/50">Sporcu</p><p class="mt-2 text-2xl font-black">{{ team.athletes.count|floatformat:0 }}</p></div>
+            <div class="rounded-xl bg-base-200/60 p-4"><p class="text-xs font-bold uppercase tracking-wider text-base-content/50">Aylık aidat</p><p class="mt-2 text-2xl font-black">{{ team.monthly_fee|floatformat:2 }} TL</p></div>
+        </div>
+        <div class="p-6 sm:p-8">
+            <h2 class="text-lg font-black">Sorumlu antrenörler</h2>
+            <div class="mt-3 flex flex-wrap gap-2">{% for coach in team.coaches.all %}<span class="badge badge-lg badge-ghost">{{ coach.get_full_name|default:coach.email }}</span>{% empty %}<span class="text-sm text-base-content/50">Antrenör atanmadı.</span>{% endfor %}</div>
+            <h2 class="mt-8 text-lg font-black">Takımdaki sporcular</h2>
+            <div class="mt-3 grid gap-2 sm:grid-cols-2">{% for athlete in team.athletes.all %}<a href="{% url 'athlete-manage-detail' athlete.pk %}" class="rounded-lg border border-base-200 px-4 py-3 text-sm font-semibold transition hover:border-primary/50">{{ athlete.get_full_name }}</a>{% empty %}<span class="text-sm text-base-content/50">Bu takımda sporcu bulunmuyor.</span>{% endfor %}</div>
+        </div>
+    </section>
+</div>
+<div id="team-modal-container"></div>
+<script>
+    document.body.addEventListener('closeTeamModal', function () {
+        const modal = document.getElementById('team_modal');
+        if (modal) modal.remove();
+        document.getElementById('team-modal-container').innerHTML = '';
+    });
+</script>
+{% endblock %}

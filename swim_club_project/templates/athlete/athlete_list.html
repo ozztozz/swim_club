@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-7xl space-y-6">
+    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <p class="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Kulüp yönetimi</p>
+            <h1 class="text-3xl font-black tracking-tight">Sporcular</h1>
+            <p class="mt-1 text-sm text-base-content/60">Sporcu kayıtlarını, takım atamalarını ve aidat bilgilerini yönetin.</p>
+        </div>
+        <button class="btn btn-primary" hx-get="{% url 'athlete-manage-create' %}" hx-target="#athlete-modal-container" hx-swap="innerHTML">
+            <span class="text-xl leading-none">+</span> Yeni sporcu
+        </button>
+    </header>
+
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[1fr_auto_auto] md:items-end">
+            <label class="form-control"><span class="label label-text text-xs font-bold uppercase tracking-wider">Sporcu ara</span><input type="search" name="q" value="{{ query }}" placeholder="Ad, soyad veya veli" class="input input-bordered input-sm"></label>
+            <label class="form-control"><span class="label label-text text-xs font-bold uppercase tracking-wider">Durum</span><select name="status" class="select select-bordered select-sm"><option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option><option value="pending" {% if status == 'pending' %}selected{% endif %}>Onay bekliyor</option><option value="approved" {% if status == 'approved' %}selected{% endif %}>Onaylandı</option><option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Reddedildi</option></select></label>
+            <button class="btn btn-neutral btn-sm">Filtrele</button>
+        </form>
+        {% include 'athlete/partials/athlete_table.html' %}
+    </section>
+</div>
+<div id="athlete-modal-container"></div>
+<script>
+    document.body.addEventListener('closeAthleteModal', function () {
+        const modal = document.getElementById('athlete_modal');
+        if (modal) modal.remove();
+        document.getElementById('athlete-modal-container').innerHTML = '';
+    });
+</script>
+{% endblock %}

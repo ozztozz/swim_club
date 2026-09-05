@@ -1,0 +1,24 @@
+<div id="athlete-table" class="space-y-8 p-5">
+    {% regroup athletes by team as team_groups %}
+    {% for group in team_groups %}
+    <section>
+        <div class="mb-3 flex items-center justify-between border-b border-base-200 pb-2">
+            <h2 class="text-lg font-black">{% if group.grouper %}{{ group.grouper.name }}{% else %}Takımsız sporcular{% endif %}</h2>
+            <span class="badge badge-ghost">{{ group.list|length }} sporcu</span>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {% for athlete in group.list %}
+            <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="card border border-base-300 bg-base-100 shadow-sm transition-shadow hover:shadow-md">
+                <div class="card-body flex-row items-center gap-4 p-4">
+                    {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-16 w-16 rounded-full object-cover ring-2 ring-primary/20">{% else %}<div class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-primary/10 text-lg font-black text-primary">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>{% endif %}
+                    <div class="min-w-0 flex-1">
+                        <h3 class="truncate font-bold">{{ athlete.get_full_name }}</h3>
+                        {% if athlete.status == 'approved' %}<span class="badge badge-success badge-outline mt-1">Onaylandı</span>{% elif athlete.status == 'pending' %}<span class="badge badge-warning badge-outline mt-1">Bekliyor</span>{% else %}<span class="badge badge-error badge-outline mt-1">Reddedildi</span>{% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% empty %}<div class="py-12 text-center text-base-content/60">Kayıt bulunamadı.</div>{% endfor %}
+</div>

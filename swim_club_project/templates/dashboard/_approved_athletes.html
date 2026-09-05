@@ -14,7 +14,7 @@
             {% for athlete in approved_athletes %}
             <tr class="hover:bg-base-200/40">
                 <td class="font-bold whitespace-nowrap">{{ athlete.first_name }} {{ athlete.last_name }}</td>
-                <td class="whitespace-nowrap">{{ athlete.parent.get_full_name|default:athlete.parent.username }}</td>
+                <td class="whitespace-nowrap">{{ athlete.parent }}</td>
                 <td class="whitespace-nowrap">
                     {% if athlete.team %}
                         <span class="badge badge-info text-white badge-sm">{{ athlete.team.name }}</span>

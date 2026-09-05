@@ -1,0 +1,12 @@
+<div id="payment-{{ item.period }}" class="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <p class="font-bold">{{ item.label }}</p>
+        <p class="mt-1 text-sm text-base-content/60">Aidat tutarı: {{ item.amount|floatformat:2 }} TL</p>
+    </div>
+    {% if item.is_paid %}<span class="badge badge-success gap-1 px-3 py-3">✓ Ödendi</span>{% endif %}
+    {% if item.payment %}
+    <button class="btn btn-sm btn-outline" hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.period %}" hx-target="#athlete-payment-edit-modal-container" hx-swap="innerHTML">Düzenle</button>
+    {% else %}
+    <button class="btn btn-sm btn-primary" hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.period %}" hx-target="#athlete-payment-edit-modal-container" hx-swap="innerHTML">Ödeme yap</button>
+    {% endif %}
+</div>

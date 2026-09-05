@@ -17,10 +17,16 @@ def dashboard_index(request):
         return redirect('parent-dashboard')  # Veli Dashboard
     pending_athletes = Athlete.objects.filter(status='pending')
     approved_athletes = Athlete.objects.filter(status='approved')
+    active_teams = Team.objects.filter(is_active=True).count()
+    athlete_count = Athlete.objects.count()
+    pending_payments = PaymentRecord.objects.filter(status='pending').count()
     
     return render(request, 'dashboard/index.html', {
         'pending_athletes': pending_athletes,
         'approved_athletes': approved_athletes,
+        'active_teams': active_teams,
+        'athlete_count': athlete_count,
+        'pending_payments': pending_payments,
     })
 
 @login_required
@@ -33,8 +39,9 @@ def search_approved_athletes_htmx(request):
         athletes = athletes.filter(
             Q(first_name__icontains=query) | 
             Q(last_name__icontains=query) |
-            Q(parent__first_name__icontains=query) |
-            Q(parent__last_name__icontains=query)
+            Q(parent__icontains=query) |
+            Q(parent_email__icontains=query) |
+            Q(parent_phone__icontains=query)
         )
         
     return render(request, 'dashboard/_approved_athletes.html', {'approved_athletes': athletes})
@@ -93,7 +100,7 @@ def edit_athlete_team_htmx(request, pk):
 @login_required
 def parent_dashboard(request):
     # Giriş yapan velinin onaylı/onaysız çocukları
-    children = Athlete.objects.filter(parent=request.user)
+    children = Athlete.objects.filter(parent_email=request.user.email)
     
     # Çocukların tüm ödeme kayıtları
     payments = PaymentRecord.objects.filter(

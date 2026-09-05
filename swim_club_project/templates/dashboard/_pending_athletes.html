@@ -14,7 +14,7 @@
             {% for athlete in pending_athletes %}
             <tr id="athlete-row-{{ athlete.id }}">
                 <td class="font-bold">{{ athlete.first_name }} {{ athlete.last_name }}</td>
-                <td>{{ athlete.parent.get_full_name }}</td>
+                <td>{{ athlete.parent }}</td>
                 <td>{{ athlete.birth_date|date:"d.m.Y" }}</td>
                 <td>{{ athlete.joined_date|date:"d.m.Y" }}</td>
                 <td class="flex justify-center gap-2">

@@ -12,15 +12,51 @@
 </head>
 <body class="bg-base-200 min-h-screen" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
-    <!-- Navbar -->
-    <div class="navbar bg-base-100 shadow-md px-6">
-        <div class="flex-1">
-            <a class="btn btn-ghost text-xl font-bold text-primary">Spor Kulübü Paneli</a>
+    <header class="sticky top-0 z-40 border-b border-base-300 bg-base-100/95 shadow-sm backdrop-blur">
+        <div class="navbar mx-auto max-w-7xl px-4 sm:px-6">
+            <div class="navbar-start">
+                <div class="dropdown">
+                    <label tabindex="0" class="btn btn-ghost btn-circle lg:hidden" aria-label="Menüyü aç">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </label>
+                    <ul tabindex="0" class="menu dropdown-content z-[1] mt-3 w-56 rounded-box border border-base-300 bg-base-100 p-2 shadow-xl">
+                        <li><a href="{% url 'dashboard-index' %}">Dashboard</a></li>
+                        <li><a href="{% url 'team-list' %}">Takımlar</a></li>
+                        <li><a href="{% url 'athlete-manage-list' %}">Sporcular</a></li>
+                        <li><a href="{% url 'finance-dashboard' %}">Finans</a></li>
+                    </ul>
+                </div>
+                <a href="{% url 'dashboard-index' %}" class="btn btn-ghost gap-2 px-2 text-lg font-black text-primary sm:text-xl">
+                    <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-content">S</span>
+                    <span class="hidden sm:inline">Spor Kulübü</span>
+                </a>
+            </div>
+
+            <nav class="navbar-center hidden lg:flex">
+                <ul class="menu menu-horizontal gap-1 px-1 font-semibold">
+                    <li><a href="{% url 'dashboard-index' %}">Dashboard</a></li>
+                    <li><a href="{% url 'team-list' %}">Takımlar</a></li>
+                    <li><a href="{% url 'athlete-manage-list' %}">Sporcular</a></li>
+                    <li><a href="{% url 'finance-dashboard' %}">Finans</a></li>
+                </ul>
+            </nav>
+
+            <div class="navbar-end gap-2">
+                <div class="hidden text-right sm:block">
+                    <p class="max-w-32 truncate text-sm font-bold">{{ request.user.get_full_name|default:request.user.username }}</p>
+                    <p class="text-xs text-base-content/50">{{ request.user.get_role_display }}</p>
+                </div>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-circle avatar placeholder" aria-label="Kullanıcı menüsü">
+                        <div class="w-9 rounded-full bg-primary text-primary-content"><span>{{ request.user.first_name|first|default:request.user.username|first|upper }}</span></div>
+                    </label>
+                    <ul tabindex="0" class="menu dropdown-content z-[1] mt-3 w-48 rounded-box border border-base-300 bg-base-100 p-2 shadow-xl">
+                        <li><a href="{% url 'user-logout' %}" class="text-error">Çıkış yap</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="flex-none gap-2">
-            <span class="badge badge-primary">{{ request.user.get_full_name|default:request.user.username }}</span>
-        </div>
-    </div>
+    </header>
 
     <!-- Main Content Container -->
     <main class="container mx-auto p-6">

@@ -1,0 +1,33 @@
+{% for expense in regular_expenses %}
+<tr class="border-b border-base-200 last:border-0">
+    <td>
+        {% if expense.category %}
+        <span class="badge badge-ghost font-medium">{{ expense.category.name }}</span>
+        {% else %}
+        <span class="text-sm text-base-content/40">Kategorisiz</span>
+        {% endif %}
+    </td>
+    <td class="font-semibold">{{ expense.reciever }}</td>
+    <td class="font-black text-error">{{ expense.amount|floatformat:2 }} TL</td>
+    <td><span class="badge badge-outline">{{ expense.get_frequency_display }}</span></td>
+    <td class="text-sm">{% if expense.paymentDay %}{{ expense.paymentDay }}. gün{% else %}-{% endif %}</td>
+    <td>
+        {% with generated_expenses=expense.generated_expenses.all %}
+            {% if generated_expenses %}
+            <span class="badge badge-success text-white">Ödendi</span>
+            {% else %}
+            <button type="button" class="btn btn-success btn-xs text-white"
+                    hx-get="{% url 'regular-expense-convert' expense.pk %}?source=expenses&period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML">
+                Harcamaya dönüştür
+            </button>
+            {% endif %}
+        {% endwith %}
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="6" class="py-10 text-center text-sm text-base-content/50">Aktif düzenli harcama bulunmuyor.</td>
+</tr>
+{% endfor %}

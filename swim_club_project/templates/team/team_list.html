@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-7xl space-y-6">
+    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <p class="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Kulüp yönetimi</p>
+            <h1 class="text-3xl font-black tracking-tight">Takımlar</h1>
+            <p class="mt-1 text-sm text-base-content/60">Takımları, antrenörleri ve aylık aidatlarını yönetin.</p>
+        </div>
+        <button class="btn btn-primary" hx-get="{% url 'team-create' %}" hx-target="#team-modal-container" hx-swap="innerHTML">
+            <span class="text-xl leading-none">+</span> Yeni takım
+        </button>
+    </header>
+
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[1fr_auto_auto] md:items-end">
+            <label class="form-control">
+                <span class="label label-text text-xs font-bold uppercase tracking-wider">Takım ara</span>
+                <input type="search" name="q" value="{{ query }}" placeholder="Takım adı" class="input input-bordered input-sm">
+            </label>
+            <label class="form-control">
+                <span class="label label-text text-xs font-bold uppercase tracking-wider">Durum</span>
+                <select name="status" class="select select-bordered select-sm">
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
+                    <option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Pasif</option>
+                </select>
+            </label>
+            <button class="btn btn-neutral btn-sm">Filtrele</button>
+        </form>
+        {% include 'team/partials/team_table.html' %}
+    </section>
+</div>
+<div id="team-modal-container"></div>
+<script>
+    document.body.addEventListener('closeTeamModal', function () {
+        const modal = document.getElementById('team_modal');
+        if (modal) modal.remove();
+        document.getElementById('team-modal-container').innerHTML = '';
+    });
+</script>
+{% endblock %}
