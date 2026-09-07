@@ -22,16 +22,16 @@ class AthleteForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
             'phone_number': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
             'tc_identity': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'maxlength': '11'}),
-            'birth_date': forms.DateInput(attrs={'class': 'input input-bordered w-full', 'type': 'date'}),
+            'birth_date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'input input-bordered w-full', 'type': 'date'}),
             'gender': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'school': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
             'license_number': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'joined_date': forms.DateInput(attrs={'class': 'input input-bordered w-full', 'type': 'date'}),
+            'joined_date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'input input-bordered w-full', 'type': 'date'}),
             'photo': forms.ClearableFileInput(attrs={'class': 'file-input file-input-bordered w-full'}),
             'status': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'toggle toggle-primary'}),
             'team': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'custom_fee': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'step': '0.01'}),
+            'custom_fee': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'decimal', 'data-money-input': 'true'}),
             'discount_percentage': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'step': '0.01', 'min': '0', 'max': '100'}),
             'regular_payment_day': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'min': '1', 'max': '31'}),
         }
@@ -56,7 +56,7 @@ class AthleteTeamForm(forms.ModelForm):
         decimal_places=2,
         required=False,
         label="Özel Aidat Tutar (TL)",
-        widget=forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'step': '0.01', 'placeholder': 'Takım aidatını kullanmak için boş bırakın'})
+        widget=forms.TextInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'decimal', 'data-money-input': 'true', 'placeholder': 'Takım aidatını kullanmak için boş bırakın'})
     )
 
     class Meta:
@@ -74,10 +74,10 @@ class AthletePaymentEditForm(forms.ModelForm):
         model = PaymentRecord
         fields = ('amount', 'payment_method', 'status', 'notes')
         widgets = {
-            'amount': forms.NumberInput(attrs={
+            'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
-                'step': '0.01',
-                'min': '0',
+                'inputmode': 'decimal',
+                'data-money-input': 'true',
             }),
             'payment_method': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'status': forms.Select(attrs={'class': 'select select-bordered w-full'}),
@@ -85,5 +85,36 @@ class AthletePaymentEditForm(forms.ModelForm):
                 'class': 'textarea textarea-bordered w-full',
                 'rows': 3,
                 'placeholder': 'Dekont no veya ödeme notu',
+            }),
+        }
+
+
+class AthletePaymentCreateForm(forms.ModelForm):
+    class Meta:
+        model = PaymentRecord
+        fields = (
+            'payment_type', 'period', 'amount', 'due_date',
+            'payment_method', 'status', 'notes',
+        )
+        widgets = {
+            'payment_type': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'period': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': '2026-09',
+            }),
+            'amount': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'inputmode': 'decimal',
+                'data-money-input': 'true',
+            }),
+            'due_date': forms.DateInput(format='%Y-%m-%d', attrs={
+                'class': 'input input-bordered w-full',
+                'type': 'date',
+            }),
+            'payment_method': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'status': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'notes': forms.Textarea(attrs={
+                'class': 'textarea textarea-bordered w-full',
+                'rows': 3,
             }),
         }

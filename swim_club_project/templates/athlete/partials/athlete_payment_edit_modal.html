@@ -5,7 +5,7 @@
         <form method="post" hx-post="{% url 'athlete-manage-payment-edit' athlete.pk period %}" hx-target="#payment-{{ period }}" hx-swap="outerHTML" class="mt-5 space-y-4">
             {% csrf_token %}
             {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
-            <label class="form-control"><span class="label label-text font-bold">Tutar</span>{{ form.amount }}{{ form.amount.errors }}</label>
+            <label class="form-control"><span class="label label-text font-bold">Tutar</span>{{ form.amount}}</label>
             <div class="grid gap-4 sm:grid-cols-2">
                 <label class="form-control"><span class="label label-text font-bold">Ödeme yöntemi</span>{{ form.payment_method }}{{ form.payment_method.errors }}</label>
                 <label class="form-control"><span class="label label-text font-bold">Durum</span>{{ form.status }}{{ form.status.errors }}</label>

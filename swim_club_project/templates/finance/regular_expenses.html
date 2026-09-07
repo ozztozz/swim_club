@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-7xl space-y-6">
-    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+<div class="mx-auto w-full max-w-7xl space-y-4">
+    <header class="flex flex-col gap-4 rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
             <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
                 <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary/10">↻</span>
@@ -11,7 +11,7 @@
             <h1 class="text-3xl font-black tracking-tight">Düzenli harcamalar</h1>
             <p class="mt-1 text-sm text-base-content/60">Tekrarlayan kulüp giderlerini ve ödeme günlerini yönetin.</p>
         </div>
-        <button class="btn btn-primary gap-2 shadow-lg shadow-primary/20"
+        <button class="btn btn-primary btn-sm gap-2"
                 hx-get="{% url 'regular-expense-create' %}?category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
                 hx-target="#regular-expense-modal-container"
                 hx-swap="innerHTML">
@@ -22,7 +22,7 @@
 
     {% include 'finance/partials/_regular_expense_summary.html' %}
 
-    <section class="rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+    <section class="rounded-xl border border-base-200 bg-base-100 shadow-sm">
         <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[1fr_auto_auto_auto] md:items-end">
             <label class="form-control">
                 <span class="label label-text text-xs font-bold uppercase tracking-wider">Alıcı / firma ara</span>

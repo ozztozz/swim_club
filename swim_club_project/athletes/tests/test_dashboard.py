@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from athletes.models import Athlete
 from teams.models import Team  # Dosyanın en üstündeki importlara ekleyin
+from finance.models import TeamFeeHistory
 import datetime
 
 User = get_user_model()
@@ -109,7 +110,12 @@ class DashboardViewsTests(TestCase):
 
     def test_athlete_current_monthly_fee_property(self):
         """Sporcunun takımına ve özel aidat durumuna göre net aidat hesabı doğru çalışmalı"""
-        team = Team.objects.create(name='A Takımı', monthly_fee=3000.00)
+        team = Team.objects.create(name='A Takımı')
+        TeamFeeHistory.objects.create(
+            team=team,
+            monthly_fee=3000.00,
+            start_date=datetime.date.today(),
+        )
         
         # 1. Takımsız ve özel ücretsiz
         self.assertEqual(self.athlete.current_monthly_fee, 0.00)
@@ -136,7 +142,7 @@ class DashboardViewsTests(TestCase):
     def test_admin_can_update_athlete_team_and_custom_fee_via_htmx(self):
         """Admin HTMX POST isteği ile sporcuya takım ve özel aidat atayabilmeli"""
         self.client.force_login(self.admin_user)
-        team = Team.objects.create(name='Performans Takımı', monthly_fee=2500.00)
+        team = Team.objects.create(name='Performans Takımı')
         edit_url = reverse('dashboard-edit-athlete-team', kwargs={'pk': self.athlete.pk})
 
         response = self.client.post(edit_url, {

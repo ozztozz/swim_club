@@ -5,12 +5,6 @@ from django.conf import settings
 class Team(models.Model):
     name = models.CharField(max_length=100, verbose_name="Takım / Grup Adı")
     description = models.TextField(blank=True, null=True, verbose_name="Açıklama / Yaş Grubu")
-    monthly_fee = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=0.00, 
-        verbose_name="Varsayılan Aylık Aidat (TL)"
-    )
     coaches = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         blank=True,
@@ -26,4 +20,4 @@ class Team(models.Model):
         verbose_name_plural = "Takımlar"
 
     def __str__(self):
-        return f"{self.name} ({self.monthly_fee} TL)"
+        return self.name

@@ -51,37 +51,39 @@
 
     </div>
 
-    <!-- 3. AİDAT LİSTESİ TABLOSU -->
-    <div class="bg-base-100 p-4 rounded-xl shadow-sm border border-base-200 space-y-3">
-        <h3 class="font-bold text-base flex items-center gap-2">
-            📋 {{ period }} Aidat Listesi
-        </h3>
+    <!-- 3. DÖNEM ÖDEME VE GİDER ÖZETLERİ -->
+    <div class="grid gap-4 lg:grid-cols-2">
+        <section class="bg-base-100 p-4 rounded-xl shadow-sm border border-base-200">
+            <h3 class="font-bold text-base">Ödeme durumu</h3>
+            <p class="mt-1 text-xs text-base-content/60">{{ period }} dönemindeki kişi sayıları</p>
+            <div class="mt-4 grid grid-cols-2 gap-3">
+                <div class="rounded-lg bg-success/10 p-4">
+                    <p class="text-xs font-medium text-success">Ödendi</p>
+                    <p class="mt-1 text-2xl font-black">{{ payment_counts.paid }}</p>
+                    <p class="text-xs text-base-content/60">kişi</p>
+                </div>
+                <div class="rounded-lg bg-warning/10 p-4">
+                    <p class="text-xs font-medium text-warning">Bekliyor</p>
+                    <p class="mt-1 text-2xl font-black">{{ payment_counts.pending }}</p>
+                    <p class="text-xs text-base-content/60">kişi</p>
+                </div>
+            </div>
+        </section>
 
-        <div class="overflow-x-auto">
-            <table class="table table-sm w-full">
-                <thead>
-                    <tr>
-                        <th class="text-right">İşlem</th>
-                        <th>Sporcu</th>
-                        <th>Dönem</th>
-                        <th>Tutar</th>
-                        <th>Tahsilat Detayı</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for athlete_fee in approved_athletes %}
-                        {% include 'finance/partials/_payment_row.html' with payment=athlete_fee %}
-                    {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-xs text-gray-500">
-                                Bu döneme ait aidat bilgisi bulunamadı.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <section class="bg-base-100 p-4 rounded-xl shadow-sm border border-base-200">
+            <h3 class="font-bold text-base">Kategori bazlı harcamalar</h3>
+            <p class="mt-1 text-xs text-base-content/60">{{ period }} dönemindeki aktif giderler</p>
+            <div class="mt-4 divide-y divide-base-200">
+                {% for category in expense_summary.category_totals %}
+                <div class="flex items-center justify-between py-2 text-sm">
+                    <span>{{ category.name }}</span>
+                    <span class="font-bold text-error">{{ category.total|floatformat:2 }} TL</span>
+                </div>
+                {% empty %}
+                <p class="py-3 text-sm text-base-content/60">Bu dönemde harcama bulunmuyor.</p>
+                {% endfor %}
+            </div>
+        </section>
     </div>
 
 </div>

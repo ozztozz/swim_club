@@ -1,6 +1,6 @@
 # finance/admin.py
 from django.contrib import admin
-from .models import PaymentRecord, ExpenseCategory, Expense,RegularExpense
+from .models import PaymentRecord, ExpenseCategory, Expense,RegularExpense,TeamFeeHistory
 
 @admin.register(PaymentRecord)
 class PaymentRecordAdmin(admin.ModelAdmin):
@@ -28,3 +28,7 @@ class RegularExpenseAdmin(admin.ModelAdmin):
     list_filter = ('paymentDay', 'category')
     search_fields = ('reciever', 'notes')
     ordering = ('-paymentDay',)
+
+@admin.register(TeamFeeHistory)
+class TeamFeeHistoryAdmin(admin.ModelAdmin):
+    list_display = ('team', 'monthly_fee', 'start_date', 'end_date')

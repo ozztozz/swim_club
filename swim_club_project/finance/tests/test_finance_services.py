@@ -4,8 +4,8 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from teams.models import Team
 from athletes.models import Athlete
-from finance.models import PaymentRecord, ExpenseCategory, Expense
-from finance.services import get_or_create_monthly_payments, get_financial_summary
+from finance.models import PaymentRecord, ExpenseCategory, Expense, TeamFeeHistory
+from finance.services import get_athlete_fee_for_period, get_or_create_monthly_payments, get_financial_summary
 
 User = get_user_model()
 
@@ -34,8 +34,12 @@ class FinanceModelAndServiceTests(TestCase):
         # Takım
         self.team = Team.objects.create(
             name="A Takımı",
-            monthly_fee=Decimal('1500.00'),
             is_active=True
+        )
+        TeamFeeHistory.objects.create(
+            team=self.team,
+            monthly_fee=Decimal('1500.00'),
+            start_date=date(2026, 1, 1),
         )
         
         # Onaylı Sporcular (parent ve joined_date eklendi)
@@ -131,7 +135,6 @@ class FinanceModelAndServiceTests(TestCase):
 
     def test_get_financial_summary(self):
         period = "2026-08"
-        get_or_create_monthly_payments(period)
         PaymentRecord.objects.create(
             athlete=self.athlete1,
             period=period,
@@ -139,14 +142,6 @@ class FinanceModelAndServiceTests(TestCase):
             status='paid',
             due_date=date(2026, 8, 15),
             collected_by=self.user,
-            payment_type='fee'
-        )
-        PaymentRecord.objects.create(
-            athlete=self.athlete2,
-            period=period,
-            amount=Decimal('1000.00'),
-            status='pending',
-            due_date=date(2026, 8, 15),
             payment_type='fee'
         )
         
@@ -167,3 +162,22 @@ class FinanceModelAndServiceTests(TestCase):
         self.assertEqual(summary['pending_income'], Decimal('1000.00'))
         self.assertEqual(summary['total_expense'], Decimal('500.00'))
         self.assertEqual(summary['net_balance'], 1000.00) # 1500 - 500 = 1000
+
+    def test_team_fee_history_is_resolved_for_payment_period(self):
+        current_fee = TeamFeeHistory.objects.get(team=self.team)
+        current_fee.end_date = date(2026, 8, 31)
+        current_fee.save(update_fields=['end_date'])
+        TeamFeeHistory.objects.create(
+            team=self.team,
+            monthly_fee=Decimal('1800.00'),
+            start_date=date(2026, 9, 1),
+        )
+
+        self.assertEqual(
+            get_athlete_fee_for_period(self.athlete1, '2026-08'),
+            Decimal('1500.00'),
+        )
+        self.assertEqual(
+            get_athlete_fee_for_period(self.athlete1, '2026-09'),
+            Decimal('1800.00'),
+        )

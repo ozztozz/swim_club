@@ -1,0 +1,81 @@
+K,Esila Duru, Tutkun, 2008, Kırmızı Takım
+E,Çağan Yusuf, Tunç, 2012, Kırmızı Takım
+E,Can Tuna, Gençaslan, 2012, Kırmızı Takım
+K,Rabia, Tunç, 2012, Kırmızı Takım
+K,İnci, Yılmaz, 2012, Kırmızı Takım
+E,Mustafa Yağız, Altınkaya, 2012, Kırmızı Takım
+E,Mustafa Emir, Çoban, 2013, Kırmızı Takım
+E,Ömer, Baydar, 2013, Kırmızı Takım
+K,Ece Nur, Kaplancı, 2013, Kırmızı Takım
+E,Batuhan, Arslan, 2014, Kırmızı Takım
+E,Çınar, Köysüren, 2014, Kırmızı Takım
+E,Mert Kaan, Coşkuner, 2014, Kırmızı Takım
+K,Necla Mira, Oktay, 2014, Kırmızı Takım
+K,Mina Güneş, Kılıç, 2014, Kırmızı Takım
+E,Berk, Akkülah, 2014, Kırmızı Takım
+E,Bulut, Topçu, 2012, Kırmızı Takım
+
+K,Bilge, Özdoğan, 2015, Mavi Takım
+K,Nil, Ela, 2015, Mavi Takım
+E,Deniz Uras, Ağardan, 2016, Mavi Takım
+K,Aişa, Durgun, 2015, Mavi Takım
+E,Rüzgar, Ağaoğlu, 2014, Mavi Takım
+E,Toprak, Ağaoğlu, 2011, Mavi Takım
+E,Alp Teo, Baylam, 2013, Mavi Takım
+E,Emir Kaan, Tosun, 2011, Mavi Takım
+K,Defne, Biçim, 2014, Mavi Takım
+
+K,Ela, İnce, 2018, Turuncu Takım
+E,Ege, Karabacakoğlu, 2018, Turuncu Takım
+K,Mila, Çınar, 2019, Turuncu Takım
+K,Nil, Kökdemir, 2019, Turuncu Takım
+K,Yağmur Defne, Baltacı, 2018, Turuncu Takım
+K,Umay Ece, Aydemir, 2018, Turuncu Takım
+E,Demir, İçli, 2018, Turuncu Takım
+K,Derin, Seymen, 2018, Turuncu Takım
+E,Kerem, Özçelikkale, 2018, Turuncu Takım
+K,Ada, Duran, 2018, Turuncu Takım
+K,Defne Zeynep, Öztürk, 2018, Turuncu Takım
+K,Mila, Akıllı, 2017, Turuncu Takım
+K,Elif Naz, Akdağ, 2016, Turuncu Takım
+E,Uras, Baydar, 2019, Turuncu Takım
+
+K,Deren, Özer, 2020, Sarı Takım
+K,Ekin, Öztoprak, 2020, Sarı Takım
+K,Miray Ada, Aydemir, 2021, Sarı Takım
+E,Efe, Ince, 2021, Sarı Takım
+K,Beren, Erceyiş, 2020, Sarı Takım
+E,Kerem, Erceyiş, 2020, Sarı Takım
+E,Hazar, Kaplan, 2020, Sarı Takım
+K,Mila, Konuk, 2019, Sarı Takım
+E,Arjin, Bozçalı, 2019, Sarı Takım
+K,Aysu, Yücesoy, 2020, Sarı Takım
+K,Neva, Akguş, 2020, Sarı Takım
+
+K,Deniz Umut, Kırbaş, 2017, Beyaz Takım
+E,Alaz, Mumcuoğlu, 2017, Beyaz Takım
+K,Elif, Öztoprak, 2016, Beyaz Takım
+E,Aybars, Yücesoy, 2016, Beyaz Takım
+E,Kerem Sarp, Büyük, 2015, Beyaz Takım
+E,Ali, Çeken, 2016, Beyaz Takım
+E,Alp, Duran, 2015, Beyaz Takım
+E,Yusuf Görkem, Dönmez, 2017, Beyaz Takım
+E,Kerem Ata, Başyiğit, 2014, Beyaz Takım
+K,Elora, Buse, 2014, Beyaz Takım
+
+K,Duru, Özer, 2023, H.S 9.00-10.00 Kursiyer
+E,Batu Alp, Büyük, 2021, H.S 9.00-10.00 Kursiyer
+
+E,Engin Furkan, Dursun, 2021, H.S 13.30-14.30 Kursiyer
+E,Poyraz, Güldal, 2021, H.S 13.30-14.30 Kursiyer
+E,Umut, Akdemir, 2021, H.S 13.30-14.30 Kursiyer
+E,İnci, Eğturul, 2021, H.S 13.30-14.30 Kursiyer
+E,Alperen, Kumru, 2019, H.S 13.30-14.30 Kursiyer
+E,Mert Osman, Karademir, 2019, H.S 13.30-14.30 Kursiyer
+E,İsmail Sinan, Kılınç, 2019, H.S 13.30-14.30 Kursiyer
+K,Berrin, Kılınç, 2013, H.S 13.30-14.30 Kursiyer
+
+E,Atakan, Güloğlu, 2016, H.İ 18.00-19.00 Kursiyer
+E,Can Arel, Tahta, 2018, H.İ 18.00-19.00 Kursiyer
+E,Görkem Ege, Yılmaz, 2021, H.İ 18.00-19.00 Kursiyer
+E,Emir, Gani, 2018, H.İ 18.00-19.00 Kursiyer

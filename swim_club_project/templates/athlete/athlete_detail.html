@@ -29,9 +29,12 @@
     </section>
 
     <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="border-b border-base-200 p-6">
+        <div class="flex flex-col gap-3 border-b border-base-200 p-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
             <p class="text-xs font-bold uppercase tracking-widest text-primary">Ödeme geçmişi</p>
             <h2 class="mt-1 text-2xl font-black">Aylık ödemeler</h2>
+            </div>
+            <button class="btn btn-primary btn-sm" hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}" hx-target="#athlete-payment-create-modal-container" hx-swap="innerHTML">Ödeme ekle</button>
         </div>
         <div class="divide-y divide-base-200">
             {% for item in monthly_payments %}
@@ -45,6 +48,7 @@
 <div id="athlete-modal-container"></div>
 <div id="athlete-payment-modal-container"></div>
 <div id="athlete-payment-edit-modal-container"></div>
+<div id="athlete-payment-create-modal-container"></div>
 <script>
     document.body.addEventListener('closeAthleteModal', function () {
         const modal = document.getElementById('athlete_modal');

@@ -8,9 +8,12 @@
             <h1 class="text-3xl font-black tracking-tight">Takımlar</h1>
             <p class="mt-1 text-sm text-base-content/60">Takımları, antrenörleri ve aylık aidatlarını yönetin.</p>
         </div>
-        <button class="btn btn-primary" hx-get="{% url 'team-create' %}" hx-target="#team-modal-container" hx-swap="innerHTML">
-            <span class="text-xl leading-none">+</span> Yeni takım
-        </button>
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'fee-management' %}" class="btn btn-outline btn-secondary">Ücret yönetimi</a>
+            <button class="btn btn-primary" hx-get="{% url 'team-create' %}" hx-target="#team-modal-container" hx-swap="innerHTML">
+                <span class="text-xl leading-none">+</span> Yeni takım
+            </button>
+        </div>
     </header>
 
     <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">

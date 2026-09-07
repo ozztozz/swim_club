@@ -43,10 +43,10 @@ class ExpenseForm(forms.ModelForm):
         }
         widgets = {
             'category': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'amount': forms.NumberInput(attrs={
+            'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
-                'step': '0.01',
-                'min': '0.01',
+                'inputmode': 'decimal',
+                'data-money-input': 'true',
                 'placeholder': '0,00',
             }),
             'reciever': forms.TextInput(attrs={
@@ -119,10 +119,10 @@ class RegularExpenseForm(forms.ModelForm):
         }
         widgets = {
             'category': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'amount': forms.NumberInput(attrs={
+            'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
-                'step': '0.01',
-                'min': '0.01',
+                'inputmode': 'decimal',
+                'data-money-input': 'true',
                 'placeholder': '0,00',
             }),
             'reciever': forms.TextInput(attrs={

@@ -68,7 +68,16 @@ class Athlete(models.Model):
         if self.custom_fee is not None:
             return self.custom_fee
         if self.team:
-            return self.team.monthly_fee
+            from datetime import date
+            from finance.models import TeamFeeHistory
+
+            current_fee = TeamFeeHistory.objects.filter(
+                team=self.team,
+                start_date__lte=date.today(),
+            ).filter(
+                models.Q(end_date__isnull=True) | models.Q(end_date__gte=date.today())
+            ).first()
+            return current_fee.monthly_fee if current_fee else 0.00
         return 0.00
 
     def save(self, *args, **kwargs):

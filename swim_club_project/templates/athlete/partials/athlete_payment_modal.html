@@ -7,7 +7,7 @@
             <p class="font-bold">{{ athlete.get_full_name }}</p>
             <div class="mt-3 flex items-center justify-between border-t border-base-300 pt-3">
                 <span class="text-sm text-base-content/60">Ödenecek tutar</span>
-                <strong class="text-xl">{{ item.amount|floatformat:2 }} TL</strong>
+                <strong class="text-xl">{% if item.payment %}{{ item.payment.amount|floatformat:2 }}{% else %}{{ item.amount|floatformat:2 }}{% endif %} TL</strong>
             </div>
             <div class="mt-3 flex items-center justify-between border-t border-base-300 pt-3">
                 <span class="text-sm text-base-content/60">Ödeme yöntemi</span>

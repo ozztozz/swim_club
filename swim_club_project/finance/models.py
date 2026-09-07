@@ -31,7 +31,7 @@ class PaymentRecord(models.Model):
         ('membership', 'Üyelik'),
         ('bank_transfer', 'Banka / Havale Geliri'),
         ('sponsorship', 'Sponsorluk'),
-        ('event_license', 'Lisans / Etkinlik Ücreti'),
+        ('camping_fee', 'Kamp Ücreti'),
         ('other', 'Diğer'),
     ]
 

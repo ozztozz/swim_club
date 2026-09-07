@@ -11,8 +11,9 @@ def get_athlete_fee_for_period(athlete, period_str):
     Belirtilen dönem (örn: '2026-08') tarihindeki geçerli aidat tutarını belirler.
     Öncelik Sırası:
     1. Sporcuya özel tanımlanmış tarihli fiyat geçmişi
-    2. Takıma özel tanımlanmış tarihli fiyat geçmişi
-    3. Sporcunun üzerindeki anlık 'current_monthly_fee' varsayılan değeri
+    2. Sporcunun güncel özel ücreti
+    3. Takıma özel tanımlanmış tarihli fiyat geçmişi
+    4. Geçerli ücret bulunamazsa sıfır
     """
     year, month = map(int, period_str.split('-'))
     target_date = date(year, month, 1)  # İlgili ayın 1. günü itibarıyla geçerli fiyat
@@ -28,7 +29,10 @@ def get_athlete_fee_for_period(athlete, period_str):
     if athlete_fee:
         return athlete_fee.monthly_fee
 
-    # 2. Takımın o tarihte geçerli fiyatı var mı?
+    if athlete.custom_fee is not None:
+        return athlete.custom_fee
+
+    # 3. Takımın o tarihte geçerli fiyatı var mı?
     if athlete.team:
         team_fee = TeamFeeHistory.objects.filter(
             team=athlete.team,
@@ -40,8 +44,7 @@ def get_athlete_fee_for_period(athlete, period_str):
         if team_fee:
             return team_fee.monthly_fee
 
-    # 3. Geçmiş kaydı bulunamadıysa varsayılan alan
-    return athlete.current_monthly_fee or Decimal('0.00')
+    return Decimal('0.00')
 
 def get_or_create_monthly_payments(period_str=None):
     """
@@ -54,8 +57,7 @@ def get_or_create_monthly_payments(period_str=None):
     year, month = map(int, period_str.split('-'))
     target_period_date = date(year, month, 1)
 
-    approved_athletes = list(Athlete.objects.filter(
-        status='approved', 
+    active_athletes = list(Athlete.objects.filter(
         is_active=True,
         joined_date__lte=target_period_date
     ).select_related('team'))
@@ -65,7 +67,7 @@ def get_or_create_monthly_payments(period_str=None):
     existing_payments = PaymentRecord.objects.filter(
         period=period_str,
         payment_type='fee',
-        athlete__in=approved_athletes
+        athlete__in=active_athletes
     ).select_related('athlete', 'athlete__team')
     existing_payments_by_athlete_id = {
         payment.athlete_id: payment for payment in existing_payments
@@ -73,7 +75,7 @@ def get_or_create_monthly_payments(period_str=None):
 
     annotated_athletes = []
 
-    for athlete in approved_athletes:
+    for athlete in active_athletes:
         fee = get_athlete_fee_for_period(athlete, period_str)
 
         if fee <= 0:
@@ -99,17 +101,19 @@ def get_financial_summary(period_str=None):
     if not period_str:
         period_str = date.today().strftime('%Y-%m')
 
-    # Tahsil edilen aidatlar
-    total_income = PaymentRecord.objects.filter(
-        period=period_str, 
-        status='paid'
-    ).aggregate(total=Sum('amount'))['total'] or 0.00
+    monthly_payments = get_or_create_monthly_payments(period_str)
 
-    # Bekleyen / Gecikmiş aidat alacakları
-    pending_income = PaymentRecord.objects.filter(
-        period=period_str, 
-        status='pending'
-    ).aggregate(total=Sum('amount'))['total'] or 0.00
+    # Tahsilat yalnızca aktif sporcuların gerçek ödeme kayıtlarından hesaplanır.
+    total_income = PaymentRecord.objects.filter(
+        period=period_str,
+        payment_type='fee',
+        status='paid',
+        athlete__is_active=True,
+    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+    pending_income = sum(
+        (payment.amount for payment in monthly_payments if payment.payment_status != 'paid'),
+        Decimal('0.00'),
+    )
 
     # Gerçekleşen harcamalar
     total_expense = Expense.objects.filter(

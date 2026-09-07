@@ -7,7 +7,7 @@
             {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
             <label class="form-control"><span class="label label-text font-bold">Takım adı</span>{{ form.name }}{% if form.name.errors %}<span class="label-text-alt text-error">{{ form.name.errors|striptags }}</span>{% endif %}</label>
             <label class="form-control"><span class="label label-text font-bold">Açıklama</span>{{ form.description }}</label>
-            <div class="grid gap-4 sm:grid-cols-2"><label class="form-control"><span class="label label-text font-bold">Aylık aidat (TL)</span>{{ form.monthly_fee }}</label><label class="form-control"><span class="label label-text font-bold">Antrenörler</span>{{ form.coaches }}</label></div>
+            <label class="form-control"><span class="label label-text font-bold">Antrenörler</span>{{ form.coaches }}</label>
             <label class="label cursor-pointer justify-start gap-3"><span class="label-text font-bold">Aktif takım</span>{{ form.is_active }}</label>
             <div class="modal-action"><button type="button" class="btn btn-ghost" onclick="document.getElementById('team_modal').remove()">İptal</button><button class="btn btn-primary" type="submit">{{ submit_label }}</button></div>
         </form>

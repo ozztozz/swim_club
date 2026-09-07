@@ -3,7 +3,7 @@
         <div class="border-b border-base-200 px-5 py-4 sm:px-6">
             <h3 class="text-xl font-black sm:text-2xl">{{ modal_title }}</h3>
         </div>
-        <form method="post" enctype="multipart/form-data" hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}" hx-target="#athlete-table" hx-swap="outerHTML" class="max-h-[calc(90vh-5rem)] space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
+        <form method="post" enctype="multipart/form-data" hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}" hx-target="{% if return_to_detail %}#athlete-modal-container{% else %}#athlete-table{% endif %}" hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}" class="max-h-[calc(90vh-5rem)] space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
             {% csrf_token %}
             {% if return_to_detail %}<input type="hidden" name="return_to_detail" value="1">{% endif %}
             {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}

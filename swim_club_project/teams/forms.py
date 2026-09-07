@@ -8,7 +8,7 @@ from .models import Team
 class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
-        fields = ('name', 'description', 'monthly_fee', 'coaches', 'is_active')
+        fields = ('name', 'description', 'coaches', 'is_active')
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
@@ -18,11 +18,6 @@ class TeamForm(forms.ModelForm):
                 'class': 'textarea textarea-bordered w-full',
                 'rows': 3,
                 'placeholder': 'Yaş grubu veya takım hakkında kısa bilgi',
-            }),
-            'monthly_fee': forms.NumberInput(attrs={
-                'class': 'input input-bordered w-full',
-                'min': '0',
-                'step': '0.01',
             }),
             'coaches': forms.SelectMultiple(attrs={
                 'class': 'select select-bordered h-28 w-full',

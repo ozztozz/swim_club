@@ -4,13 +4,15 @@ from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .forms import AthleteForm, AthletePaymentEditForm
+from .forms import AthleteForm, AthletePaymentCreateForm, AthletePaymentEditForm
 from .models import Athlete
 from .serializers import AthleteSerializer
 from finance.models import PaymentRecord
@@ -52,6 +54,8 @@ def athlete_list(request):
 
 @login_required
 def athlete_detail(request, pk):
+    from finance.services import get_athlete_fee_for_period
+
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     first_month = athlete.joined_date.replace(day=1)
     current_month = date.today().replace(day=1)
@@ -71,11 +75,10 @@ def athlete_detail(request, pk):
         monthly_payments.append({
             'period': period,
             'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
-            'amount': athlete.custom_fee if athlete.custom_fee is not None else (
-                athlete.team.monthly_fee if athlete.team else Decimal('0.00')
-            ),
+            'amount': get_athlete_fee_for_period(athlete, period),
             'payment': payment,
             'is_paid': payment is not None and payment.status == 'paid',
+            'status': payment.status if payment else 'pending',
         })
         displayed_months += 1
         if period_month.month == 1:
@@ -91,6 +94,8 @@ def athlete_detail(request, pk):
 
 @login_required
 def athlete_make_payment(request, pk, period):
+    from finance.services import get_athlete_fee_for_period
+
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     try:
         year, month = map(int, period.split('-'))
@@ -98,9 +103,7 @@ def athlete_make_payment(request, pk, period):
     except (TypeError, ValueError):
         return render(request, 'athlete/partials/athlete_payment_modal.html', {}, status=400)
 
-    amount = athlete.custom_fee if athlete.custom_fee is not None else (
-        athlete.team.monthly_fee if athlete.team else Decimal('0.00')
-    )
+    amount = get_athlete_fee_for_period(athlete, period)
     payment = PaymentRecord.objects.filter(
         athlete=athlete,
         period=period,
@@ -112,6 +115,7 @@ def athlete_make_payment(request, pk, period):
         'amount': amount,
         'payment': payment,
         'is_paid': payment is not None and payment.status == 'paid',
+        'status': payment.status if payment else 'pending',
     }
 
     if request.method == 'GET':
@@ -144,6 +148,7 @@ def athlete_make_payment(request, pk, period):
 
     item['payment'] = payment
     item['is_paid'] = True
+    item['status'] = payment.status
     response = render(request, 'athlete/partials/athlete_payment_row.html', {
         'athlete': athlete,
         'item': item,
@@ -153,7 +158,43 @@ def athlete_make_payment(request, pk, period):
 
 
 @login_required
+def athlete_create_payment(request, pk):
+    athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
+    if request.method == 'POST':
+        form = AthletePaymentCreateForm(request.POST)
+        if form.is_valid():
+            payment = form.save(commit=False)
+            payment.athlete = athlete
+            if payment.status == 'paid':
+                payment.paid_at = payment.paid_at or timezone.now()
+                payment.collected_by = request.user
+            else:
+                payment.paid_at = None
+                payment.collected_by = None
+            payment.save()
+            response = HttpResponse(status=204)
+            response['HX-Redirect'] = request.build_absolute_uri(
+                reverse('athlete-manage-detail', args=[athlete.pk])
+            )
+            return response
+    else:
+        form = AthletePaymentCreateForm(initial={
+            'period': date.today().strftime('%Y-%m'),
+            'due_date': date.today().replace(day=15),
+            'payment_method': 'cash',
+            'status': 'paid',
+        })
+
+    return render(request, 'athlete/partials/athlete_payment_create_modal.html', {
+        'athlete': athlete,
+        'form': form,
+    })
+
+
+@login_required
 def athlete_edit_payment(request, pk, period):
+    from finance.services import get_athlete_fee_for_period
+
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     payment = PaymentRecord.objects.filter(
         athlete=athlete,
@@ -179,12 +220,13 @@ def athlete_edit_payment(request, pk, period):
             payment.save()
             return _athlete_payment_row_response(request, athlete, period, payment)
     else:
-        form = AthletePaymentEditForm(instance=payment, initial={
-            'amount': athlete.custom_fee if athlete.custom_fee is not None else (
-                athlete.team.monthly_fee if athlete.team else Decimal('0.00')
-            ),
-            'status': 'paid' if payment is None else payment.status,
-        })
+        if payment:
+            form = AthletePaymentEditForm(instance=payment)
+        else:
+            form = AthletePaymentEditForm(instance=payment, initial={
+                'amount': get_athlete_fee_for_period(athlete, period),
+                'status': 'paid',
+            })
 
     return render(request, 'athlete/partials/athlete_payment_edit_modal.html', {
         'athlete': athlete,
@@ -207,6 +249,7 @@ def _athlete_payment_row_response(request, athlete, period, payment):
         'amount': payment.amount,
         'payment': payment,
         'is_paid': payment.status == 'paid',
+        'status': payment.status,
     }
     response = render(request, 'athlete/partials/athlete_payment_row.html', {
         'athlete': athlete,
@@ -270,7 +313,9 @@ def athlete_update(request, pk):
         form.save()
         if request.POST.get('return_to_detail'):
             response = render(request, 'athlete/athlete_detail.html', {'athlete': athlete})
-            response['HX-Redirect'] = request.build_absolute_uri()
+            response['HX-Redirect'] = request.build_absolute_uri(
+                reverse('athlete-manage-detail', args=[athlete.pk])
+            )
             return response
         response = render(request, 'athlete/partials/athlete_table.html', _athlete_context(request))
         response['HX-Trigger'] = 'closeAthleteModal'

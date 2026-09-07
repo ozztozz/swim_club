@@ -9,6 +9,59 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- HTMX CDN -->
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    <script>
+        (function () {
+            function formatMoneyInput(input) {
+                const raw = input.value.replace(/\s/g, '');
+                if (!raw) return;
+
+                const separator = Math.max(raw.lastIndexOf(','), raw.lastIndexOf('.'));
+                const hasDecimal = separator >= 0 && raw.length - separator - 1 <= 2;
+                const integerPart = (hasDecimal ? raw.slice(0, separator) : raw).replace(/\D/g, '') || '0';
+                const decimalPart = hasDecimal ? raw.slice(separator + 1).replace(/\D/g, '').slice(0, 2) : '';
+                const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                input.value = hasDecimal ? `${formattedInteger},${decimalPart}` : formattedInteger;
+            }
+
+            function normalizeMoneyValue(value) {
+                const raw = value.replace(/\s/g, '');
+                if (!raw) return '';
+                const separator = Math.max(raw.lastIndexOf(','), raw.lastIndexOf('.'));
+                const hasDecimal = separator >= 0 && raw.length - separator - 1 <= 2;
+                const integerPart = (hasDecimal ? raw.slice(0, separator) : raw).replace(/\D/g, '') || '0';
+                const decimalPart = hasDecimal ? raw.slice(separator + 1).replace(/\D/g, '').slice(0, 2).padEnd(2, '0') : '00';
+                return `${integerPart}.${decimalPart}`;
+            }
+
+            function prepareMoneyInputs(root) {
+                root.querySelectorAll('[data-money-input="true"]').forEach(function (input) {
+                    if (input.dataset.moneyReady) return;
+                    input.dataset.moneyReady = 'true';
+                    formatMoneyInput(input);
+                    input.addEventListener('input', function () {
+                        const cursorAtEnd = input.selectionStart === input.value.length;
+                        formatMoneyInput(input);
+                        if (cursorAtEnd) input.setSelectionRange(input.value.length, input.value.length);
+                    });
+                    input.addEventListener('blur', function () {
+                        if (input.value) formatMoneyInput(input);
+                    });
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                prepareMoneyInputs(document);
+            });
+            document.addEventListener('htmx:afterSwap', function (event) {
+                prepareMoneyInputs(event.target);
+            });
+            document.addEventListener('submit', function (event) {
+                event.target.querySelectorAll('[data-money-input="true"]').forEach(function (input) {
+                    input.value = normalizeMoneyValue(input.value);
+                });
+            }, true);
+        })();
+    </script>
 </head>
 <body class="bg-base-200 min-h-screen" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 

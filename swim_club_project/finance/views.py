@@ -23,15 +23,27 @@ def finance_dashboard(request):
     # Seçilen veya varsayılan dönem (YYYY-MM)
     period = request.GET.get('period', date.today().strftime('%Y-%m'))
     
-    # 1. Onaylı sporcuların dönem aidat listesi
-    approved_athletes = get_or_create_monthly_payments(period)
+    # 1. Dönem ödeme durumlarını kişi bazında özetle
+    monthly_payments = get_or_create_monthly_payments(period)
+    paid_payment_count = PaymentRecord.objects.filter(
+        period=period,
+        payment_type='fee',
+        status='paid',
+        athlete__is_active=True,
+    ).values('athlete_id').distinct().count()
+    payment_counts = {
+        'paid': paid_payment_count,
+        'pending': sum(payment.payment_status == 'pending' for payment in monthly_payments),
+    }
     
     # 2. Özet veriler (Gelir, Bekleyen, Harcama, Net)
     financial_summary = get_financial_summary(period)
+    expense_summary = get_expense_summary(period)
     
     context = {
         'period': period,
-        'approved_athletes': approved_athletes,
+        'payment_counts': payment_counts,
+        'expense_summary': expense_summary,
         'financial_summary': financial_summary,
     }
     return render(request, 'finance/dashboard.html', context)
