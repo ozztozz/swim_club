@@ -3,15 +3,6 @@
 {% block content %}
 <div class="mx-auto w-full max-w-7xl space-y-8">
 
-    <header class="relative overflow-hidden rounded-3xl bg-neutral px-6 py-8 text-neutral-content shadow-xl sm:px-10 sm:py-10">
-        <div class="relative z-10 max-w-2xl">
-            <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-primary-content/70">Kulüp yönetim merkezi</p>
-            <h1 class="text-3xl font-black tracking-tight sm:text-4xl">Bugün kulübünüzde neler oluyor?</h1>
-            <p class="mt-3 max-w-xl text-sm leading-6 text-neutral-content/70">Takımları, sporcuları ve finans hareketlerini tek bir yerden yönetin.</p>
-        </div>
-        <div class="pointer-events-none absolute -right-10 -top-16 h-64 w-64 rounded-full border-[28px] border-primary/20"></div>
-        <div class="pointer-events-none absolute -bottom-24 right-24 h-44 w-44 rounded-full border-[18px] border-secondary/20"></div>
-    </header>
 
     <section class="grid gap-4 md:grid-cols-3">
         <a href="{% url 'team-list' %}" class="group rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
@@ -28,109 +19,7 @@
         </a>
     </section>
 
-    <div class="bg-base-100 p-6 rounded-box shadow space-y-6">
-        <!-- Onay Bekleyen Sporcular -->
-        <div>
-            <h3 class="font-bold text-lg mb-3 text-warning">
-                Onay Bekleyen Başvurular ({{ pending_athletes.count }})
-            </h3>
-            <div class="overflow-x-auto">
-                <table class="table w-full">
-                    <thead>
-                        <tr>
-                            <th>Sporcu</th>
-                            <th>Doğum Tarihi</th>
-                            <th>Cinsiyet</th>
-                            <th>Veli</th>
-                            <th>İşlemler</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for athlete in pending_athletes %}
-                        <tr>
-                            <td class="font-semibold">{{ athlete.get_full_name }}</td>
-                            <td>{{ athlete.birth_date|date:"d.m.Y" }}</td>
-                            <td>{{ athlete.get_gender_display }}</td>
-                            <td>{{ athlete.parent }}</td>
-                            <td class="space-x-1">
-                                <button class="btn btn-sm btn-success text-white"
-                                        hx-post="{% url 'dashboard-approve-athlete' athlete.id %}"
-                                        hx-target="closest tr"
-                                        hx-swap="outerHTML">
-                                    Onayla
-                                </button>
-                                <button class="btn btn-sm btn-error text-white"
-                                        hx-post="{% url 'dashboard-reject-athlete' athlete.id %}"
-                                        hx-target="closest tr"
-                                        hx-swap="outerHTML">
-                                    Reddet
-                                </button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-gray-500">
-                                Onay bekleyen sporcu başvurusu bulunmuyor.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <div class="divider"></div>
-
-        <!-- Onaylı Sporcular -->
-        <div>
-            <h3 class="font-bold text-lg mb-3 text-success">
-                Onaylı Sporcular ({{ approved_athletes.count }})
-            </h3>
-            <div class="overflow-x-auto">
-                <table class="table w-full">
-                    <thead>
-                        <tr>
-                            <th>Sporcu</th>
-                            <th>Veli</th>
-                            <th>Takım</th>
-                            <th>Aylık Aidat</th>
-                            <th>İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody id="approved-athletes-list">
-                        {% for athlete in approved_athletes %}
-                        <tr>
-                            <td class="font-semibold">{{ athlete.get_full_name }}</td>
-                            <td>{{ athlete.parent }}</td>
-                            <td>
-                                {% if athlete.team %}
-                                    <span class="badge badge-info text-white">{{ athlete.team.name }}</span>
-                                {% else %}
-                                    <span class="badge badge-ghost text-xs">Takımsız</span>
-                                {% endif %}
-                            </td>
-                            <td class="font-bold text-primary">{{ athlete.current_monthly_fee|floatformat:2 }} TL</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline btn-secondary"
-                                        hx-get="{% url 'dashboard-edit-athlete-team' athlete.id %}"
-                                        hx-target="#modal-container"
-                                        hx-swap="innerHTML">
-                                    Takım Düzenle
-                                </button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-gray-500">
-                                Kayıtlı onaylı sporcu bulunmuyor.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
 </div>
 
