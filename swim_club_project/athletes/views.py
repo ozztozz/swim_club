@@ -33,7 +33,8 @@ def _athlete_queryset(request):
 def _athlete_context(request):
     query = request.GET.get('q', '').strip()
     status_filter = request.GET.get('status', 'all')
-    athletes = _athlete_queryset(request)
+    has_filter_request = 'q' in request.GET or 'status' in request.GET
+    athletes = _athlete_queryset(request) if has_filter_request else _athlete_queryset(request).none()
     if query:
         athletes = athletes.filter(
             Q(first_name__icontains=query) |
@@ -44,7 +45,12 @@ def _athlete_context(request):
         )
     if status_filter in {'pending', 'approved', 'rejected'}:
         athletes = athletes.filter(status=status_filter)
-    return {'athletes': athletes, 'query': query, 'status': status_filter}
+    return {
+        'athletes': athletes,
+        'query': query,
+        'status': status_filter,
+        'athlete_list_loaded': has_filter_request,
+    }
 
 
 @login_required

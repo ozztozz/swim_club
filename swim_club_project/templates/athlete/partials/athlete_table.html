@@ -20,5 +20,9 @@
             {% endfor %}
         </div>
     </section>
-    {% empty %}<div class="py-12 text-center text-base-content/60">Kayıt bulunamadı.</div>{% endfor %}
+    {% empty %}
+    <div class="py-12 text-center text-base-content/60">
+        {% if athlete_list_loaded %}Kayıt bulunamadı.{% else %}Sporcuları görmek için arama yapın veya bir filtre seçin.{% endif %}
+    </div>
+    {% endfor %}
 </div>
