@@ -3,12 +3,10 @@
     <td class="hidden break-words md:table-cell">
         {% if expense.category %}
         <span class="badge badge-ghost font-medium">{{ expense.category.name }}</span>
-        {% else %}
-        <span class="text-sm text-base-content/40">Kategorisiz</span>
         {% endif %}
     </td>
     <td class="break-words font-semibold">{{ expense.reciever }}</td>
-    <td class="break-words text-error">
+    <td class="break-words ">
         <div class="font-black">{{ expense.amount|floatformat:2 }} TL</div>
         <div class="mt-0.5 text-xs text-base-content/60">{% if expense.paymentDay %}{{ expense.paymentDay }}. gün{% else %}Gün yok{% endif %}</div>
     </td>
@@ -18,7 +16,7 @@
             {% if generated_expenses %}
             <span class="badge badge-success text-white">Ödendi</span>
             {% else %}
-            <button type="button" class="btn btn-warning btn-xs text-white"
+            <button type="button" class="btn btn-success btn-xs text-white"
                     hx-get="{% url 'regular-expense-convert' expense.pk %}?source=expenses&period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
                     hx-target="#modal-container"
                     hx-swap="innerHTML">

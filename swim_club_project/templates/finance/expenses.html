@@ -4,22 +4,17 @@
 <div class="mx-auto w-full max-w-7xl space-y-4">
     <header class="flex flex-col gap-4 rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
-            <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
-                <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary/10">₺</span>
-                Finans / Harcamalar
-            </div>
-       
-           </div>
-        <button class="btn btn-primary btn-sm gap-2"
+
+        <button class="btn btn-success btn-sm gap-2"
             hx-get="{% url 'expense-create' %}?period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
                 hx-target="#modal-container"
                 hx-swap="innerHTML">
             <span class="text-xl leading-none">+</span>
-            Yeni harcama gir
+            Yeni Harcama
         </button>
-        <a href="{% url 'regular-expense-list' %}" class="btn btn-sm btn-outline btn-primary gap-2">
+        <a href="{% url 'regular-expense-list' %}" class="btn btn-sm btn-warning btn-primary gap-4">
             <span class="text-lg leading-none">↻</span>
-            Düzenli harcamalar
+            Düzenli Harcama
         </a>
     </header>
 
@@ -80,16 +75,16 @@
     <section class="rounded-xl border border-base-200 bg-base-100 shadow-sm">
         <div class="flex flex-col gap-3 border-b border-base-200 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-lg font-black">Düzenli harcamalar</h2>
+                <h2 class="label-text text-xs font-bold">DÜZENLİ HARCAMALAR</h2>
                  </div>
-            <a href="{% url 'regular-expense-list' %}" class="btn btn-ghost btn-sm text-primary">Tümünü yönet →</a>
+
         </div>
         <div class="w-full overflow-hidden">
             <table class="table w-full table-fixed">
                 <thead>
                     <tr class="text-xs uppercase tracking-wider text-base-content/50">
                         <th class="hidden md:table-cell">Kategori</th>
-                        <th>Alıcı / firma</th>
+                        <th>Alıcı</th>
                         <th>Tutar / gün</th>
                         <th class="hidden md:table-cell">Tekrar</th>
                         <th>Durum / işlem</th>

@@ -3,9 +3,7 @@
 
     <td class="hidden break-words md:table-cell">
         {% if expense.category %}
-        <span class="badge badge-ghost font-medium">{{ expense.category.name }}</span>
-        {% else %}
-        <span class="text-sm text-base-content/40">Kategorisiz</span>
+        <span class="badge badge-ghost font-small">{{ expense.category.name }}</span>
         {% endif %}
     </td>
     <td class="break-words">
@@ -16,9 +14,9 @@
     </td>
     <td class="hidden break-words text-sm text-base-content/60 md:table-cell">{{ expense.receipt_no|default:'-' }}</td>
     <td class="break-words text-right">
-        <div class="font-black text-error">{{ expense.amount|floatformat:2 }} TL</div>
+        <div class="font-black ">{{ expense.amount|floatformat:2 }} TL</div>
         <button type="button"
-                class="btn btn-ghost btn-xs mt-1 text-primary"
+                class="btn btn-ghost btn-xs mt-1 text-success"
                 hx-get="{% url 'expense-update' expense.pk %}?period={{ expense.period }}"
                 hx-target="#modal-container"
                 hx-swap="innerHTML">
