@@ -105,56 +105,24 @@
                             <th>Sporcu</th>
                             <th>Takımı</th>
                             <th>Mevcut Özel Fiyat</th>
-                            <th>Başlangıç Tarihi</th>
-                            <th>İşlem</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
                         {% for athlete in athletes %}
-                        {% with athlete.fee_histories.first as active_custom %}
                         <tr>
-                            <td class="font-bold">{{ athlete.get_full_name }}</td>
+                            <td class="font-bold">
+                                <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="hover:text-primary hover:underline">
+                                    {{ athlete.get_full_name }}
+                                </a>
+                            </td>
                             <td>{{ athlete.team.name|default:"Takımsız" }}</td>
                             <td>
-                                {% if active_custom %}
-                                    <span class="badge badge-success text-white font-bold">{{ active_custom.monthly_fee|floatformat:2 }} TL</span>
-                                {% else %}
-                                    <span class="text-gray-400 text-xs">Standart Takım Tarifesi</span>
-                                {% endif %}
+                                <span class=" ">{{ athlete.custom_fee|floatformat:2 }} TL</span>
                             </td>
-                            <td class="text-xs text-gray-500">
-                                {% if active_custom %}{{ active_custom.start_date|date:"d.m.Y" }}{% else %}-{% endif %}
-                            </td>
-                            <td>
-                                <button onclick="document.getElementById('modal-athlete-{{ athlete.id }}').showModal()" class="btn btn-xs btn-outline btn-primary">
-                                    Özel Fiyat Tanımla
-                                </button>
-                            </td>
+
                         </tr>
 
-                        <!-- Sporcu Fiyat Modalı -->
-                        <dialog id="modal-athlete-{{ athlete.id }}" class="modal">
-                            <div class="modal-box">
-                                <h3 class="font-bold text-lg mb-2">{{ athlete.get_full_name }}</h3>
-                                <p class="text-xs text-gray-500 mb-4">Bu sporcuya özel aylık aidat tutarı belirleyin (Burs, indirim vb.).</p>
-                                <form action="{% url 'add-athlete-custom-fee' athlete.id %}" method="POST" class="space-y-4">
-                                    {% csrf_token %}
-                                    <div class="form-control">
-                                        <label class="label"><span class="label-text">Aylık Özel Aidat Tutarı (TL)</span></label>
-                                        <input type="text" name="monthly_fee" required class="input input-bordered" inputmode="decimal" data-money-input="true" placeholder="Örn: 750,00">
-                                    </div>
-                                    <div class="form-control">
-                                        <label class="label"><span class="label-text">Başlangıç Tarihi</span></label>
-                                        <input type="date" name="start_date" value="{{ today|date:'Y-m-d' }}" required class="input input-bordered">
-                                    </div>
-                                    <div class="modal-action">
-                                        <button type="button" onclick="document.getElementById('modal-athlete-{{ athlete.id }}').close()" class="btn btn-ghost">İptal</button>
-                                        <button type="submit" class="btn btn-primary">Özel Fiyatı Kaydet</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </dialog>
-                        {% endwith %}
                         {% endfor %}
                     </tbody>
                 </table>

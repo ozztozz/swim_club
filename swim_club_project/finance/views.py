@@ -13,7 +13,7 @@ from .models import PaymentRecord
 from .forms import ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
 from .services import get_or_create_monthly_payments, get_financial_summary
 from athletes.models import Team, Athlete
-from .models import Expense, ExpenseCategory, RegularExpense, TeamFeeHistory, AthleteFeeHistory
+from .models import Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, date
@@ -525,7 +525,7 @@ def mark_payment_paid_htmx(request, pk):
 def fee_management(request):
     """Takım ve Sporcu Ücret Yönetim Ana Sayfası"""
     teams = Team.objects.all().prefetch_related('fee_histories')
-    athletes = Athlete.objects.filter(is_active=True).prefetch_related('fee_histories')
+    athletes = Athlete.objects.filter(is_active=True, custom_fee__isnull=False).select_related('team')
 
     context = {
         'teams': teams,
@@ -565,25 +565,12 @@ def update_team_fee(request, team_id):
 
 @login_required
 def add_athlete_custom_fee(request, athlete_id):
-    """Sporcuya Özel Fiyat/İndirim Ekleme"""
+    """Sporcunun özel fiyatını doğrudan Athlete modeli üzerinde güncelleme."""
     if request.method == 'POST':
         athlete = get_object_or_404(Athlete, id=athlete_id)
         new_fee = request.POST.get('monthly_fee')
-        start_date_str = request.POST.get('start_date')
-
-        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else date.today()
-
-        # Aktif özel fiyat varsa kapat
-        active_fee = AthleteFeeHistory.objects.filter(athlete=athlete, end_date__isnull=True).first()
-        if active_fee:
-            active_fee.end_date = start_date
-            active_fee.save()
-
-        AthleteFeeHistory.objects.create(
-            athlete=athlete,
-            monthly_fee=new_fee,
-            start_date=start_date
-        )
+        athlete.custom_fee = new_fee
+        athlete.save(update_fields=('custom_fee',))
 
         messages.success(request, f"{athlete.get_full_name()} için özel fiyat tanımlandı.")
         return redirect('fee-management')

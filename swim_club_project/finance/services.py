@@ -4,30 +4,18 @@ from django.db.models import Sum
 from athletes.models import Athlete
 from decimal import Decimal
 from django.db.models import Q
-from .models import AthleteFeeHistory, TeamFeeHistory,PaymentRecord, Expense
+from .models import TeamFeeHistory, PaymentRecord, Expense
 
 def get_athlete_fee_for_period(athlete, period_str):
     """
     Belirtilen dönem (örn: '2026-08') tarihindeki geçerli aidat tutarını belirler.
     Öncelik Sırası:
-    1. Sporcuya özel tanımlanmış tarihli fiyat geçmişi
-    2. Sporcunun güncel özel ücreti
-    3. Takıma özel tanımlanmış tarihli fiyat geçmişi
-    4. Geçerli ücret bulunamazsa sıfır
+    1. Sporcunun güncel özel ücreti
+    2. Takıma özel tanımlanmış tarihli fiyat geçmişi
+    3. Geçerli ücret bulunamazsa sıfır
     """
     year, month = map(int, period_str.split('-'))
     target_date = date(year, month, 1)  # İlgili ayın 1. günü itibarıyla geçerli fiyat
-
-    # 1. Sporcuya özel geçerli fiyat var mı?
-    athlete_fee = AthleteFeeHistory.objects.filter(
-        athlete=athlete,
-        start_date__lte=target_date
-    ).filter(
-        Q(end_date__isnull=True) | Q(end_date__gte=target_date)
-    ).first()
-
-    if athlete_fee:
-        return athlete_fee.monthly_fee
 
     if athlete.custom_fee is not None:
         return athlete.custom_fee

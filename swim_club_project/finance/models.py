@@ -14,16 +14,6 @@ class TeamFeeHistory(models.Model):
     class Meta:
         ordering = ['-start_date']
 
-class AthleteFeeHistory(models.Model):
-    """Sporcuya özel (burs/indirim/özel fiyat) tarih bazlı fiyat geçmişi"""
-    athlete = models.ForeignKey(Athlete, on_delete=models.CASCADE, related_name='fee_histories')
-    monthly_fee = models.DecimalField(max_digits=10, decimal_places=2)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
-
-    class Meta:
-        ordering = ['-start_date']
-
 class PaymentRecord(models.Model):
     PAYMENT_TYPE_CHOICES = [
         ('fee', 'Aidat'),
