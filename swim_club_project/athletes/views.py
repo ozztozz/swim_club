@@ -24,7 +24,7 @@ MONTH_NAMES = (
 
 
 def _athlete_queryset(request):
-    queryset = Athlete.objects.select_related('team').order_by('team__name', 'first_name', 'last_name')
+    queryset = Athlete.objects.select_related('team').order_by('-is_active', 'team__name', 'first_name', 'last_name')
     if request.user.is_parent:
         return queryset.filter(parent_email=request.user.email)
     return queryset
@@ -32,32 +32,29 @@ def _athlete_queryset(request):
 
 def _athlete_context(request):
     query = request.GET.get('q', '').strip()
-    status_filter = request.GET.get('status', 'all')
-    has_filter_request = 'q' in request.GET or 'status' in request.GET
-    athletes = _athlete_queryset(request) if has_filter_request else _athlete_queryset(request).none()
-    if query:
-        athletes = athletes.filter(
+    has_search = len(query) >= 3
+    athletes = _athlete_queryset(request).none()
+    if has_search:
+        athletes = _athlete_queryset(request).filter(
             Q(first_name__icontains=query) |
             Q(last_name__icontains=query) |
             Q(parent__icontains=query) |
             Q(parent_email__icontains=query) |
             Q(parent_phone__icontains=query)
         )
-    if status_filter == 'approved':
-        athletes = athletes.filter(is_active=True)
-    elif status_filter in {'pending', 'rejected'}:
-        athletes = athletes.filter(is_active=False)
     return {
         'athletes': athletes,
         'query': query,
-        'status': status_filter,
-        'athlete_list_loaded': has_filter_request,
+        'athlete_list_loaded': has_search,
     }
 
 
 @login_required
 def athlete_list(request):
-    return render(request, 'athlete/athlete_list.html', _athlete_context(request))
+    context = _athlete_context(request)
+    if request.headers.get('HX-Request') == 'true':
+        return render(request, 'athlete/partials/athlete_table.html', context)
+    return render(request, 'athlete/athlete_list.html', context)
 
 
 @login_required

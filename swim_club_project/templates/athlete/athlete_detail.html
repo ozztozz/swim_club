@@ -10,14 +10,13 @@
             <div class="text-center sm:text-left">
                 
                 <h1 class="text-2xl font-black">{{ athlete.get_full_name }}</h1>
-                <p class="text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takım ataması yok{% endif %}</p>
-                <p class="text-base-content/60">{{ athlete.parent|default:'Belirtilmedi' }}</p>
-                {% if athlete.is_active %}<span class="badge badge-success badge-outline mt-1">Onaylandı</span>{% else %}<span class="badge badge-warning badge-outline mt-1">Onay bekliyor</span>{% endif %}
+                <p class="text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takım ataması yok{% endif %} - {{ athlete.parent|default:'Belirtilmedi' }}</p>
+
             </div>
         </div>
-        <div class="flex justify-end gap-2 border-b border-base-200 px-3 py-2">
+        <div class="flex justify-between gap-2 border-b border-base-200 px-3 py-2">
             <button class="btn btn-primary btn-sm" hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1" hx-target="#athlete-modal-container" hx-swap="innerHTML">Düzenle</button>
-            <button class="btn btn-primary btn-sm" hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}" hx-target="#athlete-payment-create-modal-container" hx-swap="innerHTML">Ödeme ekle</button>
+            <button class="btn btn-success btn-sm" hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}" hx-target="#athlete-payment-create-modal-container" hx-swap="innerHTML">Ödeme ekle</button>
         </div>
 
     </section>

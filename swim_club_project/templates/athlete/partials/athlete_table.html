@@ -1,28 +1,16 @@
-<div id="athlete-table" class="space-y-8 p-5">
-    {% regroup athletes by team as team_groups %}
-    {% for group in team_groups %}
-    <section>
-        <div class="mb-3 flex items-center justify-between border-b border-base-200 pb-2">
-            <h2 class="text-lg font-black">{% if group.grouper %}{{ group.grouper.name }}{% else %}Takımsız sporcular{% endif %}</h2>
-            <span class="badge badge-ghost">{{ group.list|length }} sporcu</span>
+<div id="athlete-table" class="relative mt-3 border-t border-base-200 p-3 pt-5 sm:mt-2 sm:p-5 sm:pt-5">
+    {% for athlete in athletes %}
+    <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="mb-2 flex items-center gap-3 rounded-xl border border-base-200 bg-base-100 p-3 shadow-sm transition hover:border-primary/40 hover:shadow-md active:scale-[.99] sm:mb-3 sm:p-4">
+        {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-primary/20 sm:h-14 sm:w-14">{% else %}<div class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-base font-black text-primary sm:h-14 sm:w-14">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>{% endif %}
+        <div class="min-w-0 flex-1">
+            <h3 class="truncate font-bold">{{ athlete.get_full_name }}</h3>
+            <p class="truncate text-xs text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takımsız{% endif %}</p>
         </div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {% for athlete in group.list %}
-            <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="card border border-base-300 bg-base-100 shadow-sm transition-shadow hover:shadow-md">
-                <div class="card-body flex-row items-center gap-4 p-4">
-                    {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-16 w-16 rounded-full object-cover ring-2 ring-primary/20">{% else %}<div class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-primary/10 text-lg font-black text-primary">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>{% endif %}
-                    <div class="min-w-0 flex-1">
-                        <h3 class="truncate font-bold">{{ athlete.get_full_name }}</h3>
-                        {% if athlete.is_active %}<span class="badge badge-success badge-outline mt-1">Onaylandı</span>{% else %}<span class="badge badge-warning badge-outline mt-1">Bekliyor</span>{% endif %}
-                    </div>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </section>
+        {% if athlete.is_active %}<span class="badge badge-success badge-outline shrink-0">Aktif</span>{% else %}<span class="badge badge-warning badge-outline shrink-0">Pasif</span>{% endif %}
+    </a>
     {% empty %}
     <div class="py-12 text-center text-base-content/60">
-        {% if athlete_list_loaded %}Kayıt bulunamadı.{% else %}Sporcuları görmek için arama yapın veya bir filtre seçin.{% endif %}
+        {% if athlete_list_loaded %}Kayıt bulunamadı.{% else %}En az 3 harf yazarak sporcu arayın.{% endif %}
     </div>
     {% endfor %}
 </div>

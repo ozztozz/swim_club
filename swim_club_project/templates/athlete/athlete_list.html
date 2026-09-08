@@ -1,23 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-7xl space-y-6">
-    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+<div class="mx-auto w-full max-w-7xl space-y-4 sm:space-y-6">
+    <header class="flex items-center justify-between gap-3">
         <div>
-            
-            <h1 class="text-2xl font-black tracking-tight sm:text-3xl">Sporcular</h1>
-            <p class="mt-1 text-sm text-base-content/60">Sporcu kayıtlarını, takım atamalarını ve aidat bilgilerini yönetin.</p>
+            <h1 class="text-2xl font-black tracking-tight">Sporcular</h1>
+            <p class="mt-1 hidden text-sm text-base-content/60 sm:block">Sporcu kayıtlarını, takım atamalarını ve aidat bilgilerini yönetin.</p>
         </div>
-        <button class="btn btn-primary" hx-get="{% url 'athlete-manage-create' %}" hx-target="#athlete-modal-container" hx-swap="innerHTML">
-            <span class="text-xl leading-none">+</span> Yeni sporcu
+        <button class="btn btn-primary btn-sm shrink-0 sm:btn-md" hx-get="{% url 'athlete-manage-create' %}" hx-target="#athlete-modal-container" hx-swap="innerHTML">
+            <span class="text-lg leading-none">+</span><span class="hidden sm:inline">Yeni sporcu</span><span class="sm:hidden">Ekle</span>
         </button>
     </header>
 
     <section class="overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
-        <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[1fr_auto_auto] md:items-end">
-            <label class="form-control"><span class="label label-text text-xs font-bold uppercase tracking-wider">Sporcu ara</span><input type="search" name="q" value="{{ query }}" placeholder="Ad, soyad veya veli" class="input input-bordered input-sm"></label>
-     
-            <button class="btn btn-neutral btn-sm">Filtrele</button>
+                <form method="get" class="relative flex gap-2 border-b border-base-200 bg-base-100 p-3 sm:p-4"
+              hx-get="{% url 'athlete-manage-list' %}"
+              hx-target="#athlete-table"
+              hx-swap="outerHTML"
+              hx-push-url="true"
+                            hx-trigger="submit, keyup changed delay:350ms from:input[name='q']"
+                            hx-on:htmx:before-request="if (this.querySelector('[name=q]').value.trim().length < 3) event.preventDefault()">
+                        <label class="form-control min-w-0 flex-1"><span class="sr-only">Sporcu ara</span><input type="search" name="q" value="{{ query }}" minlength="3" placeholder="Sporcu yada veli adı ile ara" autocomplete="off" class="input input-bordered input-sm w-full"></label>
         </form>
         {% include 'athlete/partials/athlete_table.html' %}
     </section>
