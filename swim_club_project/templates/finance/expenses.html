@@ -8,9 +8,8 @@
                 <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary/10">₺</span>
                 Finans / Harcamalar
             </div>
-            <h1 class="text-3xl font-black tracking-tight text-base-content">Harcamalar</h1>
-            <p class="mt-1 text-sm text-base-content/60">Kulübün günlük giderlerini izleyin ve kayıt altına alın.</p>
-        </div>
+       
+           </div>
         <button class="btn btn-primary btn-sm gap-2"
             hx-get="{% url 'expense-create' %}?period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
                 hx-target="#modal-container"
@@ -48,14 +47,15 @@
             <button class="btn btn-neutral btn-sm">Filtrele</button>
         </form>
 
-        <div class="overflow-x-auto">
-            <table class="table">
+        <div class="w-full overflow-hidden">
+            <table class="table w-full table-fixed">
                 <thead>
                     <tr class="text-xs uppercase tracking-wider text-base-content/50">
                         <th>Tarih</th>
-                        <th>Kategori</th>
+                        <th class="w-16 text-center">Ödeme</th>
+                        <th class="hidden md:table-cell">Kategori</th>
                         <th>Alıcı / firma</th>
-                        <th>Belge no</th>
+                        <th class="hidden md:table-cell">Belge no</th>
                         <th class="text-right">Tutar</th>
                     </tr>
                 </thead>
@@ -64,7 +64,7 @@
                         {% include 'finance/partials/_expense_row.html' %}
                     {% empty %}
                     <tr id="empty-expense-state">
-                        <td colspan="5" class="py-16 text-center">
+                        <td colspan="6" class="py-16 text-center">
                             <div class="mx-auto max-w-sm">
                                 <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-base-200 text-2xl">₺</div>
                                 <p class="font-bold">Bu dönemde harcama yok</p>
@@ -82,19 +82,17 @@
         <div class="flex flex-col gap-3 border-b border-base-200 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="text-lg font-black">Düzenli harcamalar</h2>
-                <p class="mt-1 text-sm text-base-content/55">Aktif tekrarlayan giderlerden kısa görünüm.</p>
-            </div>
+                 </div>
             <a href="{% url 'regular-expense-list' %}" class="btn btn-ghost btn-sm text-primary">Tümünü yönet →</a>
         </div>
-        <div class="overflow-x-auto">
-            <table class="table">
+        <div class="w-full overflow-hidden">
+            <table class="table w-full table-fixed">
                 <thead>
                     <tr class="text-xs uppercase tracking-wider text-base-content/50">
-                        <th>Kategori</th>
+                        <th class="hidden md:table-cell">Kategori</th>
                         <th>Alıcı / firma</th>
-                        <th>Tutar</th>
-                        <th>Tekrar</th>
-                        <th>Ödeme günü</th>
+                        <th>Tutar / gün</th>
+                        <th class="hidden md:table-cell">Tekrar</th>
                         <th>Durum / işlem</th>
                     </tr>
                 </thead>

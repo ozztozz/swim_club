@@ -12,9 +12,11 @@
             <div class="font-semibold">{{ expense.reciever }}</div>
             {% if expense.notes %}<div class="max-w-xs truncate text-xs text-base-content/50">{{ expense.notes }}</div>{% endif %}
         </td>
-        <td class="font-black text-error">{{ expense.amount|floatformat:2 }} TL</td>
+        <td class="text-error">
+            <div class="font-black">{{ expense.amount|floatformat:2 }} TL</div>
+            <div class="mt-0.5 text-xs text-base-content/60">{% if expense.paymentDay %}{{ expense.paymentDay }}. gün{% else %}Gün yok{% endif %}</div>
+        </td>
         <td><span class="badge badge-outline">{{ expense.get_frequency_display }}</span></td>
-        <td class="text-sm">{% if expense.paymentDay %}{{ expense.paymentDay }}. gün{% else %}-{% endif %}</td>
         <td class="text-sm text-base-content/65">
             {{ expense.start_date|date:'d.m.Y' }}
             <span class="text-base-content/35">→</span>
@@ -31,7 +33,7 @@
     </tr>
     {% empty %}
     <tr>
-        <td colspan="7" class="py-16 text-center">
+        <td colspan="6" class="py-16 text-center">
             <div class="mx-auto max-w-sm">
                 <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-base-200 text-2xl">↻</div>
                 <p class="font-bold">Düzenli harcama bulunamadı</p>

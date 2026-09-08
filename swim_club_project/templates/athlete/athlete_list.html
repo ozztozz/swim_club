@@ -16,7 +16,7 @@
     <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
         <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[1fr_auto_auto] md:items-end">
             <label class="form-control"><span class="label label-text text-xs font-bold uppercase tracking-wider">Sporcu ara</span><input type="search" name="q" value="{{ query }}" placeholder="Ad, soyad veya veli" class="input input-bordered input-sm"></label>
-            <label class="form-control"><span class="label label-text text-xs font-bold uppercase tracking-wider">Durum</span><select name="status" class="select select-bordered select-sm"><option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option><option value="pending" {% if status == 'pending' %}selected{% endif %}>Onay bekliyor</option><option value="approved" {% if status == 'approved' %}selected{% endif %}>Onaylandı</option><option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Reddedildi</option></select></label>
+     
             <button class="btn btn-neutral btn-sm">Filtrele</button>
         </form>
         {% include 'athlete/partials/athlete_table.html' %}

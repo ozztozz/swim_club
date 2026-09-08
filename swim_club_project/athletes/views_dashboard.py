@@ -15,8 +15,8 @@ from django.db.models import Q
 def dashboard_index(request):
     if not (request.user.is_staff or request.user.is_superuser):
         return redirect('parent-dashboard')  # Veli Dashboard
-    pending_athletes = Athlete.objects.filter(status='pending')
-    approved_athletes = Athlete.objects.filter(status='approved')
+    pending_athletes = Athlete.objects.filter(is_active=False)
+    approved_athletes = Athlete.objects.filter(is_active=True)
     active_teams = Team.objects.filter(is_active=True).count()
     athlete_count = Athlete.objects.count()
     pending_payments = PaymentRecord.objects.filter(status='pending').count()
@@ -34,7 +34,7 @@ def dashboard_index(request):
 def search_approved_athletes_htmx(request):
     query = request.GET.get('q', '').strip()
     
-    athletes = Athlete.objects.filter(status='approved')
+    athletes = Athlete.objects.filter(is_active=True)
     if query:
         athletes = athletes.filter(
             Q(first_name__icontains=query) | 
@@ -52,12 +52,11 @@ def search_approved_athletes_htmx(request):
 @require_POST
 def approve_athlete_htmx(request, pk):
     athlete = get_object_or_404(Athlete, pk=pk)
-    athlete.status = 'approved'
     athlete.is_active = True
     athlete.save()
     
     # İşlem sonrası güncel listeyi HTMX'e parça HTML olarak döndürüyoruz
-    pending_athletes = Athlete.objects.filter(status='pending')
+    pending_athletes = Athlete.objects.filter(is_active=False)
     return render(request, 'dashboard/_pending_athletes.html', {'pending_athletes': pending_athletes})
 
 @login_required
@@ -65,11 +64,10 @@ def approve_athlete_htmx(request, pk):
 @require_POST
 def reject_athlete_htmx(request, pk):
     athlete = get_object_or_404(Athlete, pk=pk)
-    athlete.status = 'rejected'
     athlete.is_active = False
     athlete.save()
     
-    pending_athletes = Athlete.objects.filter(status='pending')
+    pending_athletes = Athlete.objects.filter(is_active=False)
     return render(request, 'dashboard/_pending_athletes.html', {'pending_athletes': pending_athletes})
 
 @login_required
@@ -81,7 +79,7 @@ def edit_athlete_team_htmx(request, pk):
         form = AthleteTeamForm(request.POST, instance=athlete)
         if form.is_valid():
             form.save()
-            approved_athletes = Athlete.objects.filter(status='approved')
+            approved_athletes = Athlete.objects.filter(is_active=True)
             response = render(request, 'dashboard/_approved_athletes.html', {
                 'approved_athletes': approved_athletes
             })

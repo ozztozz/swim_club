@@ -118,7 +118,6 @@ class AthleteModuleTests(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             
             self.athlete1.refresh_from_db()
-            self.assertEqual(self.athlete1.status, 'approved')
             self.assertTrue(self.athlete1.is_active)
 
         def test_parent_cannot_approve_athlete(self):

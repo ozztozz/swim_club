@@ -11,7 +11,7 @@ class AthleteForm(forms.ModelForm):
         fields = (
             'parent', 'parent_phone', 'parent_email', 'first_name', 'last_name', 'phone_number', 'tc_identity', 'birth_date',
             'gender', 'school', 'license_number', 'joined_date', 'photo',
-            'status', 'is_active', 'team', 'custom_fee', 'discount_percentage',
+            'is_active', 'team', 'custom_fee', 'discount_percentage',
             'regular_payment_day',
         )
         widgets = {
@@ -28,7 +28,6 @@ class AthleteForm(forms.ModelForm):
             'license_number': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
             'joined_date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'input input-bordered w-full', 'type': 'date'}),
             'photo': forms.ClearableFileInput(attrs={'class': 'file-input file-input-bordered w-full'}),
-            'status': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'toggle toggle-primary'}),
             'team': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'custom_fee': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'decimal', 'data-money-input': 'true'}),

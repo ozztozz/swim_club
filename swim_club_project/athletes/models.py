@@ -8,12 +8,6 @@ class Athlete(models.Model):
         ('F', 'Kadın'),
     )
 
-    STATUS_CHOICES = (
-        ('pending', 'Onay Bekliyor'),
-        ('approved', 'Onaylandı'),
-        ('rejected', 'Reddedildi'),
-    )
-
     parent = models.CharField(max_length=150, verbose_name="Veli")
     parent_phone = models.CharField(max_length=20, blank=True, default='', verbose_name="Veli Telefonu")
     parent_email = models.EmailField(blank=True, default='', verbose_name="Veli E-postası")
@@ -29,7 +23,6 @@ class Athlete(models.Model):
     photo = models.ImageField(upload_to='athlete_photos/', blank=True, null=True, verbose_name="Fotoğraf")
     
     # Onay ve Aktiflik Yönetimi
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', verbose_name="Onay Durumu")
     is_active = models.BooleanField(default=False, verbose_name="Aktif Sporcu mu?")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -101,4 +94,4 @@ class Athlete(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.get_status_display()})"
+        return self.get_full_name()

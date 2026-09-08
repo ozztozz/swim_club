@@ -1,20 +1,23 @@
 <tr class="border-b border-base-200 last:border-0 {% if not expense.is_active %}opacity-60{% endif %}">
-    <td class="whitespace-nowrap text-sm text-base-content/70">{{ expense.expense_date|date:'d.m.Y' }}</td>
-    <td>
+    <td class="break-words text-sm text-base-content/70">{{ expense.expense_date|date:'d.m.Y' }}</td>
+    <td class="whitespace-nowrap text-center text-xs text-base-content/60">
+        {% if expense.regular_expense and expense.regular_expense.paymentDay %}{{ expense.regular_expense.paymentDay }}. gün{% else %}-{% endif %}
+    </td>
+    <td class="hidden break-words md:table-cell">
         {% if expense.category %}
         <span class="badge badge-ghost font-medium">{{ expense.category.name }}</span>
         {% else %}
         <span class="text-sm text-base-content/40">Kategorisiz</span>
         {% endif %}
     </td>
-    <td>
+    <td class="break-words">
         <div class="font-semibold">{{ expense.reciever|default:'Belirtilmedi' }}</div>
-        {% if expense.regular_expense %}<span class="badge badge-success badge-outline mt-1 text-xs">Düzenli giderden</span>{% endif %}
+        {% if expense.regular_expense %}<span class="badge badge-success badge-outline mt-1 text-xs">Düzenli</span>{% endif %}
         {% if not expense.is_active %}<span class="badge badge-error badge-outline mt-1 text-xs">İptal edildi</span>{% endif %}
         {% if expense.notes %}<div class="max-w-xs truncate text-xs text-base-content/50">{{ expense.notes }}</div>{% endif %}
     </td>
-    <td class="text-sm text-base-content/60">{{ expense.receipt_no|default:'-' }}</td>
-    <td class="text-right">
+    <td class="hidden break-words text-sm text-base-content/60 md:table-cell">{{ expense.receipt_no|default:'-' }}</td>
+    <td class="break-words text-right">
         <div class="font-black text-error">{{ expense.amount|floatformat:2 }} TL</div>
         <button type="button"
                 class="btn btn-ghost btn-xs mt-1 text-primary"

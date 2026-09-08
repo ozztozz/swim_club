@@ -94,7 +94,11 @@
                 </ul>
             </nav>
 
-            <div class="navbar-end gap-2">
+            <div class="navbar-end gap-1 sm:gap-2">
+                <nav class="flex items-center gap-1 lg:hidden" aria-label="Hızlı menü">
+                    <a href="{% url 'athlete-manage-list' %}" class="btn btn-ghost btn-xs px-1.5 text-xs">Sporcular</a>
+                    <a href="{% url 'finance-dashboard' %}" class="btn btn-ghost btn-xs px-1.5 text-xs">Finans</a>
+                </nav>
                 <div class="hidden text-right sm:block">
                     <p class="max-w-32 truncate text-sm font-bold">{{ request.user.get_full_name|default:request.user.username }}</p>
                     <p class="text-xs text-base-content/50">{{ request.user.get_role_display }}</p>

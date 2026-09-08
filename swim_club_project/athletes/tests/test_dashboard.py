@@ -36,7 +36,6 @@ class DashboardViewsTests(TestCase):
             birth_date=datetime.date(2012, 5, 10),
             gender='M',
             joined_date=datetime.date.today(),
-            status='pending',
             is_active=False
         )
 
@@ -65,7 +64,6 @@ class DashboardViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.athlete.refresh_from_db()
-        self.assertEqual(self.athlete.status, 'approved')
         self.assertTrue(self.athlete.is_active)
 
     def test_admin_can_reject_athlete_via_htmx(self):
@@ -75,7 +73,6 @@ class DashboardViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.athlete.refresh_from_db()
-        self.assertEqual(self.athlete.status, 'rejected')
         self.assertFalse(self.athlete.is_active)
 
     def test_get_method_not_allowed_on_approve(self):
@@ -88,7 +85,6 @@ class DashboardViewsTests(TestCase):
         self.client.force_login(self.admin_user)
         
         # Sporcuyu onaylı duruma getirelim
-        self.athlete.status = 'approved'
         self.athlete.is_active = True
         self.athlete.save()
 

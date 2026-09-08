@@ -43,8 +43,10 @@ def _athlete_context(request):
             Q(parent_email__icontains=query) |
             Q(parent_phone__icontains=query)
         )
-    if status_filter in {'pending', 'approved', 'rejected'}:
-        athletes = athletes.filter(status=status_filter)
+    if status_filter == 'approved':
+        athletes = athletes.filter(is_active=True)
+    elif status_filter in {'pending', 'rejected'}:
+        athletes = athletes.filter(is_active=False)
     return {
         'athletes': athletes,
         'query': query,
@@ -286,7 +288,6 @@ def athlete_create(request):
         form.fields['parent'].initial = request.user.get_full_name()
         form.fields['parent_phone'].initial = request.user.phone_number
         form.fields['parent_email'].initial = request.user.email
-        form.fields['status'].disabled = True
         form.fields['is_active'].disabled = True
     if request.method == 'POST' and form.is_valid():
         athlete = form.save(commit=False)
@@ -294,7 +295,6 @@ def athlete_create(request):
             athlete.parent = request.user.get_full_name()
             athlete.parent_phone = request.user.phone_number
             athlete.parent_email = request.user.email
-            athlete.status = 'pending'
             athlete.is_active = False
         athlete.save()
         response = render(request, 'athlete/partials/athlete_table.html', _athlete_context(request))
@@ -313,7 +313,6 @@ def athlete_update(request, pk):
         form.fields['parent'].disabled = True
         form.fields['parent_phone'].disabled = True
         form.fields['parent_email'].disabled = True
-        form.fields['status'].disabled = True
         form.fields['is_active'].disabled = True
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -356,14 +355,13 @@ class AthleteViewSet(viewsets.ModelViewSet):
         return Athlete.objects.none()
 
     def perform_create(self, serializer):
-        # Veli oluşturuyorsa: Onay bekliyor (is_active=False, status='pending')
+        # Veli oluşturuyorsa kayıt pasif ve onay bekliyor.
         if self.request.user.is_parent:
             serializer.save(
                 parent=self.request.user.get_full_name(),
                 parent_phone=self.request.user.phone_number or '',
                 parent_email=self.request.user.email or '',
-                is_active=False, 
-                status='pending'
+                is_active=False,
             )
         else:
             # Yönetici ekliyorsa: Doğrudan onaylı ve aktif
@@ -373,7 +371,6 @@ class AthleteViewSet(viewsets.ModelViewSet):
                 parent_phone=self.request.data.get('parent_phone') or '',
                 parent_email=self.request.data.get('parent_email') or '',
                 is_active=True,
-                status='approved'
             )
 
     # --- YÖNETİCİ ONAY AKSİYONLARI ---
@@ -385,7 +382,6 @@ class AthleteViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Bu işlem için yetkiniz yok.'}, status=status.HTTP_403_FORBIDDEN)
         
         athlete = self.get_object()
-        athlete.status = 'approved'
         athlete.is_active = True
         athlete.save()
         return Response({'status': 'Sporcu onaylandı ve aktif edildi.'})
@@ -397,7 +393,6 @@ class AthleteViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Bu işlem için yetkiniz yok.'}, status=status.HTTP_403_FORBIDDEN)
         
         athlete = self.get_object()
-        athlete.status = 'rejected'
         athlete.is_active = False
         athlete.save()
         return Response({'status': 'Sporcu kaydı reddedildi.'})

@@ -82,7 +82,6 @@ class Command(BaseCommand):
                     school='Belirtilmemiş',
                     license_number='Belirtilmemiş',
                     joined_date=date(2026, 9, 1),
-                    status='pending',
                     is_active=False,
                     team=team,
                 )

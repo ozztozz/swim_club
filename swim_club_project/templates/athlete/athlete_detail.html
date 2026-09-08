@@ -4,28 +4,31 @@
 <div class="mx-auto w-full max-w-3xl space-y-6">
     <a href="{% url 'athlete-manage-list' %}" class="btn btn-ghost btn-sm">← Sporcu listesine dön</a>
 
-    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="flex flex-col items-center gap-5 border-b border-base-200 p-6 sm:flex-row">
-            {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-28 w-28 rounded-full object-cover ring-4 ring-primary/10">{% else %}<div class="grid h-28 w-28 place-items-center rounded-full bg-primary/10 text-3xl font-black text-primary">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>{% endif %}
+    <section class="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <div class="flex flex-col items-center gap-3 border-b border-base-200 p-3 sm:flex-row">
+            {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-20 w-20 rounded-full object-cover ring-2 ring-primary/10">{% else %}<div class="grid h-20 w-20 place-items-center rounded-full bg-primary/10 text-2xl font-black text-primary">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>{% endif %}
             <div class="text-center sm:text-left">
-                <p class="text-sm font-bold uppercase tracking-widest text-primary">Sporcu profili</p>
-                <h1 class="mt-1 text-3xl font-black">{{ athlete.get_full_name }}</h1>
-                <p class="mt-1 text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takım ataması yok{% endif %}</p>
-                <p class="mt-1 text-base-content/60">{{ athlete.parent|default:'Belirtilmedi' }}</p>
-                {% if athlete.status == 'approved' %}<span class="badge badge-success badge-outline mt-3">Onaylandı</span>{% elif athlete.status == 'pending' %}<span class="badge badge-warning badge-outline mt-3">Onay bekliyor</span>{% else %}<span class="badge badge-error badge-outline mt-3">Reddedildi</span>{% endif %}
+                
+                <h1 class="text-2xl font-black">{{ athlete.get_full_name }}</h1>
+                <p class="text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takım ataması yok{% endif %}</p>
+                <p class="text-base-content/60">{{ athlete.parent|default:'Belirtilmedi' }}</p>
+                {% if athlete.is_active %}<span class="badge badge-success badge-outline mt-1">Onaylandı</span>{% else %}<span class="badge badge-warning badge-outline mt-1">Onay bekliyor</span>{% endif %}
             </div>
         </div>
-        <div class="flex justify-end border-b border-base-200 px-6 py-4"><button class="btn btn-primary" hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1" hx-target="#athlete-modal-container" hx-swap="innerHTML">Düzenle</button></div>
+        <div class="flex justify-end gap-2 border-b border-base-200 px-3 py-2">
+            <button class="btn btn-primary btn-sm" hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1" hx-target="#athlete-modal-container" hx-swap="innerHTML">Düzenle</button>
+            <button class="btn btn-primary btn-sm" hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}" hx-target="#athlete-payment-create-modal-container" hx-swap="innerHTML">Ödeme ekle</button>
+        </div>
 
     </section>
 
     <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
         <div class="flex flex-col gap-3 border-b border-base-200 p-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-            <p class="text-xs font-bold uppercase tracking-widest text-primary">Ödeme geçmişi</p>
+            
             <h2 class="mt-1 text-2xl font-black">Aylık ödemeler</h2>
             </div>
-            <button class="btn btn-primary btn-sm" hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}" hx-target="#athlete-payment-create-modal-container" hx-swap="innerHTML">Ödeme ekle</button>
+
         </div>
         <div class="divide-y divide-base-200">
             {% for item in monthly_payments %}

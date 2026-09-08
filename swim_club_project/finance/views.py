@@ -7,7 +7,7 @@ from django.shortcuts import render
 # finance/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch, Q, Sum
+from django.db.models import F, Prefetch, Q, Sum
 from django.utils import timezone
 from .models import PaymentRecord
 from .forms import ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
@@ -49,6 +49,26 @@ def finance_dashboard(request):
     return render(request, 'finance/dashboard.html', context)
 
 
+@login_required
+def payment_status_list(request, payment_status):
+    if payment_status not in {'paid', 'pending'}:
+        return redirect('finance-dashboard')
+
+    period = request.GET.get('period', date.today().strftime('%Y-%m'))
+    monthly_payments = get_or_create_monthly_payments(period)
+    payments = [
+        athlete for athlete in monthly_payments
+        if athlete.payment_status == payment_status
+    ]
+
+    return render(request, 'finance/payment_status_list.html', {
+        'period': period,
+        'payments': payments,
+        'payment_status': payment_status,
+        'status_label': 'Ödeyen sporcular' if payment_status == 'paid' else 'Bekleyen sporcular',
+    })
+
+
 def get_expense_summary(period):
     active_expenses = Expense.objects.filter(period=period, is_active=True)
     category_totals = active_expenses.values('category__name').annotate(
@@ -74,7 +94,9 @@ def expense_list(request):
     category_id = request.GET.get('category', '')
     query = request.GET.get('q', '').strip()
 
-    expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by('updated_at')
+    expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by(
+        F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
+    )
     if category_id:
         expenses = expenses.filter(category_id=category_id)
     if query:
@@ -93,7 +115,7 @@ def expense_list(request):
                 period=period,
             ).order_by('-expense_date'),
         )
-    ).order_by('-start_date')[:5]
+    ).order_by(F('paymentDay').asc(nulls_last=True), '-start_date')[:5]
     summary = get_expense_summary(period)
     context = {
         'period': period,
@@ -164,7 +186,9 @@ def regular_expense_list(request):
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '')
     status = request.GET.get('status', 'active')
-    expenses = RegularExpense.objects.select_related('category', 'created_by').order_by('-start_date')
+    expenses = RegularExpense.objects.select_related('category', 'created_by').order_by(
+        F('paymentDay').asc(nulls_last=True), '-start_date'
+    )
 
     if query:
         expenses = expenses.filter(reciever__icontains=query)
@@ -187,7 +211,9 @@ def regular_expense_list(request):
 
 
 def _regular_expense_response(request, query='', category_id='', status='active', period=None):
-    expenses = RegularExpense.objects.select_related('category', 'created_by').order_by('-start_date')
+    expenses = RegularExpense.objects.select_related('category', 'created_by').order_by(
+        F('paymentDay').asc(nulls_last=True), '-start_date'
+    )
     if query:
         expenses = expenses.filter(reciever__icontains=query)
     if category_id:
@@ -292,7 +318,9 @@ def convert_regular_expense_htmx(request, pk):
                 period = request.POST.get('period') or expense.period
                 expenses = Expense.objects.filter(
                     period=period
-                ).select_related('category', 'created_by', 'regular_expense').order_by('-updated_at')
+                ).select_related('category', 'created_by', 'regular_expense').order_by(
+                    F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
+                )
                 if category_id:
                     expenses = expenses.filter(category_id=category_id)
                 if query:
@@ -348,7 +376,9 @@ def create_expense_htmx(request):
             expense.created_by = request.user
             expense.save()
             summary = get_expense_summary(period)
-            expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by('-updated_at')
+            expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by(
+                F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
+            )
             if category_id:
                 expenses = expenses.filter(category_id=category_id)
             if query:
@@ -400,7 +430,9 @@ def update_expense_htmx(request, pk):
                 updated_expense.is_active = False
             updated_expense.save()
             summary = get_expense_summary(period)
-            expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by('-updated_at')
+            expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by(
+                F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
+            )
             if category_id:
                 expenses = expenses.filter(category_id=category_id)
             if query:
@@ -493,7 +525,7 @@ def mark_payment_paid_htmx(request, pk):
 def fee_management(request):
     """Takım ve Sporcu Ücret Yönetim Ana Sayfası"""
     teams = Team.objects.all().prefetch_related('fee_histories')
-    athletes = Athlete.objects.filter(status='approved', is_active=True).prefetch_related('fee_histories')
+    athletes = Athlete.objects.filter(is_active=True).prefetch_related('fee_histories')
 
     context = {
         'teams': teams,
