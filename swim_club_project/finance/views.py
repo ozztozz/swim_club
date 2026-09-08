@@ -7,7 +7,7 @@ from django.shortcuts import render
 # finance/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Prefetch, Q, Sum
+from django.db.models import Count, F, Prefetch, Q, Sum
 from django.utils import timezone
 from .models import PaymentRecord
 from .forms import ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
@@ -37,7 +37,7 @@ def finance_dashboard(request):
     }
     
     # 2. Özet veriler (Gelir, Bekleyen, Harcama, Net)
-    financial_summary = get_financial_summary(period)
+    financial_summary = get_financial_summary(period, monthly_payments=monthly_payments)
     expense_summary = get_expense_summary(period)
     
     context = {
@@ -169,11 +169,13 @@ def get_regular_expense_summary(period=None):
         is_active=True,
         period=period,
     ).aggregate(total=Sum('amount'))['total'] or 0
-    pending_total = active_expenses.aggregate(total=Sum('amount'))['total'] or 0
+    active_summary = active_expenses.aggregate(total=Sum('amount'), count=Count('id'))
+    pending_total = active_summary['total'] or 0
+    active_count = active_summary['count'] or 0
     return {
-        'regular_expense_count': active_expenses.count(),
+        'regular_expense_count': active_count,
         'regular_paid_count': paid_count,
-        'regular_pending_count': active_expenses.count() - paid_count,
+        'regular_pending_count': active_count - paid_count,
         'regular_paid_total': paid_total,
         'regular_pending_total': pending_total - paid_total,
         'regular_expense_total': pending_total,
@@ -524,7 +526,7 @@ def mark_payment_paid_htmx(request, pk):
 @login_required
 def fee_management(request):
     """Takım ve Sporcu Ücret Yönetim Ana Sayfası"""
-    teams = Team.objects.all().prefetch_related('fee_histories')
+    teams = Team.objects.annotate(athlete_count=Count('athletes')).prefetch_related('fee_histories')
     athletes = Athlete.objects.filter(is_active=True, custom_fee__isnull=False).select_related('team')
 
     context = {

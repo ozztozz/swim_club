@@ -50,7 +50,6 @@ class FinanceModelAndServiceTests(TestCase):
             joined_date=date(2026, 1, 1),
             parent=self.parent_user,  # <-- Eklendi
             gender="M",
-            status="approved",
             is_active=True,
             team=self.team
         )
@@ -61,7 +60,6 @@ class FinanceModelAndServiceTests(TestCase):
             joined_date=date(2026, 1, 1),
             parent=self.parent_user,  # <-- Eklendi
             gender="F",
-            status="approved",
             is_active=True,
             team=self.team,
             custom_fee=Decimal('1000.00')
@@ -74,8 +72,7 @@ class FinanceModelAndServiceTests(TestCase):
             joined_date=date(2026, 1, 1),
             parent=self.parent_user,  # <-- Eklendi
             is_active=True,
-            gender="M",
-            status="pending"
+            gender="M"
         )
         
         # Harcama Kategorisi
@@ -147,7 +144,6 @@ class FinanceModelAndServiceTests(TestCase):
         
         # Create an expense
         Expense.objects.create(
-            title="Ağustos Havuz Kirası",
             category=self.category,
             amount=Decimal('500.00'),
             expense_date=date(2026, 8, 5),

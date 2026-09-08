@@ -33,7 +33,7 @@ def team_list(request):
 @login_required
 def team_detail(request, pk):
 	team = get_object_or_404(
-		Team.objects.prefetch_related('coaches', 'athletes'),
+		Team.objects.prefetch_related('coaches', 'athletes', 'fee_histories'),
 		pk=pk,
 	)
 	return render(request, 'team/team_detail.html', {'team': team})

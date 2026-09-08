@@ -7,7 +7,7 @@
     <div class="flex flex-col gap-2 rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold">⚙️ Aidat & Tarife Yönetimi</h1>
-            <p class="text-sm text-gray-500">Takımların genel ve sporcuların özel ücret geçmişlerini buradan yönetebilirsiniz.</p>
+            <p class="text-sm text-base-content/60">Takımların genel ve sporcuların özel ücretlerini buradan yönetebilirsiniz.</p>
         </div>
     </div>
 
@@ -30,25 +30,25 @@
                     <div>
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-lg text-primary">{{ team.name }}</h3>
-                            <span class="badge badge-neutral text-xs">{{ team.athletes.count }} Sporcu</span>
+                            <span class="badge badge-neutral text-xs">{{ team.athlete_count }} Sporcu</span>
                         </div>
                         
                         <!-- Aktif Fiyat -->
                         {% with team.fee_histories.first as active_fee %}
                         <div class="bg-base-200 p-3 rounded-lg my-3">
-                            <span class="text-xs text-gray-500 block font-medium">Mevcut Aktif Fiyat:</span>
-                            <span class="text-2xl font-black text-success">
+                            <span class="block text-xs font-medium text-base-content/60">Mevcut Aktif Fiyat:</span>
+                            <span class="text-xl font-black text-success">
                                 {% if active_fee %}{{ active_fee.monthly_fee|floatformat:2 }} TL{% else %}Tanımlanmadı{% endif %}
                             </span>
                             {% if active_fee %}
-                            <span class="text-[10px] text-gray-400 block mt-1">Geçerlilik: {{ active_fee.start_date|date:"d.m.Y" }} - Devam ediyor</span>
+                            <span class="mt-1 block text-[10px] text-base-content/50">Geçerlilik: {{ active_fee.start_date|date:"d.m.Y" }} - Devam ediyor</span>
                             {% endif %}
                         </div>
                         {% endwith %}
 
                         <!-- Fiyat Geçmişi Mini Liste -->
                         <div class="space-y-1 mt-2">
-                            <span class="text-xs font-bold text-gray-400 uppercase">Tarife Geçmişi</span>
+                            <span class="text-xs font-bold uppercase text-base-content/50">Tarife Geçmişi</span>
                             <ul class="text-xs space-y-1 max-h-28 overflow-y-auto pr-1">
                                 {% for history in team.fee_histories.all %}
                                 <li class="flex justify-between border-b border-base-200 py-1">
@@ -56,14 +56,14 @@
                                     <span class="font-semibold">{{ history.monthly_fee|floatformat:2 }} TL</span>
                                 </li>
                                 {% empty %}
-                                <li class="text-gray-400 text-xs">Geçmiş kayıt bulunamadı.</li>
+                                <li class="text-xs text-base-content/50">Geçmiş kayıt bulunamadı.</li>
                                 {% endfor %}
                             </ul>
                         </div>
                     </div>
 
                     <!-- Güncelle Butonu -->
-                    <button onclick="document.getElementById('modal-team-{{ team.id }}').showModal()" class="btn btn-primary btn-sm w-full">
+                    <button onclick="document.getElementById('modal-team-{{ team.id }}').showModal()" class="btn btn-warning btn-sm w-full">
                         Tarifeyi Güncelle
                     </button>
                 </div>

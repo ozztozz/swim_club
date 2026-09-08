@@ -61,10 +61,25 @@ def get_or_create_monthly_payments(period_str=None):
         payment.athlete_id: payment for payment in existing_payments
     }
 
+    team_ids = {athlete.team_id for athlete in active_athletes if athlete.team_id}
+    team_fees = {}
+    if team_ids:
+        current_team_fees = TeamFeeHistory.objects.filter(
+            team_id__in=team_ids,
+            start_date__lte=target_period_date,
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=target_period_date)
+        ).order_by('team_id', '-start_date')
+        for fee in current_team_fees:
+            if fee.team_id not in team_fees:
+                team_fees[fee.team_id] = fee.monthly_fee
+
     annotated_athletes = []
 
     for athlete in active_athletes:
-        fee = get_athlete_fee_for_period(athlete, period_str)
+        fee = athlete.custom_fee
+        if fee is None:
+            fee = team_fees.get(athlete.team_id, Decimal('0.00'))
 
         if fee <= 0:
             continue
@@ -81,7 +96,7 @@ def get_or_create_monthly_payments(period_str=None):
 
     return annotated_athletes
 
-def get_financial_summary(period_str=None):
+def get_financial_summary(period_str=None, monthly_payments=None):
     """
     Seçilen döneme ait Tahsil Edilen Aidat, Bekleyen Alacak, 
     Toplam Harcama ve Net Bakiye özetini hesaplar.
@@ -89,7 +104,8 @@ def get_financial_summary(period_str=None):
     if not period_str:
         period_str = date.today().strftime('%Y-%m')
 
-    monthly_payments = get_or_create_monthly_payments(period_str)
+    if monthly_payments is None:
+        monthly_payments = get_or_create_monthly_payments(period_str)
 
     # Tahsilat yalnızca aktif sporcuların gerçek ödeme kayıtlarından hesaplanır.
     total_income = PaymentRecord.objects.filter(

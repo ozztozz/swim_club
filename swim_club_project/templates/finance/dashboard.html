@@ -10,7 +10,7 @@
             <h1 class="text-xl font-bold flex items-center gap-2">
                 💳 Mali İşler & Tahsilat Paneli
             </h1>
-            <p class="text-xs text-gray-500">Sporcu aidatları, ödeme durumları ve finansal özet.</p>
+            <p class="text-xs text-base-content/60">Sporcu aidatları, ödeme durumları ve finansal özet.</p>
         </div>
         <form method="get" class="flex items-center gap-2">
             <label class="text-xs font-semibold whitespace-nowrap">Dönem Filtresi:</label>
@@ -59,12 +59,12 @@
             <div class="mt-4 grid grid-cols-2 gap-3">
                 <a href="{% url 'payment-status-list' 'paid' %}?period={{ period }}" class="block rounded-lg bg-success/10 p-4 transition hover:bg-success/20">
                     <p class="text-xs font-medium text-success">Ödendi</p>
-                    <p class="mt-1 text-2xl font-black">{{ payment_counts.paid }}</p>
+                    <p class="mt-1 text-xl font-black sm:text-2xl">{{ payment_counts.paid }}</p>
                     <p class="text-xs text-base-content/60">kişi</p>
                 </a>
                 <a href="{% url 'payment-status-list' 'pending' %}?period={{ period }}" class="block rounded-lg bg-warning/10 p-4 transition hover:bg-warning/20">
                     <p class="text-xs font-medium text-warning">Bekliyor</p>
-                    <p class="mt-1 text-2xl font-black">{{ payment_counts.pending }}</p>
+                    <p class="mt-1 text-xl font-black sm:text-2xl">{{ payment_counts.pending }}</p>
                     <p class="text-xs text-base-content/60">kişi</p>
                 </a>
             </div>

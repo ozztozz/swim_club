@@ -15,8 +15,8 @@ from django.db.models import Q
 def dashboard_index(request):
     if not (request.user.is_staff or request.user.is_superuser):
         return redirect('parent-dashboard')  # Veli Dashboard
-    pending_athletes = Athlete.objects.filter(is_active=False)
-    approved_athletes = Athlete.objects.filter(is_active=True)
+    pending_athletes = Athlete.objects.filter(is_active=False).select_related('team')
+    approved_athletes = Athlete.objects.filter(is_active=True).select_related('team')
     active_teams = Team.objects.filter(is_active=True).count()
     athlete_count = Athlete.objects.count()
     pending_payments = PaymentRecord.objects.filter(status='pending').count()
@@ -34,7 +34,7 @@ def dashboard_index(request):
 def search_approved_athletes_htmx(request):
     query = request.GET.get('q', '').strip()
     
-    athletes = Athlete.objects.filter(is_active=True)
+    athletes = Athlete.objects.filter(is_active=True).select_related('team')
     if query:
         athletes = athletes.filter(
             Q(first_name__icontains=query) | 
@@ -56,7 +56,7 @@ def approve_athlete_htmx(request, pk):
     athlete.save()
     
     # İşlem sonrası güncel listeyi HTMX'e parça HTML olarak döndürüyoruz
-    pending_athletes = Athlete.objects.filter(is_active=False)
+    pending_athletes = Athlete.objects.filter(is_active=False).select_related('team')
     return render(request, 'dashboard/_pending_athletes.html', {'pending_athletes': pending_athletes})
 
 @login_required
@@ -67,7 +67,7 @@ def reject_athlete_htmx(request, pk):
     athlete.is_active = False
     athlete.save()
     
-    pending_athletes = Athlete.objects.filter(is_active=False)
+    pending_athletes = Athlete.objects.filter(is_active=False).select_related('team')
     return render(request, 'dashboard/_pending_athletes.html', {'pending_athletes': pending_athletes})
 
 @login_required
@@ -79,7 +79,7 @@ def edit_athlete_team_htmx(request, pk):
         form = AthleteTeamForm(request.POST, instance=athlete)
         if form.is_valid():
             form.save()
-            approved_athletes = Athlete.objects.filter(is_active=True)
+            approved_athletes = Athlete.objects.filter(is_active=True).select_related('team')
             response = render(request, 'dashboard/_approved_athletes.html', {
                 'approved_athletes': approved_athletes
             })
@@ -98,19 +98,20 @@ def edit_athlete_team_htmx(request, pk):
 @login_required
 def parent_dashboard(request):
     # Giriş yapan velinin onaylı/onaysız çocukları
-    children = Athlete.objects.filter(parent_email=request.user.email)
+    children = list(Athlete.objects.filter(parent_email=request.user.email).select_related('team'))
     
     # Çocukların tüm ödeme kayıtları
-    payments = PaymentRecord.objects.filter(
+    payments = list(PaymentRecord.objects.filter(
         athlete__in=children
-    ).select_related('athlete').order_by('-period')
+    ).select_related('athlete').order_by('-period'))
     
     # Toplam bekleyen/gecikmiş borç
-    pending_payments = payments.filter(status='pending')
+    pending_payments = [payment for payment in payments if payment.status == 'pending']
     total_due = sum(p.amount for p in pending_payments)
     
     context = {
         'children': children,
+        'children_count': len(children),
         'payments': payments,
         'total_due': total_due,
         'has_pending': pending_payments.exists(),

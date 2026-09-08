@@ -4,7 +4,7 @@
 <div class="mx-auto w-full max-w-3xl space-y-6">
     <a href="{% url 'athlete-manage-list' %}" class="btn btn-ghost btn-sm">← Sporcu listesine dön</a>
 
-    <section class="mx-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+    <section class="mx-auto w-full max-w-2xl overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
         <div class="flex flex-col items-center gap-3 border-b border-base-200 p-3 sm:flex-row">
             {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-20 w-20 rounded-full object-cover ring-2 ring-primary/10">{% else %}<div class="grid h-20 w-20 place-items-center rounded-full bg-primary/10 text-2xl font-black text-primary">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>{% endif %}
             <div class="text-center sm:text-left">
@@ -22,7 +22,7 @@
 
     </section>
 
-    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+    <section class="overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
         <div class="flex flex-col gap-3 border-b border-base-200 p-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
             
