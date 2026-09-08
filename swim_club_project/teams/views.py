@@ -60,9 +60,10 @@ def team_create(request):
 def team_update(request, pk):
 	team = get_object_or_404(Team, pk=pk)
 	form = TeamForm(request.POST or None, instance=team)
+	return_to_detail = request.GET.get('return_to_detail') or request.POST.get('return_to_detail')
 	if request.method == 'POST' and form.is_valid():
 		form.save()
-		if request.POST.get('return_to_detail'):
+		if return_to_detail:
 			response = render(request, 'team/team_detail.html', {'team': team})
 			response['HX-Redirect'] = request.build_absolute_uri(reverse('team-detail', args=[team.pk]))
 			return response
@@ -76,7 +77,7 @@ def team_update(request, pk):
 		'modal_title': 'Takımı düzenle',
 		'submit_label': 'Değişiklikleri kaydet',
 		'form_url': 'team-update',
-		'return_to_detail': request.GET.get('return_to_detail'),
+		'return_to_detail': return_to_detail,
 	})
 
 
