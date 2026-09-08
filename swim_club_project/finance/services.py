@@ -1,5 +1,5 @@
 # finance/services.py
-from datetime import date
+from datetime import date, datetime, timezone
 from django.db.models import Sum
 from athletes.models import Athlete
 from decimal import Decimal
@@ -54,7 +54,7 @@ def get_or_create_monthly_payments(period_str=None):
 
     existing_payments = PaymentRecord.objects.filter(
         period=period_str,
-        payment_type='fee',
+        
         athlete__in=active_athletes
     ).select_related('athlete', 'athlete__team')
     existing_payments_by_athlete_id = {
@@ -86,14 +86,18 @@ def get_or_create_monthly_payments(period_str=None):
 
         payment_record = existing_payments_by_athlete_id.get(athlete.id)
         athlete.period = period_str
+        athlete.fee_type = payment_record.payment_type if payment_record else 'fee'
+        athlete.fee_type_display = payment_record.get_payment_type_display() if payment_record else 'Aidat'
         athlete.amount = fee
+        athlete.paid_amount = payment_record.amount if payment_record else Decimal('0.00')
+        athlete.paid_by = athlete.first_name + ' ' + athlete.last_name
         athlete.due_date = payment_record.due_date if payment_record else default_due_date
         athlete.payment_record = payment_record
         athlete.payment_status = payment_record.status if payment_record else 'pending'
         athlete.paid_at = payment_record.paid_at if payment_record else None
         athlete.collected_by = payment_record.collected_by if payment_record else None
         annotated_athletes.append(athlete)
-
+    annotated_athletes.sort(key=lambda athlete: athlete.paid_at if athlete.paid_at is not None else datetime.max.replace(tzinfo=timezone.utc), reverse=True)
     return annotated_athletes
 
 def get_financial_summary(period_str=None, monthly_payments=None):

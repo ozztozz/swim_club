@@ -28,9 +28,9 @@
                     <p class="truncate text-xs text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takımsız{% endif %}</p>
                 </div>
                 <div class="text-right">
-                    <p class="font-semibold">{{ athlete.amount|floatformat:2 }} TL</p>
+                    <p class="font-semibold"> {{ athlete.paid_amount|floatformat:2 }} TL</p>
                     {% if payment_status == 'paid' %}
-                    <p class="text-xs text-success">{{ athlete.paid_at|date:'d.m.Y' }}</p>
+                    <p class="text-xs text-success">{% if athlete.fee_type == 'fee' and athlete.paid_amount < athlete.amount %} <span class="font-bold text-error">{{ athlete.amount|floatformat:2 }} - {% endif %} {% if athlete.fee_type != 'fee' %} {{athlete.fee_type_display}}{% endif %}  {{ athlete.paid_at|date:'d.m.Y' }}</p>
                     {% else %}
                     <p class="text-xs text-warning">Bekliyor</p>
                     {% endif %}
