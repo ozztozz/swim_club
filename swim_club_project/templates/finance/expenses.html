@@ -31,11 +31,11 @@
                 <span class="label label-text text-xs font-bold uppercase tracking-wider">Dönem</span>
                 <input type="month" name="period" value="{{ period }}" class="input input-bordered input-sm" onchange="this.form.submit()">
             </label>
-            <label class="form-control">
+            <label class="form-control hidden">
                 <span class="label label-text text-xs font-bold uppercase tracking-wider">Alıcı ara</span>
                 <input type="search" name="q" value="{{ query }}" placeholder="Firma veya kişi adı" class="input input-bordered input-sm">
             </label>
-            <label class="form-control">
+            <label class="form-control hidden">
                 <span class="label label-text text-xs font-bold uppercase tracking-wider">Kategori</span>
                 <select name="category" class="select select-bordered select-sm">
                     <option value="">Tüm kategoriler</option>
@@ -52,7 +52,6 @@
                 <thead>
                     <tr class="text-xs uppercase tracking-wider text-base-content/50">
                         <th>Tarih</th>
-                        <th class="w-16 text-center">Ödeme</th>
                         <th class="hidden md:table-cell">Kategori</th>
                         <th>Alıcı / firma</th>
                         <th class="hidden md:table-cell">Belge no</th>
