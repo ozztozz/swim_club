@@ -129,7 +129,7 @@
                     {% with active_fee=team.fee_histories.first %}
 
                         {% if active_fee %}
-                            {{ active_fee.monthly_fee|floatformat:2 }} TL
+                            {{ active_fee.monthly_fee|floatformat:0 }}
                         {% else %}
                             <span class="text-[10px] text-base-content/40">
                                 Tanımlanmadı

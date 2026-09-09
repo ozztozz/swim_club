@@ -164,11 +164,10 @@
 
                     <p class="whitespace-nowrap text-base font-semibold text-base-content/70">
                         {% if payment_status == 'paid' %}
-                            {{ athlete.paid_amount|floatformat:2 }}
+                            {{ athlete.paid_amount|floatformat:0 }}
                         {% else %}
-                            {{ athlete.amount|floatformat:2 }}
+                            {{ athlete.amount|floatformat:0 }}
                         {% endif %}
-                        TL
                     </p>
 
 
@@ -181,7 +180,7 @@
                             {% if athlete.fee_type == 'fee' and athlete.paid_amount < athlete.amount %}
 
                                 <span class="text-xs font-medium text-error/80">
-                                    {{ athlete.amount|floatformat:2 }} TL
+                                    {{ athlete.amount|floatformat:0 }}
                                 </span>
 
                                 <span class="mx-0.5 text-xs text-base-content/20">

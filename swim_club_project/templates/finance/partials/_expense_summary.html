@@ -17,7 +17,7 @@
 
             <p id="expense-total"
                class="text-base font-black text-error whitespace-nowrap">
-                {{ total_expense|floatformat:2 }} TL
+                {{ total_expense|floatformat:0 }}
             </p>
         </div>
 
@@ -39,7 +39,7 @@
                     </span>
 
                     <span class="shrink-0 text-[10px] font-bold text-base-content">
-                        {{ category.total|floatformat:2 }} TL
+                        {{ category.total|floatformat:0 }}
                     </span>
 
                 </div>
@@ -86,7 +86,7 @@
 
                 <p id="regular-paid-total"
                    class="mt-0.5 text-xs font-black text-base-content whitespace-nowrap">
-                    {{ regular_paid_total|floatformat:2 }} TL
+                    {{ regular_paid_total|floatformat:0 }}
                 </p>
 
             </div>
@@ -101,7 +101,7 @@
 
                 <p id="regular-pending-total"
                    class="mt-0.5 text-xs font-black text-base-content whitespace-nowrap">
-                    {{ regular_pending_total|floatformat:2 }} TL
+                    {{ regular_pending_total|floatformat:0 }}
                 </p>
 
             </div>

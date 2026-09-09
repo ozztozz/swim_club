@@ -18,7 +18,7 @@
             <div>
                 <span class="block text-xs font-medium text-base-content/60">Toplam Bekleyen Borç</span>
                 <span class="text-xl font-bold {% if total_due > 0 %}text-error{% else %}text-success{% endif %}">
-                    {{ total_due|floatformat:2 }} TL
+                    {{ total_due|floatformat:0 }}
                 </span>
             </div>
             {% if has_pending %}
@@ -65,7 +65,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-base-content/60">Aylık Aidat:</span>
-                        <span class="font-bold text-base">{{ child.current_monthly_fee|floatformat:2 }} TL</span>
+                        <span class="font-bold text-base">{{ child.current_monthly_fee|floatformat:0 }}</span>
                     </div>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                     <tr>
                         <td class="font-semibold">{{ payment.athlete.get_full_name }}</td>
                         <td>{{ payment.period }}</td>
-                        <td class="font-bold">{{ payment.amount|floatformat:2 }} TL</td>
+                        <td class="font-bold">{{ payment.amount|floatformat:0 }}</td>
                         <td>
                             {% if payment.status == 'paid' %}
                                 <span class="badge badge-success text-white text-xs">Ödendi</span>

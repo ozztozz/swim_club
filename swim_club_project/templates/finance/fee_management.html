@@ -120,11 +120,10 @@
                                 {% if active_fee %}
 
                                     <span class="text-lg font-black text-success">
-                                        {{ active_fee.monthly_fee|floatformat:2 }}
+                                        {{ active_fee.monthly_fee|floatformat:0 }}
                                     </span>
 
                                     <span class="text-[10px] font-bold text-success">
-                                        TL
                                     </span>
 
                                 {% else %}
@@ -187,7 +186,7 @@
                                 </div>
 
                                 <span class="shrink-0 text-[10px] font-bold text-base-content">
-                                    {{ history.monthly_fee|floatformat:2 }} TL
+                                    {{ history.monthly_fee|floatformat:0 }}
                                 </span>
 
                             </div>
@@ -413,7 +412,7 @@
 
                         <span class="rounded-lg border border-primary/10 bg-primary/5 px-2.5 py-1.5 text-xs font-black text-primary">
 
-                            {{ athlete.custom_fee|floatformat:2 }} TL
+                            {{ athlete.custom_fee|floatformat:0 }}
 
                         </span>
 

@@ -23,7 +23,7 @@
                     {% endif %}
                 </td>
                 <td class="whitespace-nowrap text-right font-bold text-primary">
-                    {{ athlete.current_monthly_fee|floatformat:2 }} TL
+                    {{ athlete.current_monthly_fee|floatformat:0 }}
                     {% if athlete.custom_fee is not None %}
                         <span class="badge badge-warning badge-xs ml-1">Özel</span>
                     {% endif %}

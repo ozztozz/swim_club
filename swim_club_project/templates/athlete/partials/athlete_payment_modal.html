@@ -38,11 +38,10 @@
 
                 <strong class="text-lg font-black text-primary">
                     {% if item.payment %}
-                        {{ item.payment.amount|floatformat:2 }}
+                        {{ item.payment.amount|floatformat:0 }}
                     {% else %}
-                        {{ item.amount|floatformat:2 }}
+                        {{ item.amount|floatformat:0 }}
                     {% endif %}
-                    TL
                 </strong>
 
             </div>

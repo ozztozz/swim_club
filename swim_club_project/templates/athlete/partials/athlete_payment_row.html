@@ -23,7 +23,7 @@
                 </span>
 
                 <span class="shrink-0">
-                    {{ item.amount|floatformat:2 }} TL
+                    {{ item.amount|floatformat:0 }}
                 </span>
 
                 <span class="text-base-content/20">
@@ -31,7 +31,7 @@
                 </span>
 
                 <span class="shrink-0 text-error/80">
-                    Ödenen {{ item.paid_amount|floatformat:2 }} TL
+                    Ödenen {{ item.paid_amount|floatformat:0 }}
                 </span>
 
             {% elif item.status == 'paid' %}
@@ -41,7 +41,7 @@
                 </span>
 
                 <span class="font-medium text-base-content/60">
-                    {{ item.paid_amount|floatformat:2 }} TL
+                    {{ item.paid_amount|floatformat:0 }}
                 </span>
 
             {% else %}
@@ -51,7 +51,7 @@
                 </span>
 
                 <span class="font-medium text-base-content/60">
-                    {{ item.amount|floatformat:2 }} TL
+                    {{ item.amount|floatformat:0 }}
                 </span>
 
             {% endif %}
