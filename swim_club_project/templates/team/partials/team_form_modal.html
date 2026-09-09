@@ -1,15 +1,174 @@
 <dialog id="team_modal" class="modal modal-open">
-    <div class="modal-box max-w-2xl">
-        <h3 class="text-2xl font-black">{{ modal_title }}</h3>
-        <form method="post" hx-post="{% if team %}{% url 'team-update' team.pk %}{% else %}{% url 'team-create' %}{% endif %}" hx-target="{% if return_to_detail %}#team-modal-container{% else %}#team-table{% endif %}" hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}" class="mt-5 space-y-4">
+
+    <div class="modal-box w-[calc(100%-1rem)] max-w-md max-h-[92vh] overflow-hidden rounded-2xl p-0 sm:max-w-lg">
+
+        <!-- Başlık -->
+        <div class="flex items-start justify-between gap-3 border-b border-base-200 px-4 py-4 sm:px-5">
+
+            <div class="min-w-0">
+                <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                    Takım yönetimi
+                </p>
+
+                <h3 class="mt-1 text-xl font-black text-base-content">
+                    {{ modal_title }}
+                </h3>
+
+                <p class="mt-1 text-[10px] text-base-content/50">
+                    Takım bilgilerini ve sorumlu antrenörleri düzenleyin.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-circle btn-ghost h-8 w-8 min-h-0 shrink-0 text-sm"
+                onclick="document.getElementById('team_modal').remove()"
+                aria-label="Kapat">
+                ✕
+            </button>
+
+        </div>
+
+
+        <!-- Form -->
+        <form
+            method="post"
+            hx-post="{% if team %}{% url 'team-update' team.pk %}{% else %}{% url 'team-create' %}{% endif %}"
+            hx-target="{% if return_to_detail %}#team-modal-container{% else %}#team-table{% endif %}"
+            hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}"
+            class="max-h-[calc(92vh-105px)] overflow-y-auto px-4 py-4 sm:px-5">
+
             {% csrf_token %}
-            {% if return_to_detail %}<input type="hidden" name="return_to_detail" value="1">{% endif %}
-            {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
-            <label class="form-control"><span class="label label-text font-bold">Takım adı</span>{{ form.name }}{% if form.name.errors %}<span class="label-text-alt text-error">{{ form.name.errors|striptags }}</span>{% endif %}</label>
-            <label class="form-control"><span class="label label-text font-bold">Açıklama</span>{{ form.description }}</label>
-            <label class="form-control"><span class="label label-text font-bold">Antrenörler</span>{{ form.coaches }}</label>
-            <label class="label cursor-pointer justify-start gap-3"><span class="label-text font-bold">Aktif takım</span>{{ form.is_active }}</label>
-            <div class="modal-action"><button type="button" class="btn btn-ghost" onclick="document.getElementById('team_modal').remove()">İptal</button><button class="btn btn-primary" type="submit">{{ submit_label }}</button></div>
+
+            {% if return_to_detail %}
+                <input type="hidden" name="return_to_detail" value="1">
+            {% endif %}
+
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error mb-3 text-xs">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+
+            <div class="space-y-3">
+
+                <!-- Temel bilgiler -->
+                <div class="rounded-2xl border border-base-200 bg-base-200/40 p-3">
+
+                    <p class="mb-3 text-[10px] font-black uppercase tracking-wide text-base-content/40">
+                        Takım bilgileri
+                    </p>
+
+                    <div class="space-y-3">
+
+                        <label class="form-control">
+
+                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                                Takım adı
+                            </span>
+
+                            {{ form.name }}
+
+                            {% if form.name.errors %}
+                                <span class="mt-1 text-[10px] text-error">
+                                    {{ form.name.errors|striptags }}
+                                </span>
+                            {% endif %}
+
+                        </label>
+
+
+                        <label class="form-control">
+
+                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                                Açıklama
+                            </span>
+
+                            {{ form.description }}
+
+                            {% if form.description.errors %}
+                                <span class="mt-1 text-[10px] text-error">
+                                    {{ form.description.errors|striptags }}
+                                </span>
+                            {% endif %}
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Antrenörler -->
+                <div class="rounded-2xl border border-base-200 bg-base-200/40 p-3">
+
+                    <p class="mb-2 text-[10px] font-black uppercase tracking-wide text-base-content/40">
+                        Sorumlu kişiler
+                    </p>
+
+                    <label class="form-control">
+
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Antrenörler
+                        </span>
+
+                        {{ form.coaches }}
+
+                        {% if form.coaches.errors %}
+                            <span class="mt-1 text-[10px] text-error">
+                                {{ form.coaches.errors|striptags }}
+                            </span>
+                        {% endif %}
+
+                    </label>
+
+                </div>
+
+
+                <!-- Durum -->
+                <label class="flex items-center justify-between rounded-2xl border border-base-200 bg-base-200/40 px-3 py-3">
+
+                    <div>
+                        <p class="text-xs font-bold text-base-content">
+                            Aktif takım
+                        </p>
+
+                        <p class="mt-0.5 text-[9px] text-base-content/40">
+                            Takım aktif olarak kullanılmaya devam eder.
+                        </p>
+                    </div>
+
+                    <div class="shrink-0">
+                        {{ form.is_active }}
+                    </div>
+
+                </label>
+
+            </div>
+
+
+            <!-- Aksiyonlar -->
+            <div class="mt-4 grid grid-cols-2 gap-2 border-t border-base-200 pt-4">
+
+                <button
+                    type="button"
+                    class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs font-bold"
+                    onclick="document.getElementById('team_modal').remove()">
+                    İptal
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm">
+                    {{ submit_label }}
+                </button>
+
+            </div>
+
         </form>
+
     </div>
+
 </dialog>

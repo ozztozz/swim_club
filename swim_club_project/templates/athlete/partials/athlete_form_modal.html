@@ -1,34 +1,342 @@
 <dialog id="athlete_modal" class="modal modal-open">
-    <div class="modal-box max-h-[90vh] w-[calc(100%-1rem)] max-w-4xl overflow-hidden p-0 sm:w-11/12">
-        <div class="border-b border-base-200 px-5 py-4 sm:px-6">
-            <h3 class="text-xl font-black sm:text-2xl">{{ modal_title }}</h3>
+
+    <div class="modal-box flex max-h-[92vh] w-[calc(100%-1rem)] max-w-xl flex-col overflow-hidden rounded-2xl p-0 sm:w-11/12">
+
+        <!-- Başlık -->
+        <div class="shrink-0 border-b border-base-200 bg-base-100 px-4 py-3.5 sm:px-5">
+
+            <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                Sporcu yönetimi
+            </p>
+
+            <h3 class="mt-0.5 text-lg font-black text-base-content">
+                {{ modal_title }}
+            </h3>
+
         </div>
-        <form method="post" enctype="multipart/form-data" hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}" hx-target="{% if return_to_detail %}#athlete-modal-container{% else %}#athlete-table{% endif %}" hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}" class="max-h-[calc(90vh-5rem)] space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
+
+
+        <!-- Form -->
+        <form
+            method="post"
+            enctype="multipart/form-data"
+            hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}"
+            hx-target="{% if return_to_detail %}#athlete-modal-container{% else %}#athlete-table{% endif %}"
+            hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}"
+            class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+
             {% csrf_token %}
-            {% if return_to_detail %}<input type="hidden" name="return_to_detail" value="1">{% endif %}
-            {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
-            <div class="grid min-w-0 gap-4 sm:grid-cols-2">
-                <label class="form-control"><span class="label label-text font-bold">Ad</span>{{ form.first_name }}{{ form.first_name.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Soyad</span>{{ form.last_name }}{{ form.last_name.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Sporcu telefonu</span>{{ form.phone_number }}{{ form.phone_number.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Veli</span>{{ form.parent }}{{ form.parent.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Veli telefonu</span>{{ form.parent_phone }}{{ form.parent_phone.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Veli e-postası</span>{{ form.parent_email }}{{ form.parent_email.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Cinsiyet</span>{{ form.gender }}{{ form.gender.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Doğum tarihi</span>{{ form.birth_date }}{{ form.birth_date.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Kulübe katılım tarihi</span>{{ form.joined_date }}{{ form.joined_date.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">T.C. kimlik no</span>{{ form.tc_identity }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Okul</span>{{ form.school }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Lisans no</span>{{ form.license_number }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Fotoğraf</span>{{ form.photo }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Takım</span>{{ form.team }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Durum</span>{{ form.status }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Özel aidat (TL)</span>{{ form.custom_fee }}</label>
-                <label class="form-control"><span class="label label-text font-bold">İndirim (%)</span>{{ form.discount_percentage }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Ödeme günü</span>{{ form.regular_payment_day }}</label>
+
+            {% if return_to_detail %}
+                <input type="hidden" name="return_to_detail" value="1">
+            {% endif %}
+
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error mb-3 rounded-xl py-2 text-xs">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+
+            <!-- Temel bilgiler -->
+            <div class="mb-4">
+
+                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">
+                    Temel bilgiler
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Ad
+                        </span>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.first_name.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Soyad
+                        </span>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.last_name.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Sporcu telefonu
+                        </span>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.phone_number.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Cinsiyet
+                        </span>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.gender.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Doğum tarihi
+                        </span>
+                        {{ form.birth_date }}
+                        {% if form.birth_date.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.birth_date.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Kulübe katılım tarihi
+                        </span>
+                        {{ form.joined_date }}
+                        {% if form.joined_date.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.joined_date.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                </div>
+
             </div>
-            <label class="label cursor-pointer justify-start gap-3"><span class="label-text font-bold">Aktif sporcu</span>{{ form.is_active }}</label>
-            <div class="modal-action flex-col-reverse border-t border-base-200 pt-4 sm:flex-row"><button type="button" class="btn btn-ghost w-full sm:w-auto" onclick="document.getElementById('athlete_modal').remove()">İptal</button><button class="btn btn-primary w-full sm:w-auto" type="submit">{{ submit_label }}</button></div>
+
+
+            <!-- Veli bilgileri -->
+            <div class="mb-4">
+
+                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">
+                    Veli bilgileri
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Veli
+                        </span>
+                        {{ form.parent }}
+                        {% if form.parent.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.parent.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Veli telefonu
+                        </span>
+                        {{ form.parent_phone }}
+                        {% if form.parent_phone.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.parent_phone.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control sm:col-span-2">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Veli e-postası
+                        </span>
+                        {{ form.parent_email }}
+                        {% if form.parent_email.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.parent_email.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- Kulüp bilgileri -->
+            <div class="mb-4">
+
+                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">
+                    Kulüp bilgileri
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Takım
+                        </span>
+                        {{ form.team }}
+                        {% if form.team.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.team.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Durum
+                        </span>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.status.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Kulübe katılım tarihi
+                        </span>
+                        {{ form.joined_date }}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Lisans no
+                        </span>
+                        {{ form.license_number }}
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- Kimlik / okul -->
+            <div class="mb-4">
+
+                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">
+                    Kimlik ve eğitim
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            T.C. kimlik no
+                        </span>
+                        {{ form.tc_identity }}
+                        {% if form.tc_identity.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.tc_identity.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Okul
+                        </span>
+                        {{ form.school }}
+                        {% if form.school.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.school.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- Aidat -->
+            <div class="mb-4">
+
+                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">
+                    Aidat bilgileri
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-3">
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Özel aidat (TL)
+                        </span>
+                        {{ form.custom_fee }}
+                        {% if form.custom_fee.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.custom_fee.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            İndirim (%)
+                        </span>
+                        {{ form.discount_percentage }}
+                        {% if form.discount_percentage.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.discount_percentage.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                    <label class="form-control">
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Ödeme günü
+                        </span>
+                        {{ form.regular_payment_day }}
+                        {% if form.regular_payment_day.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.regular_payment_day.errors }}</span>
+                        {% endif %}
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- Fotoğraf -->
+            <div class="mb-4">
+
+                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">
+                    Fotoğraf
+                </p>
+
+                <label class="form-control">
+                    {{ form.photo }}
+                    {% if form.photo.errors %}
+                        <span class="mt-1 text-[10px] text-error">{{ form.photo.errors }}</span>
+                    {% endif %}
+                </label>
+
+            </div>
+
+
+            <!-- Aktiflik -->
+            <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-base-200 bg-base-200/40 px-3 py-3">
+
+                {{ form.is_active }}
+
+                <div>
+                    <p class="text-xs font-bold text-base-content">
+                        Aktif sporcu
+                    </p>
+                    <p class="mt-0.5 text-[10px] text-base-content/40">
+                        Sporcu kulüp kayıtlarında aktif olarak gösterilsin.
+                    </p>
+                </div>
+
+            </label>
+
+
+            <!-- Aksiyonlar -->
+            <div class="mt-4 grid grid-cols-2 gap-2 border-t border-base-200 pt-4">
+
+                <button
+                    type="button"
+                    class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs font-bold"
+                    onclick="document.getElementById('athlete_modal').remove()">
+                    İptal
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm">
+                    {{ submit_label }}
+                </button>
+
+            </div>
+
         </form>
+
     </div>
+
 </dialog>

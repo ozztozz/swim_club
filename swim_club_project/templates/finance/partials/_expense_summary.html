@@ -1,35 +1,113 @@
-<section id="expense-summary"{% if oob %} hx-swap-oob="outerHTML"{% endif %} class="grid gap-4 md:grid-cols-2">
-    <div class="flex min-w-0 items-center gap-3 rounded-xl border border-base-200 bg-base-100 p-3 shadow-sm">
-        <div class="min-w-0 shrink-0 border-r border-base-200 pr-3">
-            <p class="truncate text-xs font-medium opacity-80">{{ period }}</p>
-            <p id="expense-total" class=" font-black text-error">{{ total_expense|floatformat:2 }} TL</p>
+<section id="expense-summary"
+    {% if oob %}hx-swap-oob="outerHTML"{% endif %}
+    class="space-y-2">
+
+    <!-- TOPLAM HARCAMA -->
+    <div class="rounded-2xl border border-base-300 bg-base-100 shadow-sm overflow-hidden">
+
+        <div class="flex items-center justify-between px-3 py-2.5">
+            <div class="min-w-0">
+                <p class="text-[10px] font-semibold text-base-content/60">
+                    Toplam Harcama
+                </p>
+                <p class="text-[10px] text-base-content/40">
+                    {{ period }}
+                </p>
+            </div>
+
+            <p id="expense-total"
+               class="text-base font-black text-error whitespace-nowrap">
+                {{ total_expense|floatformat:2 }} TL
+            </p>
         </div>
-        <div class="min-w-0 flex-1">
-            <p class="truncate text-xs font-medium text-base-content/60">Harcamalar</p>
-            <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+
+        {% if category_totals %}
+        <div class="border-t border-base-200 px-3 py-2.5">
+
+            <p class="mb-1.5 text-[9px] font-bold uppercase tracking-wider text-base-content/40">
+                Kategoriler
+            </p>
+
+            <div class="flex flex-wrap gap-1.5">
+
                 {% for category in category_totals %}
-                <div class="flex min-w-0 max-w-full items-center gap-1 text-xs">
-                    <span class="max-w-28 truncate text-base-content/70">{{ category.name }}</span>
-                    <span class="shrink-0 whitespace-nowrap ">{{ category.total|floatformat:2 }} TL</span>
+
+                <div class="inline-flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-base-200 bg-base-200/40 px-2 py-1">
+
+                    <span class="max-w-[100px] truncate text-[10px] text-base-content/60">
+                        {{ category.name }}
+                    </span>
+
+                    <span class="shrink-0 text-[10px] font-bold text-base-content">
+                        {{ category.total|floatformat:2 }} TL
+                    </span>
+
                 </div>
-                {% empty %}
-                <p class="truncate text-xs text-base-content/50">Henüz aktif harcama yok.</p>
+
                 {% endfor %}
+
             </div>
         </div>
-    </div>
-    <div class="rounded-xl border border-base-200 bg-base-100 p-3 shadow-sm">
-        <p class="truncate text-xs font-medium text-base-content/60">Düzenli ödemeler</p>
-        <div class="mt-2 grid grid-cols-2 gap-2">
-            <div>
-                <p class="text-[11px] text-success">Ödenen</p>
-                <p id="regular-paid-total" class=" font-black">{{ regular_paid_total|floatformat:2 }} TL</p>
-            </div>
-            <div>
-                <p class="text-[11px] text-warning">Bekleyen</p>
-                <p id="regular-pending-total" class=" font-black">{{ regular_pending_total|floatformat:2 }} TL</p>
-            </div>
+
+        {% else %}
+
+        <div class="border-t border-base-200 px-3 py-2">
+            <p class="text-[10px] text-base-content/40">
+                Bu dönemde aktif harcama yok.
+            </p>
         </div>
-        <p class="mt-2 truncate text-[11px] text-base-content/50">{{ regular_paid_count }} ödenen, {{ regular_pending_count }} bekleyen kayıt</p>
+
+        {% endif %}
+
     </div>
+
+
+    <!-- DÜZENLİ ÖDEMELER -->
+    <div class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm">
+
+        <div class="mb-2 flex items-center justify-between">
+            <p class="text-[10px] font-semibold text-base-content/60">
+                Düzenli Ödemeler
+            </p>
+
+            <p class="text-[9px] text-base-content/40">
+                {{ regular_paid_count }} ödendi · {{ regular_pending_count }} bekliyor
+            </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+
+            <!-- ÖDENEN -->
+            <div class="rounded-xl border border-success/10 bg-success/5 px-2.5 py-2">
+
+                <p class="text-[9px] font-bold uppercase tracking-wide text-success">
+                    Ödenen
+                </p>
+
+                <p id="regular-paid-total"
+                   class="mt-0.5 text-xs font-black text-base-content whitespace-nowrap">
+                    {{ regular_paid_total|floatformat:2 }} TL
+                </p>
+
+            </div>
+
+
+            <!-- BEKLEYEN -->
+            <div class="rounded-xl border border-warning/10 bg-warning/5 px-2.5 py-2">
+
+                <p class="text-[9px] font-bold uppercase tracking-wide text-warning">
+                    Bekleyen
+                </p>
+
+                <p id="regular-pending-total"
+                   class="mt-0.5 text-xs font-black text-base-content whitespace-nowrap">
+                    {{ regular_pending_total|floatformat:2 }} TL
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </section>

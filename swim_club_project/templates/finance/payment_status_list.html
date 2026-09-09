@@ -1,43 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-5xl space-y-4">
-    <div class="flex flex-col gap-3 rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <a href="{% url 'finance-dashboard' %}?period={{ period }}" class="text-sm text-base-content/60 hover:text-primary">← Finans paneline dön</a>
-            <h1 class="mt-2 text-xl font-bold">{{ status_label }}</h1>
-            <p class="text-sm text-base-content/60">{{ period }} dönemi</p>
+<div class="w-full space-y-4">
+    
+    <!-- 1. ÜST BAŞLIK VE DÖNEM SEÇİCİ -->
+    <div class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <a href="{% url 'finance-dashboard' %}?period={{ period }}" class="text-xs text-base-content/60 hover:text-primary block mb-1">
+                    ← Finans paneline dön
+                </a>
+                <h1 class="text-base font-black text-base-content">{{ status_label }}</h1>
+                <p class="text-xs text-base-content/50">{{ period }} dönemi</p>
+            </div>
+            
+            <form method="get" class="flex items-center gap-2">
+                <input id="period" type="month" name="period" value="{{ period }}" class="input input-bordered input-xs text-xs w-32" onchange="this.form.submit()">
+            </form>
         </div>
-        <form method="get" class="flex items-center gap-2">
-            <label for="period" class="text-xs font-semibold whitespace-nowrap">Dönem:</label>
-            <input id="period" type="month" name="period" value="{{ period }}" class="input input-bordered input-sm" onchange="this.form.submit()">
-        </form>
     </div>
 
-    <section class="overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
+    <!-- 2. MOBİL SPORCU LİSTESİ -->
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
         <div class="divide-y divide-base-200">
             {% for athlete in payments %}
-            <div class="flex items-center gap-3 p-4">
+            <!-- Tüm satırı kapsayan bağlantı ve mobil dokunma efekti -->
+            <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="flex items-center gap-3 p-3 active:bg-base-200/50 transition-colors cursor-pointer">
+                
+                <!-- Profil Fotoğrafı veya Baş Harfler -->
                 {% if athlete.photo %}
-                <img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-11 w-11 shrink-0 rounded-full object-cover">
+                    <img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-10 w-10 shrink-0 rounded-full object-cover">
                 {% else %}
-                <div class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/10 font-bold text-primary">{{ athlete.first_name|first }}{{ athlete.last_name|first }}</div>
+                    <div class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                        {{ athlete.first_name|first }}{{ athlete.last_name|first }}
+                    </div>
                 {% endif %}
+                
+                <!-- Sporcu Bilgileri -->
                 <div class="min-w-0 flex-1">
-                    <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="truncate font-bold hover:text-primary">{{ athlete.get_full_name }}</a>
-                    <p class="truncate text-xs text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takımsız{% endif %}</p>
+                    <p class="truncate text-sm font-bold text-base-content">{{ athlete.get_full_name }}</p>
+                    <p class="truncate text-xs text-base-content/60">
+                        {% if athlete.team %}{{ athlete.team.name }}{% else %}Takımsız{% endif %}
+                    </p>
                 </div>
-                <div class="text-right">
-                    <p class="font-semibold"> {{ athlete.paid_amount|floatformat:2 }} TL</p>
+                
+                <!-- Ödeme Durumu ve Tutar -->
+                <div class="text-right shrink-0">
+                    <p class="text-sm font-black text-base-content">{{ athlete.paid_amount|floatformat:2 }} TL</p>
                     {% if payment_status == 'paid' %}
-                    <p class="text-xs text-success">{% if athlete.fee_type == 'fee' and athlete.paid_amount < athlete.amount %} <span class="font-bold text-error">{{ athlete.amount|floatformat:2 }} - {% endif %} {% if athlete.fee_type != 'fee' %} {{athlete.fee_type_display}}{% endif %}  {{ athlete.paid_at|date:'d.m.Y' }}</p>
+                        <p class="text-[10px] text-success font-medium">
+                            {% if athlete.fee_type == 'fee' and athlete.paid_amount < athlete.amount %}
+                                <span class="font-bold text-error">{{ athlete.amount|floatformat:2 }} - </span>
+                            {% endif %}
+                            {% if athlete.fee_type != 'fee' %}
+                                {{ athlete.fee_type_display }}
+                            {% endif %}
+                            {{ athlete.paid_at|date:'d.m.Y' }}
+                        </p>
                     {% else %}
-                    <p class="text-xs text-warning">Bekliyor</p>
+                        <p class="text-[10px] text-warning font-bold">Bekliyor</p>
                     {% endif %}
                 </div>
-            </div>
+
+            </a>
             {% empty %}
-            <p class="p-8 text-center text-sm text-base-content/60">Bu dönem için {{ status_label|lower }} bulunmuyor.</p>
+                <p class="p-8 text-center text-xs text-base-content/50">Bu dönem için {{ status_label|lower }} bulunmuyor.</p>
             {% endfor %}
         </div>
     </section>

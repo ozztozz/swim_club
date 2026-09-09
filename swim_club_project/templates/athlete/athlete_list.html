@@ -1,36 +1,126 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-7xl space-y-4 sm:space-y-6">
-    <header class="flex items-center justify-between gap-3">
-        <div>
-            <h1 class="text-2xl font-black tracking-tight">Sporcular</h1>
-            <p class="mt-1 hidden text-sm text-base-content/60 sm:block">Sporcu kayıtlarını, takım atamalarını ve aidat bilgilerini yönetin.</p>
+
+<div class="w-full space-y-4">
+
+    <!-- SAYFA BAŞLIĞI -->
+    <header class="flex items-center justify-between gap-3 px-1">
+
+        <div class="min-w-0">
+
+            <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                Kulüp yönetimi
+            </p>
+
+            <h1 class="mt-0.5 text-xl font-black tracking-tight text-base-content">
+                Sporcular
+            </h1>
+
+            <p class="mt-1 text-xs text-base-content/50">
+                Sporcu kayıtlarını, takımları ve aidatları yönetin.
+            </p>
+
         </div>
-        <button class="btn btn-primary btn-sm shrink-0 sm:btn-md" hx-get="{% url 'athlete-manage-create' %}" hx-target="#athlete-modal-container" hx-swap="innerHTML">
-            <span class="text-lg leading-none">+</span><span class="hidden sm:inline">Yeni sporcu</span><span class="sm:hidden">Ekle</span>
+
+
+        <!-- YENİ SPORCU -->
+        <button
+            type="button"
+            class="btn btn-primary h-10 min-h-0 shrink-0 rounded-xl px-3 text-xs font-bold shadow-sm"
+            hx-get="{% url 'athlete-manage-create' %}"
+            hx-target="#athlete-modal-container"
+            hx-swap="innerHTML">
+
+            <span class="text-base font-bold leading-none">+</span>
+
+            <span class="hidden sm:inline">
+                Yeni sporcu
+            </span>
+
+            <span class="sm:hidden">
+                Ekle
+            </span>
+
         </button>
+
     </header>
 
-    <section class="overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
-                <form method="get" class="relative flex gap-2 border-b border-base-200 bg-base-100 p-3 sm:p-4"
-              hx-get="{% url 'athlete-manage-list' %}"
-              hx-target="#athlete-table"
-              hx-swap="outerHTML"
-              hx-push-url="true"
-                            hx-trigger="submit, keyup changed delay:350ms from:input[name='q']"
-                            hx-on:htmx:before-request="if (this.querySelector('[name=q]').value.trim().length < 3) event.preventDefault()">
-                        <label class="form-control min-w-0 flex-1"><span class="sr-only">Sporcu ara</span><input type="search" name="q" value="{{ query }}" minlength="3" placeholder="Sporcu yada veli adı ile ara" autocomplete="off" class="input input-bordered input-sm w-full"></label>
+
+    <!-- SPORCU LİSTESİ -->
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+
+        <!-- ARAMA -->
+        <form
+            method="get"
+            class="border-b border-base-200 bg-base-50/50 p-3"
+
+            hx-get="{% url 'athlete-manage-list' %}"
+            hx-target="#athlete-table"
+            hx-swap="outerHTML"
+            hx-push-url="true"
+            hx-trigger="submit, keyup changed delay:350ms from:input[name='q']"
+            hx-on:htmx:before-request="if (this.querySelector('[name=q]').value.trim().length < 3) event.preventDefault()"
+        >
+
+            <label class="relative block">
+
+                <span class="sr-only">
+                    Sporcu ara
+                </span>
+
+                <!-- Arama ikonu -->
+                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40">
+                    ⌕
+                </span>
+
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ query }}"
+                    minlength="3"
+                    placeholder="Sporcu veya veli adı ara"
+                    autocomplete="off"
+                    class="input input-bordered h-10 min-h-0 w-full rounded-xl pl-9 pr-3 text-xs bg-base-100"
+                >
+
+            </label>
+
         </form>
-        {% include 'athlete/partials/athlete_table.html' %}
+
+
+        <!-- TABLO / LİSTE -->
+        <div class="w-full overflow-x-auto">
+
+            {% include 'athlete/partials/athlete_table.html' %}
+
+        </div>
+
     </section>
+
 </div>
+
+
+<!-- MODAL -->
 <div id="athlete-modal-container"></div>
+
+
 <script>
     document.body.addEventListener('closeAthleteModal', function () {
+
         const modal = document.getElementById('athlete_modal');
-        if (modal) modal.remove();
-        document.getElementById('athlete-modal-container').innerHTML = '';
+
+        if (modal) {
+            modal.remove();
+        }
+
+        const container = document.getElementById('athlete-modal-container');
+
+        if (container) {
+            container.innerHTML = '';
+        }
+
     });
 </script>
+
 {% endblock %}

@@ -1,110 +1,546 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-7xl space-y-4">
-    <header class="flex flex-col gap-4 rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div>
 
-        <button class="btn btn-success btn-sm gap-2"
-            hx-get="{% url 'expense-create' %}?period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
-                hx-target="#modal-container"
-                hx-swap="innerHTML">
-            <span class="text-xl leading-none">+</span>
-            Yeni Harcama
-        </button>
-        <a href="{% url 'regular-expense-list' %}" class="btn btn-sm btn-warning btn-primary gap-4">
-            <span class="text-lg leading-none">↻</span>
-            Düzenli Harcama
-        </a>
-    </header>
+<div class="w-full space-y-4">
 
-    {% include 'finance/partials/_expense_summary.html' %}
+```
+<!-- =========================================================
+     AKSİYONLAR
+========================================================== -->
 
-    <section class="rounded-xl border border-base-200 bg-base-100 shadow-sm">
-        <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[auto_1fr_auto_auto] md:items-end">
-            <label class="form-control">
-                <span class="label label-text text-xs font-bold uppercase tracking-wider">Dönem</span>
-                <input type="month" name="period" value="{{ period }}" class="input input-bordered input-sm " onchange="this.form.submit()">
-            </label>
-            <label class="form-control hidden">
-                <span class="label label-text text-xs font-bold uppercase tracking-wider">Alıcı ara</span>
-                <input type="search" name="q" value="{{ query }}" placeholder="Firma veya kişi adı" class="input input-bordered input-sm">
-            </label>
-            <label class="form-control hidden">
-                <span class="label label-text text-xs font-bold uppercase tracking-wider">Kategori</span>
-                <select name="category" class="select select-bordered select-sm">
-                    <option value="">Tüm kategoriler</option>
-                    {% for category in categories %}
-                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <button class="btn btn-neutral btn-sm">Filtrele</button>
-        </form>
+<section class="grid grid-cols-2 gap-2">
 
-        <div class="w-full overflow-hidden">
-            <table class="table w-full table-fixed">
-                <thead>
-                    <tr class="text-xs uppercase tracking-wider text-base-content/50">
-                        <th>Tarih</th>
-                        <th class="hidden md:table-cell">Kategori</th>
-                        <th>Alıcı / firma</th>
-                        <th class="hidden md:table-cell">Belge no</th>
-                        <th class="text-right">Tutar</th>
-                    </tr>
-                </thead>
-                <tbody id="expense-list">
-                    {% for expense in expenses %}
-                        {% include 'finance/partials/_expense_row.html' %}
-                    {% empty %}
-                    <tr id="empty-expense-state">
-                        <td colspan="6" class="py-16 text-center">
-                            <div class="mx-auto max-w-sm">
-                                <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-base-200 text-2xl">₺</div>
-                                <p class="font-bold">Bu dönemde harcama yok</p>
-                                <p class="mt-1 text-sm text-base-content/50">İlk kaydı eklemek için yukarıdaki butonu kullanın.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+    <button
+        class="
+            btn
+            btn-success
+            btn-sm
+            h-11
+            min-h-11
+            rounded-xl
+            gap-1.5
+            text-xs
+            shadow-sm
+            active:scale-[.97]
+            transition-transform
+        "
+        hx-get="{% url 'expense-create' %}?period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+    >
 
-    <section class="rounded-xl border border-base-200 bg-base-100 shadow-sm">
-        <div class="flex flex-col gap-3 border-b border-base-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <svg
+            class="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+        >
+            <path d="M12 5v14"/>
+            <path d="M5 12h14"/>
+        </svg>
+
+        Yeni Harcama
+
+    </button>
+
+
+    <a
+        href="{% url 'regular-expense-list' %}"
+        class="
+            btn
+            btn-warning
+            btn-sm
+            h-11
+            min-h-11
+            rounded-xl
+            gap-1.5
+            text-xs
+            shadow-sm
+            active:scale-[.97]
+            transition-transform
+        "
+    >
+
+        <svg
+            class="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <path d="M21 12a9 9 0 0 1-15.2 6.5"/>
+            <path d="M3 12a9 9 0 0 1 15.2-6.5"/>
+            <path d="M21 5v7h-7"/>
+            <path d="M3 19v-7h7"/>
+        </svg>
+
+        Düzenli Harcama
+
+    </a>
+
+</section>
+
+
+
+<!-- =========================================================
+     HARCAMA ÖZETİ
+========================================================== -->
+
+{% include 'finance/partials/_expense_summary.html' %}
+
+
+
+<!-- =========================================================
+     HARCAMALAR
+========================================================== -->
+
+<section
+    class="
+        overflow-hidden
+        rounded-2xl
+        border
+        border-base-300
+        bg-base-100
+        shadow-sm
+    "
+>
+
+
+    <!-- Başlık -->
+
+    <div class="p-4 pb-3">
+
+        <div class="flex items-center justify-between">
+
             <div>
-                <h2 class="label-text text-xs font-bold">DÜZENLİ HARCAMALAR</h2>
-                 </div>
+
+                <h2 class="text-sm font-black text-base-content">
+                    Harcamalar
+                </h2>
+
+                <p class="mt-0.5 text-[11px] text-base-content/50">
+                    {{ period }} dönemindeki giderler
+                </p>
+
+            </div>
+
+
+            <span
+                class="
+                    rounded-lg
+                    bg-base-200
+                    px-2
+                    py-1
+                    text-[10px]
+                    font-bold
+                    text-base-content/50
+                "
+            >
+                {{ expenses|length }} kayıt
+            </span>
 
         </div>
-        <div class="w-full overflow-hidden">
-            <table class="table w-full table-fixed">
-                <thead>
-                    <tr class="text-xs uppercase tracking-wider text-base-content/50">
-                        <th class="hidden md:table-cell">Kategori</th>
-                        <th>Alıcı</th>
-                        <th>Tutar / gün</th>
-                        <th class="hidden md:table-cell">Tekrar</th>
-                        <th>Durum / işlem</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% include 'finance/partials/_regular_expense_compact_list.html' %}
-                </tbody>
-            </table>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         FİLTRE
+    ====================================================== -->
+
+    <form
+        method="get"
+        class="
+            flex
+            items-center
+            gap-2
+            border-y
+            border-base-200
+            bg-base-200/30
+            p-3
+        "
+    >
+
+        <div
+            class="
+                flex
+                min-w-0
+                flex-1
+                items-center
+                gap-2
+                rounded-xl
+                bg-base-100
+                border
+                border-base-300
+                px-3
+                h-10
+            "
+        >
+
+            <svg
+                class="w-4 h-4 shrink-0 text-base-content/40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <rect
+                    x="3"
+                    y="4"
+                    width="18"
+                    height="18"
+                    rx="2"
+                />
+                <path d="M16 2v4"/>
+                <path d="M8 2v4"/>
+                <path d="M3 10h18"/>
+            </svg>
+
+
+            <input
+                type="month"
+                name="period"
+                value="{{ period }}"
+                onchange="this.form.submit()"
+                class="
+                    min-w-0
+                    w-full
+                    border-0
+                    bg-transparent
+                    p-0
+                    text-xs
+                    font-bold
+                    outline-none
+                    focus:ring-0
+                "
+            />
+
         </div>
-    </section>
+
+
+        <button
+            type="submit"
+            class="
+                btn
+                btn-neutral
+                btn-sm
+                h-10
+                min-h-10
+                rounded-xl
+                px-4
+                text-xs
+            "
+        >
+            Uygula
+        </button>
+
+
+        <!-- Gizli filtreler -->
+
+        <input
+            type="hidden"
+            name="q"
+            value="{{ query }}"
+        >
+
+        <input
+            type="hidden"
+            name="category"
+            value="{{ selected_category }}"
+        >
+
+    </form>
+
+
+
+    <!-- =====================================================
+         HARCAMA LİSTESİ
+    ====================================================== -->
+
+    <div class="w-full overflow-x-auto">
+
+        <table class="table w-full min-w-[340px]">
+
+            <thead>
+
+                <tr
+                    class="
+                        border-b
+                        border-base-200
+                        text-[9px]
+                        uppercase
+                        tracking-wider
+                        text-base-content/40
+                    "
+                >
+
+                    <th class="p-3">
+                        Tarih
+                    </th>
+
+                    <th class="hidden md:table-cell p-3">
+                        Kategori
+                    </th>
+
+                    <th class="p-3">
+                        Alıcı / Firma
+                    </th>
+
+                    <th class="hidden p-3">
+                        Belge no
+                    </th>
+
+                    <th class="p-3 text-right">
+                        Tutar
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="expense-list">
+
+                {% for expense in expenses %}
+
+                    {% include 'finance/partials/_expense_row.html' %}
+
+                {% empty %}
+
+                <tr id="empty-expense-state">
+
+                    <td colspan="6" class="py-12">
+
+                        <div class="px-5 text-center">
+
+                            <div
+                                class="
+                                    mx-auto
+                                    flex
+                                    h-14
+                                    w-14
+                                    items-center
+                                    justify-center
+                                    rounded-2xl
+                                    bg-base-200
+                                    text-base-content/30
+                                "
+                            >
+
+                                <svg
+                                    class="w-7 h-7"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.7"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M3 10h18"/>
+                                    <path d="M7 15h3"/>
+                                    <rect
+                                        x="3"
+                                        y="5"
+                                        width="18"
+                                        height="14"
+                                        rx="2"
+                                    />
+                                </svg>
+
+                            </div>
+
+
+                            <p
+                                class="
+                                    mt-3
+                                    text-sm
+                                    font-bold
+                                    text-base-content
+                                "
+                            >
+                                Bu dönemde harcama yok
+                            </p>
+
+
+                            <p
+                                class="
+                                    mt-1
+                                    text-[11px]
+                                    leading-relaxed
+                                    text-base-content/50
+                                "
+                            >
+                                İlk harcama kaydını eklemek için
+                                yukarıdaki butonu kullanın.
+                            </p>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     DÜZENLİ HARCAMALAR
+========================================================== -->
+
+<section
+    class="
+        overflow-hidden
+        rounded-2xl
+        border
+        border-base-300
+        bg-base-100
+        shadow-sm
+    "
+>
+
+
+    <!-- Başlık -->
+
+    <div class="p-4">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+
+                <h2 class="text-sm font-black text-base-content">
+                    Düzenli Harcamalar
+                </h2>
+
+                <p class="mt-0.5 text-[11px] text-base-content/50">
+                    Tekrarlayan giderler
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'regular-expense-list' %}"
+                class="
+                    text-[11px]
+                    font-bold
+                    text-primary
+                    active:opacity-60
+                "
+            >
+                Yönet
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Liste -->
+
+    <div class="w-full overflow-x-auto">
+
+        <table class="table w-full min-w-[340px]">
+
+            <thead>
+
+                <tr
+                    class="
+                        border-y
+                        border-base-200
+                        text-[9px]
+                        uppercase
+                        tracking-wider
+                        text-base-content/40
+                    "
+                >
+
+                    <th class="hidden md:table-cell p-3">
+                        Kategori
+                    </th>
+
+                    <th class="p-3">
+                        Alıcı
+                    </th>
+
+                    <th class="p-3">
+                        Tutar / Gün
+                    </th>
+
+                    <th class="hidden md:table-cell p-3">
+                        Tekrar
+                    </th>
+
+                    <th class="p-3 text-right">
+                        Durum / İşlem
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% include 'finance/partials/_regular_expense_compact_list.html' %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+```
+
 </div>
+
+<!-- =============================================================
+     MODAL CONTAINER
+============================================================= -->
 
 <div id="modal-container"></div>
 
 <script>
-    document.body.addEventListener('closeExpenseModal', function () {
-        const modal = document.getElementById('expense_modal');
-        if (modal) modal.remove();
-        document.getElementById('modal-container').innerHTML = '';
-    });
+
+    document.body.addEventListener(
+        'closeExpenseModal',
+        function () {
+
+            const modal =
+                document.getElementById('expense_modal');
+
+            if (modal) {
+                modal.remove();
+            }
+
+            const container =
+                document.getElementById('modal-container');
+
+            if (container) {
+                container.innerHTML = '';
+            }
+
+        }
+    );
+
 </script>
+
 {% endblock %}

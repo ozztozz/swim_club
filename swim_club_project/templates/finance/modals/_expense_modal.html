@@ -1,82 +1,259 @@
 <dialog id="expense_modal" class="modal modal-open">
-    <div class="modal-box max-w-2xl rounded-2xl p-0">
-        <div class="flex items-start justify-between border-b border-base-200 px-6 py-5">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-widest text-primary">{{ period }} dönemi</p>
-                <h3 class="mt-1 text-2xl font-black">{{ modal_title|default:'Yeni harcama' }}</h3>
-                <p class="mt-1 text-sm text-base-content/60">Gider detaylarını eksiksiz girin.</p>
-                <div class="mt-3 inline-flex items-center gap-2 rounded-lg bg-base-200 px-3 py-2 text-xs text-base-content/65">
-                    <span class="grid h-6 w-6 place-items-center rounded-full bg-primary/15 font-bold text-primary">K</span>
-                    <span>
-                        Kaydeden:
-                        <strong class="text-base-content">{% if record_user.get_full_name %}{{ record_user.get_full_name }}{% elif record_user.username %}{{ record_user.username }}{% else %}Belirtilmedi{% endif %}</strong>
-                    </span>
+
+    <div class="modal-box flex max-h-[92vh] w-[calc(100%-1rem)] max-w-md flex-col overflow-hidden rounded-2xl p-0 sm:w-11/12">
+
+        <!-- Başlık -->
+        <div class="shrink-0 border-b border-base-200 px-4 py-3.5 sm:px-5">
+
+            <div class="flex items-start justify-between gap-3">
+
+                <div class="min-w-0">
+
+                    <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                        {{ period }} dönemi
+                    </p>
+
+                    <h3 class="mt-0.5 truncate text-lg font-black text-base-content">
+                        {{ modal_title|default:'Yeni harcama' }}
+                    </h3>
+
+                    <p class="mt-0.5 text-[10px] text-base-content/40">
+                        Gider bilgilerini girin.
+                    </p>
+
                 </div>
+
+                <button
+                    type="button"
+                    class="btn btn-ghost h-8 w-8 min-h-0 shrink-0 rounded-lg p-0 text-base-content/50"
+                    onclick="closeExpenseModal()"
+                    aria-label="Kapat">
+                    ✕
+                </button>
+
             </div>
-            <button type="button" class="btn btn-circle btn-ghost btn-sm" onclick="closeExpenseModal()" aria-label="Kapat">✕</button>
+
+
+            <!-- Kaydeden -->
+            <div class="mt-3 flex items-center gap-2 rounded-xl bg-base-200/60 px-3 py-2">
+
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/10 text-[10px] font-black text-primary">
+                    K
+                </span>
+
+                <div class="min-w-0">
+                    <p class="text-[9px] text-base-content/40">
+                        Kaydeden
+                    </p>
+
+                    <p class="truncate text-[10px] font-bold text-base-content/70">
+                        {% if record_user.get_full_name %}
+                            {{ record_user.get_full_name }}
+                        {% elif record_user.username %}
+                            {{ record_user.username }}
+                        {% else %}
+                            Belirtilmedi
+                        {% endif %}
+                    </p>
+                </div>
+
+            </div>
+
         </div>
 
-        <form {% if form_action == 'expense-update' %}hx-post="{% url 'expense-update' expense_id %}?period={{ period }}"{% else %}hx-post="{% url 'expense-create' %}?period={{ period }}"{% endif %}
-              hx-target="#expense-list"
-              hx-swap="outerHTML"
-              class="space-y-4 px-6 py-6">
-            {% csrf_token %}
-                        <input type="hidden" name="category_filter" value="{{ category_filter }}">
-                        <input type="hidden" name="query_filter" value="{{ query_filter }}">
-            {% if form.non_field_errors %}<div class="alert alert-error text-sm">{{ form.non_field_errors }}</div>{% endif %}
-            <div class="grid gap-4 sm:grid-cols-2">
-                {% include 'finance/partials/_expense_category_field.html' %}
-                <label class="form-control">
-                    <span class="label label-text font-bold">Tutar (TL)</span>
-                    {{ form.amount }}
-                    {% if form.amount.errors %}<span class="label-text-alt text-error">{{ form.amount.errors|striptags }}</span>{% endif %}
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Harcama tarihi</span>
-                    {{ form.expense_date }}
-                    {% if form.expense_date.errors %}<span class="label-text-alt text-error">{{ form.expense_date.errors|striptags }}</span>{% endif %}
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Alıcı / firma</span>
-                    {{ form.reciever }}
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Fatura / fiş no</span>
-                    {{ form.receipt_no }}
-                </label>
-                <label class="form-control sm:col-span-2">
-                    <span class="label label-text font-bold">Açıklama</span>
-                    {{ form.notes }}
-                </label>
-            </div>
-            <div class="modal-action border-t border-base-200 pt-4">
-                <button type="button" class="btn btn-ghost" onclick="closeExpenseModal()">İptal</button>
-                <button type="submit" class="btn btn-primary">{{ submit_label|default:'Harcamayı kaydet' }}</button>
-            </div>
-            {% if show_cancel %}
-            <details class="rounded-xl border border-error/25 bg-error/5">
-                <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-error">Harcamayı iptal et</summary>
-                <div class="space-y-3 border-t border-error/15 px-4 py-4">
-                    <p class="text-sm text-base-content/70">Bu kayıt silinmez; iptal edildi olarak işaretlenir ve aktif toplamdan çıkarılır.</p>
-                    <label class="flex cursor-pointer items-start gap-3 text-sm">
-                        <input type="checkbox"
-                               name="cancel_expense"
-                               value="1"
-                               class="checkbox checkbox-error checkbox-sm mt-0.5"
-                               onclick="return confirm('Bu harcamayı iptal etmek istediğinizden emin misiniz?')">
-                        <span><strong>Evet, bu harcamayı iptal etmek istiyorum.</strong><br><span class="text-base-content/60">İptal işlemi kaydı silmez.</span></span>
-                    </label>
-                </div>
-            </details>
+
+        <!-- Form -->
+        <form
+            {% if form_action == 'expense-update' %}
+                hx-post="{% url 'expense-update' expense_id %}?period={{ period }}"
+            {% else %}
+                hx-post="{% url 'expense-create' %}?period={{ period }}"
             {% endif %}
+            hx-target="#expense-list"
+            hx-swap="outerHTML"
+            class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="category_filter"
+                value="{{ category_filter }}">
+
+            <input
+                type="hidden"
+                name="query_filter"
+                value="{{ query_filter }}">
+
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error mb-3 rounded-xl py-2 text-xs">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+
+            <!-- Harcama bilgileri -->
+            <div class="grid gap-3 sm:grid-cols-2">
+
+                {% include 'finance/partials/_expense_category_field.html' %}
+
+
+                <label class="form-control">
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Tutar (TL)
+                    </span>
+
+                    {{ form.amount }}
+
+                    {% if form.amount.errors %}
+                        <span class="mt-1 text-[10px] text-error">
+                            {{ form.amount.errors|striptags }}
+                        </span>
+                    {% endif %}
+                </label>
+
+
+                <label class="form-control">
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Harcama tarihi
+                    </span>
+
+                    {{ form.expense_date }}
+
+                    {% if form.expense_date.errors %}
+                        <span class="mt-1 text-[10px] text-error">
+                            {{ form.expense_date.errors|striptags }}
+                        </span>
+                    {% endif %}
+                </label>
+
+
+                <label class="form-control">
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Alıcı / firma
+                    </span>
+
+                    {{ form.reciever }}
+
+                    {% if form.reciever.errors %}
+                        <span class="mt-1 text-[10px] text-error">
+                            {{ form.reciever.errors|striptags }}
+                        </span>
+                    {% endif %}
+                </label>
+
+
+                <label class="form-control">
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Fatura / fiş no
+                    </span>
+
+                    {{ form.receipt_no }}
+
+                    {% if form.receipt_no.errors %}
+                        <span class="mt-1 text-[10px] text-error">
+                            {{ form.receipt_no.errors|striptags }}
+                        </span>
+                    {% endif %}
+                </label>
+
+
+                <label class="form-control sm:col-span-2">
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Açıklama
+                    </span>
+
+                    {{ form.notes }}
+
+                    {% if form.notes.errors %}
+                        <span class="mt-1 text-[10px] text-error">
+                            {{ form.notes.errors|striptags }}
+                        </span>
+                    {% endif %}
+                </label>
+
+            </div>
+
+
+            <!-- İptal -->
+            {% if show_cancel %}
+
+                <details class="mt-4 overflow-hidden rounded-xl border border-error/20 bg-error/5">
+
+                    <summary class="cursor-pointer px-3 py-2.5 text-[10px] font-bold text-error">
+                        Harcamayı iptal et
+                    </summary>
+
+                    <div class="border-t border-error/10 px-3 py-3">
+
+                        <p class="text-[10px] leading-relaxed text-base-content/60">
+                            Bu kayıt silinmez; iptal edildi olarak işaretlenir ve aktif toplamdan çıkarılır.
+                        </p>
+
+                        <label class="mt-3 flex cursor-pointer items-start gap-2.5">
+
+                            <input
+                                type="checkbox"
+                                name="cancel_expense"
+                                value="1"
+                                class="checkbox checkbox-error checkbox-sm mt-0.5"
+                                onclick="return confirm('Bu harcamayı iptal etmek istediğinizden emin misiniz?')">
+
+                            <span class="text-[10px] leading-relaxed">
+                                <strong>Bu harcamayı iptal etmek istiyorum.</strong>
+                                <br>
+                                <span class="text-base-content/50">
+                                    İptal işlemi kaydı silmez.
+                                </span>
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </details>
+
+            {% endif %}
+
+
+            <!-- Aksiyonlar -->
+            <div class="mt-4 grid grid-cols-2 gap-2 border-t border-base-200 pt-4">
+
+                <button
+                    type="button"
+                    class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs font-bold"
+                    onclick="closeExpenseModal()">
+                    İptal
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm">
+                    {{ submit_label|default:'Harcamayı kaydet' }}
+                </button>
+
+            </div>
+
         </form>
+
     </div>
+
 </dialog>
+
 
 <script>
     function closeExpenseModal() {
         const modal = document.getElementById('expense_modal');
-        if (modal) modal.remove();
-        document.getElementById('modal-container').innerHTML = '';
+
+        if (modal) {
+            modal.remove();
+        }
+
+        const container = document.getElementById('modal-container');
+
+        if (container) {
+            container.innerHTML = '';
+        }
     }
 </script>

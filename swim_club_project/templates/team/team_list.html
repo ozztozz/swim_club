@@ -1,46 +1,159 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-7xl space-y-6">
-    <header class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-            <p class="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Kulüp yönetimi</p>
-            <h1 class="text-2xl font-black tracking-tight sm:text-3xl">Takımlar</h1>
-            <p class="mt-1 text-sm text-base-content/60">Takımları, antrenörleri ve aylık aidatlarını yönetin.</p>
+
+<div class="w-full space-y-4">
+
+    <!-- SAYFA BAŞLIĞI -->
+    <header class="px-1">
+
+        <div class="flex items-start justify-between gap-3">
+
+            <div class="min-w-0">
+                <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                    Kulüp yönetimi
+                </p>
+
+                <h1 class="mt-0.5 text-xl font-black tracking-tight text-base-content">
+                    Takımlar
+                </h1>
+
+                <p class="mt-1 text-xs text-base-content/50">
+                    Takımları, antrenörleri ve aylık aidatlarını yönetin.
+                </p>
+            </div>
+
         </div>
-        <div class="flex flex-wrap gap-2">
-            <a href="{% url 'fee-management' %}" class="btn btn-outline btn-secondary">Ücret yönetimi</a>
-            <button class="btn btn-primary" hx-get="{% url 'team-create' %}" hx-target="#team-modal-container" hx-swap="innerHTML">
-                <span class="text-xl leading-none">+</span> Yeni takım
+
+        <!-- AKSİYONLAR -->
+        <div class="mt-3 grid grid-cols-2 gap-2">
+
+            <a
+                href="{% url 'fee-management' %}"
+                class="btn btn-outline btn-sm h-10 min-h-0 rounded-xl border-base-300 bg-base-100 text-xs font-bold text-base-content hover:border-primary hover:bg-primary/5">
+
+                Ücret Yönetimi
+
+            </a>
+
+            <button
+                type="button"
+                class="btn btn-primary btn-sm h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm"
+                hx-get="{% url 'team-create' %}"
+                hx-target="#team-modal-container"
+                hx-swap="innerHTML">
+
+                <span class="text-base font-bold leading-none">+</span>
+                Yeni Takım
+
             </button>
+
         </div>
+
     </header>
 
-    <section class="overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
-        <form method="get" class="grid gap-3 border-b border-base-200 p-4 md:grid-cols-[1fr_auto_auto] md:items-end">
-            <label class="form-control">
-                <span class="label label-text text-xs font-bold uppercase tracking-wider">Takım ara</span>
-                <input type="search" name="q" value="{{ query }}" placeholder="Takım adı" class="input input-bordered input-sm">
-            </label>
-            <label class="form-control">
-                <span class="label label-text text-xs font-bold uppercase tracking-wider">Durum</span>
-                <select name="status" class="select select-bordered select-sm">
-                    <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
-                    <option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option>
-                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Pasif</option>
-                </select>
-            </label>
-            <button class="btn btn-neutral btn-sm">Filtrele</button>
+
+    <!-- FİLTRE + TAKIMLAR -->
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+
+        <!-- FİLTRE -->
+        <form
+            method="get"
+            class="border-b border-base-200 bg-base-50/50 p-3">
+
+            <div class="grid grid-cols-[1fr_auto] items-end gap-2">
+
+                <!-- Takım ara -->
+                <label class="form-control min-w-0">
+
+                    <span class="mb-1 px-0.5 text-[9px] font-bold uppercase tracking-wider text-base-content/50">
+                        Takım ara
+                    </span>
+
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ query }}"
+                        placeholder="Takım adı"
+                        class="input input-bordered input-sm h-9 min-h-0 w-full rounded-xl bg-base-100 text-xs"
+                    >
+
+                </label>
+
+
+                <!-- Durum -->
+                <label class="form-control w-[105px]">
+
+                    <span class="mb-1 px-0.5 text-[9px] font-bold uppercase tracking-wider text-base-content/50">
+                        Durum
+                    </span>
+
+                    <select
+                        name="status"
+                        class="select select-bordered select-sm h-9 min-h-0 w-full rounded-xl bg-base-100 text-xs">
+
+                        <option value="active" {% if status == 'active' %}selected{% endif %}>
+                            Aktif
+                        </option>
+
+                        <option value="all" {% if status == 'all' %}selected{% endif %}>
+                            Tümü
+                        </option>
+
+                        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>
+                            Pasif
+                        </option>
+
+                    </select>
+
+                </label>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-neutral btn-sm mt-2 h-8 min-h-0 w-full rounded-lg text-[10px] font-bold">
+
+                Filtrele
+
+            </button>
+
         </form>
-        {% include 'team/partials/team_table.html' %}
+
+
+        <!-- TAKIM LİSTESİ -->
+        <div class="w-full overflow-x-auto">
+
+            {% include 'team/partials/team_table.html' %}
+
+        </div>
+
     </section>
+
 </div>
+
+
+<!-- MODAL -->
 <div id="team-modal-container"></div>
+
+
 <script>
     document.body.addEventListener('closeTeamModal', function () {
+
         const modal = document.getElementById('team_modal');
-        if (modal) modal.remove();
-        document.getElementById('team-modal-container').innerHTML = '';
+
+        if (modal) {
+            modal.remove();
+        }
+
+        const container = document.getElementById('team-modal-container');
+
+        if (container) {
+            container.innerHTML = '';
+        }
+
     });
 </script>
+
 {% endblock %}

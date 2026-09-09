@@ -1,12 +1,99 @@
-<div id="payment-{{ item.period }}" class="flex flex-nowrap items-center gap-2 overflow-x-auto p-3 sm:justify-between">
+<div
+    id="payment-{{ item.period }}"
+    class="flex items-center gap-3 px-3 py-3"
+>
+
+    <!-- Dönem ve ödeme bilgisi -->
     <div class="min-w-0 flex-1">
-        <p class="truncate font-bold">{{ item.label }}</p>
-        <p class="mt-1 whitespace-nowrap text-xs text-base-content/60">{{ item.payment_type_display }}: {% if item.amount and item.payment_type == 'fee' %} {{ item.amount|floatformat:2 }} - Ödenen: {{ item.paid_amount|floatformat:2 }} {% endif %} {{ item.paid_amount|floatformat:2 }}TL</p>
+
+        <p class="truncate text-xs font-black text-base-content">
+            {{ item.label }}
+        </p>
+
+        <div class="mt-1 flex min-w-0 items-center gap-1.5 text-[10px] text-base-content/50">
+
+            <span class="shrink-0">
+                {{ item.payment_type_display }}
+            </span>
+
+            {% if item.amount and item.payment_type == 'fee' %}
+                <span class="text-base-content/20">•</span>
+
+                <span class="shrink-0">
+                    {{ item.amount|floatformat:2 }} TL
+                </span>
+
+                <span class="text-base-content/20">•</span>
+
+                <span class="shrink-0">
+                    Ödenen {{ item.paid_amount|floatformat:2 }} TL
+                </span>
+            {% else %}
+                <span class="text-base-content/20">•</span>
+
+                <span class="font-semibold text-base-content/60">
+                    {{ item.paid_amount|floatformat:2 }} TL
+                </span>
+            {% endif %}
+
+        </div>
+
     </div>
-    {% if item.status == 'paid' %}<span class="badge badge-success shrink-0 gap-1 px-2 py-2">Ödendi</span>{% elif item.status == 'cancelled' %}<span class="badge badge-error shrink-0 gap-1 px-2 py-2">İptal edildi</span>{% else %}<span class="badge badge-warning shrink-0 gap-1 px-2 py-2">Bekliyor</span>{% endif %}
-    {% if item.payment %}
-    <button class="btn btn-sm shrink-0 btn-outline" hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.period %}" hx-target="#athlete-payment-edit-modal-container" hx-swap="innerHTML">Düzenle</button>
-    {% else %}
-    <button class="btn btn-sm shrink-0 btn-primary" hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.period %}" hx-target="#athlete-payment-edit-modal-container" hx-swap="innerHTML">Ödeme yap</button>
-    {% endif %}
+
+
+    <!-- Durum -->
+    <div class="shrink-0">
+
+        {% if item.status == 'paid' %}
+
+            <span class="badge badge-success badge-outline h-5 min-h-0 px-2 text-[9px] font-bold">
+                Ödendi
+            </span>
+
+        {% elif item.status == 'cancelled' %}
+
+            <span class="badge badge-error badge-outline h-5 min-h-0 px-2 text-[9px] font-bold">
+                İptal
+            </span>
+
+        {% else %}
+
+            <span class="badge badge-warning badge-outline h-5 min-h-0 px-2 text-[9px] font-bold">
+                Bekliyor
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Aksiyon -->
+    <div class="shrink-0">
+
+        {% if item.payment %}
+
+            <button
+                type="button"
+                class="btn btn-ghost h-8 min-h-0 rounded-lg px-2.5 text-[10px] font-bold text-base-content/60"
+                hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.period %}"
+                hx-target="#athlete-payment-edit-modal-container"
+                hx-swap="innerHTML">
+                Düzenle
+            </button>
+
+        {% else %}
+
+            <button
+                type="button"
+                class="btn btn-primary h-8 min-h-0 rounded-lg px-2.5 text-[10px] font-bold"
+                hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.period %}"
+                hx-target="#athlete-payment-edit-modal-container"
+                hx-swap="innerHTML">
+                Ödeme yap
+            </button>
+
+        {% endif %}
+
+    </div>
+
 </div>

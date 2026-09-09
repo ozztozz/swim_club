@@ -1,20 +1,123 @@
 <dialog id="athlete_payment_edit_modal" class="modal modal-open">
-    <div class="modal-box w-[calc(100%-1rem)] max-w-lg p-5 sm:w-11/12 sm:p-6">
-        <p class="text-xs font-bold uppercase tracking-widest text-primary">Ödeme düzenleme</p>
-        <h3 class="mt-1 text-2xl font-black">{{ payment_label }}</h3>
-        <form method="post" hx-post="{% url 'athlete-manage-payment-edit' athlete.pk period %}" hx-target="#payment-{{ period }}" hx-swap="outerHTML" class="mt-5 space-y-4">
+
+    <div class="modal-box w-[calc(100%-1rem)] max-w-md rounded-2xl p-4 sm:p-5">
+
+        <!-- Başlık -->
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                Ödeme düzenleme
+            </p>
+
+            <h3 class="mt-1 truncate text-xl font-black text-base-content">
+                {{ payment_label }}
+            </h3>
+        </div>
+
+
+        <!-- Form -->
+        <form
+            method="post"
+            hx-post="{% url 'athlete-manage-payment-edit' athlete.pk period %}"
+            hx-target="#payment-{{ period }}"
+            hx-swap="outerHTML"
+            class="mt-4 space-y-3">
+
             {% csrf_token %}
-            {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
-            <label class="form-control"><span class="label label-text font-bold">Tutar</span>{{ form.amount}}</label>
-            <div class="grid gap-4 sm:grid-cols-2">
-                <label class="form-control"><span class="label label-text font-bold">Ödeme yöntemi</span>{{ form.payment_method }}{{ form.payment_method.errors }}</label>
-                <label class="form-control"><span class="label label-text font-bold">Durum</span>{{ form.status }}{{ form.status.errors }}</label>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error rounded-xl py-2 text-xs">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+
+            <!-- Tutar -->
+            <label class="form-control">
+                <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                    Tutar
+                </span>
+
+                {{ form.amount }}
+
+                {% if form.amount.errors %}
+                    <div class="mt-1 text-[10px] text-error">
+                        {{ form.amount.errors }}
+                    </div>
+                {% endif %}
+            </label>
+
+
+            <!-- Yöntem / Durum -->
+            <div class="grid grid-cols-2 gap-2">
+
+                <label class="form-control">
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Ödeme yöntemi
+                    </span>
+
+                    {{ form.payment_method }}
+
+                    {% if form.payment_method.errors %}
+                        <div class="mt-1 text-[10px] text-error">
+                            {{ form.payment_method.errors }}
+                        </div>
+                    {% endif %}
+                </label>
+
+
+                <label class="form-control">
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Durum
+                    </span>
+
+                    {{ form.status }}
+
+                    {% if form.status.errors %}
+                        <div class="mt-1 text-[10px] text-error">
+                            {{ form.status.errors }}
+                        </div>
+                    {% endif %}
+                </label>
+
             </div>
-            <label class="form-control"><span class="label label-text font-bold">Not</span>{{ form.notes }}{{ form.notes.errors }}</label>
-            <div class="modal-action flex-col-reverse sm:flex-row">
-                <button type="button" class="btn btn-ghost w-full sm:w-auto" onclick="document.getElementById('athlete_payment_edit_modal').remove()">Vazgeç</button>
-                <button type="submit" class="btn btn-primary w-full sm:w-auto">{% if payment %}Kaydet{% else %}Ödendi{% endif %}</button>
+
+
+            <!-- Not -->
+            <label class="form-control">
+                <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                    Not
+                </span>
+
+                {{ form.notes }}
+
+                {% if form.notes.errors %}
+                    <div class="mt-1 text-[10px] text-error">
+                        {{ form.notes.errors }}
+                    </div>
+                {% endif %}
+            </label>
+
+
+            <!-- Aksiyonlar -->
+            <div class="modal-action mt-4 grid grid-cols-2 gap-2">
+
+                <button
+                    type="button"
+                    class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs font-bold"
+                    onclick="document.getElementById('athlete_payment_edit_modal').remove()">
+                    Vazgeç
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm">
+                    {% if payment %}Kaydet{% else %}Ödendi{% endif %}
+                </button>
+
             </div>
+
         </form>
+
     </div>
+
 </dialog>

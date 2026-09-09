@@ -1,125 +1,1010 @@
 <!DOCTYPE html>
 <html lang="tr" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kulüp Yönetim Paneli</title>
-    <!-- Tailwind CSS + DaisyUI CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- HTMX CDN -->
-    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
-    <script>
-        (function () {
-            function formatMoneyInput(input) {
-                const raw = input.value.replace(/\s/g, '');
-                if (!raw) return;
 
-                const separator = Math.max(raw.lastIndexOf(','), raw.lastIndexOf('.'));
-                const hasDecimal = separator >= 0 && raw.length - separator - 1 <= 2;
-                const integerPart = (hasDecimal ? raw.slice(0, separator) : raw).replace(/\D/g, '') || '0';
-                const decimalPart = hasDecimal ? raw.slice(separator + 1).replace(/\D/g, '').slice(0, 2) : '';
-                const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                input.value = hasDecimal ? `${formattedInteger},${decimalPart}` : formattedInteger;
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    >
+
+    <meta name="theme-color" content="#ffffff">
+
+    <title>Kulüp Yönetim Paneli</title>
+
+    <!-- DaisyUI -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css"
+        rel="stylesheet"
+        type="text/css"
+    />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+
+
+    <style>
+
+        /* ---------------------------------------------------------
+           MOBİL UYGULAMA TEMELİ
+        --------------------------------------------------------- */
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            overflow: hidden;
+            background: #111827;
+            overscroll-behavior: none;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+        }
+
+        /* ---------------------------------------------------------
+           ANA UYGULAMA
+        --------------------------------------------------------- */
+
+        .app {
+            height: 100dvh;
+            width: 100%;
+            max-width: 520px;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+
+            background: oklch(var(--b2));
+
+            margin: 0 auto;
+        }
+
+        /* Masaüstünde uygulama telefon/tablet gibi görünsün */
+        @media (min-width: 768px) {
+
+            .app {
+                height: calc(100dvh - 32px);
+                margin-top: 16px;
+                margin-bottom: 16px;
+
+                border-radius: 28px;
+
+                border: 1px solid oklch(var(--b3));
+
+                box-shadow:
+                    0 25px 60px rgba(0, 0, 0, .25);
+
+                overflow: hidden;
             }
 
+        }
+
+        /* ---------------------------------------------------------
+           HEADER
+        --------------------------------------------------------- */
+
+        .app-header {
+            flex-shrink: 0;
+
+            padding-top: env(safe-area-inset-top);
+
+            background: oklch(var(--b1) / .94);
+
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+
+            border-bottom: 1px solid oklch(var(--b3) / .7);
+
+            z-index: 40;
+        }
+
+        .header-inner {
+            height: 56px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 14px;
+        }
+
+        /* ---------------------------------------------------------
+           CONTENT
+        --------------------------------------------------------- */
+
+        .app-content {
+            flex: 1;
+
+            min-height: 0;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            -webkit-overflow-scrolling: touch;
+
+            overscroll-behavior-y: contain;
+
+            padding: 16px;
+
+            padding-bottom: 24px;
+        }
+
+        /*
+         * Scrollbar'ı mobil uygulama gibi gizle
+         */
+
+        .app-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app-content {
+            scrollbar-width: none;
+        }
+
+        /* ---------------------------------------------------------
+           BOTTOM NAVIGATION
+        --------------------------------------------------------- */
+
+        .bottom-nav {
+
+            flex-shrink: 0;
+
+            padding-bottom: env(safe-area-inset-bottom);
+
+            background: oklch(var(--b1) / .96);
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+
+            border-top: 1px solid oklch(var(--b3) / .7);
+
+            z-index: 40;
+        }
+
+        .bottom-nav-inner {
+
+            height: 64px;
+
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+
+            padding: 4px 8px 4px;
+        }
+
+        .bottom-nav-item {
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 3px;
+
+            border-radius: 14px;
+
+            font-size: 10px;
+            font-weight: 600;
+
+            color: oklch(var(--bc) / .55);
+
+            text-decoration: none;
+
+            transition:
+                background .15s ease,
+                color .15s ease,
+                transform .1s ease;
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(.94);
+        }
+
+        .bottom-nav-item.active {
+            color: oklch(var(--p));
+        }
+
+        .bottom-nav-item.active .nav-icon {
+            background: oklch(var(--p) / .12);
+        }
+
+        .nav-icon {
+
+            width: 38px;
+            height: 30px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+
+            transition: background .15s ease;
+        }
+
+        .nav-icon svg {
+            width: 21px;
+            height: 21px;
+        }
+
+        /* ---------------------------------------------------------
+           HEADER BUTONLARI
+        --------------------------------------------------------- */
+
+        .header-button {
+
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            transition: background .15s ease;
+        }
+
+        .header-button:active {
+            background: oklch(var(--bc) / .08);
+        }
+
+        /* ---------------------------------------------------------
+           LOGO
+        --------------------------------------------------------- */
+
+        .app-logo {
+
+            width: 34px;
+            height: 34px;
+
+            border-radius: 10px;
+
+            object-fit: cover;
+
+            box-shadow:
+                0 2px 6px rgba(0, 0, 0, .12);
+        }
+
+        /* ---------------------------------------------------------
+           MOBİL TOUCH
+        --------------------------------------------------------- */
+
+        button,
+        a,
+        label {
+            touch-action: manipulation;
+        }
+
+    </style>
+
+
+    <script>
+
+        /*
+         * Para inputları
+         */
+
+        (function () {
+
+            function formatMoneyInput(input) {
+
+                const raw = input.value.replace(/\s/g, '');
+
+                if (!raw) return;
+
+                const separator = Math.max(
+                    raw.lastIndexOf(','),
+                    raw.lastIndexOf('.')
+                );
+
+                const hasDecimal =
+                    separator >= 0 &&
+                    raw.length - separator - 1 <= 2;
+
+                const integerPart =
+                    (
+                        hasDecimal
+                            ? raw.slice(0, separator)
+                            : raw
+                    )
+                    .replace(/\D/g, '')
+                    || '0';
+
+                const decimalPart =
+                    hasDecimal
+                        ? raw
+                            .slice(separator + 1)
+                            .replace(/\D/g, '')
+                            .slice(0, 2)
+                        : '';
+
+                const formattedInteger =
+                    integerPart.replace(
+                        /\B(?=(\d{3})+(?!\d))/g,
+                        '.'
+                    );
+
+                input.value =
+                    hasDecimal
+                        ? `${formattedInteger},${decimalPart}`
+                        : formattedInteger;
+            }
+
+
             function normalizeMoneyValue(value) {
+
                 const raw = value.replace(/\s/g, '');
+
                 if (!raw) return '';
-                const separator = Math.max(raw.lastIndexOf(','), raw.lastIndexOf('.'));
-                const hasDecimal = separator >= 0 && raw.length - separator - 1 <= 2;
-                const integerPart = (hasDecimal ? raw.slice(0, separator) : raw).replace(/\D/g, '') || '0';
-                const decimalPart = hasDecimal ? raw.slice(separator + 1).replace(/\D/g, '').slice(0, 2).padEnd(2, '0') : '00';
+
+                const separator = Math.max(
+                    raw.lastIndexOf(','),
+                    raw.lastIndexOf('.')
+                );
+
+                const hasDecimal =
+                    separator >= 0 &&
+                    raw.length - separator - 1 <= 2;
+
+                const integerPart =
+                    (
+                        hasDecimal
+                            ? raw.slice(0, separator)
+                            : raw
+                    )
+                    .replace(/\D/g, '')
+                    || '0';
+
+                const decimalPart =
+                    hasDecimal
+                        ? raw
+                            .slice(separator + 1)
+                            .replace(/\D/g, '')
+                            .slice(0, 2)
+                            .padEnd(2, '0')
+                        : '00';
+
                 return `${integerPart}.${decimalPart}`;
             }
 
+
             function prepareMoneyInputs(root) {
-                root.querySelectorAll('[data-money-input="true"]').forEach(function (input) {
-                    if (input.dataset.moneyReady) return;
-                    input.dataset.moneyReady = 'true';
-                    formatMoneyInput(input);
-                    input.addEventListener('input', function () {
-                        const cursorAtEnd = input.selectionStart === input.value.length;
+
+                root
+                    .querySelectorAll('[data-money-input="true"]')
+                    .forEach(function (input) {
+
+                        if (input.dataset.moneyReady)
+                            return;
+
+                        input.dataset.moneyReady = 'true';
+
                         formatMoneyInput(input);
-                        if (cursorAtEnd) input.setSelectionRange(input.value.length, input.value.length);
+
+                        input.addEventListener(
+                            'input',
+                            function () {
+
+                                const cursorAtEnd =
+                                    input.selectionStart ===
+                                    input.value.length;
+
+                                formatMoneyInput(input);
+
+                                if (cursorAtEnd) {
+
+                                    input.setSelectionRange(
+                                        input.value.length,
+                                        input.value.length
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                        input.addEventListener(
+                            'blur',
+                            function () {
+
+                                if (input.value)
+                                    formatMoneyInput(input);
+
+                            }
+                        );
+
                     });
-                    input.addEventListener('blur', function () {
-                        if (input.value) formatMoneyInput(input);
-                    });
-                });
             }
 
-            document.addEventListener('DOMContentLoaded', function () {
-                prepareMoneyInputs(document);
-            });
-            document.addEventListener('htmx:afterSwap', function (event) {
-                prepareMoneyInputs(event.target);
-            });
-            document.addEventListener('submit', function (event) {
-                event.target.querySelectorAll('[data-money-input="true"]').forEach(function (input) {
-                    input.value = normalizeMoneyValue(input.value);
-                });
-            }, true);
+
+            document.addEventListener(
+                'DOMContentLoaded',
+                function () {
+
+                    prepareMoneyInputs(document);
+
+                }
+            );
+
+
+            document.addEventListener(
+                'htmx:afterSwap',
+                function (event) {
+
+                    prepareMoneyInputs(event.target);
+
+                }
+            );
+
+
+            document.addEventListener(
+                'submit',
+                function (event) {
+
+                    event.target
+                        .querySelectorAll(
+                            '[data-money-input="true"]'
+                        )
+                        .forEach(function (input) {
+
+                            input.value =
+                                normalizeMoneyValue(input.value);
+
+                        });
+
+                },
+                true
+            );
+
         })();
+
     </script>
+
 </head>
-<body class="bg-base-200 bg-gray-900 md:p-4 flex items-center justify-center min-h-screen overflow-hidden" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    <div class="relative flex flex-col h-[100dvh] w-full max-w-md bg-gray-50 overflow-hidden shadow-2xl md:rounded-3xl">
 
-        <header class="sticky top-0 z-40 border-b border-base-300 bg-base-100/95 shadow-sm backdrop-blur">
-            <div class="navbar mx-auto max-w-7xl px-4 sm:px-6">
-                <div class="navbar-start">
-                    <div class="dropdown">
-                        <label tabindex="0" class="btn btn-ghost btn-circle lg:hidden" aria-label="Menüyü aç">
-                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        </label>
-                        <ul tabindex="0" class="menu dropdown-content z-[1] mt-3 w-56 rounded-box border border-base-300 bg-base-100 p-2 shadow-xl">
-                            <li><a href="{% url 'dashboard-index' %}">Dashboard</a></li>
-                            <li><a href="{% url 'team-list' %}">Takımlar</a></li>
-                            <li><a href="{% url 'athlete-manage-list' %}">Sporcular</a></li>
-                            <li><a href="{% url 'finance-dashboard' %}">Finans</a></li>
-                        </ul>
-                    </div>
-                    <a href="{% url 'dashboard-index' %}" class="btn btn-ghost gap-2 px-2 text-lg font-black text-gray-700 sm:text-xl">
-                        <img src="/media/logos/fk1.png" alt="Spor Kulübü" class="h-10 w-10 rounded-lg object-cover">
-                        <span class="hidden sm:inline">Alphaacademy</span>
-                    </a>
-                </div>
 
-                <nav class="navbar-center hidden lg:flex">
-                    <ul class="menu menu-horizontal gap-1 px-1 font-semibold">
-                        <li><a href="{% url 'dashboard-index' %}">Dashboard</a></li>
-                        <li><a href="{% url 'team-list' %}">Takımlar</a></li>
-                        <li><a href="{% url 'athlete-manage-list' %}">Sporcular</a></li>
-                        <li><a href="{% url 'finance-dashboard' %}">Finans</a></li>
+<body
+    class="select-none antialiased"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+>
+
+
+<div class="app">
+
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <header class="app-header">
+
+        <div class="header-inner">
+
+
+            <!-- Sol: Menü -->
+
+            <div class="flex items-center">
+
+                <div class="dropdown">
+
+                    <label
+                        tabindex="0"
+                        class="header-button cursor-pointer"
+                        aria-label="Menüyü aç"
+                    >
+
+                        <svg
+                            class="w-6 h-6"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                        >
+
+                            <path d="M4 6h16"/>
+                            <path d="M4 12h16"/>
+                            <path d="M4 18h16"/>
+
+                        </svg>
+
+                    </label>
+
+
+                    <ul
+                        tabindex="0"
+                        class="
+                            menu
+                            menu-sm
+                            dropdown-content
+                            z-[100]
+                            mt-2
+                            w-60
+                            rounded-2xl
+                            border
+                            border-base-300
+                            bg-base-100
+                            p-2
+                            shadow-2xl
+                        "
+                    >
+
+                        <li>
+                            <a href="{% url 'dashboard-index' %}">
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'team-list' %}">
+                                Takımlar
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'athlete-manage-list' %}">
+                                Sporcular
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{% url 'finance-dashboard' %}">
+                                Finans
+                            </a>
+                        </li>
+
                     </ul>
-                </nav>
 
-                <div class="navbar-end gap-1 sm:gap-2">
-                    <nav class="flex items-center gap-1 lg:hidden" aria-label="Hızlı menü">
-                        <a href="{% url 'athlete-manage-list' %}" class="btn btn-ghost btn-xs px-1.5 text-xs">Sporcular</a>
-                        <a href="{% url 'finance-dashboard' %}" class="btn btn-ghost btn-xs px-1.5 text-xs">Finans</a>
-                    </nav>
-                    <div class="hidden text-right sm:block">
-                        <p class="max-w-32 truncate text-sm font-bold">{{ request.user.get_full_name|default:request.user.username }}</p>
-                        <p class="text-xs text-base-content/50">{{ request.user.get_role_display }}</p>
-                    </div>
-                    <div class="dropdown dropdown-end">
-                        <label tabindex="0" class="btn btn-circle avatar placeholder" aria-label="Kullanıcı menüsü">
-                            <div class="w-9 rounded-full bg-primary text-primary-content"><span>{{ request.user.first_name|first|default:request.user.username|first|upper }}</span></div>
-                        </label>
-                        <ul tabindex="0" class="menu dropdown-content z-[1] mt-3 w-48 rounded-box border border-base-300 bg-base-100 p-2 shadow-xl">
-                            <li><a href="{% url 'user-logout' %}" class="text-error">Çıkış yap</a></li>
-                        </ul>
-                    </div>
                 </div>
-            </div>
-        </header>
 
-        <!-- Main Content Container -->
-        <main class="container mx-auto p-6">
-            {% block content %}{% endblock %}
-        </main>
+
+                <!-- Logo + isim -->
+
+                <a
+                    href="{% url 'dashboard-index' %}"
+                    class="
+                        flex
+                        items-center
+                        gap-2
+                        ml-1
+                        px-2
+                    "
+                >
+
+                    <img
+                        src="/media/logos/fk1.png"
+                        alt="Spor Kulübü"
+                        class="app-logo"
+                    >
+
+                    <span class="font-black text-base">
+                        Alpha
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- Sağ: Kullanıcı -->
+
+            <div class="dropdown dropdown-end">
+
+                <label
+                    tabindex="0"
+                    class="
+                        header-button
+                        avatar
+                        placeholder
+                        cursor-pointer
+                    "
+                    aria-label="Kullanıcı menüsü"
+                >
+
+                    <div
+                        class="
+                            w-9
+                            rounded-full
+                            bg-primary
+                            text-primary-content
+                            text-xs
+                            font-bold
+                        "
+                    >
+
+                        <span>
+                            {{
+                                request.user.first_name|first
+                                |default:request.user.username|first
+                                |upper
+                            }}
+                        </span>
+
+                    </div>
+
+                </label>
+
+
+                <ul
+                    tabindex="0"
+                    class="
+                        menu
+                        menu-sm
+                        dropdown-content
+                        z-[100]
+                        mt-2
+                        w-60
+                        rounded-2xl
+                        border
+                        border-base-300
+                        bg-base-100
+                        p-2
+                        shadow-2xl
+                    "
+                >
+
+                    <li
+                        class="
+                            px-4
+                            py-3
+                            mb-1
+                            border-b
+                            border-base-200
+                        "
+                    >
+
+                        <p class="font-bold truncate p-0">
+                            {{
+                                request.user.get_full_name
+                                |default:request.user.username
+                            }}
+                        </p>
+
+                        <p class="text-xs text-base-content/60 p-0 mt-1">
+                            {{ request.user.get_role_display }}
+                        </p>
+
+                    </li>
+
+
+                    <li>
+                        <a
+                            href="{% url 'user-logout' %}"
+                            class="text-error"
+                        >
+                            Çıkış yap
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         CONTENT
+    ========================================================== -->
+
+    <main class="app-content">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- =========================================================
+         BOTTOM NAVIGATION
+    ========================================================== -->
+
+    <nav class="bottom-nav">
+
+        <div class="bottom-nav-inner">
+
+
+            <!-- Ana Sayfa -->
+
+            <a
+                href="{% url 'dashboard-index' %}"
+                class="bottom-nav-item active"
+            >
+
+                <span class="nav-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+
+                        <path d="m3 10 9-7 9 7"/>
+                        <path d="M5 9v10h14V9"/>
+                        <path d="M9 19v-6h6v6"/>
+
+                    </svg>
+
+                </span>
+
+                <span>Ana Sayfa</span>
+
+            </a>
+
+
+            <!-- Takımlar -->
+
+            <a
+                href="{% url 'team-list' %}"
+                class="bottom-nav-item"
+            >
+
+                <span class="nav-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+
+                        <circle
+                            cx="9"
+                            cy="7"
+                            r="4"
+                        />
+
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+
+                    </svg>
+
+                </span>
+
+                <span>Takımlar</span>
+
+            </a>
+
+
+            <!-- Finans -->
+
+            <a
+                href="{% url 'finance-dashboard' %}"
+                class="bottom-nav-item"
+            >
+
+                <span class="nav-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+
+                        <rect
+                            x="3"
+                            y="5"
+                            width="18"
+                            height="14"
+                            rx="2"
+                        />
+
+                        <path d="M3 10h18"/>
+
+                        <path d="M7 15h3"/>
+
+                    </svg>
+
+                </span>
+
+                <span>Finans</span>
+
+            </a>
+
+
+            <!-- Daha Fazla -->
+
+            <label
+                class="bottom-nav-item cursor-pointer"
+                onclick="document.getElementById('mobile-more-menu').showModal()"
+            >
+
+                <span class="nav-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                    >
+
+                        <circle cx="5" cy="12" r="1"/>
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="19" cy="12" r="1"/>
+
+                    </svg>
+
+                </span>
+
+                <span>Daha Fazla</span>
+
+            </label>
+
+        </div>
+
+    </nav>
+
+
+</div>
+
+
+<!-- =========================================================
+     MOBİL "DAHA FAZLA" MENÜSÜ
+========================================================== -->
+
+<dialog
+    id="mobile-more-menu"
+    class="modal modal-bottom sm:modal-middle"
+>
+
+    <div
+        class="
+            modal-box
+            rounded-t-3xl
+            sm:rounded-3xl
+            p-5
+        "
+    >
+
+        <h3 class="font-bold text-lg mb-4">
+            Daha Fazla
+        </h3>
+
+
+        <div class="grid grid-cols-2 gap-3">
+
+
+            <a
+                href="{% url 'athlete-manage-list' %}"
+                class="
+                    flex
+                    flex-col
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-2xl
+                    bg-base-200
+                    p-5
+                    active:scale-95
+                    transition
+                "
+            >
+
+                <svg
+                    class="w-7 h-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <circle
+                        cx="12"
+                        cy="8"
+                        r="4"
+                    />
+
+                    <path
+                        d="M4 21c0-4 3.5-7 8-7s8 3 8 7"
+                    />
+
+                </svg>
+
+                <span class="font-semibold">
+                    Sporcular
+                </span>
+
+            </a>
+
+
+            <a
+                href="{% url 'team-list' %}"
+                class="
+                    flex
+                    flex-col
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-2xl
+                    bg-base-200
+                    p-5
+                    active:scale-95
+                    transition
+                "
+            >
+
+                <svg
+                    class="w-7 h-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <path d="M3 12h18"/>
+                    <path d="M12 3v18"/>
+
+                </svg>
+
+                <span class="font-semibold">
+                    Takımlar
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <div class="modal-action">
+
+            <form method="dialog" class="w-full">
+
+                <button class="btn btn-block rounded-2xl">
+                    Kapat
+                </button>
+
+            </form>
+
+        </div>
+
     </div>
+
+
+    <form
+        method="dialog"
+        class="modal-backdrop"
+    >
+
+        <button>Kapat</button>
+
+    </form>
+
+</dialog>
+
+
 </body>
 </html>

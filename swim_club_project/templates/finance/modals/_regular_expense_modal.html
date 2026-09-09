@@ -1,72 +1,238 @@
 <dialog id="regular_expense_modal" class="modal modal-open">
-    <div class="modal-box max-w-2xl rounded-2xl p-0">
-        <div class="flex items-start justify-between border-b border-base-200 px-6 py-5">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-widest text-primary">Tekrarlayan gider planı</p>
-                <h3 class="mt-1 text-2xl font-black">{{ modal_title }}</h3>
-                <p class="mt-1 text-sm text-base-content/60">Ödeme sıklığı ve geçerlilik tarihlerini tanımlayın.</p>
+
+    <div class="modal-box w-[calc(100%-1rem)] max-w-md max-h-[92vh] overflow-hidden rounded-2xl p-0 sm:max-w-lg">
+
+        <!-- Başlık -->
+        <div class="flex items-start justify-between gap-3 border-b border-base-200 px-4 py-4 sm:px-5">
+
+            <div class="min-w-0">
+                <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                    Tekrarlayan gider planı
+                </p>
+
+                <h3 class="mt-1 text-xl font-black text-base-content">
+                    {{ modal_title }}
+                </h3>
+
+                <p class="mt-1 text-[10px] leading-relaxed text-base-content/50">
+                    Ödeme sıklığı ve geçerlilik tarihlerini tanımlayın.
+                </p>
             </div>
-            <button type="button" class="btn btn-circle btn-ghost btn-sm" onclick="closeRegularExpenseModal()" aria-label="Kapat">✕</button>
+
+            <button
+                type="button"
+                class="btn btn-circle btn-ghost h-8 w-8 min-h-0 shrink-0 text-sm"
+                onclick="closeRegularExpenseModal()"
+                aria-label="Kapat">
+                ✕
+            </button>
+
         </div>
 
-        <form {% if form_action == 'regular-expense-update' %}hx-post="{% url 'regular-expense-update' regular_expense_id %}"{% else %}hx-post="{% url 'regular-expense-create' %}"{% endif %}
-              hx-target="#regular-expense-list"
-              hx-swap="outerHTML"
-              class="space-y-4 px-6 py-6">
+
+        <!-- Form -->
+        <form
+            {% if form_action == 'regular-expense-update' %}
+                hx-post="{% url 'regular-expense-update' regular_expense_id %}"
+            {% else %}
+                hx-post="{% url 'regular-expense-create' %}"
+            {% endif %}
+            hx-target="#regular-expense-list"
+            hx-swap="outerHTML"
+            class="max-h-[calc(92vh-105px)] overflow-y-auto px-4 py-4 sm:px-5">
+
             {% csrf_token %}
+
             <input type="hidden" name="category_filter" value="{{ category_filter }}">
             <input type="hidden" name="query_filter" value="{{ query_filter }}">
             <input type="hidden" name="status_filter" value="{{ status_filter }}">
-            {% if form.non_field_errors %}<div class="alert alert-error text-sm">{{ form.non_field_errors }}</div>{% endif %}
-            <div class="grid gap-4 sm:grid-cols-2">
-                <label class="form-control sm:col-span-2">
-                    <span class="label label-text font-bold">Harcama kategorisi</span>
+
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error mb-3 text-xs">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+
+            <div class="space-y-3">
+
+                <!-- Kategori -->
+                <label class="form-control">
+
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Harcama kategorisi
+                    </span>
+
                     {{ form.category }}
-                    {% if form.category.errors %}<span class="label-text-alt text-error">{{ form.category.errors|striptags }}</span>{% endif %}
+
+                    {% if form.category.errors %}
+                        <span class="mt-1 text-[10px] text-error">
+                            {{ form.category.errors|striptags }}
+                        </span>
+                    {% endif %}
+
                 </label>
+
+
+                <!-- Tutar + Alıcı -->
+                <div class="grid grid-cols-2 gap-2">
+
+                    <label class="form-control">
+
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Tutar (TL)
+                        </span>
+
+                        {{ form.amount }}
+
+                        {% if form.amount.errors %}
+                            <span class="mt-1 text-[10px] text-error">
+                                {{ form.amount.errors|striptags }}
+                            </span>
+                        {% endif %}
+
+                    </label>
+
+
+                    <label class="form-control">
+
+                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            Alıcı / firma
+                        </span>
+
+                        {{ form.reciever }}
+
+                    </label>
+
+                </div>
+
+
+                <!-- Tarihler -->
+                <div class="rounded-2xl border border-base-200 bg-base-200/40 p-3">
+
+                    <p class="mb-2 text-[10px] font-black uppercase tracking-wide text-base-content/40">
+                        Geçerlilik
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2">
+
+                        <label class="form-control">
+
+                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                                Başlangıç
+                            </span>
+
+                            {{ form.start_date }}
+
+                        </label>
+
+
+                        <label class="form-control">
+
+                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                                Bitiş
+                            </span>
+
+                            {{ form.end_date }}
+
+                            <span class="mt-1 text-[9px] leading-relaxed text-base-content/40">
+                                Boş bırakılırsa devam eder.
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Tekrarlama -->
+                <div class="rounded-2xl border border-base-200 bg-base-200/40 p-3">
+
+                    <p class="mb-2 text-[10px] font-black uppercase tracking-wide text-base-content/40">
+                        Ödeme planı
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2">
+
+                        <label class="form-control">
+
+                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                                Tekrarlama sıklığı
+                            </span>
+
+                            {{ form.frequency }}
+
+                        </label>
+
+
+                        <label class="form-control">
+
+                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                                Ödeme günü
+                            </span>
+
+                            {{ form.paymentDay }}
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Açıklama -->
                 <label class="form-control">
-                    <span class="label label-text font-bold">Tutar (TL)</span>
-                    {{ form.amount }}
-                    {% if form.amount.errors %}<span class="label-text-alt text-error">{{ form.amount.errors|striptags }}</span>{% endif %}
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Alıcı / firma</span>
-                    {{ form.reciever }}
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Başlangıç tarihi</span>
-                    {{ form.start_date }}
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Bitiş tarihi</span>
-                    {{ form.end_date }}
-                    <span class="label-text-alt text-base-content/50">Boş bırakırsanız devam eder.</span>
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Tekrarlama sıklığı</span>
-                    {{ form.frequency }}
-                </label>
-                <label class="form-control">
-                    <span class="label label-text font-bold">Ödeme günü</span>
-                    {{ form.paymentDay }}
-                </label>
-                <label class="form-control sm:col-span-2">
-                    <span class="label label-text font-bold">Açıklama</span>
+
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Açıklama
+                    </span>
+
                     {{ form.notes }}
+
                 </label>
+
             </div>
-            <div class="modal-action border-t border-base-200 pt-4">
-                <button type="button" class="btn btn-ghost" onclick="closeRegularExpenseModal()">İptal</button>
-                <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+
+
+            <!-- Aksiyonlar -->
+            <div class="mt-4 grid grid-cols-2 gap-2 border-t border-base-200 pt-4">
+
+                <button
+                    type="button"
+                    class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs font-bold"
+                    onclick="closeRegularExpenseModal()">
+                    İptal
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm">
+                    {{ submit_label }}
+                </button>
+
             </div>
+
         </form>
+
     </div>
+
 </dialog>
+
 
 <script>
     function closeRegularExpenseModal() {
         const modal = document.getElementById('regular_expense_modal');
-        if (modal) modal.remove();
-        document.getElementById('regular-expense-modal-container').innerHTML = '';
+
+        if (modal) {
+            modal.remove();
+        }
+
+        const regularContainer = document.getElementById('regular-expense-modal-container');
+
+        if (regularContainer) {
+            regularContainer.innerHTML = '';
+        }
     }
 </script>

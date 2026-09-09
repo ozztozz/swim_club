@@ -1,62 +1,181 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-3xl space-y-6">
-    <a href="{% url 'athlete-manage-list' %}" class="btn btn-ghost btn-sm">← Sporcu listesine dön</a>
 
-    <section class="mx-auto w-full max-w-2xl overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
-        <div class="flex flex-col items-center gap-3 border-b border-base-200 p-3 sm:flex-row">
-            {% if athlete.photo %}<img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="h-20 w-20 rounded-full object-cover ring-2 ring-primary/10">{% else %}<img src="/media/logos/logo4.jpeg" alt="{{ athlete.get_full_name }}" class="h-20 w-20 rounded-full object-cover ring-2 ring-primary/10">{% endif %}
-            <div class="text-center sm:text-left">
-                
-                <h1 class="text-2xl font-black">{{ athlete.get_full_name }}</h1>
-                <p class="text-base-content/60">{% if athlete.team %}{{ athlete.team.name }}{% else %}Takım ataması yok{% endif %} - {{ athlete.parent|default:'Belirtilmedi' }}</p>
+<div class="w-full space-y-4">
+
+    <!-- ÜST BAR -->
+    <header class="flex items-center gap-2 px-1">
+        <a
+            href="{% url 'athlete-manage-list' %}"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-lg text-base-content/60 shadow-sm active:scale-95"
+            aria-label="Sporcu listesine dön">
+            ←
+        </a>
+
+        <div class="min-w-0">
+            <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                Sporcu
+            </p>
+            <h1 class="truncate text-base font-black text-base-content">
+                Profil
+            </h1>
+        </div>
+    </header>
+
+
+    <!-- SPORCU PROFİLİ -->
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+
+        <div class="flex items-center gap-3 p-4">
+
+            {% if athlete.photo %}
+                <img
+                    src="{{ athlete.photo.url }}"
+                    alt="{{ athlete.get_full_name }}"
+                    class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-base-200"
+                >
+            {% else %}
+                <img
+                    src="/media/logos/logo4.jpeg"
+                    alt="{{ athlete.get_full_name }}"
+                    class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-base-200"
+                >
+            {% endif %}
+
+            <div class="min-w-0 flex-1">
+
+                <h2 class="truncate text-base font-black text-base-content">
+                    {{ athlete.get_full_name }}
+                </h2>
+
+                <p class="mt-0.5 truncate text-[10px] text-base-content/50">
+                    {% if athlete.team %}
+                        {{ athlete.team.name }}
+                    {% else %}
+                        Takım ataması yok
+                    {% endif %}
+                </p>
+
+                <p class="mt-0.5 truncate text-[10px] text-base-content/40">
+                    Veli: {{ athlete.parent|default:'Belirtilmedi' }}
+                </p>
 
             </div>
+
         </div>
-        <div class="flex justify-between gap-2 border-b border-base-200 px-3 py-2">
-            <button class="btn btn-primary btn-sm" hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1" hx-target="#athlete-modal-container" hx-swap="innerHTML">Düzenle</button>
-            <button class="btn btn-success btn-sm" hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}" hx-target="#athlete-payment-create-modal-container" hx-swap="innerHTML">Ödeme ekle</button>
+
+        <!-- HIZLI AKSİYONLAR -->
+        <div class="grid grid-cols-2 gap-2 border-t border-base-200 bg-base-50/50 p-3">
+
+            <button
+                type="button"
+                class="btn btn-outline h-9 min-h-0 rounded-xl px-3 text-[10px] font-bold"
+                hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1"
+                hx-target="#athlete-modal-container"
+                hx-swap="innerHTML">
+                Düzenle
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-primary h-9 min-h-0 rounded-xl px-3 text-[10px] font-bold shadow-sm"
+                hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}"
+                hx-target="#athlete-payment-create-modal-container"
+                hx-swap="innerHTML">
+                + Ödeme Ekle
+            </button>
+
         </div>
 
     </section>
 
-    <section class="overflow-hidden rounded-xl border border-base-200 bg-base-100 shadow-sm">
-        <div class="flex flex-col gap-3 border-b border-base-200 p-6 sm:flex-row sm:items-end sm:justify-between">
+
+    <!-- AYLIK ÖDEMELER -->
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+
+        <div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
+
             <div>
-            
-            <h2 class="mt-1 text-2xl font-black">Aylık ödemeler</h2>
+                <h2 class="text-sm font-black text-base-content">
+                    Aylık Ödemeler
+                </h2>
+                <p class="mt-0.5 text-[10px] text-base-content/40">
+                    Aidat dönemleri ve ödeme durumları
+                </p>
             </div>
 
         </div>
+
         <div class="divide-y divide-base-200">
+
             {% for item in monthly_payments %}
-            {% include 'athlete/partials/athlete_payment_row.html' %}
+
+                <div class="p-2 transition-colors active:bg-base-200/50">
+                    {% include 'athlete/partials/athlete_payment_row.html' %}
+                </div>
+
             {% empty %}
-            <p class="p-6 text-sm text-base-content/60">Henüz ödeme dönemi bulunmuyor.</p>
+
+                <div class="flex min-h-[140px] items-center justify-center px-4 text-center">
+                    <p class="text-xs text-base-content/40">
+                        Henüz ödeme dönemi bulunmuyor.
+                    </p>
+                </div>
+
             {% endfor %}
+
         </div>
+
     </section>
+
 </div>
+
+
+<!-- MODAL KONTEYNERLERİ -->
+
 <div id="athlete-modal-container"></div>
 <div id="athlete-payment-modal-container"></div>
 <div id="athlete-payment-edit-modal-container"></div>
 <div id="athlete-payment-create-modal-container"></div>
+
+
 <script>
     document.body.addEventListener('closeAthleteModal', function () {
         const modal = document.getElementById('athlete_modal');
-        if (modal) modal.remove();
-        document.getElementById('athlete-modal-container').innerHTML = '';
+        if (modal) {
+            modal.remove();
+        }
+
+        const container = document.getElementById('athlete-modal-container');
+        if (container) {
+            container.innerHTML = '';
+        }
     });
+
     document.body.addEventListener('closeAthletePaymentModal', function () {
         const modal = document.getElementById('athlete_payment_modal');
-        if (modal) modal.remove();
-        document.getElementById('athlete-payment-modal-container').innerHTML = '';
+        if (modal) {
+            modal.remove();
+        }
+
+        const container = document.getElementById('athlete-payment-modal-container');
+        if (container) {
+            container.innerHTML = '';
+        }
     });
+
     document.body.addEventListener('closeAthletePaymentEditModal', function () {
         const modal = document.getElementById('athlete_payment_edit_modal');
-        if (modal) modal.remove();
-        document.getElementById('athlete-payment-edit-modal-container').innerHTML = '';
+        if (modal) {
+            modal.remove();
+        }
+
+        const container = document.getElementById('athlete-payment-edit-modal-container');
+        if (container) {
+            container.innerHTML = '';
+        }
     });
 </script>
+
 {% endblock %}

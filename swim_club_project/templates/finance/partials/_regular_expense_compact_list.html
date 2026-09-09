@@ -1,33 +1,107 @@
 {% for expense in regular_expenses %}
-<tr class="border-b border-base-200 last:border-0">
-    <td class="hidden break-words md:table-cell">
+
+<tr class="border-b border-base-200 last:border-0 hover:bg-base-50/30 transition-colors">
+
+    <!-- Kategori -->
+    <td class="hidden md:table-cell p-2.5 text-xs">
         {% if expense.category %}
-        <span class="badge badge-ghost font-medium">{{ expense.category.name }}</span>
+            <span class="badge badge-ghost font-medium text-[10px]">
+                {{ expense.category.name }}
+            </span>
         {% endif %}
     </td>
-    <td class="break-words font-semibold">{{ expense.reciever }}</td>
-    <td class="break-words ">
-        <div class="font-black">{{ expense.amount|floatformat:2 }} TL</div>
-        <div class="mt-0.5 text-xs text-base-content/60">{% if expense.paymentDay %}{{ expense.paymentDay }}. gün{% else %}Gün yok{% endif %}</div>
+
+    <!-- Alıcı -->
+    <td class="p-2.5">
+        <div class="font-bold text-xs text-base-content truncate max-w-[110px]">
+            {{ expense.reciever }}
+        </div>
+
+        <!-- Mobilde kategori bilgisi -->
+        {% if expense.category %}
+            <div class="mt-0.5 text-[10px] text-base-content/50 md:hidden truncate max-w-[110px]">
+                {{ expense.category.name }}
+            </div>
+        {% endif %}
     </td>
-    <td class="hidden break-words md:table-cell"><span class="badge badge-outline">{{ expense.get_frequency_display }}</span></td>
-    <td class="break-words">
-        {% with generated_expenses=expense.generated_expenses.all %}
-            {% if generated_expenses %}
-            <span class="badge badge-success text-white">Ödendi</span>
+
+    <!-- Tutar / Gün -->
+    <td class="p-2.5 whitespace-nowrap">
+        <div class="font-black text-xs text-base-content">
+            {{ expense.amount|floatformat:2 }} TL
+        </div>
+
+        <div class="mt-0.5 text-[10px] text-base-content/50">
+            {% if expense.paymentDay %}
+                Her ay {{ expense.paymentDay }}. gün
             {% else %}
-            <button type="button" class="btn btn-success btn-xs text-white"
+                Gün belirtilmemiş
+            {% endif %}
+        </div>
+    </td>
+
+    <!-- Tekrar -->
+    <td class="hidden md:table-cell p-2.5">
+        <span class="badge badge-outline text-[10px]">
+            {{ expense.get_frequency_display }}
+        </span>
+    </td>
+
+    <!-- Durum / İşlem -->
+    <td class="p-2.5 text-right whitespace-nowrap">
+
+        {% with generated_expenses=expense.generated_expenses.all %}
+
+            {% if generated_expenses %}
+
+                <span class="badge badge-success text-[10px] text-white px-2 py-1 h-auto">
+                    Ödendi
+                </span>
+
+            {% else %}
+
+                <button
+                    type="button"
+                    class="btn btn-success btn-xs min-h-8 h-8 px-3 text-white text-[10px] rounded-lg"
                     hx-get="{% url 'regular-expense-convert' expense.pk %}?source=expenses&period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
                     hx-target="#modal-container"
                     hx-swap="innerHTML">
-                Ödeme yap
-            </button>
+
+                    <span class="text-sm leading-none">₺</span>
+                    Ödeme yap
+
+                </button>
+
             {% endif %}
+
         {% endwith %}
+
+    </td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="5" class="py-10 text-center">
+
+        <div class="mx-auto flex flex-col items-center px-4">
+
+            <div class="mb-2 grid h-10 w-10 place-items-center rounded-xl bg-base-200 text-base-content/50">
+                ₺
+            </div>
+
+            <p class="text-xs font-bold text-base-content">
+                Aktif düzenli harcama bulunmuyor
+            </p>
+
+            <p class="mt-1 text-[10px] text-base-content/50">
+                Düzenli harcamalar burada görünecek.
+            </p>
+
+        </div>
+
     </td>
 </tr>
-{% empty %}
-<tr>
-    <td colspan="5" class="py-10 text-center text-sm text-base-content/50">Aktif düzenli harcama bulunmuyor.</td>
-</tr>
+
 {% endfor %}
