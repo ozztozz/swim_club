@@ -1,36 +1,133 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="flex justify-center items-center h-[70vh]">
-    <div class="card w-96 bg-base-100 shadow-xl">
-        <div class="card-body">
-            <h2 class="card-title text-center block text-2xl font-bold mb-4">Giriş Yap</h2>
 
+<div class="flex min-h-[calc(100dvh-8rem)] items-center justify-center px-4">
+
+    <div class="w-full max-w-sm">
+
+        <!-- Logo / Başlık -->
+        <div class="mb-6 text-center">
+
+            <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary shadow-sm">
+                <span class="text-xl font-black">
+                    K
+                </span>
+            </div>
+
+            <h1 class="mt-4 text-xl font-black tracking-tight">
+                Kulüp Yönetim Paneli
+            </h1>
+
+            <p class="mt-1 text-[10px] text-base-content/50">
+                Devam etmek için hesabınıza giriş yapın.
+            </p>
+
+        </div>
+
+
+        <!-- Giriş Kartı -->
+        <section class="rounded-2xl border border-base-200 bg-base-100 p-4 shadow-sm sm:p-5">
+
+            <div class="mb-4">
+
+                <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+                    Hesap girişi
+                </p>
+
+                <h2 class="mt-1 text-lg font-black">
+                    Giriş Yap
+                </h2>
+
+            </div>
+
+
+            <!-- Hatalar -->
             {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-error text-sm p-2 mb-2">
-                        <span>{{ message }}</span>
-                    </div>
-                {% endfor %}
+
+                <div class="mb-4 space-y-2">
+
+                    {% for message in messages %}
+
+                        <div class="flex items-start gap-2 rounded-xl border border-error/20 bg-error/5 px-3 py-2.5 text-[10px] text-error">
+
+                            <span class="font-black">
+                                !
+                            </span>
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
             {% endif %}
 
-            <form method="post" action="{% url 'user-login' %}">
+
+            <!-- Form -->
+            <form method="post" action="{% url 'user-login' %}" class="space-y-3">
+
                 {% csrf_token %}
-                <div class="form-control w-full">
-                    <label class="label"><span class="label-text">Kullanıcı Adı</span></label>
-                    <input type="text" name="username" required class="input input-bordered w-full" />
-                </div>
 
-                <div class="form-control w-full mt-2">
-                    <label class="label"><span class="label-text">Şifre</span></label>
-                    <input type="password" name="password" required class="input input-bordered w-full" />
-                </div>
 
-                <div class="card-actions justify-end mt-6">
-                    <button type="submit" class="btn btn-primary w-full">Giriş</button>
-                </div>
+                <!-- Kullanıcı adı -->
+                <label class="form-control">
+
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Kullanıcı adı
+                    </span>
+
+                    <input
+                        type="text"
+                        name="username"
+                        required
+                        autocomplete="username"
+                        class="input input-bordered h-10 min-h-0 w-full rounded-xl bg-base-100 text-xs"
+                        placeholder="Kullanıcı adınızı girin">
+
+                </label>
+
+
+                <!-- Şifre -->
+                <label class="form-control">
+
+                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                        Şifre
+                    </span>
+
+                    <input
+                        type="password"
+                        name="password"
+                        required
+                        autocomplete="current-password"
+                        class="input input-bordered h-10 min-h-0 w-full rounded-xl bg-base-100 text-xs"
+                        placeholder="Şifrenizi girin">
+
+                </label>
+
+
+                <!-- Giriş -->
+                <button
+                    type="submit"
+                    class="btn btn-primary mt-2 h-10 min-h-0 w-full rounded-xl text-xs font-bold shadow-sm">
+                    Giriş Yap
+                </button>
+
             </form>
-        </div>
+
+        </section>
+
+
+        <p class="mt-4 text-center text-[9px] text-base-content/30">
+            Yetkili kullanıcı hesabınızla giriş yapın.
+        </p>
+
     </div>
+
 </div>
+
 {% endblock %}

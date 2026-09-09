@@ -1,42 +1,132 @@
-<!-- finance/templates/finance/partials/_payment_row.html -->
-<tr id="payment-row-{{ payment.id }}">
-        <td>
+<tr
+    id="payment-row-{{ payment.id }}"
+    class="border-b border-base-200 last:border-0 transition-colors hover:bg-base-200/40"
+>
+
+    <!-- Sporcu -->
+    <td class="p-2.5 align-top md:p-3">
+
+        <div class="min-w-0">
+
+            <div class="truncate text-xs font-bold text-base-content">
+                {{ payment.get_full_name }}
+            </div>
+
+            <!-- Mobilde dönem -->
+            <div class="mt-0.5 text-[10px] text-base-content/40 md:hidden">
+                {{ payment.period }}
+            </div>
+
+        </div>
+
+    </td>
+
+
+    <!-- Dönem -->
+    <td class="hidden p-3 align-top text-xs text-base-content/50 md:table-cell">
+        {{ payment.period }}
+    </td>
+
+
+    <!-- Tutar / Durum -->
+    <td class="p-2.5 align-top md:p-3">
+
+        <div class="whitespace-nowrap text-xs font-black text-base-content">
+            {{ payment.amount|floatformat:2 }} TL
+        </div>
+
+
+        <div class="mt-1">
+
+            {% if payment.payment_record and payment.payment_record.status == 'paid' %}
+
+                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-1.5 text-[9px] font-semibold text-success">
+                    Ödendi
+                </span>
+
+            {% elif payment.payment_record and payment.payment_record.is_overdue %}
+
+                <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-1.5 text-[9px] font-semibold">
+                    Gecikti
+                </span>
+
+            {% else %}
+
+                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-1.5 text-[9px] font-semibold text-base-content/50">
+                    Bekliyor
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </td>
+
+
+    <!-- Tahsilat bilgisi -->
+    <td class="hidden p-3 align-top text-[10px] text-base-content/50 md:table-cell">
+
+        {% if payment.payment_record and payment.payment_record.status == 'paid' %}
+
+            <div>
+                {{ payment.paid_at|date:"d.m.Y" }}
+            </div>
+
+            <div class="mt-0.5 text-[9px] text-base-content/35">
+                {{ payment.collected_by.get_full_name|default:payment.collected_by.username }}
+            </div>
+
+        {% else %}
+
+            <span class="text-base-content/25">—</span>
+
+        {% endif %}
+
+    </td>
+
+
+    <!-- İşlem -->
+    <td class="p-2.5 text-right align-top md:p-3">
+
         {% if payment.payment_record %}
+
             {% if payment.payment_record.status != 'paid' %}
-            <button class="btn btn-sm btn-outline btn-success"
+
+                <button
+                    type="button"
+                    class="
+                        btn
+                        btn-primary
+                        h-8
+                        min-h-0
+                        rounded-lg
+                        px-2.5
+                        text-[10px]
+                        font-bold
+                    "
                     hx-get="{% url 'finance-mark-paid' payment.payment_record.id %}"
                     hx-target="#modal-container"
-                    hx-swap="innerHTML">
-                Ödeme
-            </button>
+                    hx-swap="innerHTML"
+                >
+                    Ödeme
+                </button>
+
             {% else %}
-                <span class="text-xs text-success font-semibold">✓ Tahsil Edildi</span>
+
+                <span class="text-[9px] font-semibold text-success">
+                    Tahsil edildi
+                </span>
+
             {% endif %}
+
         {% else %}
-            <span class="text-xs text-gray-400">Kayıt yok</span>
-        {% endif %}
-    </td>
-    <td class="font-semibold">
-        {{ payment.get_full_name }}
-    </td>
-    <td>{{ payment.period }}</td>
-    <td>{{ payment.amount|floatformat:2 }} TL
-        {% if payment.payment_record and payment.payment_record.status == 'paid' %}
-            <span class="badge badge-success text-white">Ödendi</span>
-        {% elif payment.payment_record and payment.payment_record.is_overdue %}
-            <span class="badge badge-error text-white">Gecikti</span>
-        {% else %}
-            <span class="badge badge-warning">Bekliyor</span>
+
+            <span class="text-[9px] text-base-content/30">
+                Kayıt yok
+            </span>
+
         {% endif %}
 
-    </td>
-
-    <td class="text-xs text-gray-500">
-        {% if payment.payment_record and payment.payment_record.status == 'paid' %}
-            {{ payment.paid_at|date:"d.m.Y " }} {{ payment.collected_by.get_full_name|default:payment.collected_by.username }}
-        {% else %}
-            -
-        {% endif %}
     </td>
 
 </tr>

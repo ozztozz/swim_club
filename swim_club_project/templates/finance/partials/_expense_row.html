@@ -1,81 +1,122 @@
-<tr class="border-b border-base-200 last:border-0 hover:bg-base-50/30 transition-colors {% if not expense.is_active %}opacity-50{% endif %}">
+<tr class="border-b border-base-200 last:border-0 hover:bg-base-200/40 transition-colors {% if not expense.is_active %}opacity-60{% endif %}">
 
     <!-- Tarih -->
     <td class="p-2.5 whitespace-nowrap align-top">
-        <div class="text-[10px] font-semibold text-base-content/50">
+        <div class="text-[10px] font-medium text-base-content/45">
             {{ expense.expense_date|date:'d.m.Y' }}
         </div>
     </td>
 
+
     <!-- Kategori -->
     <td class="hidden md:table-cell p-2.5 align-top">
+
         {% if expense.category %}
-            <span class="badge badge-ghost text-[10px] font-medium">
+
+            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-base-content/60">
                 {{ expense.category.name }}
             </span>
+
         {% endif %}
+
     </td>
+
 
     <!-- Alıcı / Firma -->
     <td class="p-2.5 align-top max-w-[150px]">
 
-        <div class="font-bold text-xs text-base-content truncate">
+        <div class="truncate text-xs font-bold text-base-content">
             {{ expense.reciever }}
         </div>
 
-        <!-- Mobilde kategori -->
+
+        <!-- Mobil kategori -->
+
         {% if expense.category %}
-            <div class="text-[10px] text-base-content/50 truncate mt-0.5 md:hidden">
+
+            <div class="mt-0.5 truncate text-[10px] text-base-content/40 md:hidden">
                 {{ expense.category.name }}
             </div>
+
         {% endif %}
 
-        <!-- Durum bilgileri -->
-        <div class="flex flex-wrap items-center gap-1 mt-1">
 
-            {% if expense.regular_expense %}
-                <span class="badge badge-success badge-outline text-[9px] px-1.5 py-0.5 h-auto">
-                    Düzenli
-                </span>
-            {% endif %}
+        <!-- Durum -->
 
-            {% if not expense.is_active %}
-                <span class="badge badge-error badge-outline text-[9px] px-1.5 py-0.5 h-auto">
-                    İptal
-                </span>
-            {% endif %}
+        {% if expense.regular_expense or not expense.is_active %}
 
-        </div>
+            <div class="mt-1.5 flex flex-wrap items-center gap-1">
+
+                {% if expense.regular_expense %}
+
+                    <span class="badge badge-ghost h-5 min-h-0 rounded-md px-1.5 text-[9px] font-medium text-base-content/50">
+                        Düzenli
+                    </span>
+
+                {% endif %}
+
+
+                {% if not expense.is_active %}
+
+                    <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-1.5 text-[9px] font-medium">
+                        İptal
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
 
         {% if expense.notes %}
-            <div class="text-[10px] text-base-content/40 truncate max-w-[140px] mt-1">
+
+            <div class="mt-1 max-w-[140px] truncate text-[10px] text-base-content/35">
                 {{ expense.notes }}
             </div>
+
         {% endif %}
 
     </td>
 
+
     <!-- Belge No -->
-    <td class="hidden md:table-cell p-2.5 text-sm text-base-content/60 align-top">
+
+    <td class="hidden md:table-cell p-2.5 align-top text-xs text-base-content/50">
         {{ expense.receipt_no|default:'-' }}
     </td>
 
+
     <!-- Tutar / İşlem -->
+
     <td class="p-2.5 text-right whitespace-nowrap align-top">
 
-        <div class="font-black text-xs text-error">
+        <div class="text-xs font-black text-base-content">
             {{ expense.amount|floatformat:2 }} TL
         </div>
 
+
         <button
             type="button"
-            class="btn btn-ghost btn-xs text-success px-2 h-7 min-h-0 text-[10px] rounded-lg mt-1"
+            class="
+                btn
+                btn-ghost
+                h-7
+                min-h-0
+                rounded-lg
+                px-2
+                mt-1
+                text-[10px]
+                font-semibold
+                text-base-content/45
+                hover:bg-base-200
+                hover:text-base-content
+            "
             hx-get="{% url 'expense-update' expense.pk %}?period={{ expense.period }}"
             hx-target="#modal-container"
-            hx-swap="innerHTML">
-
+            hx-swap="innerHTML"
+        >
             Düzenle
-
         </button>
 
     </td>
