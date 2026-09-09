@@ -51,6 +51,21 @@
             padding: 0;
         }
 
+            /* Küçük yardımcı metinleri uygulama genelinde okunabilir tut */
+
+            [class~="text-[9px]"],
+            [class~="text-[10px]"] {
+                font-size: 0.75rem !important;
+                line-height: 1rem !important;
+            }
+
+
+            [class~="text-[11px]"],
+            [class~="text-xs"] {
+                font-size: 0.875rem !important;
+                line-height: 1.25rem !important;
+            }
+
 
         body {
             overflow: hidden;
@@ -248,7 +263,7 @@
             background: oklch(var(--b1) / .96);
 
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+                font-size: 12px;
 
             border-top:
                 1px solid oklch(var(--b3) / .7);

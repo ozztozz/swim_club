@@ -1,4 +1,0 @@
-{% include 'finance/partials/_expense_row.html' %}
-<p id="expense-total" hx-swap-oob="outerHTML" class="mt-2 text-2xl font-black sm:text-3xl">{{ total_expense|floatformat:2 }} TL</p>
-<p id="expense-count" hx-swap-oob="outerHTML" class="mt-2 text-2xl font-black sm:text-3xl">{{ expense_count }}</p>
-<p id="expense-average" hx-swap-oob="outerHTML" class="mt-2 text-2xl font-black sm:text-3xl">{{ average_expense|floatformat:2 }} TL</p>

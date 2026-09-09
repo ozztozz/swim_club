@@ -1,7 +1,0 @@
-<!-- 1. Güncellenen Tablo Satırı (Normal Swap Target) -->
-{% include 'finance/partials/_payment_row.html' with payment=payment %}
-
-<!-- 2. Güncellenen Finansal Özet (Out of Band Swap) -->
-<div id="financial-summary-strip" hx-swap-oob="true" class="stats stats-horizontal shadow-sm bg-base-100 border border-base-200 w-full overflow-x-auto">
-    {% include 'finance/partials/_summary_strip.html' %}
-</div>

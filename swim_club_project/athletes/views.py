@@ -65,10 +65,26 @@ def athlete_detail(request, pk):
     first_month = athlete.joined_date.replace(day=1)
     current_month = date.today().replace(day=1)
     payments_records = PaymentRecord.objects.filter(
-            athlete=athlete, 
-          
-        )
-    
+        athlete=athlete,
+        payment_type='fee',
+    )
+    other_payments = PaymentRecord.objects.filter(
+        athlete=athlete,
+    ).exclude(payment_type='fee')
+    other_payment_items = [
+        {
+            'period': payment.period,
+            'label': f'{MONTH_NAMES[int(payment.period[5:]) - 1]} {payment.period[:4]}',
+            'amount': payment.amount,
+            'payment': payment,
+            'paid_amount': payment.amount if payment.status == 'paid' else Decimal('0.00'),
+            'payment_type': payment.payment_type,
+            'payment_type_display': payment.get_payment_type_display(),
+            'is_paid': payment.status == 'paid',
+            'status': payment.status,
+        }
+        for payment in other_payments
+    ]
 
 
     monthly_payments = []
@@ -77,18 +93,31 @@ def athlete_detail(request, pk):
     while period_month >= first_month and displayed_months < 10:
         period = period_month.strftime('%Y-%m')
         payments_by_period = payments_records.filter(period=period)
-        for payment in payments_by_period:        
+        if not payments_by_period.exists():
             monthly_payments.append({
                 'period': period,
                 'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
                 'amount': get_athlete_fee_for_period(athlete, period),
-                'payment': payment,
-                'paid_amount': payment.amount if payment else None,
-                'payment_type': payment.payment_type if payment else 'fee',
-                'payment_type_display': payment.get_payment_type_display() if payment else 'Aidat',
-                'is_paid': payment is not None and payment.status == 'paid',
-                'status': payment.status if payment else 'pending',
+                'payment': None,
+                'paid_amount': Decimal('0.00'),
+                'payment_type': 'fee',
+                'payment_type_display': 'Aidat',
+                'is_paid': False,
+                'status': 'pending',
             })
+        else:
+            for payment in payments_by_period:
+                monthly_payments.append({
+                    'period': period,
+                    'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
+                    'amount': get_athlete_fee_for_period(athlete, period),
+                    'payment': payment,
+                    'paid_amount': payment.amount if payment.status == 'paid' else Decimal('0.00'),
+                    'payment_type': 'fee',
+                    'payment_type_display': payment.get_payment_type_display(),
+                    'is_paid': payment.status == 'paid',
+                    'status': payment.status,
+                })
         displayed_months += 1
         if period_month.month == 1:
             period_month = period_month.replace(year=period_month.year - 1, month=12)
@@ -98,6 +127,7 @@ def athlete_detail(request, pk):
     return render(request, 'athlete/athlete_detail.html', {
         'athlete': athlete,
         'monthly_payments': monthly_payments,
+        'other_payments': other_payment_items,
     })
 
 
@@ -112,17 +142,20 @@ def athlete_make_payment(request, pk, period):
     except (TypeError, ValueError):
         return render(request, 'athlete/partials/athlete_payment_modal.html', {}, status=400)
 
-    amount = get_athlete_fee_for_period(athlete, period)
     payment = PaymentRecord.objects.filter(
         athlete=athlete,
         period=period,
         payment_type='fee',
     ).first()
+    amount = payment.amount if payment else get_athlete_fee_for_period(athlete, period)
     item = {
         'period': period,
         'label': f'{MONTH_NAMES[month - 1]} {year}',
         'amount': amount,
         'payment': payment,
+        'paid_amount': payment.amount if payment and payment.status == 'paid' else Decimal('0.00'),
+        'payment_type': payment.payment_type if payment else 'fee',
+        'payment_type_display': payment.get_payment_type_display() if payment else 'Aidat',
         'is_paid': payment is not None and payment.status == 'paid',
         'status': payment.status if payment else 'pending',
     }
@@ -149,7 +182,8 @@ def athlete_make_payment(request, pk, period):
             'due_date': period_date.replace(day=15),
         },
     )
-    payment.amount = amount
+    if not payment.amount:
+        payment.amount = amount
     payment.status = 'paid'
     payment.paid_at = timezone.now()
     payment.collected_by = request.user
@@ -201,22 +235,13 @@ def athlete_create_payment(request, pk):
 
 
 @login_required
-def athlete_edit_payment(request, pk, period):
-    from finance.services import get_athlete_fee_for_period
-
+def athlete_edit_payment(request, pk, payment_id):
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
-    payment = PaymentRecord.objects.filter(
-        athlete=athlete,
-        period=period,
-     
-    ).first()
+    payment = get_object_or_404(PaymentRecord, pk=payment_id, athlete=athlete)
     if request.method == 'POST':
         form = AthletePaymentEditForm(request.POST, instance=payment)
         if form.is_valid():
             payment = form.save(commit=False)
-            payment.athlete = athlete
-            payment.period = period
-      
             if payment.status == 'paid':
                 payment.paid_at = payment.paid_at or timezone.now()
                 payment.collected_by = payment.collected_by or request.user
@@ -224,22 +249,16 @@ def athlete_edit_payment(request, pk, period):
                 payment.paid_at = None
                 payment.collected_by = None
             payment.save()
-            return _athlete_payment_row_response(request, athlete, payment.period, payment)
+            return _athlete_payment_row_response(request, athlete, payment)
     else:
-        if payment:
-            form = AthletePaymentEditForm(instance=payment)
-        else:
-            form = AthletePaymentEditForm(instance=payment, initial={
-                'amount': get_athlete_fee_for_period(athlete, period),
-                'status': 'paid',
-            })
+        form = AthletePaymentEditForm(instance=payment)
 
     return render(request, 'athlete/partials/athlete_payment_edit_modal.html', {
         'athlete': athlete,
-        'period': period,
+        'period': payment.period,
         'form': form,
         'payment': payment,
-        'payment_label': _payment_period_label(period),
+        'payment_label': _payment_period_label(payment.period),
     })
 
 
@@ -248,12 +267,17 @@ def _payment_period_label(period):
     return f'{MONTH_NAMES[month - 1]} {year}'
 
 
-def _athlete_payment_row_response(request, athlete, period, payment):
+def _athlete_payment_row_response(request, athlete, payment):
+    from finance.services import get_athlete_fee_for_period
+
     item = {
-        'period': period,
-        'label': _payment_period_label(period),
-        'amount': payment.amount,
+        'period': payment.period,
+        'label': _payment_period_label(payment.period),
+        'amount': get_athlete_fee_for_period(athlete, payment.period),
         'payment': payment,
+        'paid_amount': payment.amount if payment.status == 'paid' else Decimal('0.00'),
+        'payment_type': payment.payment_type,
+        'payment_type_display': payment.get_payment_type_display(),
         'is_paid': payment.status == 'paid',
         'status': payment.status,
     }
@@ -329,16 +353,6 @@ def athlete_update(request, pk):
         'return_to_detail': request.GET.get('return_to_detail'),
     })
 
-
-@login_required
-def athlete_delete(request, pk):
-    athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
-    if request.method == 'POST':
-        athlete.delete()
-        response = render(request, 'athlete/partials/athlete_table.html', _athlete_context(request))
-        response['HX-Trigger'] = 'closeAthleteModal'
-        return response
-    return render(request, 'athlete/partials/athlete_delete_modal.html', {'athlete': athlete})
 
 class AthleteViewSet(viewsets.ModelViewSet):
     serializer_class = AthleteSerializer

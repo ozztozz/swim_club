@@ -89,7 +89,11 @@ def get_or_create_monthly_payments(period_str=None):
         athlete.fee_type = payment_record.payment_type if payment_record else 'fee'
         athlete.fee_type_display = payment_record.get_payment_type_display() if payment_record else 'Aidat'
         athlete.amount = fee
-        athlete.paid_amount = payment_record.amount if payment_record else Decimal('0.00')
+        athlete.paid_amount = (
+            payment_record.amount
+            if payment_record and payment_record.status == 'paid'
+            else Decimal('0.00')
+        )
         athlete.paid_by = athlete.first_name + ' ' + athlete.last_name
         athlete.due_date = payment_record.due_date if payment_record else default_due_date
         athlete.payment_record = payment_record

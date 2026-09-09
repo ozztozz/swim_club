@@ -14,10 +14,10 @@
         </a>
 
         <div class="min-w-0">
-            <p class="text-[10px] font-black uppercase tracking-widest text-primary">
+            <p class="text-xs font-black uppercase tracking-widest text-primary">
                 Sporcu
             </p>
-            <h1 class="truncate text-base font-black text-base-content">
+            <h1 class="truncate text-lg font-black text-base-content">
                 Profil
             </h1>
         </div>
@@ -45,11 +45,11 @@
 
             <div class="min-w-0 flex-1">
 
-                <h2 class="truncate text-base font-black text-base-content">
+                <h2 class="truncate text-lg font-black text-base-content">
                     {{ athlete.get_full_name }}
                 </h2>
 
-                <p class="mt-0.5 truncate text-[10px] text-base-content/50">
+                <p class="mt-0.5 truncate text-xs text-base-content/50">
                     {% if athlete.team %}
                         {{ athlete.team.name }}
                     {% else %}
@@ -57,7 +57,7 @@
                     {% endif %}
                 </p>
 
-                <p class="mt-0.5 truncate text-[10px] text-base-content/40">
+                <p class="mt-0.5 truncate text-xs text-base-content/40">
                     Veli: {{ athlete.parent|default:'Belirtilmedi' }}
                 </p>
 
@@ -70,7 +70,7 @@
 
             <button
                 type="button"
-                class="btn btn-outline h-9 min-h-0 rounded-xl px-3 text-[10px] font-bold"
+                class="btn btn-outline h-9 min-h-0 rounded-xl px-3 text-xs font-bold"
                 hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1"
                 hx-target="#athlete-modal-container"
                 hx-swap="innerHTML">
@@ -79,7 +79,7 @@
 
             <button
                 type="button"
-                class="btn btn-primary h-9 min-h-0 rounded-xl px-3 text-[10px] font-bold shadow-sm"
+                class="btn btn-primary h-9 min-h-0 rounded-xl px-3 text-xs font-bold shadow-sm"
                 hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}"
                 hx-target="#athlete-payment-create-modal-container"
                 hx-swap="innerHTML">
@@ -91,23 +91,40 @@
     </section>
 
 
-    <!-- AYLIK ÖDEMELER -->
+    <!-- ÖDEME SEKМELERİ -->
     <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
 
-        <div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
+        <div class="border-b border-base-200 px-4 pt-3">
 
-            <div>
-                <h2 class="text-sm font-black text-base-content">
-                    Aylık Ödemeler
+            <div class="mb-3">
+                <h2 class="text-base font-black text-base-content">
+                    Ödemeler
                 </h2>
-                <p class="mt-0.5 text-[10px] text-base-content/40">
-                    Aidat dönemleri ve ödeme durumları
+                <p class="mt-0.5 text-xs text-base-content/40">
+                    Aidat ve diğer ödeme kayıtları
                 </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button
+                    type="button"
+                    class="btn btn-primary btn-sm h-9 min-h-0 rounded-xl text-xs font-bold"
+                    data-payment-tab="monthly"
+                    onclick="showPaymentTab('monthly')">
+                    Aylık ödemeler
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-ghost btn-sm h-9 min-h-0 rounded-xl text-xs font-bold"
+                    data-payment-tab="other"
+                    onclick="showPaymentTab('other')">
+                    Diğer ödemeler
+                </button>
             </div>
 
         </div>
 
-        <div class="divide-y divide-base-200">
+        <div id="monthly-payments-tab" class="divide-y divide-base-200">
 
             {% for item in monthly_payments %}
 
@@ -118,8 +135,28 @@
             {% empty %}
 
                 <div class="flex min-h-[140px] items-center justify-center px-4 text-center">
-                    <p class="text-xs text-base-content/40">
+                    <p class="text-sm text-base-content/40">
                         Henüz ödeme dönemi bulunmuyor.
+                    </p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div id="other-payments-tab" class="hidden divide-y divide-base-200">
+
+            {% for item in other_payments %}
+
+                <div class="p-2 transition-colors active:bg-base-200/50">
+                    {% include 'athlete/partials/athlete_payment_row.html' %}
+                </div>
+
+            {% empty %}
+
+                <div class="flex min-h-[140px] items-center justify-center px-4 text-center">
+                    <p class="text-sm text-base-content/40">
+                        Diğer ödeme kaydı bulunmuyor.
                     </p>
                 </div>
 
@@ -141,6 +178,21 @@
 
 
 <script>
+    function showPaymentTab(tab) {
+        const monthlyTab = document.getElementById('monthly-payments-tab');
+        const otherTab = document.getElementById('other-payments-tab');
+        const monthlyButton = document.querySelector('[data-payment-tab="monthly"]');
+        const otherButton = document.querySelector('[data-payment-tab="other"]');
+        const showMonthly = tab === 'monthly';
+
+        monthlyTab.classList.toggle('hidden', !showMonthly);
+        otherTab.classList.toggle('hidden', showMonthly);
+        monthlyButton.classList.toggle('btn-primary', showMonthly);
+        monthlyButton.classList.toggle('btn-ghost', !showMonthly);
+        otherButton.classList.toggle('btn-primary', !showMonthly);
+        otherButton.classList.toggle('btn-ghost', showMonthly);
+    }
+
     document.body.addEventListener('closeAthleteModal', function () {
         const modal = document.getElementById('athlete_modal');
         if (modal) {

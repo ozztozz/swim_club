@@ -68,7 +68,7 @@
         <form
             method="post"
             hx-post="{% url 'athlete-manage-payment' athlete.pk item.period %}"
-            hx-target="#payment-{{ item.period }}"
+            hx-target="#payment-{{ item.payment.pk|default:item.period }}"
             hx-swap="outerHTML">
 
             {% csrf_token %}

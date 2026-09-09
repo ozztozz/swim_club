@@ -9,8 +9,7 @@ urlpatterns = [
     path('<int:pk>/', views.athlete_detail, name='athlete-manage-detail'),
     path('<int:pk>/payments/<str:period>/pay/', views.athlete_make_payment, name='athlete-manage-payment'),
     path('<int:pk>/payments/add/', views.athlete_create_payment, name='athlete-manage-payment-create'),
-    path('<int:pk>/payments/<str:period>/edit/', views.athlete_edit_payment, name='athlete-manage-payment-edit'),
+    path('<int:pk>/payments/<int:payment_id>/edit/', views.athlete_edit_payment, name='athlete-manage-payment-edit'),
     path('<int:pk>/toggle-active/', views.athlete_toggle_active, name='athlete-manage-toggle-active'),
     path('<int:pk>/edit/', views.athlete_update, name='athlete-manage-update'),
-    path('<int:pk>/delete/', views.athlete_delete, name='athlete-manage-delete'),
 ]

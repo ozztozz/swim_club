@@ -23,13 +23,6 @@
             {{ expense.reciever }}
         </div>
 
-        <!-- Mobil kategori -->
-        {% if expense.category %}
-            <div class="mt-0.5 truncate text-[10px] text-base-content/40 md:hidden">
-                {{ expense.category.name }}
-            </div>
-        {% endif %}
-
         <!-- Durum -->
         {% if expense.regular_expense or not expense.is_active %}
             <div class="mt-1.5 flex flex-wrap items-center gap-1">

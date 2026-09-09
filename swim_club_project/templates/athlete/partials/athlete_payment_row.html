@@ -1,22 +1,22 @@
 <div
-    id="payment-{{ item.period }}"
+    id="payment-{{ item.payment.pk|default:item.period }}"
     class="flex items-center gap-3 px-3 py-3"
 >
 
     <!-- Dönem ve ödeme bilgisi -->
     <div class="min-w-0 flex-1">
 
-        <p class="truncate text-xs font-semibold text-base-content/75">
+        <p class="truncate text-base font-semibold text-base-content/75">
             {{ item.label }}
         </p>
 
-        <div class="mt-1 flex min-w-0 items-center gap-1.5 text-[10px] text-base-content/40">
+        <div class="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-base-content/40">
 
             <span class="shrink-0 ">
                 {{ item.payment_type_display }}
             </span>
 
-            {% if item.paid_amount and item.amount != item.paid_amount and item.payment_type == 'fee' %}
+            {% if item.status == 'paid' and item.paid_amount and item.amount != item.paid_amount and item.payment_type == 'fee' %}
 
                 <span class="text-base-content/20">
                     •
@@ -34,7 +34,7 @@
                     Ödenen {{ item.paid_amount|floatformat:2 }} TL
                 </span>
 
-            {% else %}
+            {% elif item.status == 'paid' %}
 
                 <span class="text-base-content/20">
                     •
@@ -42,6 +42,16 @@
 
                 <span class="font-medium text-base-content/60">
                     {{ item.paid_amount|floatformat:2 }} TL
+                </span>
+
+            {% else %}
+
+                <span class="text-base-content/20">
+                    •
+                </span>
+
+                <span class="font-medium text-base-content/60">
+                    {{ item.amount|floatformat:2 }} TL
                 </span>
 
             {% endif %}
@@ -56,19 +66,19 @@
 
         {% if item.status == 'paid' %}
 
-            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-success/70">
+            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-success/70">
                 Ödendi
             </span>
 
         {% elif item.status == 'cancelled' %}
 
-            <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-error/80">
+            <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-2 text-xs font-medium text-error/80">
                 İptal
             </span>
 
         {% else %}
 
-            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-base-content/40">
+            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-base-content/40">
                 Bekliyor
             </span>
 
@@ -80,7 +90,7 @@
     <!-- Aksiyon -->
     <div class="shrink-0">
 
-        {% if item.payment %}
+        {% if item.status == 'paid' %}
 
             <button
                 type="button"
@@ -91,24 +101,26 @@
                     min-h-0
                     rounded-lg
                     px-2.5
-                    text-[10px]
+                    text-xs
                     font-medium
                     text-base-content/55
                     hover:bg-base-200
                     hover:text-base-content/70
                 "
-                class="
-                    btn
-                    btn-primary
-                    h-8
-                    min-h-0
-                    rounded-lg
-                    px-2.5
-                    text-[10px]
-                    font-semibold
-                "
-                hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.period %}"
+                hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.payment.pk %}"
                 hx-target="#athlete-payment-edit-modal-container"
+                hx-swap="innerHTML"
+            >
+                {% if item.status == 'paid' %}Düzenle{% else %}Kaydı düzenle{% endif %}
+            </button>
+
+        {% else %}
+
+            <button
+                type="button"
+                class="btn btn-primary h-8 min-h-0 rounded-lg px-2.5 text-xs font-semibold"
+                hx-get="{% url 'athlete-manage-payment' athlete.pk item.period %}"
+                hx-target="#athlete-payment-modal-container"
                 hx-swap="innerHTML"
             >
                 Ödeme yap

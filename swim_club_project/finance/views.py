@@ -565,14 +565,4 @@ def update_team_fee(request, team_id):
         return redirect('fee-management')
 
 
-@login_required
-def add_athlete_custom_fee(request, athlete_id):
-    """Sporcunun özel fiyatını doğrudan Athlete modeli üzerinde güncelleme."""
-    if request.method == 'POST':
-        athlete = get_object_or_404(Athlete, id=athlete_id)
-        new_fee = request.POST.get('monthly_fee')
-        athlete.custom_fee = new_fee
-        athlete.save(update_fields=('custom_fee',))
 
-        messages.success(request, f"{athlete.get_full_name()} için özel fiyat tanımlandı.")
-        return redirect('fee-management')

@@ -55,7 +55,6 @@ def team_create(request):
 		'form_url': 'team-create',
 	})
 
-
 @login_required
 def team_update(request, pk):
 	team = get_object_or_404(Team, pk=pk)
@@ -81,14 +80,4 @@ def team_update(request, pk):
 	})
 
 
-@login_required
-def team_delete(request, pk):
-	team = get_object_or_404(Team, pk=pk)
-	if request.method == 'POST':
-		team.delete()
-		response = render(request, 'team/partials/team_table.html', _team_context(request))
-		response['HX-Trigger'] = 'closeTeamModal'
-		return response
-
-	return render(request, 'team/partials/team_delete_modal.html', {'team': team})
 
