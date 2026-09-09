@@ -162,6 +162,47 @@ class FinanceModelAndServiceTests(TestCase):
         self.assertEqual(payment.amount, Decimal('2250.00'))
         self.assertIn('Malzemeler: Kulüp Tişörtü x3', payment.notes)
 
+    def test_equipment_crud_and_protected_delete(self):
+        self.client.force_login(self.user)
+        list_url = reverse('equipment-list')
+        create_url = reverse('equipment-create')
+
+        self.assertEqual(self.client.get(list_url).status_code, 200)
+        response = self.client.post(create_url, {'name': 'Bone', 'price': '125.00'})
+        self.assertRedirects(response, list_url)
+
+        equipment = Equipment.objects.get(name='Bone')
+        response = self.client.post(
+            reverse('equipment-update', args=[equipment.pk]),
+            {'name': 'Silikon Bone', 'price': '150.00'},
+        )
+        self.assertRedirects(response, list_url)
+        equipment.refresh_from_db()
+        self.assertEqual(equipment.name, 'Silikon Bone')
+
+        response = self.client.post(reverse('equipment-delete', args=[equipment.pk]))
+        self.assertRedirects(response, list_url)
+        self.assertFalse(Equipment.objects.filter(pk=equipment.pk).exists())
+
+        sale_equipment = Equipment.objects.create(name='Forma', price=Decimal('500.00'))
+        payment = PaymentRecord.objects.create(
+            athlete=self.athlete1,
+            payment_type='equipment_sale',
+            period='2026-09',
+            amount=Decimal('500.00'),
+            status='paid',
+            due_date=date.today(),
+        )
+        EquipmentSaleItem.objects.create(
+            payment=payment,
+            equipment=sale_equipment,
+            quantity=1,
+            unit_price=sale_equipment.price,
+        )
+        response = self.client.post(reverse('equipment-delete', args=[sale_equipment.pk]))
+        self.assertRedirects(response, list_url)
+        self.assertTrue(Equipment.objects.filter(pk=sale_equipment.pk).exists())
+
     def test_get_or_create_monthly_payments(self):
         period = "2026-08"
         payments = get_or_create_monthly_payments(period)
