@@ -104,7 +104,7 @@ class PaymentRecord(models.Model):
         verbose_name_plural = "Gelir Kayıtları"
         # Unique kısıtı sadece 'aidat' türündeki ödemeler için geçerli olsun diye kaldırma veya şartlı kısıtlama yapılabilir.
         # Aidatlarda aynı sporcu aynı ay mükerrer olmasın:
-        unique_together = ['athlete', 'period', 'payment_type']
+        #unique_together = ['athlete', 'period', 'payment_type']
         ordering = ['-period', 'created_at']
 
     def __str__(self):

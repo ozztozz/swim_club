@@ -750,11 +750,7 @@
 
                         <span>
 
-                            {{
-                                request.user.first_name|first
-                                |default:request.user.username|first
-                                |upper
-                            }}
+                            {{request.user.first_name|first|default:request.user.username|first|upper}}
 
                         </span>
 
@@ -794,8 +790,7 @@
                         <p class="truncate p-0 text-xs font-black">
 
                             {{
-                                request.user.get_full_name
-                                |default:request.user.username
+                                request.user.get_full_name|default:request.user.username
                             }}
 
                         </p>

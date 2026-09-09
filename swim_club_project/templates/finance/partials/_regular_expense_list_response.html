@@ -1,46 +1,112 @@
 <tbody id="regular-expense-list">
+
     {% for expense in regular_expenses %}
-    <tr class="border-b border-base-200 last:border-0 {% if expense.end_date and expense.end_date < today %}opacity-60{% endif %}">
-        <td>
+
+    <tr class="border-b border-base-200 last:border-0 transition-colors hover:bg-base-200/40 {% if expense.end_date and expense.end_date < today %}opacity-60{% endif %}">
+
+        <!-- Kategori -->
+        <td class="p-2.5 align-top">
             {% if expense.category %}
-            <span class="badge badge-ghost font-medium">{{ expense.category.name }}</span>
+                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-base-content/55">
+                    {{ expense.category.name }}
+                </span>
             {% else %}
-            <span class="text-sm text-base-content/40">Kategorisiz</span>
+                <span class="text-[10px] text-base-content/35">
+                    Kategorisiz
+                </span>
             {% endif %}
         </td>
-        <td>
-            <div class="font-semibold">{{ expense.reciever }}</div>
-            {% if expense.notes %}<div class="max-w-xs truncate text-xs text-base-content/50">{{ expense.notes }}</div>{% endif %}
+
+        <!-- Alıcı -->
+        <td class="p-2.5 align-top">
+            <div class="max-w-[150px] truncate text-xs font-semibold text-base-content/70">
+                {{ expense.reciever }}
+            </div>
+
+            {% if expense.notes %}
+                <div class="mt-0.5 max-w-[150px] truncate text-[10px] text-base-content/35">
+                    {{ expense.notes }}
+                </div>
+            {% endif %}
         </td>
-        <td class="text-error">
-            <div class="font-black">{{ expense.amount|floatformat:2 }} TL</div>
-            <div class="mt-0.5 text-xs text-base-content/60">{% if expense.paymentDay %}{{ expense.paymentDay }}. gün{% else %}Gün yok{% endif %}</div>
+
+        <!-- Tutar -->
+        <td class="p-2.5 align-top">
+            <div class="whitespace-nowrap text-xs font-semibold text-base-content/70">
+                {{ expense.amount|floatformat:2 }} TL
+            </div>
+
+            <div class="mt-1 text-[9px] text-base-content/40">
+                {% if expense.paymentDay %}
+                    Her ay {{ expense.paymentDay }}. gün
+                {% else %}
+                    Gün yok
+                {% endif %}
+            </div>
         </td>
-        <td><span class="badge badge-outline">{{ expense.get_frequency_display }}</span></td>
-        <td class="text-sm text-base-content/65">
-            {{ expense.start_date|date:'d.m.Y' }}
-            <span class="text-base-content/35">→</span>
-            {% if expense.end_date %}{{ expense.end_date|date:'d.m.Y' }}{% else %}<span class="text-success">Devam ediyor</span>{% endif %}
+
+        <!-- Sıklık -->
+        <td class="p-2.5 align-top">
+            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-base-content/50">
+                {{ expense.get_frequency_display }}
+            </span>
         </td>
-        <td class="text-right">
-            <button type="button" class="btn btn-ghost btn-xs text-primary"
-                    hx-get="{% url 'regular-expense-update' expense.pk %}?category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
-                    hx-target="#regular-expense-modal-container"
-                    hx-swap="innerHTML">
+
+        <!-- Geçerlilik -->
+        <td class="p-2.5 align-top text-[10px] text-base-content/45">
+            <div class="whitespace-nowrap">
+                {{ expense.start_date|date:'d.m.Y' }}
+                <span class="mx-0.5 text-base-content/20">→</span>
+
+                {% if expense.end_date %}
+                    {{ expense.end_date|date:'d.m.Y' }}
+                {% else %}
+                    <span class="font-medium text-success/70">
+                        Devam ediyor
+                    </span>
+                {% endif %}
+            </div>
+        </td>
+
+        <!-- İşlem -->
+        <td class="p-2.5 text-right align-top">
+            <button type="button"
+                class="btn btn-ghost h-8 min-h-0 rounded-lg px-2.5 text-[10px] font-medium text-base-content/50 hover:bg-base-200 hover:text-base-content/70"
+                hx-get="{% url 'regular-expense-update' expense.pk %}?category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
+                hx-target="#regular-expense-modal-container"
+                hx-swap="innerHTML">
                 Düzenle
             </button>
         </td>
+
     </tr>
+
     {% empty %}
+
     <tr>
-        <td colspan="6" class="py-16 text-center">
+        <td colspan="6" class="px-4 py-14 text-center">
             <div class="mx-auto max-w-sm">
-                <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-base-200 text-2xl">↻</div>
-                <p class="font-bold">Düzenli harcama bulunamadı</p>
-                <p class="mt-1 text-sm text-base-content/50">İlk kaydı eklemek için yukarıdaki butonu kullanın.</p>
+
+                <div class="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-full bg-base-200 text-lg text-base-content/30">
+                    ↻
+                </div>
+
+                <p class="text-xs font-semibold text-base-content/55">
+                    Düzenli harcama bulunamadı
+                </p>
+
+                <p class="mt-1 text-[10px] text-base-content/35">
+                    İlk kaydı eklemek için yukarıdaki butonu kullanın.
+                </p>
+
             </div>
         </td>
     </tr>
+
     {% endfor %}
+
 </tbody>
-{% if include_summary %}{% include 'finance/partials/_regular_expense_summary.html' with oob=True %}{% endif %}
+
+{% if include_summary %}
+    {% include 'finance/partials/_regular_expense_summary.html' with oob=True %}
+{% endif %}

@@ -175,7 +175,7 @@
 
                             {% if athlete.fee_type == 'fee' and athlete.paid_amount < athlete.amount %}
 
-                                <span class="text-[9px] font-medium text-base-content/45">
+                                <span class="text-[9px] font-medium text-error/80">
                                     {{ athlete.amount|floatformat:2 }} TL
                                 </span>
 
@@ -183,7 +183,7 @@
                                     •
                                 </span>
 
-                                <span class="text-[9px] font-medium text-success/70">
+                                <span class="text-[9px] font-medium text-error/80">
                                     Kısmi
                                 </span>
 

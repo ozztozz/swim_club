@@ -1,37 +1,37 @@
 {% for expense in regular_expenses %}
 
-<tr class="border-b border-base-200 last:border-0 hover:bg-base-50/30 transition-colors">
+<tr class="border-b border-base-200 last:border-0 transition-colors hover:bg-base-200/40">
 
     <!-- Kategori -->
-    <td class="hidden md:table-cell p-2.5 text-xs">
+    <td class="hidden p-2.5 align-top md:table-cell">
         {% if expense.category %}
-            <span class="badge badge-ghost font-medium text-[10px]">
+            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-base-content/55">
                 {{ expense.category.name }}
             </span>
         {% endif %}
     </td>
 
     <!-- Alıcı -->
-    <td class="p-2.5">
-        <div class="font-bold text-xs text-base-content truncate max-w-[110px]">
+    <td class="p-2.5 align-top">
+        <div class="max-w-[110px] truncate text-xs font-semibold text-base-content/70">
             {{ expense.reciever }}
         </div>
 
         <!-- Mobilde kategori bilgisi -->
         {% if expense.category %}
-            <div class="mt-0.5 text-[10px] text-base-content/50 md:hidden truncate max-w-[110px]">
+            <div class="mt-0.5 max-w-[110px] truncate text-[10px] text-base-content/40 md:hidden">
                 {{ expense.category.name }}
             </div>
         {% endif %}
     </td>
 
     <!-- Tutar / Gün -->
-    <td class="p-2.5 whitespace-nowrap">
-        <div class="font-black text-xs text-base-content">
+    <td class="whitespace-nowrap p-2.5 align-top">
+        <div class="text-xs font-semibold text-base-content/70">
             {{ expense.amount|floatformat:2 }} TL
         </div>
 
-        <div class="mt-0.5 text-[10px] text-base-content/50">
+        <div class="mt-1 text-[9px] text-base-content/40">
             {% if expense.paymentDay %}
                 Her ay {{ expense.paymentDay }}. gün
             {% else %}
@@ -41,20 +41,19 @@
     </td>
 
     <!-- Tekrar -->
-    <td class="hidden md:table-cell p-2.5">
-        <span class="badge badge-outline text-[10px]">
+    <td class="hidden p-2.5 align-top md:table-cell">
+        <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-base-content/50">
             {{ expense.get_frequency_display }}
         </span>
     </td>
 
     <!-- Durum / İşlem -->
-    <td class="p-2.5 text-right whitespace-nowrap">
-
+    <td class="whitespace-nowrap p-2.5 text-right align-top">
         {% with generated_expenses=expense.generated_expenses.all %}
 
             {% if generated_expenses %}
 
-                <span class="badge badge-success text-[10px] text-white px-2 py-1 h-auto">
+                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-success/70">
                     Ödendi
                 </span>
 
@@ -62,12 +61,12 @@
 
                 <button
                     type="button"
-                    class="btn btn-success btn-xs min-h-8 h-8 px-3 text-white text-[10px] rounded-lg"
+                    class="btn btn-primary h-8 min-h-0 rounded-lg px-2.5 text-[10px] font-semibold"
                     hx-get="{% url 'regular-expense-convert' expense.pk %}?source=expenses&period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
                     hx-target="#modal-container"
                     hx-swap="innerHTML">
 
-                    <span class="text-sm leading-none">₺</span>
+                    <span class="text-xs leading-none">₺</span>
                     Ödeme yap
 
                 </button>
@@ -75,7 +74,6 @@
             {% endif %}
 
         {% endwith %}
-
     </td>
 
 </tr>
@@ -83,19 +81,19 @@
 {% empty %}
 
 <tr>
-    <td colspan="5" class="py-10 text-center">
+    <td colspan="5" class="px-4 py-12 text-center">
 
-        <div class="mx-auto flex flex-col items-center px-4">
+        <div class="mx-auto flex flex-col items-center">
 
-            <div class="mb-2 grid h-10 w-10 place-items-center rounded-xl bg-base-200 text-base-content/50">
+            <div class="mb-3 grid h-10 w-10 place-items-center rounded-full bg-base-200 text-base-content/30">
                 ₺
             </div>
 
-            <p class="text-xs font-bold text-base-content">
+            <p class="text-xs font-semibold text-base-content/55">
                 Aktif düzenli harcama bulunmuyor
             </p>
 
-            <p class="mt-1 text-[10px] text-base-content/50">
+            <p class="mt-1 text-[10px] text-base-content/35">
                 Düzenli harcamalar burada görünecek.
             </p>
 

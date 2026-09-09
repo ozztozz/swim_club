@@ -114,7 +114,6 @@ def get_financial_summary(period_str=None, monthly_payments=None):
     # Tahsilat yalnızca aktif sporcuların gerçek ödeme kayıtlarından hesaplanır.
     total_income = PaymentRecord.objects.filter(
         period=period_str,
-        payment_type='fee',
         status='paid',
         athlete__is_active=True,
     ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')

@@ -64,29 +64,31 @@ def athlete_detail(request, pk):
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     first_month = athlete.joined_date.replace(day=1)
     current_month = date.today().replace(day=1)
-    payments_by_period = {
-        payment.period: payment
-        for payment in PaymentRecord.objects.filter(
-            athlete=athlete,    
+    payments_records = PaymentRecord.objects.filter(
+            athlete=athlete, 
+          
         )
-    }
+    
+
+
     monthly_payments = []
     period_month = current_month
     displayed_months = 0
-    while period_month >= first_month and displayed_months < 5:
+    while period_month >= first_month and displayed_months < 10:
         period = period_month.strftime('%Y-%m')
-        payment = payments_by_period.get(period)
-        monthly_payments.append({
-            'period': period,
-            'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
-            'amount': get_athlete_fee_for_period(athlete, period),
-            'payment': payment,
-            'paid_amount': payment.amount if payment else None,
-            'payment_type': payment.payment_type if payment else 'fee',
-            'payment_type_display': payment.get_payment_type_display() if payment else 'Aidat',
-            'is_paid': payment is not None and payment.status == 'paid',
-            'status': payment.status if payment else 'pending',
-        })
+        payments_by_period = payments_records.filter(period=period)
+        for payment in payments_by_period:        
+            monthly_payments.append({
+                'period': period,
+                'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
+                'amount': get_athlete_fee_for_period(athlete, period),
+                'payment': payment,
+                'paid_amount': payment.amount if payment else None,
+                'payment_type': payment.payment_type if payment else 'fee',
+                'payment_type_display': payment.get_payment_type_display() if payment else 'Aidat',
+                'is_paid': payment is not None and payment.status == 'paid',
+                'status': payment.status if payment else 'pending',
+            })
         displayed_months += 1
         if period_month.month == 1:
             period_month = period_month.replace(year=period_month.year - 1, month=12)
@@ -206,7 +208,7 @@ def athlete_edit_payment(request, pk, period):
     payment = PaymentRecord.objects.filter(
         athlete=athlete,
         period=period,
-        payment_type='fee',
+     
     ).first()
     if request.method == 'POST':
         form = AthletePaymentEditForm(request.POST, instance=payment)
@@ -214,10 +216,7 @@ def athlete_edit_payment(request, pk, period):
             payment = form.save(commit=False)
             payment.athlete = athlete
             payment.period = period
-            payment.payment_type = 'fee'
-            if not payment.due_date:
-                year, month = map(int, period.split('-'))
-                payment.due_date = date(year, month, 15)
+      
             if payment.status == 'paid':
                 payment.paid_at = payment.paid_at or timezone.now()
                 payment.collected_by = payment.collected_by or request.user
@@ -225,7 +224,7 @@ def athlete_edit_payment(request, pk, period):
                 payment.paid_at = None
                 payment.collected_by = None
             payment.save()
-            return _athlete_payment_row_response(request, athlete, period, payment)
+            return _athlete_payment_row_response(request, athlete, payment.period, payment)
     else:
         if payment:
             form = AthletePaymentEditForm(instance=payment)
