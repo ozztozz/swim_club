@@ -67,8 +67,7 @@ def athlete_detail(request, pk):
     payments_by_period = {
         payment.period: payment
         for payment in PaymentRecord.objects.filter(
-            athlete=athlete,
-            payment_type='fee',
+            athlete=athlete,    
         )
     }
     monthly_payments = []
@@ -82,6 +81,9 @@ def athlete_detail(request, pk):
             'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
             'amount': get_athlete_fee_for_period(athlete, period),
             'payment': payment,
+            'paid_amount': payment.amount if payment else None,
+            'payment_type': payment.payment_type if payment else 'fee',
+            'payment_type_display': payment.get_payment_type_display() if payment else 'Aidat',
             'is_paid': payment is not None and payment.status == 'paid',
             'status': payment.status if payment else 'pending',
         })

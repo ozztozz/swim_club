@@ -1,7 +1,7 @@
 <div id="payment-{{ item.period }}" class="flex flex-nowrap items-center gap-2 overflow-x-auto p-3 sm:justify-between">
     <div class="min-w-0 flex-1">
         <p class="truncate font-bold">{{ item.label }}</p>
-        <p class="mt-1 whitespace-nowrap text-xs text-base-content/60">Aidat: {% if item.payment %}{{ item.payment.amount|floatformat:2 }}{% else %}{{ item.amount|floatformat:2 }}{% endif %} TL</p>
+        <p class="mt-1 whitespace-nowrap text-xs text-base-content/60">{{ item.payment_type_display }}: {% if item.amount and item.payment_type == 'fee' %} {{ item.amount|floatformat:2 }} - Ödenen: {{ item.paid_amount|floatformat:2 }} {% endif %} {{ item.paid_amount|floatformat:2 }}TL</p>
     </div>
     {% if item.status == 'paid' %}<span class="badge badge-success shrink-0 gap-1 px-2 py-2">Ödendi</span>{% elif item.status == 'cancelled' %}<span class="badge badge-error shrink-0 gap-1 px-2 py-2">İptal edildi</span>{% else %}<span class="badge badge-warning shrink-0 gap-1 px-2 py-2">Bekliyor</span>{% endif %}
     {% if item.payment %}
