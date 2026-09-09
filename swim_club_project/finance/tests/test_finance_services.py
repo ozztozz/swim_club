@@ -2,9 +2,10 @@ from decimal import Decimal
 from datetime import date, timedelta
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 from teams.models import Team
 from athletes.models import Athlete
-from finance.models import PaymentRecord, ExpenseCategory, Expense, TeamFeeHistory
+from finance.models import Equipment, EquipmentSaleItem, PaymentRecord, ExpenseCategory, Expense, TeamFeeHistory
 from finance.services import get_athlete_fee_for_period, get_or_create_monthly_payments, get_financial_summary
 
 User = get_user_model()
@@ -106,6 +107,60 @@ class FinanceModelAndServiceTests(TestCase):
             due_date=date.today() + timedelta(days=10)
         )
         self.assertFalse(future_payment.is_overdue)
+
+    def test_athlete_equipment_sale_creates_paid_payment_record(self):
+        equipment = Equipment.objects.create(
+            name='Kulüp Tişörtü',
+            price=Decimal('750.00'),
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse('athlete-manage-equipment-sale-create', args=[self.athlete1.pk]),
+            data={
+                f'equipment_{equipment.pk}': '2',
+                'payment_method': 'cash',
+                'status': 'paid',
+                'notes': 'Deneme satışı',
+            },
+            HTTP_HX_REQUEST='true',
+        )
+
+        self.assertEqual(response.status_code, 204)
+        payment = PaymentRecord.objects.get(payment_type='equipment_sale')
+        self.assertEqual(payment.athlete, self.athlete1)
+        self.assertEqual(payment.amount, Decimal('1500.00'))
+        self.assertEqual(payment.status, 'paid')
+        self.assertEqual(payment.collected_by, self.user)
+        self.assertIn('Malzemeler: Kulüp Tişörtü x2', payment.notes)
+        sale_item = EquipmentSaleItem.objects.get(payment=payment)
+        self.assertEqual(sale_item.quantity, 2)
+        self.assertEqual(sale_item.unit_price, Decimal('750.00'))
+
+        equipment.price = Decimal('900.00')
+        equipment.save(update_fields=('price',))
+        sale_item.refresh_from_db()
+        self.assertEqual(sale_item.unit_price, Decimal('750.00'))
+
+        edit_response = self.client.post(
+            reverse('athlete-manage-equipment-sale-edit', args=[self.athlete1.pk, payment.pk]),
+            data={
+                f'equipment_{equipment.pk}': '3',
+                'payment_method': 'cash',
+                'status': 'paid',
+                'notes': 'Güncellenmiş satış',
+            },
+            HTTP_HX_REQUEST='true',
+        )
+
+        self.assertEqual(edit_response.status_code, 204)
+        self.assertIn(
+            reverse('athlete-manage-detail', args=[self.athlete1.pk]),
+            edit_response.headers['HX-Redirect'],
+        )
+        payment.refresh_from_db()
+        self.assertEqual(payment.amount, Decimal('2250.00'))
+        self.assertIn('Malzemeler: Kulüp Tişörtü x3', payment.notes)
 
     def test_get_or_create_monthly_payments(self):
         period = "2026-08"

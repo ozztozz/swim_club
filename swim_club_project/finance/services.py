@@ -128,7 +128,8 @@ def get_financial_summary(period_str=None, monthly_payments=None):
 
     # Gerçekleşen harcamalar
     total_expense = Expense.objects.filter(
-        period=period_str
+        period=period_str,
+        is_active=True,
     ).aggregate(total=Sum('amount'))['total'] or 0.00
 
     net_balance = float(total_income) - float(total_expense)

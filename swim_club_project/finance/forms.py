@@ -1,6 +1,29 @@
 # finance/forms.py
 from django import forms
-from .models import Expense, ExpenseCategory, PaymentRecord, RegularExpense
+from .models import Equipment, Expense, ExpenseCategory, PaymentRecord, RegularExpense
+
+
+class EquipmentForm(forms.ModelForm):
+    class Meta:
+        model = Equipment
+        fields = ('name', 'price')
+        labels = {
+            'name': 'Malzeme türü',
+            'price': 'Birim fiyat',
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'Örn. Kulüp tişörtü',
+            }),
+            'price': forms.NumberInput(attrs={
+                'class': 'input input-bordered w-full',
+                'step': '0.01',
+                'min': '0',
+                'inputmode': 'decimal',
+                'placeholder': '0.00',
+            }),
+        }
 
 class ProcessPaymentForm(forms.ModelForm):
     class Meta:

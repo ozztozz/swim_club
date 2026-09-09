@@ -93,48 +93,6 @@
                 "
             >
 
-                <!-- Profil -->
-
-                <div class="shrink-0">
-
-                    {% if athlete.photo %}
-
-                        <img
-                            src="{{ athlete.photo.url }}"
-                            alt="{{ athlete.get_full_name }}"
-                            class="
-                                h-10
-                                w-10
-                                rounded-full
-                                object-cover
-                                ring-1
-                                ring-base-200
-                            "
-                        >
-
-                    {% else %}
-
-                        <div
-                            class="
-                                grid
-                                h-10
-                                w-10
-                                place-items-center
-                                rounded-full
-                                bg-base-200
-                                text-xs
-                                font-medium
-                                text-base-content/45
-                            "
-                        >
-                            {{ athlete.first_name|first }}{{ athlete.last_name|first }}
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-
                 <!-- Sporcu -->
 
                 <div class="min-w-0 flex-1">

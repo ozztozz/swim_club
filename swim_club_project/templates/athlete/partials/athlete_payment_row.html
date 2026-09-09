@@ -3,6 +3,60 @@
     class="flex items-center gap-3 px-3 py-3"
 >
 
+    {% if item.payment_type == 'equipment_sale' %}
+
+        <div class="w-full space-y-3">
+            <div class="flex items-center justify-between">
+                <p class="text-base font-semibold text-base-content/75">
+                    {{ item.label }}
+                </p>
+                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-success/70">
+                    {% if item.status == 'paid' %}Ödendi{% elif item.status == 'cancelled' %}İptal{% else %}Bekliyor{% endif %}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-x-3 gap-y-2 text-sm">
+                <div class="border-b border-base-200 pb-1 text-xs font-bold text-base-content/45">Tür</div>
+                <div class="border-b border-base-200 pb-1 text-right text-xs font-bold text-base-content/45">Adet</div>
+                <div class="border-b border-base-200 pb-1 text-right text-xs font-bold text-base-content/45">Fiyat</div>
+                <div class="border-b border-base-200 pb-1 text-right text-xs font-bold text-base-content/45">Toplam</div>
+
+                {% for equipment_item in item.equipment_items %}
+                    <div class="min-w-0 truncate font-medium text-base-content/75">
+                        {{ equipment_item.name }}
+                    </div>
+                    <div class="whitespace-nowrap text-right text-base-content/60">
+                        {{ equipment_item.quantity }}
+                    </div>
+                    <div class="whitespace-nowrap text-right text-base-content/60">
+                        {{ equipment_item.price|floatformat:0 }}
+                    </div>
+                    <div class="whitespace-nowrap text-right font-semibold text-base-content/75">
+                        {{ equipment_item.total|floatformat:0 }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="flex items-center justify-between border-t border-base-200 pt-2">
+                <span class="text-sm font-bold text-base-content/55">Genel toplam</span>
+                <span class="text-base font-black text-base-content/80">{{ item.amount|floatformat:0 }}</span>
+            </div>
+
+            <div class="flex justify-end">
+                <button
+                    type="button"
+                    class="btn btn-ghost h-8 min-h-0 rounded-lg px-2.5 text-xs font-medium text-base-content/55 hover:bg-base-200 hover:text-base-content/70"
+                    hx-get="{% url 'athlete-manage-equipment-sale-edit' athlete.pk item.payment.pk %}"
+                    hx-target="#athlete-equipment-sale-modal-container"
+                    hx-swap="innerHTML"
+                >
+                    Detay
+                </button>
+            </div>
+        </div>
+
+    {% else %}
+
     <!-- Dönem ve ödeme bilgisi -->
     <div class="min-w-0 flex-1">
 
@@ -10,11 +64,9 @@
             {{ item.label }}
         </p>
 
-        <div class="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-base-content/40">
+        <div class="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-base-content/40">
 
-            <span class="shrink-0 ">
-                {{ item.payment_type_display }}
-            </span>
+            <span class="shrink-0">{{ item.payment_type_display }}</span>
 
             {% if item.status == 'paid' and item.paid_amount and item.amount != item.paid_amount and item.payment_type == 'fee' %}
 
@@ -107,8 +159,8 @@
                     hover:bg-base-200
                     hover:text-base-content/70
                 "
-                hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.payment.pk %}"
-                hx-target="#athlete-payment-edit-modal-container"
+                hx-get="{% if item.payment_type == 'equipment_sale' %}{% url 'athlete-manage-equipment-sale-edit' athlete.pk item.payment.pk %}{% else %}{% url 'athlete-manage-payment-edit' athlete.pk item.payment.pk %}{% endif %}"
+                hx-target="{% if item.payment_type == 'equipment_sale' %}#athlete-equipment-sale-modal-container{% else %}#athlete-payment-edit-modal-container{% endif %}"
                 hx-swap="innerHTML"
             >
                 {% if item.status == 'paid' %}Düzenle{% else %}Kaydı düzenle{% endif %}
@@ -129,5 +181,7 @@
         {% endif %}
 
     </div>
+
+    {% endif %}
 
 </div>

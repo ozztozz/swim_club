@@ -1,6 +1,6 @@
 # athletes/forms.py
 from django import forms
-from finance.models import PaymentRecord
+from finance.models import Equipment, PaymentRecord
 from .models import Athlete
 from teams.models import Team
 
@@ -117,3 +117,62 @@ class AthletePaymentCreateForm(forms.ModelForm):
                 'rows': 3,
             }),
         }
+
+
+class EquipmentSaleForm(forms.Form):
+    def __init__(self, *args, initial_quantities=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        initial_quantities = initial_quantities or {}
+        self.equipment_items = list(Equipment.objects.all())
+        for equipment in self.equipment_items:
+            self.fields[f'equipment_{equipment.pk}'] = forms.IntegerField(
+                label=equipment.name,
+                required=False,
+                min_value=0,
+                initial=initial_quantities.get(equipment.pk, 0),
+                widget=forms.NumberInput(attrs={
+                    'class': 'input input-bordered w-20 text-center equipment-quantity',
+                    'min': '0',
+                    'step': '1',
+                    'data-price': str(equipment.price),
+                }),
+            )
+
+    def selected_equipment(self):
+        return [
+            (equipment, self.cleaned_data.get(f'equipment_{equipment.pk}') or 0)
+            for equipment in self.equipment_items
+            if (self.cleaned_data.get(f'equipment_{equipment.pk}') or 0) > 0
+        ]
+
+    @property
+    def equipment_rows(self):
+        return [
+            {
+                'equipment': equipment,
+                'field': self[f'equipment_{equipment.pk}'],
+            }
+            for equipment in self.equipment_items
+        ]
+
+    payment_method = forms.ChoiceField(
+        choices=PaymentRecord.PAYMENT_METHOD_CHOICES,
+        label='Ödeme yöntemi',
+        initial='cash',
+        widget=forms.Select(attrs={'class': 'select select-bordered w-full'}),
+    )
+    status = forms.ChoiceField(
+        choices=PaymentRecord.STATUS_CHOICES,
+        label='Durum',
+        initial='paid',
+        widget=forms.Select(attrs={'class': 'select select-bordered w-full'}),
+    )
+    notes = forms.CharField(
+        label='Not',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'textarea textarea-bordered w-full',
+            'rows': 3,
+            'placeholder': 'Satış notu',
+        }),
+    )

@@ -1,0 +1,103 @@
+<dialog id="athlete_equipment_sale_modal" class="modal modal-open">
+    <div class="modal-box w-[calc(100%-1rem)] max-w-lg p-5 sm:w-11/12 sm:p-6">
+        <p class="text-xs font-bold uppercase tracking-widest text-primary">Malzeme satışı</p>
+        <h3 class="mt-1 text-2xl font-black">{{ athlete.get_full_name }}</h3>
+
+        <form
+            method="post"
+            hx-post="{{ sale_url }}"
+            hx-target="#athlete-equipment-sale-modal-container"
+            hx-swap="innerHTML"
+            class="mt-5 space-y-4"
+        >
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
+
+            {% if form.equipment_rows %}
+                <div class="space-y-2">
+                    <div class="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 border-b border-base-200 pb-2 text-xs font-bold text-base-content/50">
+                        <span>Malzeme</span>
+                        <span>Fiyat</span>
+                        <span>Adet</span>
+                    </div>
+                    {% for row in form.equipment_rows %}
+                        <label class="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3">
+                            <span class="truncate font-semibold">{{ row.equipment.name }}</span>
+                            <span class="whitespace-nowrap text-sm text-base-content/60">{{ row.equipment.price }}</span>
+                            <span class="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-ghost h-8 min-h-0 w-8 rounded-lg p-0 text-lg"
+                                    data-quantity-action="decrease"
+                                    aria-label="{{ row.equipment.name }} adet azalt"
+                                >−</button>
+                                {{ row.field }}
+                                <button
+                                    type="button"
+                                    class="btn btn-ghost h-8 min-h-0 w-8 rounded-lg p-0 text-lg"
+                                    data-quantity-action="increase"
+                                    aria-label="{{ row.equipment.name }} adet artır"
+                                >+</button>
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-warning">Henüz malzeme tanımlanmamış.</div>
+            {% endif %}
+
+            <div class="flex items-center justify-between rounded-xl bg-base-200 px-3 py-2">
+                <span class="font-bold">Toplam</span>
+                <strong id="equipment-sale-total" class="text-lg">0.00</strong>
+            </div>
+
+            {% if form.non_field_errors %}<div class="text-sm text-error">{{ form.non_field_errors }}</div>{% endif %}
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <label class="form-control">
+                    <span class="label label-text font-bold">Ödeme yöntemi</span>
+                    {{ form.payment_method }}{{ form.payment_method.errors }}
+                </label>
+                <label class="form-control">
+                    <span class="label label-text font-bold">Durum</span>
+                    {{ form.status }}{{ form.status.errors }}
+                </label>
+            </div>
+
+            <label class="form-control">
+                <span class="label label-text font-bold">Not</span>
+                {{ form.notes }}{{ form.notes.errors }}
+            </label>
+
+            <div class="modal-action flex-col-reverse sm:flex-row">
+                <button type="button" class="btn btn-ghost w-full sm:w-auto" onclick="document.getElementById('athlete_equipment_sale_modal').remove()">Vazgeç</button>
+                    <button type="submit" class="btn btn-primary w-full sm:w-auto">{% if payment %}Satışı güncelle{% else %}Satışı kaydet{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+    (() => {
+        const quantities = document.querySelectorAll('#athlete_equipment_sale_modal .equipment-quantity');
+        const total = document.getElementById('equipment-sale-total');
+
+        const updateTotal = () => {
+            const amount = [...quantities].reduce((sum, input) => {
+                return sum + (Number(input.value) || 0) * (Number(input.dataset.price) || 0);
+            }, 0);
+            total.textContent = amount.toFixed(2);
+        };
+
+        quantities.forEach((input) => input.addEventListener('input', updateTotal));
+        document.querySelectorAll('#athlete_equipment_sale_modal [data-quantity-action]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const input = button.parentElement.querySelector('.equipment-quantity');
+                const current = Number(input.value) || 0;
+                input.value = Math.max(0, current + (button.dataset.quantityAction === 'increase' ? 1 : -1));
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+        updateTotal();
+    })();
+</script>

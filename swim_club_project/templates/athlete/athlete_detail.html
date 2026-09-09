@@ -86,6 +86,15 @@
                 + Ödeme Ekle
             </button>
 
+            <button
+                type="button"
+                class="btn btn-secondary h-9 min-h-0 rounded-xl px-3 text-xs font-bold shadow-sm"
+                hx-get="{% url 'athlete-manage-equipment-sale-create' athlete.pk %}"
+                hx-target="#athlete-equipment-sale-modal-container"
+                hx-swap="innerHTML">
+                + Malzeme Satışı
+            </button>
+
         </div>
 
     </section>
@@ -105,7 +114,7 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-1.5">
                 <button
                     type="button"
                     class="btn btn-primary btn-sm h-9 min-h-0 rounded-xl text-xs font-bold"
@@ -119,6 +128,13 @@
                     data-payment-tab="other"
                     onclick="showPaymentTab('other')">
                     Diğer ödemeler
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-ghost btn-sm h-9 min-h-0 rounded-xl text-xs font-bold"
+                    data-payment-tab="equipment"
+                    onclick="showPaymentTab('equipment')">
+                    Malzemeler
                 </button>
             </div>
 
@@ -164,6 +180,26 @@
 
         </div>
 
+        <div id="equipment-payments-tab" class="hidden divide-y divide-base-200">
+
+            {% for item in equipment_sales %}
+
+                <div class="p-2 transition-colors active:bg-base-200/50">
+                    {% include 'athlete/partials/athlete_payment_row.html' %}
+                </div>
+
+            {% empty %}
+
+                <div class="flex min-h-[140px] items-center justify-center px-4 text-center">
+                    <p class="text-sm text-base-content/40">
+                        Malzeme satışı bulunmuyor.
+                    </p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
     </section>
 
 </div>
@@ -175,22 +211,29 @@
 <div id="athlete-payment-modal-container"></div>
 <div id="athlete-payment-edit-modal-container"></div>
 <div id="athlete-payment-create-modal-container"></div>
+<div id="athlete-equipment-sale-modal-container"></div>
 
 
 <script>
     function showPaymentTab(tab) {
         const monthlyTab = document.getElementById('monthly-payments-tab');
         const otherTab = document.getElementById('other-payments-tab');
+        const equipmentTab = document.getElementById('equipment-payments-tab');
         const monthlyButton = document.querySelector('[data-payment-tab="monthly"]');
         const otherButton = document.querySelector('[data-payment-tab="other"]');
+        const equipmentButton = document.querySelector('[data-payment-tab="equipment"]');
         const showMonthly = tab === 'monthly';
+        const showOther = tab === 'other';
 
         monthlyTab.classList.toggle('hidden', !showMonthly);
-        otherTab.classList.toggle('hidden', showMonthly);
+        otherTab.classList.toggle('hidden', !showOther);
+        equipmentTab.classList.toggle('hidden', tab !== 'equipment');
         monthlyButton.classList.toggle('btn-primary', showMonthly);
         monthlyButton.classList.toggle('btn-ghost', !showMonthly);
-        otherButton.classList.toggle('btn-primary', !showMonthly);
-        otherButton.classList.toggle('btn-ghost', showMonthly);
+        otherButton.classList.toggle('btn-primary', showOther);
+        otherButton.classList.toggle('btn-ghost', !showOther);
+        equipmentButton.classList.toggle('btn-primary', tab === 'equipment');
+        equipmentButton.classList.toggle('btn-ghost', tab !== 'equipment');
     }
 
     document.body.addEventListener('closeAthleteModal', function () {

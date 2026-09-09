@@ -1,8 +1,10 @@
 # athletes/views.py
 from datetime import date
 from decimal import Decimal
+import re
 
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -12,10 +14,10 @@ from django.views.decorators.http import require_POST
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .forms import AthleteForm, AthletePaymentCreateForm, AthletePaymentEditForm
+from .forms import AthleteForm, AthletePaymentCreateForm, AthletePaymentEditForm, EquipmentSaleForm
 from .models import Athlete
 from .serializers import AthleteSerializer
-from finance.models import PaymentRecord
+from finance.models import Equipment, EquipmentSaleItem, PaymentRecord
 
 MONTH_NAMES = (
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -68,11 +70,16 @@ def athlete_detail(request, pk):
         athlete=athlete,
         payment_type='fee',
     )
+    equipment_sales = PaymentRecord.objects.filter(
+        athlete=athlete,
+        payment_type='equipment_sale',
+    )
     other_payments = PaymentRecord.objects.filter(
         athlete=athlete,
-    ).exclude(payment_type='fee')
-    other_payment_items = [
-        {
+    ).exclude(payment_type__in=('fee', 'equipment_sale'))
+
+    def payment_item(payment):
+        return {
             'period': payment.period,
             'label': f'{MONTH_NAMES[int(payment.period[5:]) - 1]} {payment.period[:4]}',
             'amount': payment.amount,
@@ -80,11 +87,13 @@ def athlete_detail(request, pk):
             'paid_amount': payment.amount if payment.status == 'paid' else Decimal('0.00'),
             'payment_type': payment.payment_type,
             'payment_type_display': payment.get_payment_type_display(),
+            'equipment_items': _equipment_sale_items(payment) if payment.payment_type == 'equipment_sale' else [],
             'is_paid': payment.status == 'paid',
             'status': payment.status,
         }
-        for payment in other_payments
-    ]
+
+    equipment_sale_items = [payment_item(payment) for payment in equipment_sales]
+    other_payment_items = [payment_item(payment) for payment in other_payments]
 
 
     monthly_payments = []
@@ -127,6 +136,7 @@ def athlete_detail(request, pk):
     return render(request, 'athlete/athlete_detail.html', {
         'athlete': athlete,
         'monthly_payments': monthly_payments,
+        'equipment_sales': equipment_sale_items,
         'other_payments': other_payment_items,
     })
 
@@ -235,6 +245,195 @@ def athlete_create_payment(request, pk):
 
 
 @login_required
+def athlete_create_equipment_sale(request, pk):
+    athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
+    if request.method == 'POST':
+        form = EquipmentSaleForm(request.POST)
+        if form.is_valid():
+            sale_data = _equipment_sale_data(form, request.user)
+            if sale_data:
+                with transaction.atomic():
+                    payment = PaymentRecord.objects.create(
+                        athlete=athlete,
+                        payment_type='equipment_sale',
+                        payment_method=form.cleaned_data['payment_method'],
+                        period=date.today().strftime('%Y-%m'),
+                        amount=sale_data['amount'],
+                        status=sale_data['status'],
+                        due_date=date.today(),
+                        paid_at=sale_data['paid_at'],
+                        collected_by=sale_data['collected_by'],
+                        notes=sale_data['notes'],
+                    )
+                    EquipmentSaleItem.objects.bulk_create([
+                        EquipmentSaleItem(
+                            payment=payment,
+                            equipment=equipment,
+                            quantity=quantity,
+                            unit_price=unit_price,
+                        )
+                        for equipment, quantity, unit_price in sale_data['items']
+                    ])
+                response = HttpResponse(status=204)
+                response['HX-Redirect'] = request.build_absolute_uri(
+                    reverse('athlete-manage-detail', args=[athlete.pk])
+                )
+                return response
+    else:
+        form = EquipmentSaleForm()
+
+    return render(request, 'athlete/partials/athlete_equipment_sale_modal.html', {
+        'athlete': athlete,
+        'form': form,
+        'sale_url': reverse('athlete-manage-equipment-sale-create', args=[athlete.pk]),
+    })
+
+
+@login_required
+def athlete_edit_equipment_sale(request, pk, payment_id):
+    athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
+    payment = get_object_or_404(
+        PaymentRecord,
+        pk=payment_id,
+        athlete=athlete,
+        payment_type='equipment_sale',
+    )
+    existing_items = list(payment.equipment_sale_items.all())
+    initial_quantities = (
+        {item.equipment_id: item.quantity for item in existing_items}
+        if existing_items else _equipment_sale_quantities(payment.notes)
+    )
+    unit_prices = {item.equipment_id: item.unit_price for item in existing_items}
+    initial = {
+        **initial_quantities,
+        'payment_method': payment.payment_method,
+        'status': payment.status,
+        'notes': _equipment_sale_extra_notes(payment.notes),
+    }
+    form = EquipmentSaleForm(
+        request.POST or None,
+        initial_quantities=initial_quantities,
+        initial=initial,
+    )
+    if request.method == 'POST' and form.is_valid():
+        sale_data = _equipment_sale_data(form, request.user, unit_prices=unit_prices)
+        if sale_data:
+            payment.amount = sale_data['amount']
+            payment.payment_method = form.cleaned_data['payment_method']
+            payment.status = sale_data['status']
+            payment.paid_at = sale_data['paid_at']
+            payment.collected_by = sale_data['collected_by']
+            payment.notes = sale_data['notes']
+            payment.save(update_fields=(
+                'amount', 'payment_method', 'status', 'paid_at', 'collected_by', 'notes',
+            ))
+            payment.equipment_sale_items.all().delete()
+            EquipmentSaleItem.objects.bulk_create([
+                EquipmentSaleItem(
+                    payment=payment,
+                    equipment=equipment,
+                    quantity=quantity,
+                    unit_price=unit_price,
+                )
+                for equipment, quantity, unit_price in sale_data['items']
+            ])
+            response = HttpResponse(status=204)
+            response['HX-Redirect'] = request.build_absolute_uri(
+                reverse('athlete-manage-detail', args=[athlete.pk])
+            )
+            return response
+
+    return render(request, 'athlete/partials/athlete_equipment_sale_modal.html', {
+        'athlete': athlete,
+        'form': form,
+        'payment': payment,
+        'sale_url': reverse('athlete-manage-equipment-sale-edit', args=[athlete.pk, payment.pk]),
+    })
+
+
+def _equipment_sale_data(form, user, unit_prices=None):
+    selected_equipment = form.selected_equipment()
+    if not selected_equipment:
+        form.add_error(None, 'En az bir malzeme için adet girin.')
+        return None
+    unit_prices = unit_prices or {}
+    total_amount = sum(
+        (unit_prices.get(equipment.pk, equipment.price) * quantity for equipment, quantity in selected_equipment),
+        Decimal('0.00'),
+    )
+    sale_items = ', '.join(
+        f'{equipment.name} x{quantity}'
+        for equipment, quantity in selected_equipment
+    )
+    sale_status = form.cleaned_data['status']
+    notes = f'Malzemeler: {sale_items}'
+    if form.cleaned_data['notes']:
+        notes = f'{notes}\n{form.cleaned_data["notes"]}'
+    return {
+        'amount': total_amount,
+        'items': [
+            (equipment, quantity, unit_prices.get(equipment.pk, equipment.price))
+            for equipment, quantity in selected_equipment
+        ],
+        'status': sale_status,
+        'paid_at': timezone.now() if sale_status == 'paid' else None,
+        'collected_by': user if sale_status == 'paid' else None,
+        'notes': notes,
+    }
+
+
+def _equipment_sale_quantities(notes):
+    quantities = {}
+    first_line = (notes or '').splitlines()[0] if notes else ''
+    for equipment in Equipment.objects.all():
+        match = re.search(rf'(?:^|,\s*){re.escape(equipment.name)}\s+x(\d+)(?:,|$)', first_line.removeprefix('Malzemeler: '))
+        if match:
+            quantities[equipment.pk] = int(match.group(1))
+    return quantities
+
+
+def _equipment_sale_items(payment):
+    sale_items = list(payment.equipment_sale_items.select_related('equipment').all())
+    if sale_items:
+        return [
+            {
+                'name': item.equipment.name,
+                'price': item.unit_price,
+                'quantity': item.quantity,
+                'total': item.line_total,
+            }
+            for item in sale_items
+        ]
+
+    notes = payment.notes
+    first_line = (notes or '').splitlines()[0] if notes else ''
+    if not first_line.startswith('Malzemeler: '):
+        return []
+
+    items = []
+    sale_items = first_line.removeprefix('Malzemeler: ')
+    for equipment in Equipment.objects.all():
+        match = re.search(
+            rf'(?:^|,\s*){re.escape(equipment.name)}\s+x(\d+)(?:,|$)',
+            sale_items,
+        )
+        if match:
+            quantity = int(match.group(1))
+            items.append({
+                'name': equipment.name,
+                'price': equipment.price,
+                'quantity': quantity,
+                'total': equipment.price * quantity,
+            })
+    return items
+
+
+def _equipment_sale_extra_notes(notes):
+    lines = (notes or '').splitlines()
+    return '\n'.join(lines[1:])
+
+
+@login_required
 def athlete_edit_payment(request, pk, payment_id):
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     payment = get_object_or_404(PaymentRecord, pk=payment_id, athlete=athlete)
@@ -273,7 +472,7 @@ def _athlete_payment_row_response(request, athlete, payment):
     item = {
         'period': payment.period,
         'label': _payment_period_label(payment.period),
-        'amount': get_athlete_fee_for_period(athlete, payment.period),
+        'amount': payment.amount if payment.payment_type == 'equipment_sale' else get_athlete_fee_for_period(athlete, payment.period),
         'payment': payment,
         'paid_amount': payment.amount if payment.status == 'paid' else Decimal('0.00'),
         'payment_type': payment.payment_type,

@@ -5,18 +5,70 @@ from django.shortcuts import render
 
 # Create your views here.
 # finance/views.py
+from django.db.models import ProtectedError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, F, Prefetch, Q, Sum
 from django.utils import timezone
 from .models import PaymentRecord
-from .forms import ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
+from .forms import EquipmentForm, ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
 from .services import get_or_create_monthly_payments, get_financial_summary
 from athletes.models import Team, Athlete
-from .models import Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
+from .models import Equipment, Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, date
+
+
+@login_required
+def equipment_list(request):
+    return render(request, 'finance/equipment_list.html', {
+        'equipments': Equipment.objects.all(),
+        'form': EquipmentForm(),
+    })
+
+
+@login_required
+def equipment_create(request):
+    if request.method == 'POST':
+        form = EquipmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Malzeme eklendi.')
+            return redirect('equipment-list')
+    else:
+        form = EquipmentForm()
+    return render(request, 'finance/equipment_form.html', {'form': form, 'title': 'Malzeme ekle'})
+
+
+@login_required
+def equipment_update(request, pk):
+    equipment = get_object_or_404(Equipment, pk=pk)
+    if request.method == 'POST':
+        form = EquipmentForm(request.POST, instance=equipment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Malzeme güncellendi.')
+            return redirect('equipment-list')
+    else:
+        form = EquipmentForm(instance=equipment)
+    return render(request, 'finance/equipment_form.html', {
+        'form': form,
+        'title': 'Malzeme düzenle',
+        'equipment': equipment,
+    })
+
+
+@login_required
+def equipment_delete(request, pk):
+    equipment = get_object_or_404(Equipment, pk=pk)
+    if request.method == 'POST':
+        try:
+            equipment.delete()
+            messages.success(request, 'Malzeme silindi.')
+        except ProtectedError:
+            messages.error(request, 'Satışlarda kullanılan malzemeler silinemez.')
+    return redirect('equipment-list')
 
 @login_required
 def finance_dashboard(request):
@@ -39,11 +91,13 @@ def finance_dashboard(request):
     # 2. Özet veriler (Gelir, Bekleyen, Harcama, Net)
     financial_summary = get_financial_summary(period, monthly_payments=monthly_payments)
     expense_summary = get_expense_summary(period)
+    collection_summary = get_collection_summary(period)
     
     context = {
         'period': period,
         'payment_counts': payment_counts,
         'expense_summary': expense_summary,
+        'collection_summary': collection_summary,
         'financial_summary': financial_summary,
     }
     return render(request, 'finance/dashboard.html', context)
@@ -84,6 +138,30 @@ def get_expense_summary(period):
                 'total': item['total'],
             }
             for item in category_totals
+        ],
+    }
+
+
+def get_collection_summary(period):
+    paid_collections = PaymentRecord.objects.filter(
+        period=period,
+        status='paid',
+        athlete__is_active=True,
+    )
+    payment_type_totals = paid_collections.values('payment_type').annotate(
+        total=Sum('amount'),
+        count=Count('id'),
+    ).order_by('-total')
+    payment_type_labels = dict(PaymentRecord.PAYMENT_TYPE_CHOICES)
+
+    return {
+        'payment_type_totals': [
+            {
+                'name': payment_type_labels.get(item['payment_type'], item['payment_type']),
+                'total': item['total'],
+                'count': item['count'],
+            }
+            for item in payment_type_totals
         ],
     }
 

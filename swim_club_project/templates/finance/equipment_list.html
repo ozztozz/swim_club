@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="w-full space-y-4">
+    <header class="flex items-center justify-between px-1">
+        <div>
+            <p class="text-xs font-black uppercase tracking-widest text-primary">Finans</p>
+            <h1 class="text-2xl font-black text-base-content">Malzemeler</h1>
+            <p class="mt-0.5 text-sm text-base-content/50">Satış kataloğunu yönetin</p>
+        </div>
+        <a href="{% url 'equipment-create' %}" class="btn btn-primary btn-sm rounded-xl font-bold">+ Yeni malzeme</a>
+    </header>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %} text-sm">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <div class="border-b border-base-200 px-4 py-3">
+            <h2 class="text-base font-black">Malzeme listesi</h2>
+        </div>
+
+        {% if equipments %}
+            <div class="divide-y divide-base-200">
+                {% for equipment in equipments %}
+                    <div class="flex items-center gap-3 px-4 py-3">
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-base font-semibold">{{ equipment.name }}</p>
+                            <p class="mt-0.5 text-sm text-base-content/50">Birim fiyat: {{ equipment.price|floatformat:2 }}</p>
+                        </div>
+                        <a href="{% url 'equipment-update' equipment.pk %}" class="btn btn-ghost btn-sm rounded-lg text-xs font-bold">Düzenle</a>
+                        <form method="post" action="{% url 'equipment-delete' equipment.pk %}" onsubmit="return confirm('Bu malzeme silinsin mi?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-ghost btn-sm rounded-lg text-xs font-bold text-error">Sil</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="px-4 py-12 text-center text-sm text-base-content/50">Henüz malzeme eklenmemiş.</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="w-full space-y-4">
+    <header class="flex items-center gap-2 px-1">
+        <a href="{% url 'equipment-list' %}" class="flex h-9 w-9 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-lg text-base-content/60 shadow-sm" aria-label="Malzeme listesine dön">←</a>
+        <div>
+            <p class="text-xs font-black uppercase tracking-widest text-primary">Malzeme kataloğu</p>
+            <h1 class="text-2xl font-black text-base-content">{{ title }}</h1>
+        </div>
+    </header>
+
+    <section class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-error text-sm">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+                <label class="form-control">
+                    <span class="label label-text font-bold">{{ field.label }}</span>
+                    {{ field }}
+                    {% for error in field.errors %}<span class="mt-1 text-sm text-error">{{ error }}</span>{% endfor %}
+                </label>
+            {% endfor %}
+
+            <div class="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                <a href="{% url 'equipment-list' %}" class="btn btn-ghost w-full rounded-xl sm:w-auto">Vazgeç</a>
+                <button type="submit" class="btn btn-primary w-full rounded-xl sm:w-auto">Kaydet</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

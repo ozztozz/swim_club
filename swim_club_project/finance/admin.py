@@ -1,13 +1,25 @@
 # finance/admin.py
 from django.contrib import admin
-from .models import PaymentRecord, ExpenseCategory, Expense,RegularExpense,TeamFeeHistory
+from .models import Equipment, EquipmentSaleItem, PaymentRecord, ExpenseCategory, Expense,RegularExpense,TeamFeeHistory
+
+
+class EquipmentSaleItemInline(admin.TabularInline):
+    model = EquipmentSaleItem
+    extra = 0
+
+
+@admin.register(Equipment)
+class EquipmentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price')
+    search_fields = ('name',)
 
 @admin.register(PaymentRecord)
 class PaymentRecordAdmin(admin.ModelAdmin):
-    list_display = ('athlete', 'period', 'amount', 'status', 'due_date', 'paid_at', 'collected_by')
-    list_filter = ('period', 'status')
+    list_display = ('athlete', 'payment_type', 'period', 'amount', 'status', 'due_date', 'paid_at', 'collected_by')
+    list_filter = ('payment_type', 'period', 'status')
     search_fields = ('athlete__first_name', 'athlete__last_name', 'notes')
     ordering = ('-period', 'athlete__first_name')
+    inlines = (EquipmentSaleItemInline,)
 
 @admin.register(ExpenseCategory)
 class ExpenseCategoryAdmin(admin.ModelAdmin):

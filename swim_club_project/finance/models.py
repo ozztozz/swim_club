@@ -118,6 +118,47 @@ class PaymentRecord(models.Model):
         return False
 
 
+class Equipment(models.Model):
+    name = models.CharField(max_length=150, unique=True, verbose_name="Malzeme Türü")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Fiyat")
+
+    class Meta:
+        verbose_name = "Malzeme"
+        verbose_name_plural = "Malzemeler"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class EquipmentSaleItem(models.Model):
+    payment = models.ForeignKey(
+        PaymentRecord,
+        on_delete=models.CASCADE,
+        related_name='equipment_sale_items',
+        verbose_name='Satış',
+    )
+    equipment = models.ForeignKey(
+        Equipment,
+        on_delete=models.PROTECT,
+        related_name='sale_items',
+        verbose_name='Malzeme',
+    )
+    quantity = models.PositiveIntegerField(verbose_name='Adet')
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Satış Birim Fiyatı')
+
+    class Meta:
+        verbose_name = 'Malzeme Satış Satırı'
+        verbose_name_plural = 'Malzeme Satış Satırları'
+
+    @property
+    def line_total(self):
+        return self.unit_price * self.quantity
+
+    def __str__(self):
+        return f'{self.equipment.name} x{self.quantity}'
+
+
 class ExpenseCategory(models.Model):
     """Harcama Kategorileri (örn: Havuz Kirası, Personel Maaşı, Ekipman, Organizasyon)"""
     name = models.CharField(max_length=100, verbose_name="Kategori Adı")
