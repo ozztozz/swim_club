@@ -1,31 +1,435 @@
+
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-7xl space-y-8">
+
+<div class="mx-auto w-full max-w-3xl space-y-4 px-1 sm:px-0">
+
+    <!-- =========================================================
+         SAYFA BAŞLIĞI
+         ========================================================= -->
+    <header class="px-1 pt-1">
+
+        <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/70">
+            Günlük işlemler
+        </p>
+
+        <h1 class="mt-0.5 text-xl font-bold tracking-tight text-base-content">
+            Kulüp yönetimi
+        </h1>
+
+    </header>
 
 
-    <section class="grid gap-4 md:grid-cols-3">
-        <a href="{% url 'team-list' %}" class="group rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm transition hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
-            <div class="flex items-start justify-between"><span class="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="text-xl text-base-content/30 transition group-hover:translate-x-1">→</span></div>
-            <h2 class="mt-5 text-xl font-black">Takımlar</h2><p class="mt-1 text-sm text-base-content/60">Grupları ve antrenör atamalarını yönetin.</p><p class="mt-5 text-2xl font-black text-primary">{{ active_teams|floatformat:0 }} <span class="text-sm font-semibold text-base-content/50">aktif takım</span></p>
-        </a>
-        <a href="{% url 'athlete-manage-list' %}" class="group rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm transition hover:-translate-y-1 hover:border-secondary/50 hover:shadow-lg">
-            <div class="flex items-start justify-between"><span class="grid h-10 w-10 place-items-center rounded-lg bg-secondary/10 text-secondary"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></span><span class="text-xl text-base-content/30 transition group-hover:translate-x-1">→</span></div>
-            <h2 class="mt-5 text-xl font-black">Sporcular</h2><p class="mt-1 text-sm text-base-content/60">Kayıtları, profilleri ve takım gruplarını görüntüleyin.</p><p class="mt-5 text-2xl font-black text-secondary">{{ athlete_count|floatformat:0 }} <span class="text-sm font-semibold text-base-content/50">kayıtlı sporcu</span></p>
-        </a>
-        <a href="{% url 'finance-dashboard' %}" class="group rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm transition hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg">
-            <div class="flex items-start justify-between"><span class="grid h-10 w-10 place-items-center rounded-lg bg-accent/10 text-accent"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h3"/></svg></span><span class="text-xl text-base-content/30 transition group-hover:translate-x-1">→</span></div>
-            <h2 class="mt-5 text-xl font-black">Finans</h2><p class="mt-1 text-sm text-base-content/60">Tahsilatları, giderleri ve ödeme planlarını yönetin.</p><p class="mt-5 text-2xl font-black text-accent">{{ pending_payments|floatformat:0 }} <span class="text-sm font-semibold text-base-content/50">bekleyen ödeme</span></p>
-        </a>
-        <a href="{% url 'equipment-list' %}" class="group rounded-xl border border-base-200 bg-base-100 p-4 shadow-sm transition hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
-            <div class="flex items-start justify-between"><span class="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18" cy="17" r="2"/></svg></span><span class="text-xl text-base-content/30 transition group-hover:translate-x-1">→</span></div>
-            <h2 class="mt-5 text-xl font-black">Malzemeler</h2><p class="mt-1 text-sm text-base-content/60">Malzeme türlerini ve satış fiyatlarını yönetin.</p><p class="mt-5 text-2xl font-black text-primary">Katalog <span class="text-sm font-semibold text-base-content/50">yönetimi</span></p>
-        </a>
+    <!-- =========================================================
+         ANA SEKME
+         ========================================================= -->
+    <div class="grid grid-cols-2 rounded-xl bg-base-200/80 p-1">
+
+        <button
+            type="button"
+            data-dashboard-tab="collections"
+            onclick="showDashboardTab('collections')"
+            class="h-9 rounded-lg bg-base-100 text-xs font-semibold text-base-content shadow-sm transition-all duration-150 active:scale-[.98]"
+        >
+            Tahsilat
+        </button>
+
+        <button
+            type="button"
+            data-dashboard-tab="expenses"
+            onclick="showDashboardTab('expenses')"
+            class="h-9 rounded-lg text-xs font-semibold text-base-content/45 transition-all duration-150 active:scale-[.98]"
+        >
+            Harcama
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+         TAHSİLAT
+         ========================================================= -->
+    <section
+        id="collections-tab"
+        class="space-y-3"
+    >
+
+        <!-- Başlık -->
+        <div class="flex items-center justify-between gap-3 px-1">
+
+            <div class="min-w-0">
+
+                <h2 class="text-[15px] font-bold text-base-content">
+                    Tahsilat
+                </h2>
+
+                <p class="mt-0.5 text-[11px] text-base-content/45">
+                    Sporcu veya veli adına göre arayın.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'athlete-manage-create' %}"
+                class="btn btn-ghost h-8 min-h-0 shrink-0 rounded-lg px-2.5 text-[11px] font-semibold text-base-content/60 hover:bg-base-200 hover:text-base-content active:scale-[.97]"
+            >
+                <span class="text-base-content/40">+</span>
+                Sporcu
+            </a>
+
+        </div>
+
+
+        <!-- Arama + sporcu listesi -->
+        <section class="overflow-hidden rounded-2xl border border-base-300/90 bg-base-100">
+
+            <form
+                method="get"
+                hx-get="{% url 'dashboard-search-athletes' %}"
+                hx-target="#collection-list"
+                hx-swap="innerHTML"
+                hx-trigger="submit, keyup changed delay:350ms from:input[name='q']"
+                class="border-b border-base-200 bg-base-50/40 p-2.5"
+            >
+
+                <label class="relative block">
+
+                    <span class="sr-only">
+                        Sporcu ara
+                    </span>
+
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base-content/35">
+                        <svg
+                            class="h-4 w-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m20 20-3.5-3.5"></path>
+                        </svg>
+                    </span>
+
+                    <input
+                        type="search"
+                        name="q"
+                        minlength="3"
+                        placeholder="Sporcu veya veli ara"
+                        autocomplete="off"
+                        class="input input-bordered h-10 min-h-0 w-full rounded-xl border-base-300/80 bg-base-100 pl-9 pr-3 text-xs outline-none transition focus:border-primary/40 focus:outline-none"
+                    >
+
+                </label>
+
+            </form>
+
+
+            <div id="collection-list">
+                {% include 'dashboard/_approved_athletes.html' %}
+            </div>
+
+        </section>
+
+
+        <!-- Son tahsilatlar -->
+        <div
+            id="dashboard-payment-list"
+            hx-get="{% url 'dashboard-recent-payments' %}"
+            hx-trigger="refreshDashboardPayments from:body"
+            hx-swap="outerHTML"
+        >
+            {% include 'dashboard/_recent_payments.html' %}
+        </div>
+
     </section>
 
 
+    <!-- =========================================================
+         HARCAMA
+         ========================================================= -->
+    <section
+        id="expenses-tab"
+        class="hidden space-y-3"
+    >
+
+        <!-- Başlık -->
+        <div class="flex items-center justify-between gap-3 px-1">
+
+            <div class="min-w-0">
+
+                <h2 class="text-[15px] font-bold text-base-content">
+                    Harcama
+                </h2>
+
+                <p class="mt-0.5 text-[11px] text-base-content/45">
+                    {{ expense_period }} dönemi
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn btn-primary h-8 min-h-0 shrink-0 rounded-lg px-2.5 text-[11px] font-semibold shadow-none active:scale-[.97]"
+                hx-get="{% url 'expense-create' %}?period={{ expense_period }}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+            >
+                <span class="text-primary-content/70">+</span>
+                Harcama ekle
+            </button>
+
+        </div>
+
+
+        <!-- Harcama listesi -->
+        <section class="overflow-hidden rounded-2xl border border-base-300/90 bg-base-100">
+
+            <!-- Dönem seçimi -->
+            <form
+                method="get"
+                class="flex items-center gap-2 border-b border-base-200 bg-base-50/40 p-2.5"
+            >
+
+                <input
+                    type="month"
+                    name="period"
+                    value="{{ expense_period }}"
+                    onchange="this.form.submit()"
+                    class="input input-bordered h-9 min-h-0 min-w-0 flex-1 rounded-lg border-base-300/80 bg-base-100 text-xs font-semibold"
+                >
+
+                <button
+                    type="submit"
+                    class="btn btn-ghost h-9 min-h-0 rounded-lg border border-base-300/80 px-3 text-xs font-semibold text-base-content/60 hover:bg-base-200"
+                >
+                    Uygula
+                </button>
+
+            </form>
+
+
+            <!-- Tablo -->
+            <div class="w-full overflow-x-auto">
+
+                <table class="table w-full min-w-[340px]">
+
+                    <thead>
+
+                        <tr class="border-b border-base-300/80 text-[9px] uppercase tracking-wider text-base-content/40">
+
+                            <th class="font-semibold">
+                                Tarih
+                            </th>
+
+                            <th class="hidden font-semibold md:table-cell">
+                                Kategori
+                            </th>
+
+                            <th class="font-semibold">
+                                Alıcı / Firma
+                            </th>
+
+                            <th class="text-right font-semibold">
+                                Tutar
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="expense-list">
+
+                        {% for expense in expenses %}
+
+                            {% include 'finance/partials/_expense_row.html' %}
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td
+                                    colspan="4"
+                                    class="py-12 text-center text-xs text-base-content/40"
+                                >
+                                    Bu dönemde harcama yok.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </section>
 
 </div>
 
+
+<!-- =========================================================
+     MODAL CONTAINER'LARI
+     ========================================================= -->
+
 <div id="modal-container"></div>
+
+<div id="athlete-modal-container"></div>
+
+
+<!-- =========================================================
+     TAB JAVASCRIPT
+     ========================================================= -->
+
+<script>
+
+    function showDashboardTab(tab) {
+
+        const collections =
+            document.getElementById('collections-tab');
+
+        const expenses =
+            document.getElementById('expenses-tab');
+
+        const collectionButton =
+            document.querySelector(
+                '[data-dashboard-tab="collections"]'
+            );
+
+        const expenseButton =
+            document.querySelector(
+                '[data-dashboard-tab="expenses"]'
+            );
+
+        const showCollections =
+            tab === 'collections';
+
+
+        collections.classList.toggle(
+            'hidden',
+            !showCollections
+        );
+
+        expenses.classList.toggle(
+            'hidden',
+            showCollections
+        );
+
+
+        /*
+         * Tahsilat sekmesi
+         */
+        collectionButton.classList.toggle(
+            'bg-base-100',
+            showCollections
+        );
+
+        collectionButton.classList.toggle(
+            'text-base-content',
+            showCollections
+        );
+
+        collectionButton.classList.toggle(
+            'shadow-sm',
+            showCollections
+        );
+
+        collectionButton.classList.toggle(
+            'text-base-content/45',
+            !showCollections
+        );
+
+
+        /*
+         * Harcama sekmesi
+         */
+        expenseButton.classList.toggle(
+            'bg-base-100',
+            !showCollections
+        );
+
+        expenseButton.classList.toggle(
+            'text-base-content',
+            !showCollections
+        );
+
+        expenseButton.classList.toggle(
+            'shadow-sm',
+            !showCollections
+        );
+
+        expenseButton.classList.toggle(
+            'text-base-content/45',
+            showCollections
+        );
+
+    }
+
+
+    /*
+     * Sporcu modalı
+     */
+    document.body.addEventListener(
+        'closeAthleteModal',
+        () => {
+
+            document
+                .getElementById('athlete_modal')
+                ?.remove();
+
+            document
+                .getElementById('athlete-modal-container')
+                .innerHTML = '';
+
+        }
+    );
+
+
+    /*
+     * Harcama modalı
+     */
+    document.body.addEventListener(
+        'closeExpenseModal',
+        () => {
+
+            document
+                .getElementById('expense_modal')
+                ?.remove();
+
+            document
+                .getElementById('modal-container')
+                .innerHTML = '';
+
+        }
+    );
+
+
+    /*
+     * Ödeme modalı
+     */
+    document.body.addEventListener(
+        'closeAthletePaymentModal',
+        () => {
+
+            document
+                .getElementById('athlete_payment_modal')
+                ?.remove();
+
+            document
+                .getElementById('modal-container')
+                .innerHTML = '';
+
+        }
+    );
+
+</script>
+
 {% endblock %}

@@ -1,56 +1,74 @@
 {% if approved_athletes %}
-<div class="w-full overflow-x-auto">
-    <table class="table w-full">
-        <thead>
-            <tr class="text-sm border-b border-base-200">
-                <th class="whitespace-nowrap">Sporcu Ad Soyad</th>
-                <th class="whitespace-nowrap">Veli</th>
-                <th class="whitespace-nowrap">Takım</th>
-                <th class="whitespace-nowrap text-right">Net Aidat</th>
-                <th class="whitespace-nowrap text-center">İşlem</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for athlete in approved_athletes %}
-            <tr class="hover:bg-base-200/40">
-                <td class="font-bold whitespace-nowrap">{{ athlete.first_name }} {{ athlete.last_name }}</td>
-                <td class="whitespace-nowrap">{{ athlete.parent }}</td>
-                <td class="whitespace-nowrap">
-                    {% if athlete.team %}
-                        <span class="badge badge-info text-white badge-sm">{{ athlete.team.name }}</span>
-                    {% else %}
-                        <span class="badge badge-ghost badge-sm">Atanmadı</span>
-                    {% endif %}
-                </td>
-                <td class="whitespace-nowrap text-right font-bold text-primary">
-                    {{ athlete.current_monthly_fee|floatformat:0 }}
-                    {% if athlete.custom_fee is not None %}
-                        <span class="badge badge-warning badge-xs ml-1">Özel</span>
-                    {% endif %}
-                </td>
-                <td class="whitespace-nowrap text-center">
-                    <!-- DaisyUI .btn sinifi kaldirildi, saf flex butonu yerlestirildi -->
-                    <button 
-                        hx-get="{% url 'dashboard-edit-athlete-team' athlete.id %}" 
-                        hx-target="#modal-container" 
-                        hx-swap="innerHTML"
-                        type="button"
-                        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary border border-primary/50 rounded-lg hover:bg-primary hover:text-white transition-all duration-200 shadow-sm cursor-pointer"
-                        style="box-sizing: border-box !important; display: inline-flex !important; flex-direction: row !important; white-space: nowrap !important;">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span class="inline-block">Düzenle</span>
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+<div class="divide-y divide-base-content/10">
+
+    {% for athlete in approved_athletes %}
+
+    <div
+        class="flex items-center gap-3 px-3 py-3 transition-colors hover:bg-base-200/30 active:bg-base-200/50"
+    >
+
+        <!-- Sporcu bilgisi -->
+        <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-base-content/80">
+                {{ athlete.first_name }} {{ athlete.last_name }}
+            </p>
+
+            <div class="mt-0.5 flex items-center gap-1.5">
+                {% if athlete.team %}
+                    <span class="truncate text-[11px] font-medium text-base-content/45">
+                        {{ athlete.team.name }}
+                    </span>
+                {% else %}
+                    <span class="text-[11px] text-base-content/35">
+                        Takım atanmadı
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- İşlem -->
+        <div class="shrink-0">
+            <button
+                hx-get="{% url 'athlete-manage-payment' athlete.id current_period %}?dashboard=1"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+                type="button"
+                class="btn btn-primary h-8 min-h-0 rounded-lg px-3 text-[11px] font-semibold shadow-none"
+            >
+                Ödeme al
+            </button>
+        </div>
+
+    </div>
+
+    {% endfor %}
+
 </div>
+
 {% else %}
-<div class="alert alert-info shadow-sm">
-    <span>Arama kriterlerinize uygun onaylı sporcu bulunamadı.</span>
+
+<div class="px-4 py-10 text-center">
+    <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-base-200/70 text-base-content/35">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="1.7"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m21 21-4.35-4.35m1.35-5.15a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"
+            />
+        </svg>
+    </div>
+
+    <p class="mt-2 text-xs font-medium text-base-content/45">
+        Ödeme almak için sporcu adı veya veli adı arayın.
+    </p>
 </div>
+
 {% endif %}

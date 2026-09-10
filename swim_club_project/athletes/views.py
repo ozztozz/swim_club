@@ -166,6 +166,7 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
     from finance.services import get_athlete_fee_for_period
 
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
+    dashboard_mode = request.GET.get('dashboard') == '1'
     if payment_id is not None:
         payment = get_object_or_404(
             PaymentRecord,
@@ -202,12 +203,14 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
             'athlete': athlete,
             'item': item,
             'mode': 'pay',
+            'dashboard_mode': dashboard_mode,
         })
     if request.method != 'POST':
         return render(request, 'athlete/partials/athlete_payment_modal.html', {
             'athlete': athlete,
             'item': item,
             'mode': 'pay',
+            'dashboard_mode': dashboard_mode,
         }, status=405)
 
     if payment is None:
@@ -230,11 +233,18 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
     item['payment'] = payment
     item['is_paid'] = True
     item['status'] = payment.status
-    response = render(request, 'athlete/partials/athlete_payment_row.html', {
-        'athlete': athlete,
-        'item': item,
-    })
+    if dashboard_mode:
+        from .views_dashboard import dashboard_recent_payments_htmx
+
+        response = dashboard_recent_payments_htmx(request)
+    else:
+        response = render(request, 'athlete/partials/athlete_payment_row.html', {
+            'athlete': athlete,
+            'item': item,
+        })
     response['HX-Trigger'] = 'closeAthletePaymentModal'
+    if dashboard_mode:
+        response['HX-Trigger'] = 'closeAthletePaymentModal, refreshDashboardPayments'
     return response
 
 
