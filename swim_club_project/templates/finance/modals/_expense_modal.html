@@ -111,29 +111,37 @@
                     {% endif %}
                 </label>
 
-                <label class="form-control">
-                    <span class="mb-1.5 text-[10px] font-medium text-base-content/55">
-                        Fatura / fiş no
-                    </span>
-                    {{ form.receipt_no }}
-                    {% if form.receipt_no.errors %}
-                        <span class="mt-1 text-[10px] text-error/80">
-                            {{ form.receipt_no.errors|striptags }}
-                        </span>
-                    {% endif %}
-                </label>
+                <details class="sm:col-span-2 overflow-hidden rounded-xl border border-base-200 bg-base-200/30">
+                    <summary class="cursor-pointer px-3 py-2.5 text-[10px] font-medium text-base-content/60">
+                        Ek bilgiler
+                    </summary>
 
-                <label class="form-control sm:col-span-2">
-                    <span class="mb-1.5 text-[10px] font-medium text-base-content/55">
-                        Açıklama
-                    </span>
-                    {{ form.notes }}
-                    {% if form.notes.errors %}
-                        <span class="mt-1 text-[10px] text-error/80">
-                            {{ form.notes.errors|striptags }}
-                        </span>
-                    {% endif %}
-                </label>
+                    <div class="grid gap-3 border-t border-base-200 px-3 py-3 sm:grid-cols-2">
+                        <label class="form-control">
+                            <span class="mb-1.5 text-[10px] font-medium text-base-content/55">
+                                Fatura / fiş no
+                            </span>
+                            {{ form.receipt_no }}
+                            {% if form.receipt_no.errors %}
+                                <span class="mt-1 text-[10px] text-error/80">
+                                    {{ form.receipt_no.errors|striptags }}
+                                </span>
+                            {% endif %}
+                        </label>
+
+                        <label class="form-control sm:col-span-2">
+                            <span class="mb-1.5 text-[10px] font-medium text-base-content/55">
+                                Açıklama
+                            </span>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <span class="mt-1 text-[10px] text-error/80">
+                                    {{ form.notes.errors|striptags }}
+                                </span>
+                            {% endif %}
+                        </label>
+                    </div>
+                </details>
 
             </div>
 

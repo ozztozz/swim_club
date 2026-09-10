@@ -2,97 +2,215 @@
 
 {% block content %}
 
-<div class="w-full space-y-4">
+<div class="w-full space-y-3 pb-4">
 
+    <!-- ================================================= -->
     <!-- ÜST BAR -->
-    <header class="flex items-center gap-2 px-1">
+    <!-- ================================================= -->
+
+    <header class="flex items-center gap-3 px-1 py-1">
+
         <a
             href="{% url 'athlete-manage-list' %}"
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-lg text-base-content/60 shadow-sm active:scale-95"
+            class="flex h-9 w-9 shrink-0 items-center justify-center
+                   rounded-xl
+                   border border-base-300
+                   bg-base-100
+                   text-lg font-medium
+                   text-base-content/70
+                   shadow-sm
+                   transition-all
+                   hover:bg-base-200
+                   active:scale-95"
             aria-label="Sporcu listesine dön">
-            ←
+
+            <span class="-mt-0.5">←</span>
+
         </a>
 
-        <div class="min-w-0">
-            <p class="text-xs font-black uppercase tracking-widest text-primary">
+        <div class="min-w-0 flex-1">
+
+            <p class="text-[10px] font-extrabold uppercase
+                      tracking-[0.18em] text-primary">
                 Sporcu
             </p>
-            <h1 class="truncate text-lg font-black text-base-content">
+
+            <h1 class="truncate text-lg font-black leading-tight
+                       text-base-content">
                 Profil
             </h1>
+
         </div>
+
     </header>
 
 
+    <!-- ================================================= -->
     <!-- SPORCU PROFİLİ -->
-    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+    <!-- ================================================= -->
+
+    <section
+        class="overflow-hidden
+               rounded-2xl
+               border border-base-300
+               bg-base-100
+               shadow-sm">
+
+        <!-- PROFİL BİLGİLERİ -->
 
         <div class="flex items-center gap-3 p-4">
 
-            {% if athlete.photo %}
-                <img
-                    src="{{ athlete.photo.url }}"
-                    alt="{{ athlete.get_full_name }}"
-                    class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-base-200"
-                >
-            {% else %}
-                <img
-                    src="/media/logos/logo4.jpeg"
-                    alt="{{ athlete.get_full_name }}"
-                    class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-base-200"
-                >
-            {% endif %}
+            <!-- FOTOĞRAF -->
+
+            <div class="shrink-0">
+
+                {% if athlete.photo %}
+
+                    <img
+                        src="{{ athlete.photo.url }}"
+                        alt="{{ athlete.get_full_name }}"
+                        class="h-14 w-14 rounded-2xl
+                               object-cover
+                               ring-2 ring-base-200"
+                    >
+
+                {% else %}
+
+                    <img
+                        src="/media/logos/logo4.jpeg"
+                        alt="{{ athlete.get_full_name }}"
+                        class="h-14 w-14 rounded-2xl
+                               object-cover
+                               ring-2 ring-base-200"
+                    >
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- BİLGİLER -->
 
             <div class="min-w-0 flex-1">
 
-                <h2 class="truncate text-lg font-black text-base-content">
+                <h2
+                    class="truncate text-base font-black leading-tight
+                           text-base-content">
+
                     {{ athlete.get_full_name }}
+
                 </h2>
 
-                <p class="mt-0.5 truncate text-xs text-base-content/50">
-                    {% if athlete.team %}
-                        {{ athlete.team.name }}
-                    {% else %}
-                        Takım ataması yok
-                    {% endif %}
-                </p>
 
-                <p class="mt-0.5 truncate text-xs text-base-content/40">
-                    Veli: {{ athlete.parent|default:'Belirtilmedi' }}
-                </p>
+                <div class="mt-1 flex min-w-0 items-center gap-1.5">
+
+                    <span class="shrink-0 text-[11px] text-base-content/45">
+                        Takım
+                    </span>
+
+                    <span
+                        class="truncate text-[11px] font-semibold
+                               text-base-content/65">
+
+                        {% if athlete.team %}
+                            {{ athlete.team.name }}
+                        {% else %}
+                            Atama yok
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <div class="mt-0.5 flex min-w-0 items-center gap-1.5">
+
+                    <span class="shrink-0 text-[11px] text-base-content/45">
+                        Veli
+                    </span>
+
+                    <span
+                        class="truncate text-[11px] font-semibold
+                               text-base-content/55">
+
+                        {{ athlete.parent|default:'Belirtilmedi' }}
+
+                    </span>
+
+                </div>
 
             </div>
 
         </div>
 
-        <!-- HIZLI AKSİYONLAR -->
-        <div class="grid grid-cols-2 gap-2 border-t border-base-200 bg-base-50/50 p-3">
+
+        <!-- ================================================= -->
+        <!-- PROFİL AKSİYONLARI -->
+        <!-- ================================================= -->
+
+        <div
+            class="grid grid-cols-2 gap-2
+                   border-t border-base-200
+                   bg-base-200/20
+                   p-2.5">
+
+            <!-- DÜZENLE -->
 
             <button
                 type="button"
-                class="btn btn-outline h-9 min-h-0 rounded-xl px-3 text-xs font-bold"
+                class="flex h-9 items-center justify-center gap-1.5
+                       rounded-xl
+                       border border-base-300
+                       bg-base-100
+                       px-3
+                       text-[11px] font-extrabold
+                       text-base-content/75
+                       shadow-sm
+                       transition-all
+                       hover:border-primary/30
+                       hover:bg-base-200
+                       active:scale-[.98]"
                 hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1"
                 hx-target="#athlete-modal-container"
                 hx-swap="innerHTML">
-                Düzenle
+
+                <span class="text-xs leading-none">
+                    ✎
+                </span>
+
+                <span>
+                    Düzenle
+                </span>
+
             </button>
+
+
+            <!-- ÖDEME EKLE -->
 
             <button
                 type="button"
-                class="btn btn-primary h-9 min-h-0 rounded-xl px-3 text-xs font-bold shadow-sm"
+                class="flex h-9 items-center justify-center gap-1.5
+                       rounded-xl
+                       bg-primary
+                       px-3
+                       text-[11px] font-extrabold
+                       text-primary-content
+                       shadow-sm
+                       transition-all
+                       hover:brightness-95
+                       active:scale-[.98]"
                 hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}"
-                hx-target="#athlete-payment-create-modal-container"
+                hx-target="#athlete-payment-modal-container"
                 hx-swap="innerHTML">
-                + Ödeme Ekle
-            </button>
 
-            <button
-                type="button"
-                class="btn btn-secondary h-9 min-h-0 rounded-xl px-3 text-xs font-bold shadow-sm"
-                hx-get="{% url 'athlete-manage-equipment-sale-create' athlete.pk %}"
-                hx-target="#athlete-equipment-sale-modal-container"
-                hx-swap="innerHTML">
-                + Malzeme Satışı
+                <span class="text-sm leading-none">
+                    +
+                </span>
+
+                <span>
+                    Ödeme Ekle
+                </span>
+
             </button>
 
         </div>
@@ -100,104 +218,300 @@
     </section>
 
 
-    <!-- ÖDEME SEKМELERİ -->
-    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+    <!-- ================================================= -->
+    <!-- ÖDEMELER -->
+    <!-- ================================================= -->
 
-        <div class="border-b border-base-200 px-4 pt-3">
+    <section
+        class="overflow-hidden
+               rounded-2xl
+               border border-base-300
+               bg-base-100
+               shadow-sm">
 
-            <div class="mb-3">
-                <h2 class="text-base font-black text-base-content">
-                    Ödemeler
-                </h2>
-                <p class="mt-0.5 text-xs text-base-content/40">
-                    Aidat ve diğer ödeme kayıtları
-                </p>
-            </div>
 
-            <div class="grid grid-cols-3 gap-1.5">
+        <!-- BAŞLIK -->
+
+        <div class="px-4 pt-4">
+
+            <h2 class="text-base font-black text-base-content">
+                Ödemeler
+            </h2>
+
+            <p class="mt-0.5 text-[11px] text-base-content/45">
+                Aidat, ödeme ve malzeme kayıtları
+            </p>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- SEKME MENÜSÜ -->
+        <!-- ================================================= -->
+
+        <div class="px-3 pt-3">
+
+            <div
+                class="grid grid-cols-3 gap-1
+                       rounded-xl
+                       bg-base-200/70
+                       p-1">
+
+                <!-- AYLIK -->
+
                 <button
                     type="button"
-                    class="btn btn-primary btn-sm h-9 min-h-0 rounded-xl text-xs font-bold"
                     data-payment-tab="monthly"
-                    onclick="showPaymentTab('monthly')">
-                    Aylık ödemeler
+                    onclick="showPaymentTab('monthly')"
+                    class="h-8 rounded-lg
+                           bg-primary
+                           px-2
+                           text-[11px] font-extrabold
+                           text-primary-content
+                           shadow-sm
+                           transition-all">
+
+                    Aylık
+
                 </button>
+
+
+                <!-- DİĞER -->
+
                 <button
                     type="button"
-                    class="btn btn-ghost btn-sm h-9 min-h-0 rounded-xl text-xs font-bold"
                     data-payment-tab="other"
-                    onclick="showPaymentTab('other')">
-                    Diğer ödemeler
+                    onclick="showPaymentTab('other')"
+                    class="h-8 rounded-lg
+                           px-2
+                           text-[11px] font-extrabold
+                           text-base-content/55
+                           transition-all
+                           hover:text-base-content">
+
+                    Diğer
+
                 </button>
+
+
+                <!-- MALZEMELER -->
+
                 <button
                     type="button"
-                    class="btn btn-ghost btn-sm h-9 min-h-0 rounded-xl text-xs font-bold"
                     data-payment-tab="equipment"
-                    onclick="showPaymentTab('equipment')">
+                    onclick="showPaymentTab('equipment')"
+                    class="h-8 rounded-lg
+                           px-2
+                           text-[11px] font-extrabold
+                           text-base-content/55
+                           transition-all
+                           hover:text-base-content">
+
                     Malzemeler
+
                 </button>
+
             </div>
 
         </div>
 
-        <div id="monthly-payments-tab" class="divide-y divide-base-200">
+
+        <!-- ================================================= -->
+        <!-- AYLIK ÖDEMELER -->
+        <!-- ================================================= -->
+
+        <div
+            id="monthly-payments-tab"
+            class="mt-2 divide-y divide-base-200">
 
             {% for item in monthly_payments %}
 
-                <div class="p-2 transition-colors active:bg-base-200/50">
+                <div class="px-2.5 py-1">
+
                     {% include 'athlete/partials/athlete_payment_row.html' %}
+
                 </div>
 
             {% empty %}
 
-                <div class="flex min-h-[140px] items-center justify-center px-4 text-center">
-                    <p class="text-sm text-base-content/40">
+                <div
+                    class="flex min-h-[130px]
+                           flex-col items-center justify-center
+                           px-6 text-center">
+
+                    <div
+                        class="mb-2 flex h-9 w-9 items-center justify-center
+                               rounded-xl
+                               bg-base-200
+                               text-sm text-base-content/35">
+
+                        ₺
+
+                    </div>
+
+                    <p class="text-xs font-bold text-base-content/60">
                         Henüz ödeme dönemi bulunmuyor.
                     </p>
+
+                    <p class="mt-1 text-[10px] text-base-content/40">
+                        Aylık ödeme kayıtları burada görünecek.
+                    </p>
+
                 </div>
 
             {% endfor %}
 
         </div>
 
-        <div id="other-payments-tab" class="hidden divide-y divide-base-200">
+
+        <!-- ================================================= -->
+        <!-- DİĞER ÖDEMELER -->
+        <!-- ================================================= -->
+
+        <div
+            id="other-payments-tab"
+            class="mt-2 hidden divide-y divide-base-200">
 
             {% for item in other_payments %}
 
-                <div class="p-2 transition-colors active:bg-base-200/50">
+                <div class="px-2.5 py-1">
+
                     {% include 'athlete/partials/athlete_payment_row.html' %}
+
                 </div>
 
             {% empty %}
 
-                <div class="flex min-h-[140px] items-center justify-center px-4 text-center">
-                    <p class="text-sm text-base-content/40">
+                <div
+                    class="flex min-h-[130px]
+                           flex-col items-center justify-center
+                           px-6 text-center">
+
+                    <div
+                        class="mb-2 flex h-9 w-9 items-center justify-center
+                               rounded-xl
+                               bg-base-200
+                               text-sm text-base-content/35">
+
+                        ₺
+
+                    </div>
+
+                    <p class="text-xs font-bold text-base-content/60">
                         Diğer ödeme kaydı bulunmuyor.
                     </p>
+
+                    <p class="mt-1 text-[10px] text-base-content/40">
+                        Diğer ödeme kayıtları burada görünecek.
+                    </p>
+
                 </div>
 
             {% endfor %}
 
         </div>
 
-        <div id="equipment-payments-tab" class="hidden divide-y divide-base-200">
 
-            {% for item in equipment_sales %}
+        <!-- ================================================= -->
+        <!-- MALZEME SATIŞLARI -->
+        <!-- ================================================= -->
 
-                <div class="p-2 transition-colors active:bg-base-200/50">
-                    {% include 'athlete/partials/athlete_payment_row.html' %}
+        <div
+            id="equipment-payments-tab"
+            class="mt-2 hidden">
+           <div
+                class="border-t border-base-200
+                       bg-base-200/20
+                       p-2.5">
+
+                <button
+                    type="button"
+                    class="flex h-9 w-full items-center justify-center gap-1.5
+                           rounded-xl
+                           border border-base-300
+                           bg-base-100
+                           px-3
+                           text-[11px] font-extrabold
+                           text-base-content/75
+                           shadow-sm
+                           transition-all
+                           hover:border-primary/30
+                           hover:bg-base-200
+                           active:scale-[.99]"
+                    hx-get="{% url 'athlete-manage-equipment-sale-create' athlete.pk %}"
+                    hx-target="#athlete-equipment-sale-modal-container"
+                    hx-swap="innerHTML">
+
+                    <span
+                        class="flex h-5 w-5 items-center justify-center
+                               rounded-md
+                               bg-primary/10
+                               text-xs font-black
+                               text-primary">
+
+                        +
+
+                    </span>
+
+                    <span>
+                        Malzeme Satışı Ekle
+                    </span>
+
+                </button>
+
+            </div>
+
+            {% if equipment_sales %}
+
+                <div class="divide-y divide-base-200">
+
+                    {% for item in equipment_sales %}
+
+                        <div class="px-2.5 py-1">
+
+                            {% include 'athlete/partials/athlete_payment_row.html' %}
+
+                        </div>
+
+                    {% endfor %}
+
                 </div>
 
-            {% empty %}
+            {% else %}
 
-                <div class="flex min-h-[140px] items-center justify-center px-4 text-center">
-                    <p class="text-sm text-base-content/40">
+                <div
+                    class="flex min-h-[130px]
+                           flex-col items-center justify-center
+                           px-6 text-center">
+
+                    <div
+                        class="mb-2 flex h-9 w-9 items-center justify-center
+                               rounded-xl
+                               bg-base-200
+                               text-sm text-base-content/35">
+
+                        +
+
+                    </div>
+
+                    <p class="text-xs font-bold text-base-content/60">
                         Malzeme satışı bulunmuyor.
                     </p>
+
+                    <p class="mt-1 text-[10px] text-base-content/40">
+                        Malzeme satışları burada görünecek.
+                    </p>
+
                 </div>
 
-            {% endfor %}
+            {% endif %}
 
+
+            <!-- ================================================= -->
+            <!-- MALZEME SATIŞI EKLE -->
+            <!-- ================================================= -->
+
+ 
         </div>
 
     </section>
@@ -205,72 +519,260 @@
 </div>
 
 
+<!-- ================================================= -->
 <!-- MODAL KONTEYNERLERİ -->
+<!-- ================================================= -->
 
 <div id="athlete-modal-container"></div>
+
 <div id="athlete-payment-modal-container"></div>
-<div id="athlete-payment-edit-modal-container"></div>
-<div id="athlete-payment-create-modal-container"></div>
+
 <div id="athlete-equipment-sale-modal-container"></div>
 
 
 <script>
-    function showPaymentTab(tab) {
-        const monthlyTab = document.getElementById('monthly-payments-tab');
-        const otherTab = document.getElementById('other-payments-tab');
-        const equipmentTab = document.getElementById('equipment-payments-tab');
-        const monthlyButton = document.querySelector('[data-payment-tab="monthly"]');
-        const otherButton = document.querySelector('[data-payment-tab="other"]');
-        const equipmentButton = document.querySelector('[data-payment-tab="equipment"]');
-        const showMonthly = tab === 'monthly';
-        const showOther = tab === 'other';
 
-        monthlyTab.classList.toggle('hidden', !showMonthly);
-        otherTab.classList.toggle('hidden', !showOther);
-        equipmentTab.classList.toggle('hidden', tab !== 'equipment');
-        monthlyButton.classList.toggle('btn-primary', showMonthly);
-        monthlyButton.classList.toggle('btn-ghost', !showMonthly);
-        otherButton.classList.toggle('btn-primary', showOther);
-        otherButton.classList.toggle('btn-ghost', !showOther);
-        equipmentButton.classList.toggle('btn-primary', tab === 'equipment');
-        equipmentButton.classList.toggle('btn-ghost', tab !== 'equipment');
+    /* =====================================================
+       ÖDEME SEKME YÖNETİMİ
+       ===================================================== */
+
+    function showPaymentTab(tab) {
+
+        const tabs = {
+            monthly: document.getElementById(
+                'monthly-payments-tab'
+            ),
+
+            other: document.getElementById(
+                'other-payments-tab'
+            ),
+
+            equipment: document.getElementById(
+                'equipment-payments-tab'
+            )
+        };
+
+
+        const buttons = {
+            monthly: document.querySelector(
+                '[data-payment-tab="monthly"]'
+            ),
+
+            other: document.querySelector(
+                '[data-payment-tab="other"]'
+            ),
+
+            equipment: document.querySelector(
+                '[data-payment-tab="equipment"]'
+            )
+        };
+
+
+        /*
+         * İçerikleri göster / gizle
+         */
+
+        Object.entries(tabs).forEach(
+            ([key, element]) => {
+
+                if (!element) {
+                    return;
+                }
+
+                element.classList.toggle(
+                    'hidden',
+                    key !== tab
+                );
+
+            }
+        );
+
+
+        /*
+         * Aktif sekme görünümü
+         */
+
+        Object.entries(buttons).forEach(
+            ([key, button]) => {
+
+                if (!button) {
+                    return;
+                }
+
+                const active = key === tab;
+
+
+                button.classList.toggle(
+                    'bg-primary',
+                    active
+                );
+
+                button.classList.toggle(
+                    'text-primary-content',
+                    active
+                );
+
+                button.classList.toggle(
+                    'shadow-sm',
+                    active
+                );
+
+
+                button.classList.toggle(
+                    'text-base-content/55',
+                    !active
+                );
+
+            }
+        );
+
     }
 
-    document.body.addEventListener('closeAthleteModal', function () {
-        const modal = document.getElementById('athlete_modal');
-        if (modal) {
-            modal.remove();
-        }
 
-        const container = document.getElementById('athlete-modal-container');
-        if (container) {
-            container.innerHTML = '';
-        }
-    });
+    /* =====================================================
+       DÜZENLEME MODALI
+       ===================================================== */
 
-    document.body.addEventListener('closeAthletePaymentModal', function () {
-        const modal = document.getElementById('athlete_payment_modal');
-        if (modal) {
-            modal.remove();
-        }
+    document.body.addEventListener(
+        'closeAthleteModal',
+        function () {
 
-        const container = document.getElementById('athlete-payment-modal-container');
-        if (container) {
-            container.innerHTML = '';
-        }
-    });
+            const modal =
+                document.getElementById(
+                    'athlete_modal'
+                );
 
-    document.body.addEventListener('closeAthletePaymentEditModal', function () {
-        const modal = document.getElementById('athlete_payment_edit_modal');
-        if (modal) {
-            modal.remove();
-        }
+            if (modal) {
+                modal.remove();
+            }
 
-        const container = document.getElementById('athlete-payment-edit-modal-container');
-        if (container) {
-            container.innerHTML = '';
+
+            const container =
+                document.getElementById(
+                    'athlete-modal-container'
+                );
+
+            if (container) {
+                container.innerHTML = '';
+            }
+
         }
-    });
+    );
+
+
+    /* =====================================================
+       ÖDEME MODALI
+       ===================================================== */
+
+    document.body.addEventListener(
+        'closeAthletePaymentModal',
+        function () {
+
+            const modal =
+                document.getElementById(
+                    'athlete_payment_modal'
+                );
+
+            if (modal) {
+                modal.remove();
+            }
+
+
+            const container =
+                document.getElementById(
+                    'athlete-payment-modal-container'
+                );
+
+            if (container) {
+                container.innerHTML = '';
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       MALZEME SATIŞI MODALI
+       ===================================================== */
+
+    document.body.addEventListener(
+        'closeAthleteEquipmentSaleModal',
+        function () {
+
+            const modal =
+                document.getElementById(
+                    'athlete_equipment_sale_modal'
+                );
+
+            if (modal) {
+                modal.remove();
+            }
+
+
+            const container =
+                document.getElementById(
+                    'athlete-equipment-sale-modal-container'
+                );
+
+            if (container) {
+                container.innerHTML = '';
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       HTMX HATA DURUMU
+       ===================================================== */
+
+    document.body.addEventListener(
+        'htmx:responseError',
+        function (event) {
+
+            console.error(
+                'HTMX response error:',
+                event.detail
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       HTMX İSTEK HATASI
+       ===================================================== */
+
+    document.body.addEventListener(
+        'htmx:sendError',
+        function (event) {
+
+            console.error(
+                'HTMX request error:',
+                event.detail
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       SAYFA YÜKLENDİĞİNDE
+       ===================================================== */
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+
+            /*
+             * Varsayılan sekme
+             */
+
+            showPaymentTab('monthly');
+
+        }
+    );
+
 </script>
 
 {% endblock %}

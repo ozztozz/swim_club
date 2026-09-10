@@ -30,8 +30,8 @@ class AthleteForm(forms.ModelForm):
             'photo': forms.ClearableFileInput(attrs={'class': 'file-input file-input-bordered w-full'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'toggle toggle-primary'}),
             'team': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'custom_fee': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'decimal', 'data-money-input': 'true'}),
-            'discount_percentage': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'step': '0.01', 'min': '0', 'max': '100'}),
+            'custom_fee': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'numeric', 'step': '1', 'min': '0'}),
+            'discount_percentage': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'step': '1', 'min': '0', 'max': '100'}),
             'regular_payment_day': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'min': '1', 'max': '31'}),
         }
 
@@ -50,12 +50,10 @@ class AthleteTeamForm(forms.ModelForm):
     )
 
     # Özel aidat girişi
-    custom_fee = forms.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    custom_fee = forms.IntegerField(
         required=False,
         label="Özel Aidat Tutar (TL)",
-        widget=forms.TextInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'decimal', 'data-money-input': 'true', 'placeholder': 'Takım aidatını kullanmak için boş bırakın'})
+        widget=forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'numeric', 'step': '1', 'min': '0', 'placeholder': 'Takım aidatını kullanmak için boş bırakın'})
     )
 
     class Meta:
@@ -75,11 +73,11 @@ class AthletePaymentEditForm(forms.ModelForm):
         widgets = {
             'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
-                'inputmode': 'decimal',
+                'inputmode': 'numeric',
                 'data-money-input': 'true',
             }),
             'payment_method': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'status': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'status': forms.RadioSelect(attrs={'class': 'radio radio-primary radio-sm'}),
             'notes': forms.Textarea(attrs={
                 'class': 'textarea textarea-bordered w-full',
                 'rows': 3,
@@ -103,7 +101,7 @@ class AthletePaymentCreateForm(forms.ModelForm):
             }),
             'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
-                'inputmode': 'decimal',
+                'inputmode': 'numeric',
                 'data-money-input': 'true',
             }),
             'due_date': forms.DateInput(format='%Y-%m-%d', attrs={
@@ -111,7 +109,7 @@ class AthletePaymentCreateForm(forms.ModelForm):
                 'type': 'date',
             }),
             'payment_method': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'status': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'status': forms.RadioSelect(attrs={'class': 'radio radio-primary radio-sm'}),
             'notes': forms.Textarea(attrs={
                 'class': 'textarea textarea-bordered w-full',
                 'rows': 3,
@@ -165,7 +163,7 @@ class EquipmentSaleForm(forms.Form):
         choices=PaymentRecord.STATUS_CHOICES,
         label='Durum',
         initial='paid',
-        widget=forms.Select(attrs={'class': 'select select-bordered w-full'}),
+        widget=forms.RadioSelect(attrs={'class': 'radio radio-primary'}),
     )
     notes = forms.CharField(
         label='Not',

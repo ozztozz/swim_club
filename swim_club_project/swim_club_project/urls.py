@@ -27,8 +27,8 @@ urlpatterns = [
     # Auth Yolları
     path('login/', user_login_view, name='user-login'),
     path('logout/', user_logout_view, name='user-logout'),
-    # Kök adrese (/) gelen istekleri doğrudan /dashboard/ adresine yönlendirir
-    path('', lambda request: redirect('dashboard-index')),
+    # Kök adresi sporcu listesini ana sayfa olarak açar.
+    path('', lambda request: redirect('athlete-manage-list')),
     
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')),

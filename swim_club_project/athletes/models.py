@@ -34,17 +34,13 @@ class Athlete(models.Model):
         related_name='athletes',
         verbose_name="Bağlı Olduğu Takım"
     )
-    custom_fee = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    custom_fee = models.IntegerField(
         null=True,
         blank=True,
         verbose_name="Özel Aidat Tutar (TL)",
         help_text="Boş bırakılırsa takımın varsayılan aidatı uygulanır. Burslu için 0 girebilirsiniz."
     )
-    discount_percentage = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    discount_percentage = models.IntegerField(
         null=True,
         blank=True,
         verbose_name="İndirim Yüzdesi",

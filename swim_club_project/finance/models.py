@@ -7,7 +7,7 @@ from athletes.models import Athlete,Team
 class TeamFeeHistory(models.Model):
     """Takımların tarih bazlı fiyat geçmişi"""
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='fee_histories')
-    monthly_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    monthly_fee = models.IntegerField()
     start_date = models.DateField(help_text="Fiyatın geçerli olmaya başladığı tarih")
     end_date = models.DateField(null=True, blank=True, help_text="Boş ise halen geçerlidir")
 
@@ -65,9 +65,7 @@ class PaymentRecord(models.Model):
         help_text="Format: YYYY-MM (Örn: 2026-08)",
         verbose_name="Gelir Dönemi"
     )
-    amount = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
+    amount = models.IntegerField(
         verbose_name="Tutar (TL)"
     )
     status = models.CharField(
@@ -120,7 +118,7 @@ class PaymentRecord(models.Model):
 
 class Equipment(models.Model):
     name = models.CharField(max_length=150, unique=True, verbose_name="Malzeme Türü")
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Fiyat")
+    price = models.IntegerField(verbose_name="Fiyat")
 
     class Meta:
         verbose_name = "Malzeme"
@@ -145,7 +143,7 @@ class EquipmentSaleItem(models.Model):
         verbose_name='Malzeme',
     )
     quantity = models.PositiveIntegerField(verbose_name='Adet')
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Satış Birim Fiyatı')
+    unit_price = models.IntegerField(verbose_name='Satış Birim Fiyatı')
 
     class Meta:
         verbose_name = 'Malzeme Satış Satırı'
@@ -189,7 +187,7 @@ class Expense(models.Model):
         related_name='generated_expenses',
         verbose_name="Düzenli gider kaynağı"
     )
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tutar (TL)")
+    amount = models.IntegerField(verbose_name="Tutar (TL)")
     reciever = models.CharField(
         null=True, 
         blank=True,
@@ -236,7 +234,7 @@ class RegularExpense(models.Model):
         related_name='regular_expenses',
         verbose_name="Kategori"
     )
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Tutar (TL)")
+    amount = models.IntegerField(verbose_name="Tutar (TL)")
     reciever = models.CharField(max_length=200, verbose_name="Alıcı / Firma / Kişi")
     start_date = models.DateField(verbose_name="Başlangıç Tarihi")
     end_date = models.DateField(null=True, blank=True, verbose_name="Bitiş Tarihi (Opsiyonel)")

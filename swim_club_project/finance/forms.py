@@ -18,10 +18,10 @@ class EquipmentForm(forms.ModelForm):
             }),
             'price': forms.NumberInput(attrs={
                 'class': 'input input-bordered w-full',
-                'step': '0.01',
+                'step': '1',
                 'min': '0',
-                'inputmode': 'decimal',
-                'placeholder': '0.00',
+                'inputmode': 'numeric',
+                'placeholder': '0',
             }),
         }
 
@@ -65,12 +65,14 @@ class ExpenseForm(forms.ModelForm):
             'notes': 'Açıklama',
         }
         widgets = {
-            'category': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'category': forms.RadioSelect(attrs={
+                'class': 'radio radio-primary radio-xs',
+            }),
             'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
-                'inputmode': 'decimal',
+                'inputmode': 'numeric',
                 'data-money-input': 'true',
-                'placeholder': '0,00',
+                'placeholder': '0',
             }),
             'reciever': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
@@ -144,9 +146,9 @@ class RegularExpenseForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
-                'inputmode': 'decimal',
+                'inputmode': 'numeric',
                 'data-money-input': 'true',
-                'placeholder': '0,00',
+                'placeholder': '0',
             }),
             'reciever': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',

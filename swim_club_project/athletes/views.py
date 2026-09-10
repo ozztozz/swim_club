@@ -69,14 +69,16 @@ def athlete_detail(request, pk):
     payments_records = PaymentRecord.objects.filter(
         athlete=athlete,
         payment_type='fee',
-    )
+    ).order_by('-due_date', '-paid_at', '-created_at', '-pk')
     equipment_sales = PaymentRecord.objects.filter(
         athlete=athlete,
         payment_type='equipment_sale',
-    )
+    ).order_by('-due_date', '-paid_at', '-created_at', '-pk')
     other_payments = PaymentRecord.objects.filter(
         athlete=athlete,
-    ).exclude(payment_type__in=('fee', 'equipment_sale'))
+    ).exclude(payment_type__in=('fee', 'equipment_sale')).order_by(
+        '-due_date', '-paid_at', '-created_at', '-pk'
+    )
 
     def payment_item(payment):
         return {
@@ -116,12 +118,17 @@ def athlete_detail(request, pk):
             })
         else:
             for payment in payments_by_period:
+                fee_amount = get_athlete_fee_for_period(athlete, period)
                 monthly_payments.append({
                     'period': period,
                     'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
-                    'amount': get_athlete_fee_for_period(athlete, period),
+                    'amount': fee_amount,
                     'payment': payment,
-                    'paid_amount': payment.amount if payment.status == 'paid' else Decimal('0.00'),
+                    'paid_amount': (
+                        payment.amount or fee_amount
+                        if payment.status == 'paid'
+                        else Decimal('0.00')
+                    ),
                     'payment_type': 'fee',
                     'payment_type_display': payment.get_payment_type_display(),
                     'is_paid': payment.status == 'paid',
@@ -133,6 +140,19 @@ def athlete_detail(request, pk):
         else:
             period_month = period_month.replace(month=period_month.month - 1)
 
+    def payment_date(item):
+        if item['payment'] is not None:
+            payment = item['payment']
+            return (
+                payment.due_date,
+                payment.paid_at.timestamp() if payment.paid_at else float('-inf'),
+                payment.created_at.timestamp() if payment.created_at else float('-inf'),
+                payment.pk,
+            )
+        return (date.fromisoformat(f"{item['period']}-15"), float('-inf'), float('-inf'), 0)
+
+    monthly_payments.sort(key=payment_date, reverse=True)
+
     return render(request, 'athlete/athlete_detail.html', {
         'athlete': athlete,
         'monthly_payments': monthly_payments,
@@ -142,22 +162,29 @@ def athlete_detail(request, pk):
 
 
 @login_required
-def athlete_make_payment(request, pk, period):
+def athlete_make_payment(request, pk, period=None, payment_id=None):
     from finance.services import get_athlete_fee_for_period
 
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
-    try:
+    if payment_id is not None:
+        payment = get_object_or_404(
+            PaymentRecord,
+            pk=payment_id,
+            athlete=athlete,
+        )
+        period = payment.period
         year, month = map(int, period.split('-'))
-        period_date = date(year, month, 1)
-    except (TypeError, ValueError):
-        return render(request, 'athlete/partials/athlete_payment_modal.html', {}, status=400)
+    else:
+        try:
+            year, month = map(int, period.split('-'))
+            period_date = date(year, month, 1)
+        except (TypeError, ValueError):
+            return render(request, 'athlete/partials/athlete_payment_modal.html', {'mode': 'pay'}, status=400)
 
-    payment = PaymentRecord.objects.filter(
-        athlete=athlete,
-        period=period,
-        payment_type='fee',
-    ).first()
-    amount = payment.amount if payment else get_athlete_fee_for_period(athlete, period)
+        payment = None
+
+    fee_amount = get_athlete_fee_for_period(athlete, period)
+    amount = payment.amount or fee_amount if payment else fee_amount
     item = {
         'period': period,
         'label': f'{MONTH_NAMES[month - 1]} {year}',
@@ -174,24 +201,25 @@ def athlete_make_payment(request, pk, period):
         return render(request, 'athlete/partials/athlete_payment_modal.html', {
             'athlete': athlete,
             'item': item,
+            'mode': 'pay',
         })
     if request.method != 'POST':
         return render(request, 'athlete/partials/athlete_payment_modal.html', {
             'athlete': athlete,
             'item': item,
+            'mode': 'pay',
         }, status=405)
 
-    payment, _ = PaymentRecord.objects.get_or_create(
-        athlete=athlete,
-        period=period,
-        payment_type='fee',
-        defaults={
-            'amount': amount,
-            'payment_method': 'cash',
-            'status': 'pending',
-            'due_date': period_date.replace(day=15),
-        },
-    )
+    if payment is None:
+        payment = PaymentRecord.objects.create(
+            athlete=athlete,
+            period=period,
+            payment_type='fee',
+            amount=amount,
+            payment_method='cash',
+            status='pending',
+            due_date=period_date.replace(day=15),
+        )
     if not payment.amount:
         payment.amount = amount
     payment.status = 'paid'
@@ -238,9 +266,10 @@ def athlete_create_payment(request, pk):
             'status': 'paid',
         })
 
-    return render(request, 'athlete/partials/athlete_payment_create_modal.html', {
+    return render(request, 'athlete/partials/athlete_payment_modal.html', {
         'athlete': athlete,
         'form': form,
+        'mode': 'create',
     })
 
 
@@ -452,12 +481,13 @@ def athlete_edit_payment(request, pk, payment_id):
     else:
         form = AthletePaymentEditForm(instance=payment)
 
-    return render(request, 'athlete/partials/athlete_payment_edit_modal.html', {
+    return render(request, 'athlete/partials/athlete_payment_modal.html', {
         'athlete': athlete,
         'period': payment.period,
         'form': form,
         'payment': payment,
         'payment_label': _payment_period_label(payment.period),
+        'mode': 'edit',
     })
 
 
@@ -469,12 +499,17 @@ def _payment_period_label(period):
 def _athlete_payment_row_response(request, athlete, payment):
     from finance.services import get_athlete_fee_for_period
 
+    fee_amount = get_athlete_fee_for_period(athlete, payment.period)
     item = {
         'period': payment.period,
         'label': _payment_period_label(payment.period),
-        'amount': payment.amount if payment.payment_type == 'equipment_sale' else get_athlete_fee_for_period(athlete, payment.period),
+        'amount': payment.amount if payment.payment_type == 'equipment_sale' else fee_amount,
         'payment': payment,
-        'paid_amount': payment.amount if payment.status == 'paid' else Decimal('0.00'),
+        'paid_amount': (
+            payment.amount or fee_amount
+            if payment.status == 'paid' and payment.payment_type == 'fee'
+            else payment.amount if payment.status == 'paid' else Decimal('0.00')
+        ),
         'payment_type': payment.payment_type,
         'payment_type_display': payment.get_payment_type_display(),
         'is_paid': payment.status == 'paid',
@@ -484,7 +519,7 @@ def _athlete_payment_row_response(request, athlete, payment):
         'athlete': athlete,
         'item': item,
     })
-    response['HX-Trigger'] = 'closeAthletePaymentEditModal'
+    response['HX-Trigger'] = 'closeAthletePaymentModal'
     return response
 
 

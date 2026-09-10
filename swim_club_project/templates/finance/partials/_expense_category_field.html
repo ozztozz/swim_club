@@ -1,6 +1,6 @@
-<div id="category-field" class="form-control sm:col-span-2">
+<fieldset id="category-field" class="form-control min-w-0 max-w-full sm:col-span-2">
     <div class="flex items-center justify-between gap-3">
-        <span class="label label-text font-bold">Harcama kategorisi</span>
+    <legend class="label label-text font-bold">Harcama kategorisi</legend>
         <button type="button"
                 class="btn btn-ghost btn-xs gap-1 text-primary"
                 hx-get="{% url 'expense-category-create' %}"
@@ -10,6 +10,13 @@
             Yeni kategori
         </button>
     </div>
-    {{ form.category }}
+    <div class="flex min-w-0 max-w-full gap-2 overflow-x-auto pb-1">
+        {% for radio in form.category %}
+            <label class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border border-base-300 px-2 py-1 text-[10px] transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                {{ radio.tag }}
+                <span class="truncate">{{ radio.choice_label }}</span>
+            </label>
+        {% endfor %}
+    </div>
     {% if form.category.errors %}<span class="label-text-alt text-error">{{ form.category.errors|striptags }}</span>{% endif %}
-</div>
+</fieldset>

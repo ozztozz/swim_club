@@ -25,24 +25,36 @@
 
 
         <!-- YENİ SPORCU -->
-        <button
-            type="button"
-            class="btn btn-primary h-10 min-h-0 shrink-0 rounded-xl px-3 text-xs font-bold shadow-sm"
-            hx-get="{% url 'athlete-manage-create' %}"
-            hx-target="#athlete-modal-container"
-            hx-swap="innerHTML">
+        <div class="flex shrink-0 flex-col gap-1.5">
+            <button
+                type="button"
+                class="btn btn-primary h-10 min-h-0 rounded-xl px-3 text-xs font-bold shadow-sm"
+                hx-get="{% url 'athlete-manage-create' %}"
+                hx-target="#athlete-modal-container"
+                hx-swap="innerHTML">
 
-            <span class="text-base font-bold leading-none">+</span>
+                <span class="text-base font-bold leading-none">+</span>
 
-            <span class="hidden sm:inline">
-                Yeni sporcu
-            </span>
+                <span class="hidden sm:inline">
+                    Yeni sporcu
+                </span>
 
-            <span class="sm:hidden">
-                Ekle
-            </span>
+                <span class="sm:hidden">
+                    Ekle
+                </span>
 
-        </button>
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-outline btn-secondary h-9 min-h-0 rounded-xl px-3 text-xs font-bold"
+                hx-get="{% url 'expense-create' %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML">
+                <span class="text-sm font-bold leading-none">+</span>
+                Harcama ekle
+            </button>
+        </div>
 
     </header>
 
@@ -104,6 +116,8 @@
 <!-- MODAL -->
 <div id="athlete-modal-container"></div>
 
+<div id="modal-container"></div>
+
 
 <script>
     document.body.addEventListener('closeAthleteModal', function () {
@@ -120,6 +134,19 @@
             container.innerHTML = '';
         }
 
+    });
+
+    document.body.addEventListener('closeExpenseModal', function () {
+        const modal = document.getElementById('expense_modal');
+        const container = document.getElementById('modal-container');
+
+        if (modal) {
+            modal.remove();
+        }
+
+        if (container) {
+            container.innerHTML = '';
+        }
     });
 </script>
 

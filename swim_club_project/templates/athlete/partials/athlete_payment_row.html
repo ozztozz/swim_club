@@ -1,187 +1,289 @@
+
 <div
     id="payment-{{ item.payment.pk|default:item.period }}"
-    class="flex items-center gap-3 px-3 py-3"
+    class="flex items-center gap-3 border-b border-base-content/10 px-3 py-4"
 >
 
     {% if item.payment_type == 'equipment_sale' %}
 
-        <div class="w-full space-y-3">
-            <div class="flex items-center justify-between">
-                <p class="text-base font-semibold text-base-content/75">
-                    {{ item.label }}
-                </p>
-                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-success/70">
-                    {% if item.status == 'paid' %}Ödendi{% elif item.status == 'cancelled' %}İptal{% else %}Bekliyor{% endif %}
-                </span>
+        <!-- =========================================================
+             MALZEME SATIŞI
+             ========================================================= -->
+
+        <div class="w-full border-b border-base-300/80 pb-4 last:border-b-0">
+
+            <!-- Başlık + toplam + durum -->
+            <div class="flex items-center justify-between gap-3">
+
+                <div class="min-w-0 flex-1">
+
+                    <p class="truncate text-base font-semibold text-base-content/75">
+                        {{ item.label }}
+                    </p>
+
+                    <p class="mt-0.5 text-xs text-base-content/40">
+                        Ekipman satışı
+                    </p>
+
+                </div>
+
+
+                <div class="shrink-0 text-right">
+
+                    <div class="text-base font-black text-base-content/80">
+                        {{ item.amount|floatformat:0 }}
+                    </div>
+
+                    {% if item.status == 'paid' %}
+
+                        <span class="text-[11px] font-medium text-success/70">
+                            Ödendi
+                        </span>
+
+                    {% elif item.status == 'cancelled' %}
+
+                        <span class="text-[11px] font-medium text-error/70">
+                            İptal
+                        </span>
+
+                    {% else %}
+
+                        <span class="text-[11px] font-medium text-base-content/40">
+                            Bekliyor
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
             </div>
 
-            <div class="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-x-3 gap-y-2 text-sm">
-                <div class="border-b border-base-200 pb-1 text-xs font-bold text-base-content/45">Tür</div>
-                <div class="border-b border-base-200 pb-1 text-right text-xs font-bold text-base-content/45">Adet</div>
-                <div class="border-b border-base-200 pb-1 text-right text-xs font-bold text-base-content/45">Fiyat</div>
-                <div class="border-b border-base-200 pb-1 text-right text-xs font-bold text-base-content/45">Toplam</div>
 
-                {% for equipment_item in item.equipment_items %}
-                    <div class="min-w-0 truncate font-medium text-base-content/75">
-                        {{ equipment_item.name }}
-                    </div>
-                    <div class="whitespace-nowrap text-right text-base-content/60">
-                        {{ equipment_item.quantity }}
-                    </div>
-                    <div class="whitespace-nowrap text-right text-base-content/60">
-                        {{ equipment_item.price|floatformat:0 }}
-                    </div>
-                    <div class="whitespace-nowrap text-right font-semibold text-base-content/75">
-                        {{ equipment_item.total|floatformat:0 }}
-                    </div>
-                {% endfor %}
-            </div>
+            <!-- =====================================================
+                 MALZEME DETAYI — KAPALI
+                 ===================================================== -->
 
-            <div class="flex items-center justify-between border-t border-base-200 pt-2">
-                <span class="text-sm font-bold text-base-content/55">Genel toplam</span>
-                <span class="text-base font-black text-base-content/80">{{ item.amount|floatformat:0 }}</span>
-            </div>
+            <details class="group mt-2 rounded-xl border border-base-200/80 bg-base-200/20">
 
-            <div class="flex justify-end">
+                <summary
+                    class="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 text-xs font-medium text-base-content/50 transition-colors hover:bg-base-200/40 active:bg-base-200/60 [&::-webkit-details-marker]:hidden"
+                >
+
+                    <span class="flex items-center gap-2">
+
+                        <svg
+                            class="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-open:rotate-180"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                        >
+                            <path
+                                fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25 4.5a.75.75 0 01-.02-1.06z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
+
+                        <span>
+                            Malzeme detayları
+                        </span>
+
+                    </span>
+
+
+                    <span class="shrink-0 text-[11px] text-base-content/30">
+                        {{ item.equipment_items|length }} kalem
+                    </span>
+
+                </summary>
+
+
+                <!-- Malzeme listesi -->
+                <div class="border-t border-base-200/70">
+
+                    <div
+                        class="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] gap-x-3 px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-base-content/35"
+                    >
+                        <div>Tür</div>
+                        <div class="text-right">Adet</div>
+                        <div class="text-right">Fiyat</div>
+                        <div class="text-right">Toplam</div>
+                    </div>
+
+
+                    {% for equipment_item in item.equipment_items %}
+
+                        <div
+                            class="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-x-3 border-t border-base-200/50 px-3 py-2.5 text-sm"
+                        >
+
+                            <div class="min-w-0 truncate font-medium text-base-content/70">
+                                {{ equipment_item.name }}
+                            </div>
+
+                            <div class="whitespace-nowrap text-right text-base-content/50">
+                                {{ equipment_item.quantity }}
+                            </div>
+
+                            <div class="whitespace-nowrap text-right text-base-content/50">
+                                {{ equipment_item.price|floatformat:0 }}
+                            </div>
+
+                            <div class="whitespace-nowrap text-right font-semibold text-base-content/70">
+                                {{ equipment_item.total|floatformat:0 }}
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </details>
+
+
+            <!-- Düzenleme -->
+            <div class="mt-1 flex justify-end">
+
                 <button
                     type="button"
-                    class="btn btn-ghost h-8 min-h-0 rounded-lg px-2.5 text-xs font-medium text-base-content/55 hover:bg-base-200 hover:text-base-content/70"
+                    class="btn btn-warning h-8 min-h-0 rounded-lg px-2.5 text-xs font-medium text-base-content/55 hover:bg-base-200 hover:text-base-content/70 active:scale-[.97]"
                     hx-get="{% url 'athlete-manage-equipment-sale-edit' athlete.pk item.payment.pk %}"
                     hx-target="#athlete-equipment-sale-modal-container"
                     hx-swap="innerHTML"
                 >
                     Detay
                 </button>
+
             </div>
+
         </div>
+
 
     {% else %}
 
-    <!-- Dönem ve ödeme bilgisi -->
-    <div class="min-w-0 flex-1">
+        <!-- =========================================================
+             NORMAL ÖDEMELER
+             ========================================================= -->
 
-        <p class="truncate text-base font-semibold text-base-content/75">
-            {{ item.label }}
-        </p>
+        <!-- Dönem ve ödeme bilgisi -->
+        <div class="min-w-0 flex-1">
 
-        <div class="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-base-content/40">
+            <p class="truncate text-base font-semibold text-base-content/75">
+                {{ item.label }}
+            </p>
 
-            <span class="shrink-0">{{ item.payment_type_display }}</span>
-
-            {% if item.status == 'paid' and item.paid_amount and item.amount != item.paid_amount and item.payment_type == 'fee' %}
-
-                <span class="text-base-content/20">
-                    •
-                </span>
+            <div class="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-base-content/40">
 
                 <span class="shrink-0">
-                    {{ item.amount|floatformat:0 }}
+                    {{ item.payment_type_display }}
                 </span>
 
                 <span class="text-base-content/20">
                     •
                 </span>
 
-                <span class="shrink-0 text-error/80">
+                {% if item.status == 'paid' and item.payment_type == 'fee' %}
+
+                    <span class="shrink-0">
+                        {{ item.amount|floatformat:0 }}
+                    </span>
+
+                {% elif item.status == 'paid' %}
+
+                    <span class="font-medium text-base-content/60">
+                        {{ item.paid_amount|floatformat:0 }}
+                    </span>
+
+                {% else %}
+
+                    <span class="font-medium text-base-content/60">
+                        {{ item.amount|floatformat:0 }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            {% if item.status == 'paid' and item.payment_type == 'fee' and item.amount != item.paid_amount %}
+                <div class="mt-0.5 text-xs text-error/80">
                     Ödenen {{ item.paid_amount|floatformat:0 }}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- Durum -->
+        <div class="shrink-0">
+
+            {% if item.status == 'paid' %}
+
+                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-success/70">
+                    Ödendi
                 </span>
 
-            {% elif item.status == 'paid' %}
+            {% elif item.status == 'cancelled' %}
 
-                <span class="text-base-content/20">
-                    •
-                </span>
-
-                <span class="font-medium text-base-content/60">
-                    {{ item.paid_amount|floatformat:0 }}
+                <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-2 text-xs font-medium text-error/80">
+                    İptal
                 </span>
 
             {% else %}
 
-                <span class="text-base-content/20">
-                    •
-                </span>
-
-                <span class="font-medium text-base-content/60">
-                    {{ item.amount|floatformat:0 }}
+                <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-base-content/40">
+                    Bekliyor
                 </span>
 
             {% endif %}
 
         </div>
 
-    </div>
 
+        <!-- Aksiyon -->
+        <div class="shrink-0">
 
-    <!-- Durum -->
-    <div class="shrink-0">
+            {% if item.payment %}
 
-        {% if item.status == 'paid' %}
+                <button
+                    type="button"
+                    class="
+                        btn
+                        btn-ghost
+                        h-8
+                        min-h-0
+                        rounded-lg
+                        px-2.5
+                        text-xs
+                        font-medium
+                        text-base-content/55
+                        hover:bg-base-200
+                        hover:text-base-content/70
+                        active:scale-[.97]
+                    "
+                    hx-get="{% url 'athlete-manage-payment-edit' athlete.pk item.payment.pk %}"
+                    hx-target="#athlete-payment-modal-container"
+                    hx-swap="innerHTML"
+                >
+                    Düzenle
+                </button>
 
-            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-success/70">
-                Ödendi
-            </span>
+            {% else %}
 
-        {% elif item.status == 'cancelled' %}
+                <button
+                    type="button"
+                    class="btn btn-primary h-8 min-h-0 rounded-lg px-2.5 text-xs font-semibold active:scale-[.97]"
+                    hx-get="{% url 'athlete-manage-payment' athlete.pk item.period %}"
+                    hx-target="#athlete-payment-modal-container"
+                    hx-swap="innerHTML"
+                >
+                    Ödeme yap
+                </button>
 
-            <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-2 text-xs font-medium text-error/80">
-                İptal
-            </span>
+            {% endif %}
 
-        {% else %}
-
-            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-xs font-medium text-base-content/40">
-                Bekliyor
-            </span>
-
-        {% endif %}
-
-    </div>
-
-
-    <!-- Aksiyon -->
-    <div class="shrink-0">
-
-        {% if item.status == 'paid' %}
-
-            <button
-                type="button"
-                class="
-                    btn
-                    btn-ghost
-                    h-8
-                    min-h-0
-                    rounded-lg
-                    px-2.5
-                    text-xs
-                    font-medium
-                    text-base-content/55
-                    hover:bg-base-200
-                    hover:text-base-content/70
-                "
-                hx-get="{% if item.payment_type == 'equipment_sale' %}{% url 'athlete-manage-equipment-sale-edit' athlete.pk item.payment.pk %}{% else %}{% url 'athlete-manage-payment-edit' athlete.pk item.payment.pk %}{% endif %}"
-                hx-target="{% if item.payment_type == 'equipment_sale' %}#athlete-equipment-sale-modal-container{% else %}#athlete-payment-edit-modal-container{% endif %}"
-                hx-swap="innerHTML"
-            >
-                {% if item.status == 'paid' %}Düzenle{% else %}Kaydı düzenle{% endif %}
-            </button>
-
-        {% else %}
-
-            <button
-                type="button"
-                class="btn btn-primary h-8 min-h-0 rounded-lg px-2.5 text-xs font-semibold"
-                hx-get="{% url 'athlete-manage-payment' athlete.pk item.period %}"
-                hx-target="#athlete-payment-modal-container"
-                hx-swap="innerHTML"
-            >
-                Ödeme yap
-            </button>
-
-        {% endif %}
-
-    </div>
+        </div>
 
     {% endif %}
 
 </div>
+
