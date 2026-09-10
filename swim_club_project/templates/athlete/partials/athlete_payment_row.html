@@ -1,7 +1,7 @@
 
 <div
     id="payment-{{ item.payment.pk|default:item.period }}"
-    class="flex items-center gap-3 border-b border-base-content/10 px-3 py-4"
+    class="flex flex-wrap items-center gap-3 border-b border-base-content/10 px-3 py-4"
 >
 
     {% if item.payment_type == 'equipment_sale' %}
@@ -165,12 +165,14 @@
              NORMAL ÖDEMELER
              ========================================================= -->
 
+        {% ifchanged item.period %}
+            <div class="w-full border-b border-base-200 pb-1 text-[11px] font-bold text-base-content/55">
+                {{ item.label }}
+            </div>
+        {% endifchanged %}
+
         <!-- Dönem ve ödeme bilgisi -->
         <div class="min-w-0 flex-1">
-
-            <p class="truncate text-base font-semibold text-base-content/75">
-                {{ item.label }}
-            </p>
 
             <div class="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-base-content/40">
 

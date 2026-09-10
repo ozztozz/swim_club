@@ -214,7 +214,11 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
         }, status=405)
 
     try:
-        amount = int(request.POST.get('amount', '').strip())
+        raw_amount = request.POST.get('amount', '').strip()
+        normalized_amount = raw_amount.replace(',', '').replace('.', '').replace(' ', '')
+        if not normalized_amount.isdigit():
+            raise ValueError
+        amount = int(normalized_amount)
         if amount < 0:
             raise ValueError
     except (TypeError, ValueError):

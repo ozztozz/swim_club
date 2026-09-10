@@ -24,7 +24,7 @@
     <!-- =========================================================
          ANA SEKME
          ========================================================= -->
-    <div class="grid grid-cols-2 rounded-xl bg-base-200/80 p-1">
+    <div class="grid grid-cols-2 rounded-xl border border-base-300 bg-base-200/80 p-1">
 
         <button
             type="button"
@@ -157,7 +157,7 @@
             <button
                 type="button"
                 class="btn btn-primary h-8 min-h-0 shrink-0 rounded-lg px-2.5 text-[11px] font-semibold shadow-none active:scale-[.97]"
-                hx-get="{% url 'expense-create' %}?period={{ expense_period }}"
+                hx-get="{% url 'expense-create' %}?period={{ expense_period }}&dashboard=1"
                 hx-target="#modal-container"
                 hx-swap="innerHTML"
             >
@@ -233,7 +233,7 @@
 
                         {% empty %}
 
-                            <tr>
+                            {% if not dashboard_mode %}<tr>
 
                                 <td
                                     colspan="4"
@@ -242,7 +242,7 @@
                                     Bu dönemde harcama yok.
                                 </td>
 
-                            </tr>
+                            </tr>{% endif %}
 
                         {% endfor %}
 

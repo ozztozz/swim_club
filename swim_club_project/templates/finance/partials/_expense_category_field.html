@@ -1,22 +1,50 @@
-<fieldset id="category-field" class="form-control min-w-0 max-w-full sm:col-span-2">
-    <div class="flex items-center justify-between gap-3">
-    <legend class="label label-text font-bold">Harcama kategorisi</legend>
-        <button type="button"
-                class="btn btn-ghost btn-xs gap-1 text-primary"
-                hx-get="{% url 'expense-category-create' %}"
-                hx-target="#category-field"
-                hx-swap="outerHTML">
-            <span class="text-base leading-none">+</span>
+<fieldset
+    id="category-field"
+    class="form-control min-w-0 max-w-full sm:col-span-2"
+>
+    <div class="mb-2 flex items-center justify-between gap-3">
+
+        <legend class="text-[11px] font-bold text-base-content/65">
+            Harcama kategorisi
+        </legend>
+
+        <button
+            type="button"
+            class="btn btn-ghost h-7 min-h-0 shrink-0 gap-1 rounded-lg px-2 text-[10px] font-semibold text-primary/80 hover:bg-primary/10 hover:text-primary"
+            hx-get="{% url 'expense-category-create' %}"
+            hx-target="#category-field"
+            hx-swap="outerHTML"
+        >
+            <span class="text-sm leading-none">+</span>
             Yeni kategori
         </button>
+
     </div>
-    <div class="flex min-w-0 max-w-full gap-2 overflow-x-auto pb-1">
+
+    <div class="flex min-w-0 flex-wrap gap-1.5">
+
         {% for radio in form.category %}
-            <label class="flex shrink-0 cursor-pointer items-center gap-1 rounded-md border border-base-300 px-2 py-1 text-[10px] transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+
+            <label
+                class="flex h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 transition-all active:scale-[.98] has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"
+            >
+
                 {{ radio.tag }}
-                <span class="truncate">{{ radio.choice_label }}</span>
+
+                <span class="text-[10px] font-medium">
+                    {{ radio.choice_label }}
+                </span>
+
             </label>
+
         {% endfor %}
+
     </div>
-    {% if form.category.errors %}<span class="label-text-alt text-error">{{ form.category.errors|striptags }}</span>{% endif %}
+
+    {% if form.category.errors %}
+        <span class="mt-1 text-[10px] font-medium text-error">
+            {{ form.category.errors|striptags }}
+        </span>
+    {% endif %}
+
 </fieldset>

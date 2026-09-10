@@ -13,9 +13,6 @@
                         {{ modal_title|default:'Yeni harcama' }}
                     </h3>
 
-                    <p class="mt-0.5 text-[10px] text-base-content/40">
-                        Gider bilgilerini girin.
-                    </p>
                 </div>
 
                 <button type="button"
@@ -26,27 +23,6 @@
                 </button>
             </div>
 
-            <div class="mt-3 flex items-center gap-2 rounded-xl bg-base-200/50 px-3 py-2">
-                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/10 text-[10px] font-medium text-primary/80">
-                    K
-                </span>
-
-                <div class="min-w-0">
-                    <p class="text-[9px] text-base-content/40">
-                        Kaydeden
-                    </p>
-
-                    <p class="truncate text-[10px] font-medium text-base-content/65">
-                        {% if record_user.get_full_name %}
-                            {{ record_user.get_full_name }}
-                        {% elif record_user.username %}
-                            {{ record_user.username }}
-                        {% else %}
-                            Belirtilmedi
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
         </div>
 
         <!-- Scrollable content -->
@@ -54,10 +30,15 @@
             {% if form_action == 'expense-update' %}
                 hx-post="{% url 'expense-update' expense_id %}?period={{ period }}"
             {% else %}
-                hx-post="{% url 'expense-create' %}?period={{ period }}"
+                hx-post="{% url 'expense-create' %}?period={{ period }}{% if dashboard_mode %}&dashboard=1{% endif %}"
             {% endif %}
-            hx-target="#expense-list"
-            hx-swap="outerHTML"
+            {% if dashboard_mode %}
+                hx-target="#expense-list"
+                hx-swap="afterbegin"
+            {% else %}
+                hx-target="#expense-list"
+                hx-swap="outerHTML"
+            {% endif %}
             class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
 
             {% csrf_token %}

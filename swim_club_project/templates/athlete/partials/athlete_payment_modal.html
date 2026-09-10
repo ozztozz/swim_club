@@ -63,12 +63,13 @@
                     <label class="flex items-center justify-between gap-3 border-t border-base-300 px-4 py-3">
                         <span class="text-xs text-base-content/50">Ödenecek tutar</span>
                         <input
-                            type="number"
+                            type="text"
                             name="amount"
                             value="{{ item.amount|floatformat:0 }}"
                             min="0"
                             step="1"
                             inputmode="numeric"
+                            autocomplete="off"
                             class="input input-bordered input-sm w-32 text-right text-base font-black text-primary"
                             required
                         >

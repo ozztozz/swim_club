@@ -449,6 +449,7 @@ def create_expense_htmx(request):
     period = request.GET.get('period') or request.POST.get('period') or date.today().strftime('%Y-%m')
     category_id = request.GET.get('category', '') or request.POST.get('category_filter', '')
     query = request.GET.get('q', '') or request.POST.get('query_filter', '')
+    dashboard_mode = request.GET.get('dashboard') == '1'
     if request.method == 'POST':
         form = ExpenseForm(request.POST)
         if form.is_valid():
@@ -456,6 +457,12 @@ def create_expense_htmx(request):
             expense.created_by = request.user
             expense.save()
             summary = get_expense_summary(period)
+            if dashboard_mode:
+                response = render(request, 'finance/partials/_expense_row.html', {
+                    'expense': expense,
+                })
+                response['HX-Trigger'] = json.dumps({'closeExpenseModal': {}})
+                return response
             expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by(
                 F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
             )
@@ -488,6 +495,7 @@ def create_expense_htmx(request):
         'modal_title': 'Yeni harcama',
         'submit_label': 'Harcamayı kaydet',
         'record_user': request.user,
+        'dashboard_mode': dashboard_mode,
     })
     if request.method == 'POST':
         response['HX-Retarget'] = '#modal-container'

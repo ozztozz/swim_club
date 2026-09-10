@@ -24,13 +24,7 @@ def dashboard_index(request):
     pending_payments = PaymentRecord.objects.filter(status='pending').count()
     expense_period = request.GET.get('period', date.today().strftime('%Y-%m'))
     current_period = date.today().strftime('%Y-%m')
-    expenses = Expense.objects.filter(
-        period=expense_period,
-    ).select_related('category', 'created_by', 'regular_expense').order_by(
-        F('regular_expense__paymentDay').asc(nulls_last=True),
-        '-expense_date',
-        '-updated_at',
-    )
+    expenses = Expense.objects.none()
     expense_summary = get_expense_summary(expense_period)
     
     return render(request, 'dashboard/index.html', {
@@ -42,7 +36,8 @@ def dashboard_index(request):
         'approved_athletes': approved_athletes,
         'expense_period': expense_period,
         'current_period': current_period,
-        'expenses': expenses,
+            'dashboard_mode': True,
+            'expenses': expenses,
         **expense_summary,
     })
 
