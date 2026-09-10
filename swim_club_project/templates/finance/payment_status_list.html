@@ -13,7 +13,7 @@
         <div class="min-w-0">
 
             <a
-                href="{% url 'finance-dashboard' %}?period={{ period }}"
+                href="{% url 'finance-dashboard' %}?period={{ period }}{% if selected_team %}&team={{ selected_team }}{% endif %}"
                 class="mb-1 inline-flex items-center gap-1 text-xs font-medium text-base-content/45 transition-colors hover:text-base-content/70"
             >
                 ← Finans
@@ -27,12 +27,29 @@
                 {{ period }} dönemi
             </p>
 
+            <p class="mt-1 text-sm font-bold {% if payment_status == 'paid' %}text-success{% else %}text-warning{% endif %}">
+                Toplam {{ total_amount|floatformat:0 }} TL
+            </p>
+
         </div>
 
 
-        <!-- Dönem -->
+        <!-- Filtreler -->
 
-        <form method="get" class="shrink-0">
+        <form method="get" class="flex shrink-0 items-center gap-2">
+
+            <select
+                name="team"
+                onchange="this.form.submit()"
+                class="select select-bordered h-9 min-h-0 w-[135px] rounded-xl bg-base-100 px-2 text-xs font-medium text-base-content/70"
+            >
+                <option value="">Tüm takımlar</option>
+                {% for team in teams %}
+                    <option value="{{ team.pk }}" {% if selected_team == team.pk|stringformat:'s' %}selected{% endif %}>
+                        {{ team.name }}
+                    </option>
+                {% endfor %}
+            </select>
 
             <label class="relative block">
 
@@ -51,7 +68,7 @@
                         input-bordered
                         h-9
                         min-h-0
-                        w-[125px]
+                        w-[120px]
                         rounded-xl
                         bg-base-100
                         px-3

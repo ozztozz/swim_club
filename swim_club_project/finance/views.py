@@ -109,17 +109,22 @@ def payment_status_list(request, payment_status):
         return redirect('finance-dashboard')
 
     period = request.GET.get('period', date.today().strftime('%Y-%m'))
+    team_id = request.GET.get('team', '')
     monthly_payments = get_or_create_monthly_payments(period)
     payments = [
         athlete for athlete in monthly_payments
         if athlete.payment_status == payment_status
+        and (not team_id or str(athlete.team_id) == team_id)
     ]
+    teams = Team.objects.filter(is_active=True).order_by('name')
 
     return render(request, 'finance/payment_status_list.html', {
         'period': period,
         'payments': payments,
         'payment_status': payment_status,
         'status_label': 'Ödeyen sporcular' if payment_status == 'paid' else 'Bekleyen sporcular',
+        'teams': teams,
+        'selected_team': team_id,
     })
 
 
