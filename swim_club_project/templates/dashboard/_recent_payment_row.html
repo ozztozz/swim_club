@@ -1,0 +1,19 @@
+<div class="flex items-center justify-between gap-3 border-t border-base-200 px-4 py-2.5">
+    <div class="min-w-0">
+        <p class="truncate text-xs font-bold text-base-content/75">
+            <a
+                href="{% url 'athlete-manage-detail' payment.athlete.pk %}"
+                class="hover:text-primary hover:underline focus:text-primary focus:outline-none"
+            >
+                {{ payment.athlete.get_full_name }}
+            </a>
+        </p>
+        <p class="text-[10px] text-base-content/45">
+            {{ payment.period }} · {{ payment.get_payment_type_display }}
+        </p>
+    </div>
+    <div class="shrink-0 text-right">
+        <p class="text-xs font-black text-success">{{ payment.amount|floatformat:0 }} TL</p>
+        <p class="text-[10px] text-base-content/40">{{ payment.paid_at|date:'d.m.Y H:i' }}</p>
+    </div>
+</div>

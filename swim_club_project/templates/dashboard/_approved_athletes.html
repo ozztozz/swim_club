@@ -11,7 +11,12 @@
         <!-- Sporcu bilgisi -->
         <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-semibold text-base-content/80">
-                {{ athlete.first_name }} {{ athlete.last_name }}
+                <a
+                    href="{% url 'athlete-manage-detail' athlete.pk %}"
+                    class="hover:text-primary hover:underline focus:text-primary focus:outline-none"
+                >
+                    {{ athlete.first_name }} {{ athlete.last_name }}
+                </a>
             </p>
 
             <div class="mt-0.5 flex items-center gap-1.5">

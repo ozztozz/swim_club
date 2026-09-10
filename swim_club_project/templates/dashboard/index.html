@@ -64,20 +64,10 @@
                     Tahsilat
                 </h2>
 
-                <p class="mt-0.5 text-[11px] text-base-content/45">
-                    Sporcu veya veli adına göre arayın.
-                </p>
 
             </div>
 
 
-            <a
-                href="{% url 'athlete-manage-create' %}"
-                class="btn btn-ghost h-8 min-h-0 shrink-0 rounded-lg px-2.5 text-[11px] font-semibold text-base-content/60 hover:bg-base-200 hover:text-base-content active:scale-[.97]"
-            >
-                <span class="text-base-content/40">+</span>
-                Sporcu
-            </a>
 
         </div>
 
@@ -135,14 +125,7 @@
 
 
         <!-- Son tahsilatlar -->
-        <div
-            id="dashboard-payment-list"
-            hx-get="{% url 'dashboard-recent-payments' %}"
-            hx-trigger="refreshDashboardPayments from:body"
-            hx-swap="outerHTML"
-        >
-            {% include 'dashboard/_recent_payments.html' %}
-        </div>
+        {% include 'dashboard/_recent_payments.html' %}
 
     </section>
 

@@ -74,7 +74,7 @@ def dashboard_recent_payments_htmx(request):
     recent_payments = PaymentRecord.objects.filter(
         athlete__isnull=False,
         status='paid',
-    ).select_related('athlete').order_by('-paid_at', '-created_at')[:10]
+    ).select_related('athlete').order_by('-created_at', '-paid_at')[:10]
     return render(request, 'dashboard/_recent_payments.html', {
         'recent_payments': recent_payments,
     })

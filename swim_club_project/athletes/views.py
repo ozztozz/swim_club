@@ -213,6 +213,19 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
             'dashboard_mode': dashboard_mode,
         }, status=405)
 
+    try:
+        amount = int(request.POST.get('amount', '').strip())
+        if amount < 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        item['amount_error'] = 'Geçerli, sıfır veya daha büyük bir tutar girin.'
+        return render(request, 'athlete/partials/athlete_payment_modal.html', {
+            'athlete': athlete,
+            'item': item,
+            'mode': 'pay',
+            'dashboard_mode': dashboard_mode,
+        }, status=400)
+
     if payment is None:
         payment = PaymentRecord.objects.create(
             athlete=athlete,
@@ -223,8 +236,7 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
             status='pending',
             due_date=period_date.replace(day=15),
         )
-    if not payment.amount:
-        payment.amount = amount
+    payment.amount = amount
     payment.status = 'paid'
     payment.paid_at = timezone.now()
     payment.collected_by = request.user
@@ -234,17 +246,15 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
     item['is_paid'] = True
     item['status'] = payment.status
     if dashboard_mode:
-        from .views_dashboard import dashboard_recent_payments_htmx
-
-        response = dashboard_recent_payments_htmx(request)
+        response = render(request, 'dashboard/_recent_payment_row.html', {
+            'payment': payment,
+        })
     else:
         response = render(request, 'athlete/partials/athlete_payment_row.html', {
             'athlete': athlete,
             'item': item,
         })
     response['HX-Trigger'] = 'closeAthletePaymentModal'
-    if dashboard_mode:
-        response['HX-Trigger'] = 'closeAthletePaymentModal, refreshDashboardPayments'
     return response
 
 
