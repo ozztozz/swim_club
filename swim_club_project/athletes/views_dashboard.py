@@ -41,6 +41,12 @@ def dashboard_index(request):
         **expense_summary,
     })
 
+
+@login_required
+@role_required(allowed_roles=['admin', 'club_admin', 'coach'])
+def other_menu(request):
+    return render(request, 'dashboard/other_menu.html')
+
 @login_required
 @role_required(allowed_roles=['admin', 'club_admin', 'coach'])
 def search_approved_athletes_htmx(request):
@@ -52,9 +58,7 @@ def search_approved_athletes_htmx(request):
         athletes = Athlete.objects.filter(is_active=True).select_related('team').filter(
             Q(first_name__icontains=query) | 
             Q(last_name__icontains=query) |
-            Q(parent__icontains=query) |
-            Q(parent_email__icontains=query) |
-            Q(parent_phone__icontains=query)
+            Q(parent__icontains=query)
         )
         
     return render(request, 'dashboard/_approved_athletes.html', {

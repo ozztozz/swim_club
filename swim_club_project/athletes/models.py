@@ -40,11 +40,11 @@ class Athlete(models.Model):
         verbose_name="Özel Aidat Tutar (TL)",
         help_text="Boş bırakılırsa takımın varsayılan aidatı uygulanır. Burslu için 0 girebilirsiniz."
     )
-    discount_percentage = models.IntegerField(
+    private_lesson_fee = models.IntegerField(
         null=True,
         blank=True,
-        verbose_name="İndirim Yüzdesi",
-        help_text="Boş bırakılırsa indirim uygulanmaz."
+        verbose_name="Özel ders ücreti",
+        help_text="Boş bırakılırsa özel ders ücreti uygulanmaz."
     )
     regular_payment_day = models.PositiveBigIntegerField(
         null=True,

@@ -6,7 +6,7 @@ from .models import Equipment, Expense, ExpenseCategory, PaymentRecord, RegularE
 class EquipmentForm(forms.ModelForm):
     class Meta:
         model = Equipment
-        fields = ('name', 'price')
+        fields = ('name', 'price', 'is_active')
         labels = {
             'name': 'Malzeme türü',
             'price': 'Birim fiyat',
@@ -22,6 +22,9 @@ class EquipmentForm(forms.ModelForm):
                 'min': '0',
                 'inputmode': 'numeric',
                 'placeholder': '0',
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'toggle toggle-primary',
             }),
         }
 
@@ -55,10 +58,11 @@ class ExpenseForm(forms.ModelForm):
 
     class Meta:
         model = Expense
-        fields = ['category', 'amount', 'reciever', 'expense_date', 'receipt_no', 'notes']
+        fields = ['category', 'amount', 'status', 'reciever', 'expense_date', 'receipt_no', 'notes']
         labels = {
             'category': 'Harcama kategorisi',
             'amount': 'Tutar',
+            'status': 'Gider durumu',
             'reciever': 'Alıcı / firma',
             'expense_date': 'Harcama tarihi',
             'receipt_no': 'Fatura / fiş no',
@@ -73,6 +77,9 @@ class ExpenseForm(forms.ModelForm):
                 'inputmode': 'numeric',
                 'data-money-input': 'true',
                 'placeholder': '0',
+            }),
+            'status': forms.RadioSelect(attrs={
+                'class': 'radio radio-primary radio-xs',
             }),
             'reciever': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
@@ -143,7 +150,9 @@ class RegularExpenseForm(forms.ModelForm):
             'notes': 'Açıklama',
         }
         widgets = {
-            'category': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'category': forms.RadioSelect(attrs={
+                'class': 'radio radio-primary radio-xs',
+            }),
             'amount': forms.TextInput(attrs={
                 'class': 'input input-bordered w-full',
                 'inputmode': 'numeric',
@@ -154,7 +163,9 @@ class RegularExpenseForm(forms.ModelForm):
                 'class': 'input input-bordered w-full',
                 'placeholder': 'Örn. Kent Havuz İşletmesi',
             }),
-            'frequency': forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            'frequency': forms.RadioSelect(attrs={
+                'class': 'radio radio-primary radio-xs',
+            }),
             'paymentDay': forms.NumberInput(attrs={
                 'class': 'input input-bordered w-full',
                 'min': '1',

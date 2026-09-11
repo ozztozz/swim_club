@@ -5,16 +5,17 @@ from django.shortcuts import render
 
 # Create your views here.
 # finance/views.py
-from django.db.models import ProtectedError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q, Sum
+from django.urls import reverse
 from django.utils import timezone
 from .models import PaymentRecord
 from .forms import EquipmentForm, ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
-from .services import get_or_create_monthly_payments, get_financial_summary
+from .services import get_equipment_central_stock, get_equipment_coach_stock, get_or_create_monthly_payments, get_financial_summary
 from athletes.models import Team, Athlete
-from .models import Equipment, Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
+from .models import Equipment, EquipmentSaleItem, EquipmentStockMovement, Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, date
@@ -45,9 +46,13 @@ def equipment_create(request):
 def equipment_update(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
     if request.method == 'POST':
+        active_state = equipment.is_active
         form = EquipmentForm(request.POST, instance=equipment)
         if form.is_valid():
-            form.save()
+            equipment = form.save(commit=False)
+            if 'is_active' not in request.POST:
+                equipment.is_active = active_state
+            equipment.save()
             messages.success(request, 'Malzeme güncellendi.')
             return redirect('equipment-list')
     else:
@@ -60,15 +65,123 @@ def equipment_update(request, pk):
 
 
 @login_required
-def equipment_delete(request, pk):
+def equipment_toggle_active(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
     if request.method == 'POST':
-        try:
-            equipment.delete()
-            messages.success(request, 'Malzeme silindi.')
-        except ProtectedError:
-            messages.error(request, 'Satışlarda kullanılan malzemeler silinemez.')
+        equipment.is_active = not equipment.is_active
+        equipment.save(update_fields=('is_active',))
     return redirect('equipment-list')
+
+
+@login_required
+def equipment_stock(request):
+    equipments = list(Equipment.objects.filter(is_active=True).order_by('name'))
+    coaches = [request.user] if request.user.is_coach else list(
+        request.user.__class__.objects.filter(role='coach', is_active=True).order_by('first_name', 'last_name')
+    )
+    athletes = list(Athlete.objects.filter(is_active=True).order_by('first_name', 'last_name'))
+    error = None
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        equipment = get_object_or_404(Equipment, pk=request.POST.get('equipment'), is_active=True)
+        try:
+            quantity = int(request.POST.get('quantity', '0'))
+            if quantity < 1:
+                raise ValueError
+        except (TypeError, ValueError):
+            error = 'Adet en az 1 olmalıdır.'
+        else:
+            coach = request.user if request.user.is_coach else (
+                get_object_or_404(request.user.__class__, pk=request.POST.get('coach'))
+                if request.POST.get('coach') else None
+            )
+            athlete = get_object_or_404(Athlete, pk=request.POST.get('athlete'), is_active=True) if request.POST.get('athlete') else None
+            if action in {'coach_transfer', 'coach_return', 'athlete_distribution'} and coach is None:
+                error = 'Antrenör seçilmelidir.'
+            elif action == 'athlete_distribution' and athlete is None:
+                error = 'Sporcu seçilmelidir.'
+            elif action == 'coach_transfer' and quantity > get_equipment_central_stock(equipment):
+                error = 'Merkez stokta yeterli adet yok.'
+            elif action in {'coach_return', 'athlete_distribution'} and quantity > get_equipment_coach_stock(equipment, coach):
+                error = 'Antrenör stoğunda yeterli adet yok.'
+            elif action not in {'stock_in', 'coach_transfer', 'coach_return', 'athlete_distribution'}:
+                error = 'Geçersiz stok işlemi.'
+            else:
+                with transaction.atomic():
+                    payment = None
+                    if action == 'athlete_distribution':
+                        payment = PaymentRecord.objects.create(
+                            athlete=athlete,
+                            payment_type='equipment_sale',
+                            payment_method='cash',
+                            period=date.today().strftime('%Y-%m'),
+                            amount=equipment.price * quantity,
+                            status='pending',
+                            due_date=date.today(),
+                            notes=f'Stoktan dağıtım: {equipment.name} x{quantity}',
+                        )
+                        sale_item = EquipmentSaleItem.objects.create(
+                            payment=payment,
+                            equipment=equipment,
+                            quantity=quantity,
+                            unit_price=equipment.price,
+                        )
+                    EquipmentStockMovement.objects.create(
+                        equipment=equipment,
+                        movement_type=action,
+                        quantity=quantity,
+                        coach=coach,
+                        athlete=athlete,
+                        payment=payment,
+                        sale_item=sale_item if action == 'athlete_distribution' else None,
+                        created_by=request.user,
+                        notes=request.POST.get('notes', '').strip(),
+                    )
+                messages.success(request, 'Stok işlemi kaydedildi.')
+                if request.headers.get('HX-Request') == 'true':
+                    response = redirect('equipment-stock')
+                    response['HX-Redirect'] = reverse('equipment-stock')
+                    return response
+                return redirect('equipment-stock')
+
+    coach_stock_rows = []
+    for coach in coaches:
+        coach_items = []
+        for equipment in equipments:
+            quantity = get_equipment_coach_stock(equipment, coach)
+            if quantity:
+                coach_items.append({'equipment': equipment, 'quantity': quantity})
+        coach_stock_rows.append({'coach': coach, 'items': coach_items})
+
+    for equipment in equipments:
+        equipment.central_stock = get_equipment_central_stock(equipment)
+    movements = EquipmentStockMovement.objects.select_related(
+        'equipment', 'coach', 'athlete', 'created_by',
+    ).order_by('-created_at', '-pk')[:20]
+    return render(request, 'finance/equipment_stock.html', {
+        'equipments': equipments,
+        'coaches': coaches,
+        'athletes': athletes,
+        'coach_stock_rows': coach_stock_rows,
+        'movements': movements,
+        'error': error,
+    })
+
+
+@login_required
+def equipment_stock_modal(request):
+    equipments = Equipment.objects.filter(is_active=True).order_by('name')
+    coaches = [request.user] if request.user.is_coach else request.user.__class__.objects.filter(
+        role='coach', is_active=True,
+    ).order_by('first_name', 'last_name')
+    athletes = Athlete.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    return render(request, 'finance/modals/_equipment_stock_modal.html', {
+        'equipments': equipments,
+        'coaches': coaches,
+        'athletes': athletes,
+        'selected_action': request.GET.get('action', 'stock_in'),
+    })
 
 @login_required
 def finance_dashboard(request):
@@ -129,13 +242,20 @@ def payment_status_list(request, payment_status):
 
 
 def get_expense_summary(period):
-    active_expenses = Expense.objects.filter(period=period, is_active=True)
+    active_expenses = Expense.objects.filter(
+        period=period,
+        is_active=True,
+        status__in=('paid', 'pending'),
+    )
     category_totals = active_expenses.values('category__name').annotate(
         total=Sum('amount')
     ).order_by('-total')
+    regular_expense_summary = get_regular_expense_summary(period)
     return {
         'total_expense': active_expenses.aggregate(total=Sum('amount'))['total'] or 0,
         'expense_count': active_expenses.count(),
+        'paid_expense_total': active_expenses.filter(status='paid').aggregate(total=Sum('amount'))['total'] or 0,
+        'pending_expense_total': active_expenses.filter(status='pending').aggregate(total=Sum('amount'))['total'] or 0,
         **get_regular_expense_summary(period),
         'category_totals': [
             {
@@ -171,43 +291,80 @@ def get_collection_summary(period):
     }
 
 
+def get_expenses_for_period(period, category_id='', query=''):
+    period_start, period_end = get_period_bounds(period)
+    expense_queryset = Expense.objects.select_related(
+        'category',
+        'regular_expense',
+    ).filter(
+        period=period,
+        is_active=True,
+    ).exclude(
+        status='cancelled',
+    )
+
+    if category_id:
+        expense_queryset = expense_queryset.filter(category_id=category_id)
+    if query:
+        expense_queryset = expense_queryset.filter(
+            Q(reciever__icontains=query)
+            | Q(notes__icontains=query)
+            | Q(category__name__icontains=query)
+        )
+
+    expenses = list(expense_queryset)
+    paid_regular_ids = [
+        expense.regular_expense_id
+        for expense in expenses
+        if expense.regular_expense_id
+    ]
+
+    regular_queryset = RegularExpense.objects.select_related('category').filter(
+        start_date__lte=period_end
+    ).filter(
+        Q(end_date__isnull=True) | Q(end_date__gte=period_start)
+    )
+    if paid_regular_ids:
+        regular_queryset = regular_queryset.exclude(pk__in=paid_regular_ids)
+    if category_id:
+        regular_queryset = regular_queryset.filter(category_id=category_id)
+    if query:
+        regular_queryset = regular_queryset.filter(
+            Q(reciever__icontains=query)
+            | Q(notes__icontains=query)
+            | Q(category__name__icontains=query)
+        )
+
+    regular_expenses = list(regular_queryset)
+    for expense in regular_expenses:
+        expense.is_regular_source = True
+        payment_day = expense.paymentDay or 1
+        last_day = calendar.monthrange(period_start.year, period_start.month)[1]
+        payment_day = min(payment_day, last_day)
+        expense.expense_date = date(period_start.year, period_start.month, payment_day)
+
+
+    expenses.extend(regular_expenses)
+    expenses.sort(key=lambda expense: -expense.expense_date.toordinal())
+    return expenses
+
+
 @login_required
 def expense_list(request):
     period = request.GET.get('period', date.today().strftime('%Y-%m'))
     category_id = request.GET.get('category', '')
     query = request.GET.get('q', '').strip()
-
-    expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by(
-        F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
-    )
-    if category_id:
-        expenses = expenses.filter(category_id=category_id)
-    if query:
-        expenses = expenses.filter(reciever__icontains=query)
-
-    period_start, period_end = get_period_bounds(period)
-    regular_expenses = RegularExpense.objects.filter(
-        start_date__lte=period_end
-    ).filter(
-        Q(end_date__isnull=True) | Q(end_date__gte=period_start)
-    ).select_related('category').prefetch_related(
-        Prefetch(
-            'generated_expenses',
-            queryset=Expense.objects.filter(
-                is_active=True,
-                period=period,
-            ).order_by('-expense_date'),
-        )
-    ).order_by(F('paymentDay').asc(nulls_last=True), '-start_date')[:5]
-    summary = get_expense_summary(period)
+    expenses = get_expenses_for_period(period, category_id, query)
+    expense_summary = get_expense_summary(period)
+    regular_expense_summary = get_regular_expense_summary(period)
     context = {
         'period': period,
         'expenses': expenses,
-        'regular_expenses': regular_expenses,
         'categories': ExpenseCategory.objects.all().order_by('name'),
         'selected_category': category_id,
         'query': query,
-        **summary,
+        'expense_summary': expense_summary,
+        'regular_expense_summary': regular_expense_summary,
         'today': date.today(),
     }
     return render(request, 'finance/expenses.html', context)
@@ -219,7 +376,7 @@ def expense_summary_htmx(request):
     summary = get_expense_summary(period)
     return render(request, 'finance/partials/_expense_summary.html', {
         'period': period,
-        **summary,
+        'expense_summary': summary,
     })
 
 
@@ -242,27 +399,20 @@ def get_regular_expense_summary(period=None):
     ).filter(
         Q(end_date__isnull=True) | Q(end_date__gte=period_start)
     )
-    paid_count = Expense.objects.filter(
+    paid_expenses = Expense.objects.filter(
         regular_expense__in=active_expenses,
         is_active=True,
+        status='paid',
         period=period,
-    ).values('regular_expense').distinct().count()
-    paid_total = Expense.objects.filter(
-        regular_expense__in=active_expenses,
-        is_active=True,
-        period=period,
-    ).aggregate(total=Sum('amount'))['total'] or 0
-    active_summary = active_expenses.aggregate(total=Sum('amount'), count=Count('id'))
-    pending_total = active_summary['total'] or 0
-    active_count = active_summary['count'] or 0
+    )
+    regular_total = active_expenses.aggregate(total=Sum('amount'))['total'] or 0
+    paid_total = paid_expenses.aggregate(total=Sum('amount'))['total'] or 0
+
     return {
-        'regular_expense_count': active_count,
-        'regular_paid_count': paid_count,
-        'regular_pending_count': active_count - paid_count,
+        'regular_total': regular_total,
         'regular_paid_total': paid_total,
-        'regular_pending_total': pending_total - paid_total,
-        'regular_expense_total': pending_total,
-        'regular_category_count': active_expenses.values('category_id').distinct().count(),
+        'regular_pending_total': regular_total - paid_total,
+
     }
 
 
@@ -393,27 +543,23 @@ def convert_regular_expense_htmx(request, pk):
     conversion_target = '#expense-list' if source == 'expenses' else '#regular-expense-list'
 
     if request.method == 'POST':
-        form = ExpenseForm(request.POST)
+        form_data = request.POST.copy()
+        form_data['status'] = 'paid'
+        form = ExpenseForm(form_data)
         if form.is_valid():
             expense = form.save(commit=False)
             expense.regular_expense = regular_expense
+            expense.status = 'paid'
             expense.created_by = request.user
             expense.save()
             if source == 'expenses':
                 period = request.POST.get('period') or expense.period
-                expenses = Expense.objects.filter(
-                    period=period
-                ).select_related('category', 'created_by', 'regular_expense').order_by(
-                    F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
-                )
-                if category_id:
-                    expenses = expenses.filter(category_id=category_id)
-                if query:
-                    expenses = expenses.filter(reciever__icontains=query)
+                expenses = get_expenses_for_period(period, category_id, query)
                 response = render(request, 'finance/partials/_expense_list_response.html', {
                     'expenses': expenses,
                     'period': period,
-                    **get_expense_summary(period),
+                    'expense_summary': get_expense_summary(period),
+                    'regular_expense_summary': get_regular_expense_summary(period),
                 })
                 response['HX-Trigger'] = json.dumps({
                     'closeExpenseModal': {},
@@ -468,17 +614,12 @@ def create_expense_htmx(request):
                 })
                 response['HX-Trigger'] = json.dumps({'closeExpenseModal': {}})
                 return response
-            expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by(
-                F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
-            )
-            if category_id:
-                expenses = expenses.filter(category_id=category_id)
-            if query:
-                expenses = expenses.filter(reciever__icontains=query)
+            expenses = get_expenses_for_period(period, category_id, query)
             response = render(request, 'finance/partials/_expense_list_response.html', {
                 'expenses': expenses,
                 'period': period,
-                **summary,
+                'expense_summary': summary,
+                'regular_expense_summary': get_regular_expense_summary(period),
             })
             response['HX-Trigger'] = json.dumps({
                 'closeExpenseModal': {},
@@ -511,7 +652,7 @@ def create_expense_htmx(request):
 @login_required
 def update_expense_htmx(request, pk):
     expense = get_object_or_404(Expense, pk=pk)
-    period = expense.period
+    period = request.GET.get('period') or request.POST.get('period') or expense.period
     category_id = request.GET.get('category', '') or request.POST.get('category_filter', '')
     query = request.GET.get('q', '') or request.POST.get('query_filter', '')
 
@@ -521,19 +662,17 @@ def update_expense_htmx(request, pk):
             updated_expense = form.save(commit=False)
             if request.POST.get('cancel_expense') == '1':
                 updated_expense.is_active = False
+                updated_expense.status = 'cancelled'
             updated_expense.save()
-            summary = get_expense_summary(period)
-            expenses = Expense.objects.filter(period=period).select_related('category', 'created_by', 'regular_expense').order_by(
-                F('regular_expense__paymentDay').asc(nulls_last=True), '-expense_date', '-updated_at'
-            )
-            if category_id:
-                expenses = expenses.filter(category_id=category_id)
-            if query:
-                expenses = expenses.filter(reciever__icontains=query)
+            expense_summary = get_expense_summary(period)
+            expenses = get_expenses_for_period(period, category_id, query)
             response = render(request, 'finance/partials/_expense_list_response.html', {
                 'expenses': expenses,
                 'period': period,
-                **summary,
+                'selected_category': category_id,
+                'query': query,
+                'expense_summary': expense_summary,
+                'regular_expense_summary': get_regular_expense_summary(period),
             })
             response['HX-Trigger'] = json.dumps({'closeExpenseModal': {}})
             return response

@@ -53,9 +53,9 @@
     <section
         id="collections-tab"
         class="space-y-3"
-    >
+        >
 
-        <!-- Başlık -->
+        <!-- Başlık Tahsilat -->
         <div class="flex items-center justify-between gap-3 px-1">
 
             <div class="min-w-0">
@@ -64,10 +64,7 @@
                     Tahsilat
                 </h2>
 
-
             </div>
-
-
 
         </div>
 
@@ -136,7 +133,7 @@
     <section
         id="expenses-tab"
         class="hidden space-y-3"
-    >
+        >
 
         <!-- Başlık -->
         <div class="flex items-center justify-between gap-3 px-1">
@@ -154,16 +151,25 @@
             </div>
 
 
-            <button
-                type="button"
-                class="btn btn-primary h-8 min-h-0 shrink-0 rounded-lg px-2.5 text-[11px] font-semibold shadow-none active:scale-[.97]"
-                hx-get="{% url 'expense-create' %}?period={{ expense_period }}&dashboard=1"
-                hx-target="#modal-container"
-                hx-swap="innerHTML"
-            >
-                <span class="text-primary-content/70">+</span>
-                Harcama ekle
-            </button>
+            <div class="flex items-center gap-2">
+                <a
+                    href="{% url 'expense-list' %}?period={{ expense_period }}"
+                    class="text-[10px] font-bold text-primary active:opacity-60"
+                >
+                    Harcamalara git
+                </a>
+
+                <button
+                    type="button"
+                    class="btn btn-primary h-8 min-h-0 shrink-0 rounded-lg px-2.5 text-[11px] font-semibold shadow-none active:scale-[.97]"
+                    hx-get="{% url 'expense-create' %}?period={{ expense_period }}&dashboard=1"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML"
+                >
+                    <span class="text-primary-content/70">+</span>
+                    Harcama ekle
+                </button>
+            </div>
 
         </div>
 

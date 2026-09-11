@@ -162,7 +162,7 @@ class FinanceModelAndServiceTests(TestCase):
         self.assertEqual(payment.amount, Decimal('2250.00'))
         self.assertIn('Malzemeler: Kulüp Tişörtü x3', payment.notes)
 
-    def test_equipment_crud_and_protected_delete(self):
+    def test_equipment_crud_and_active_toggle(self):
         self.client.force_login(self.user)
         list_url = reverse('equipment-list')
         create_url = reverse('equipment-create')
@@ -180,9 +180,10 @@ class FinanceModelAndServiceTests(TestCase):
         equipment.refresh_from_db()
         self.assertEqual(equipment.name, 'Silikon Bone')
 
-        response = self.client.post(reverse('equipment-delete', args=[equipment.pk]))
+        response = self.client.post(reverse('equipment-toggle-active', args=[equipment.pk]))
         self.assertRedirects(response, list_url)
-        self.assertFalse(Equipment.objects.filter(pk=equipment.pk).exists())
+        equipment.refresh_from_db()
+        self.assertFalse(equipment.is_active)
 
         sale_equipment = Equipment.objects.create(name='Forma', price=Decimal('500.00'))
         payment = PaymentRecord.objects.create(
@@ -199,9 +200,10 @@ class FinanceModelAndServiceTests(TestCase):
             quantity=1,
             unit_price=sale_equipment.price,
         )
-        response = self.client.post(reverse('equipment-delete', args=[sale_equipment.pk]))
+        response = self.client.post(reverse('equipment-toggle-active', args=[sale_equipment.pk]))
         self.assertRedirects(response, list_url)
-        self.assertTrue(Equipment.objects.filter(pk=sale_equipment.pk).exists())
+        sale_equipment.refresh_from_db()
+        self.assertFalse(sale_equipment.is_active)
 
     def test_get_or_create_monthly_payments(self):
         period = "2026-08"

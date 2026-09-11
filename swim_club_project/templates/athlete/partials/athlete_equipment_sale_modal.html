@@ -1,6 +1,6 @@
 <dialog id="athlete_equipment_sale_modal" class="modal modal-open">
     <div class="modal-box w-[calc(100%-1rem)] max-w-lg p-5 sm:w-11/12 sm:p-6">
-        <p class="text-xs font-bold uppercase tracking-widest text-primary">Malzeme satışı</p>
+        <p class="text-xs font-bold uppercase tracking-widest text-primary">Malzeme dağıtımı</p>
         <h3 class="mt-1 text-2xl font-black">{{ athlete.get_full_name }}</h3>
 
         <form
@@ -11,6 +11,27 @@
             class="mt-5 space-y-4"
         >
             {% csrf_token %}
+            {% if distribution_mode %}
+                <input type="hidden" name="distribution_mode" value="1">
+                <fieldset class="form-control">
+                    <legend class="label label-text font-bold">Stok kaynağı</legend>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-xs has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                            <input type="radio" name="stock_source" value="coach" checked>
+                            <span>Antrenör stoğu</span>
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-xs has-[:checked]:border-primary has-[:checked]:bg-primary/10">
+                            <input type="radio" name="stock_source" value="central">
+                            <span>Merkez stok</span>
+                        </label>
+                    </div>
+                </fieldset>
+                <label id="distribution-coach-field" class="form-control">
+                    <span class="label label-text font-bold">Antrenör stoğu</span>
+                    {{ form.coach }}{{ form.coach.errors }}
+                </label>
+                <input type="hidden" name="status" value="pending">
+            {% endif %}
             {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
 
             {% if form.equipment_rows %}
@@ -58,7 +79,7 @@
                     <span class="label label-text font-bold">Ödeme yöntemi</span>
                     {{ form.payment_method }}{{ form.payment_method.errors }}
                 </label>
-                <fieldset class="form-control">
+                {% if not distribution_mode %}<fieldset class="form-control">
                     <legend class="label label-text font-bold">Durum</legend>
                     <div class="grid grid-cols-3 gap-2">
                         {% for radio in form.status %}
@@ -69,7 +90,7 @@
                         {% endfor %}
                     </div>
                     {{ form.status.errors }}
-                </fieldset>
+                </fieldset>{% endif %}
             </div>
 
             <label class="form-control">
@@ -79,7 +100,7 @@
 
             <div class="modal-action flex-col-reverse sm:flex-row">
                 <button type="button" class="btn btn-ghost w-full sm:w-auto" onclick="document.getElementById('athlete_equipment_sale_modal').remove()">Vazgeç</button>
-                    <button type="submit" class="btn btn-primary w-full sm:w-auto">{% if payment %}Satışı güncelle{% else %}Satışı kaydet{% endif %}</button>
+                    <button type="submit" class="btn btn-primary w-full sm:w-auto">{% if distribution_mode %}Dağıtımı kaydet{% elif payment %}Satışı güncelle{% else %}Satışı kaydet{% endif %}</button>
             </div>
         </form>
     </div>
@@ -87,6 +108,18 @@
 
 <script>
     (() => {
+        const sourceInputs = document.querySelectorAll('#athlete_equipment_sale_modal input[name="stock_source"]');
+        const coachField = document.getElementById('distribution-coach-field');
+        const syncStockSource = () => {
+            if (!coachField || !sourceInputs.length) return;
+            const source = document.querySelector('#athlete_equipment_sale_modal input[name="stock_source"]:checked')?.value;
+            coachField.classList.toggle('hidden', source === 'central');
+            const coachSelect = coachField.querySelector('select');
+            if (coachSelect) coachSelect.required = source !== 'central';
+        };
+        sourceInputs.forEach((input) => input.addEventListener('change', syncStockSource));
+        syncStockSource();
+
         const quantities = document.querySelectorAll('#athlete_equipment_sale_modal .equipment-quantity');
         const total = document.getElementById('equipment-sale-total');
 

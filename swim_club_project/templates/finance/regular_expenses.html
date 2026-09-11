@@ -10,17 +10,13 @@
         <div class="min-w-0">
 
             <div class="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-primary">
-                <span class="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-primary/10">
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-primary/10 text-sm">
                     ↻
                 </span>
-                Finans / Düzenli giderler
+                Düzenli ödemeler
             </div>
 
-            <h1 class="truncate text-xl font-black tracking-tight">
-                Düzenli harcamalar
-            </h1>
-
-            <p class="mt-0.5 text-[10px] text-base-content/50">
+            <p class="mt-0.5 text-xs text-base-content/50">
                 Tekrarlayan kulüp giderlerini yönetin.
             </p>
 
@@ -29,12 +25,12 @@
 
         <button
             type="button"
-            class="btn btn-primary h-9 min-h-0 shrink-0 gap-1.5 rounded-xl px-3 text-[10px] font-bold shadow-sm"
+            class="btn btn-primary h-11 min-h-0 shrink-0 gap-1.5 rounded-xl px-4 text-xs font-bold shadow-sm active:scale-[.97] transition-transform"
             hx-get="{% url 'regular-expense-create' %}?category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
             hx-target="#regular-expense-modal-container"
             hx-swap="innerHTML">
 
-            <span class="text-base leading-none">+</span>
+            <span class="text-lg leading-none">+</span>
             <span class="hidden sm:inline">Yeni düzenli gider</span>
             <span class="sm:hidden">Ekle</span>
 
@@ -42,149 +38,55 @@
 
     </header>
 
-
-    <!-- Özet -->
     {% include 'finance/partials/_regular_expense_summary.html' %}
 
-
-    <!-- Filtreler + Liste -->
-    <section class="overflow-hidden rounded-2xl border border-base-200 bg-base-100 shadow-sm">
-
-        <!-- Filtre başlığı -->
-        <div class="flex items-center justify-between border-b border-base-200 px-3 py-2.5">
-
-            <div>
-                <p class="text-xs font-black text-base-content">
-                    Gider planları
-                </p>
-
-                <p class="text-[9px] text-base-content/40">
-                    Arama ve filtreleme
-                </p>
-            </div>
-
+    <form method="get" class="flex flex-wrap items-center gap-2 rounded-xl border border-base-200 bg-base-100 p-2 shadow-sm">
+        <div class="flex h-9 min-w-[9rem] flex-1 items-center gap-2 rounded-lg border border-base-300 bg-base-200/40 px-2.5">
+            <svg class="h-4 w-4 shrink-0 text-base-content/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"/>
+                <path d="m20 20-4-4"/>
+            </svg>
+            <input type="search" name="q" value="{{ query }}" placeholder="Alıcı ara..." class="min-w-0 w-full border-0 bg-transparent p-0 text-xs outline-none focus:ring-0">
         </div>
 
+        <select name="category" class="select select-bordered h-9 min-h-0 w-auto max-w-[8rem] rounded-lg px-2 text-xs" onchange="this.form.submit()">
+            <option value="">Tüm kategoriler</option>
+            {% for category in categories %}
+                <option value="{{ category.pk }}" {% if selected_category == category.pk|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+        </select>
 
-        <!-- Filtreler -->
-        <form
-            method="get"
-            class="grid gap-2 border-b border-base-200 bg-base-200/30 p-3 sm:grid-cols-2 md:grid-cols-[1fr_auto_auto_auto] md:items-end">
-
-            <!-- Arama -->
-            <label class="form-control sm:col-span-2 md:col-span-1">
-
-                <span class="mb-1 text-[10px] font-bold text-base-content/60">
-                    Alıcı / firma
-                </span>
-
-                <input
-                    type="search"
-                    name="q"
-                    value="{{ query }}"
-                    placeholder="Firma veya kişi adı"
-                    class="input input-bordered h-9 min-h-0 rounded-xl bg-base-100 text-xs">
-
-            </label>
+        <select name="status" class="select select-bordered h-9 min-h-0 w-auto rounded-lg px-2 text-xs" onchange="this.form.submit()">
+            <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
+            <option value="expired" {% if status == 'expired' %}selected{% endif %}>Süresi dolan</option>
+            <option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option>
+        </select>
+    </form>
 
 
-            <!-- Kategori -->
-            <label class="form-control">
 
-                <span class="mb-1 text-[10px] font-bold text-base-content/60">
-                    Kategori
-                </span>
+    <!-- Liste -->
+    <section class="overflow-hidden rounded-2xl border border-base-200 bg-base-100 shadow-sm">
 
-                <select
-                    name="category"
-                    class="select select-bordered h-9 min-h-0 rounded-xl bg-base-100 text-xs">
-
-                    <option value="">
-                        Tüm kategoriler
-                    </option>
-
-                    {% for category in categories %}
-                        <option
-                            value="{{ category.id }}"
-                            {% if selected_category == category.id|stringformat:'s' %}selected{% endif %}>
-                            {{ category.name }}
-                        </option>
-                    {% endfor %}
-
-                </select>
-
-            </label>
-
-
-            <!-- Durum -->
-            <label class="form-control">
-
-                <span class="mb-1 text-[10px] font-bold text-base-content/60">
-                    Durum
-                </span>
-
-                <select
-                    name="status"
-                    class="select select-bordered h-9 min-h-0 rounded-xl bg-base-100 text-xs">
-
-                    <option value="active" {% if status == 'active' %}selected{% endif %}>
-                        Aktif
-                    </option>
-
-                    <option value="all" {% if status == 'all' %}selected{% endif %}>
-                        Tümü
-                    </option>
-
-                    <option value="expired" {% if status == 'expired' %}selected{% endif %}>
-                        Süresi dolmuş
-                    </option>
-
-                </select>
-
-            </label>
-
-
-            <!-- Filtrele -->
-            <button
-                type="submit"
-                class="btn btn-neutral h-9 min-h-0 rounded-xl px-4 text-[10px] font-bold">
-
-                Filtrele
-
-            </button>
-
-        </form>
 
 
         <!-- Liste -->
         <div class="overflow-x-auto">
 
-            <table class="table w-full">
+            <table class="table w-full min-w-[420px]">
 
                 <thead>
                     <tr class="border-b border-base-200 text-[9px] uppercase tracking-wider text-base-content/40">
 
-                        <th class="p-2.5 font-bold">
-                            Kategori
+                        <th class="p-3 font-bold">
+                            Düzenli gider
                         </th>
 
-                        <th class="p-2.5 font-bold">
-                            Alıcı / firma
+                        <th class="p-3 font-bold">
+                            Tutar / tekrar
                         </th>
 
-                        <th class="p-2.5 font-bold">
-                            Tutar / gün
-                        </th>
-
-                        <th class="p-2.5 font-bold">
-                            Tekrar
-                        </th>
-
-                        <th class="p-2.5 font-bold">
-                            Geçerlilik
-                        </th>
-
-                        <th class="p-2.5 text-right font-bold">
+                        <th class="p-3 text-right font-bold">
                             İşlem
                         </th>
 

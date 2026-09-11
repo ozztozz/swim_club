@@ -119,6 +119,7 @@ class PaymentRecord(models.Model):
 class Equipment(models.Model):
     name = models.CharField(max_length=150, unique=True, verbose_name="Malzeme Türü")
     price = models.IntegerField(verbose_name="Fiyat")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif mi?")
 
     class Meta:
         verbose_name = "Malzeme"
@@ -157,6 +158,72 @@ class EquipmentSaleItem(models.Model):
         return f'{self.equipment.name} x{self.quantity}'
 
 
+class EquipmentStockMovement(models.Model):
+    MOVEMENT_TYPES = [
+        ('stock_in', 'Stok girişi'),
+        ('coach_transfer', 'Antrenöre teslim'),
+        ('athlete_distribution', 'Sporcuya dağıtım'),
+        ('coach_return', 'Antrenörden iade'),
+    ]
+
+    equipment = models.ForeignKey(
+        Equipment,
+        on_delete=models.PROTECT,
+        related_name='stock_movements',
+        verbose_name='Malzeme',
+    )
+    movement_type = models.CharField(max_length=30, choices=MOVEMENT_TYPES)
+    quantity = models.PositiveIntegerField(verbose_name='Adet')
+    coach = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='equipment_stock_movements',
+        verbose_name='Antrenör',
+    )
+    athlete = models.ForeignKey(
+        Athlete,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='equipment_distributions',
+        verbose_name='Sporcu',
+    )
+    payment = models.ForeignKey(
+        PaymentRecord,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='stock_movement',
+        verbose_name='Tahsilat kaydı',
+    )
+    sale_item = models.ForeignKey(
+        'EquipmentSaleItem',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='stock_movements',
+        verbose_name='Satış satırı',
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_stock_movements',
+    )
+    notes = models.TextField(blank=True, default='', verbose_name='Not')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        verbose_name = 'Malzeme stok hareketi'
+        verbose_name_plural = 'Malzeme stok hareketleri'
+
+    def __str__(self):
+        return f'{self.get_movement_type_display()} - {self.equipment} x{self.quantity}'
+
+
 class ExpenseCategory(models.Model):
     """Harcama Kategorileri (örn: Havuz Kirası, Personel Maaşı, Ekipman, Organizasyon)"""
     name = models.CharField(max_length=100, verbose_name="Kategori Adı")
@@ -172,6 +239,12 @@ class ExpenseCategory(models.Model):
 
 class Expense(models.Model):
     """Kulüp Harcama/Gider Kaydı"""
+    STATUS_CHOICES = [
+        ('pending', 'Bekliyor'),
+        ('paid', 'Ödendi'),
+        ('cancelled', 'İptal Edildi'),
+    ]
+
     category = models.ForeignKey(
         ExpenseCategory, 
         on_delete=models.SET_NULL, 
@@ -188,6 +261,12 @@ class Expense(models.Model):
         verbose_name="Düzenli gider kaynağı"
     )
     amount = models.IntegerField(verbose_name="Tutar (TL)")
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name="Gider Durumu",
+    )
     reciever = models.CharField(
         null=True, 
         blank=True,

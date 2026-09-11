@@ -8,7 +8,10 @@
             <h1 class="text-2xl font-black text-base-content">Malzemeler</h1>
             <p class="mt-0.5 text-sm text-base-content/50">Satış kataloğunu yönetin</p>
         </div>
-        <a href="{% url 'equipment-create' %}" class="btn btn-primary btn-sm rounded-xl font-bold">+ Yeni malzeme</a>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'equipment-stock' %}" class="btn btn-ghost btn-sm rounded-xl font-bold">Stok</a>
+            <a href="{% url 'equipment-create' %}" class="btn btn-primary btn-sm rounded-xl font-bold">+ Yeni malzeme</a>
+        </div>
     </header>
 
     {% if messages %}
@@ -27,16 +30,25 @@
         {% if equipments %}
             <div class="divide-y divide-base-200">
                 {% for equipment in equipments %}
-                    <div class="flex items-center gap-3 px-4 py-3">
+                    <div class="flex items-center gap-3 px-4 py-3 {% if not equipment.is_active %}opacity-60{% endif %}">
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-base font-semibold">{{ equipment.name }}</p>
-                            <p class="mt-0.5 text-sm text-base-content/50">Birim fiyat: {{ equipment.price|floatformat:2 }}</p>
+                            <div class="mt-0.5 flex items-center gap-2 text-sm text-base-content/50">
+                                <span>Birim fiyat: {{ equipment.price|floatformat:2 }}</span>
+                                {% if equipment.is_active %}
+                                    <span class="badge badge-success badge-outline h-5 min-h-0 text-[10px]">Aktif</span>
+                                {% else %}
+                                    <span class="badge badge-ghost h-5 min-h-0 text-[10px]">Pasif</span>
+                                {% endif %}
+                            </div>
                         </div>
-                        <a href="{% url 'equipment-update' equipment.pk %}" class="btn btn-ghost btn-sm rounded-lg text-xs font-bold">Düzenle</a>
-                        <form method="post" action="{% url 'equipment-delete' equipment.pk %}" onsubmit="return confirm('Bu malzeme silinsin mi?');">
+                        <form method="post" action="{% url 'equipment-toggle-active' equipment.pk %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-ghost btn-sm rounded-lg text-xs font-bold text-error">Sil</button>
+                            <button type="submit" class="btn btn-ghost btn-sm rounded-lg px-2 text-[10px] font-bold {% if equipment.is_active %}text-warning{% else %}text-success{% endif %}">
+                                {% if equipment.is_active %}Pasifleştir{% else %}Aktifleştir{% endif %}
+                            </button>
                         </form>
+                        <a href="{% url 'equipment-update' equipment.pk %}" class="btn btn-ghost btn-sm rounded-lg text-xs font-bold">Düzenle</a>
                     </div>
                 {% endfor %}
             </div>

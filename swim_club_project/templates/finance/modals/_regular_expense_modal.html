@@ -58,13 +58,22 @@
             <div class="space-y-3">
 
                 <!-- Kategori -->
-                <label class="form-control">
+                <fieldset class="form-control min-w-0">
 
-                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                    <legend class="mb-1.5 text-[10px] font-bold text-base-content/60">
                         Harcama kategorisi
-                    </span>
+                    </legend>
 
-                    {{ form.category }}
+                    <div class="flex min-w-0 flex-wrap gap-1.5">
+                        {% for choice in form.category %}
+                            <label class="flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 py-1.5 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
+                                {{ choice.tag }}
+                                <span class="truncate text-[10px] font-medium">
+                                    {{ choice.choice_label }}
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
 
                     {% if form.category.errors %}
                         <span class="mt-1 text-[10px] text-error">
@@ -72,7 +81,7 @@
                         </span>
                     {% endif %}
 
-                </label>
+                </fieldset>
 
 
                 <!-- Tutar + Alıcı -->
@@ -156,15 +165,24 @@
 
                     <div class="grid grid-cols-2 gap-2">
 
-                        <label class="form-control">
+                        <fieldset class="form-control min-w-0">
 
-                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                            <legend class="mb-1.5 text-[10px] font-bold text-base-content/60">
                                 Tekrarlama sıklığı
-                            </span>
+                            </legend>
 
-                            {{ form.frequency }}
+                            <div class="flex min-w-0 flex-wrap gap-1.5">
+                                {% for choice in form.frequency %}
+                                    <label class="flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 py-1.5 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
+                                        {{ choice.tag }}
+                                        <span class="text-[10px] font-medium">
+                                            {{ choice.choice_label }}
+                                        </span>
+                                    </label>
+                                {% endfor %}
+                            </div>
 
-                        </label>
+                        </fieldset>
 
 
                         <label class="form-control">

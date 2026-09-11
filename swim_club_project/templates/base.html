@@ -279,7 +279,7 @@
             display: grid;
 
             grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+                repeat(3, minmax(0, 1fr));
 
             padding: 4px 6px;
         }
@@ -328,6 +328,40 @@
 
             background:
                 oklch(var(--p) / .12);
+        }
+
+
+        /* =========================================================
+           MODAL KATMANI
+        ========================================================== */
+
+        dialog.modal,
+        dialog.modal.modal-open {
+
+            position: fixed;
+            inset: 0;
+
+            z-index: 100;
+
+            width: 100%;
+            max-width: none;
+            max-height: none;
+
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+
+        dialog.modal::backdrop {
+            z-index: 99;
+        }
+
+
+        dialog.modal .modal-box {
+
+            max-height: calc(100dvh - 1rem);
+
+            overscroll-behavior: contain;
         }
 
 
@@ -896,88 +930,28 @@
         </a>
 
 
-        <!-- Sporcular -->
+        <!-- Diğer -->
 
         <a
-            href="{% url 'athlete-manage-list' %}"
+            href="{% url 'other-menu' %}"
             class="
                 bottom-nav-item
-                {% if request.resolver_match.url_name == 'athlete-manage-list' or request.resolver_match.url_name == 'athlete-manage-detail' %}
+                order-3
+                {% if request.resolver_match.url_name == 'other-menu' or request.resolver_match.url_name == 'team-list' or request.resolver_match.url_name == 'team-detail' or request.resolver_match.url_name == 'athlete-manage-list' or request.resolver_match.url_name == 'athlete-manage-detail' or 'equipment' in request.resolver_match.url_name or 'regular-expense' in request.resolver_match.url_name or request.resolver_match.url_name == 'fee-management' %}
                     active
                 {% endif %}
             "
         >
 
             <span class="nav-icon">
-
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-
-                    <circle
-                        cx="12"
-                        cy="8"
-                        r="4"
-                    />
-
-                    <path
-                        d="M4 21c0-4 3.5-7 8-7s8 3 8 7"
-                    />
-
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="5" cy="12" r="1"/>
+                    <circle cx="12" cy="12" r="1"/>
+                    <circle cx="19" cy="12" r="1"/>
                 </svg>
-
             </span>
 
-            <span>Sporcular</span>
-
-        </a>
-
-
-        <!-- Takımlar -->
-
-        <a
-            href="{% url 'team-list' %}"
-            class="
-                bottom-nav-item
-                {% if request.resolver_match.url_name == 'team-list' or request.resolver_match.url_name == 'team-detail' %}
-                    active
-                {% endif %}
-            "
-        >
-
-            <span class="nav-icon">
-
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-
-                    <circle
-                        cx="9"
-                        cy="7"
-                        r="4"
-                    />
-
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-
-                </svg>
-
-            </span>
-
-            <span>Takımlar</span>
+            <span>Diğer</span>
 
         </a>
 
@@ -988,7 +962,8 @@
             href="{% url 'finance-dashboard' %}"
             class="
                 bottom-nav-item
-                {% if request.resolver_match.url_name == 'finance-dashboard' or 'expense' in request.resolver_match.url_name or 'regular-expense' in request.resolver_match.url_name or 'fee-management' in request.resolver_match.url_name %}
+                order-2
+                {% if request.resolver_match.url_name == 'finance-dashboard' or request.resolver_match.url_name == 'expense-list' or request.resolver_match.url_name == 'expense-summary' or request.resolver_match.url_name == 'expense-create' or request.resolver_match.url_name == 'expense-update' or request.resolver_match.url_name == 'expense-category-create' or request.resolver_match.url_name == 'finance-mark-paid' %}
                     active
                 {% endif %}
             "

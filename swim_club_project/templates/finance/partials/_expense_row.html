@@ -1,18 +1,21 @@
-<tr class="border-b border-base-200 last:border-0 transition-colors hover:bg-base-200/40 {% if not expense.is_active %}opacity-60{% endif %}">
+<tr class="border-b border-base-200 last:border-0 transition-colors hover:bg-base-200/40 {% if expense.is_regular_source %}bg-base-200/20{% elif not expense.is_active %}opacity-60{% endif %}">
 
     <!-- Tarih -->
     <td class="whitespace-nowrap p-2.5 align-top">
         <div class="text-[10px] font-medium text-base-content/45">
-            {{ expense.expense_date|date:'d.m.Y' }}
-        </div>
-    </td>
 
-    <!-- Kategori -->
-    <td class="hidden p-2.5 align-top md:table-cell">
-        {% if expense.category %}
-            <span class="badge badge-ghost h-5 min-h-0 rounded-md px-2 text-[9px] font-medium text-base-content/55">
-                {{ expense.category.name }}
-            </span>
+                {{ expense.expense_date|date:'d.m.Y' }}
+       
+        </div>
+
+        {% if expense.is_regular_source or expense.regular_expense %}
+            <div class="mt-1 text-[9px] font-semibold text-primary/70">
+                {% if expense.is_regular_source %}
+                    Planlı ödeme
+                {% else %}
+                    Düzenli ödeme
+                {% endif %}
+            </div>
         {% endif %}
     </td>
 
@@ -23,17 +26,37 @@
             {{ expense.reciever }}
         </div>
 
+        <div class="mt-0.5 truncate text-[10px] text-base-content/45">
+            {% if expense.category %}
+                {{ expense.category.name }}
+            {% else %}
+                Kategorisiz
+            {% endif %}
+        </div>
+
         <!-- Durum -->
-        {% if expense.regular_expense or not expense.is_active %}
+        {% if expense.is_regular_source or expense.status or not expense.is_active %}
             <div class="mt-1.5 flex flex-wrap items-center gap-1">
 
-                {% if expense.regular_expense %}
+                {% if expense.is_regular_source %}
                     <span class="badge badge-ghost h-5 min-h-0 rounded-md px-1.5 text-[9px] font-medium text-base-content/50">
-                        Düzenli
+                        Bekliyor
+                    </span>
+                {% elif expense.status == 'paid' %}
+                    <span class="badge badge-success badge-outline h-5 min-h-0 rounded-md px-1.5 text-[9px] font-medium">
+                        Ödendi
+                    </span>
+                {% elif expense.status == 'pending' %}
+                    <span class="badge badge-warning badge-outline h-5 min-h-0 rounded-md px-1.5 text-[9px] font-medium text-warning/80">
+                        Bekliyor
+                    </span>
+                {% elif expense.status == 'cancelled' %}
+                    <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-1.5 text-[9px] font-medium text-error/80">
+                        İptal
                     </span>
                 {% endif %}
 
-                {% if not expense.is_active %}
+                {% if not expense.is_regular_source and not expense.is_active %}
                     <span class="badge badge-error badge-outline h-5 min-h-0 rounded-md px-1.5 text-[9px] font-medium text-error/80">
                         İptal
                     </span>
@@ -42,11 +65,6 @@
             </div>
         {% endif %}
 
-        {% if expense.notes %}
-            <div class="mt-1 max-w-[140px] truncate text-[10px] text-base-content/35">
-                {{ expense.notes }}
-            </div>
-        {% endif %}
 
     </td>
 
@@ -62,15 +80,27 @@
             {{ expense.amount|floatformat:0 }}
         </div>
 
-        <button
-            type="button"
-            class="btn btn-ghost mt-1 h-7 min-h-0 rounded-lg px-2 text-[10px] font-medium text-base-content/45 hover:bg-base-200 hover:text-base-content/70"
-            hx-get="{% url 'expense-update' expense.pk %}?period={{ expense.period }}"
-            hx-target="#modal-container"
-            hx-swap="innerHTML"
-        >
-            Düzenle
-        </button>
+        {% if expense.is_regular_source %}
+            <button
+                type="button"
+                class="btn btn-primary mt-1 h-7 min-h-0 rounded-lg px-2.5 text-[10px] font-semibold"
+                hx-get="{% url 'regular-expense-convert' expense.pk %}?source=expenses&period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+            >
+                Ödeme yap
+            </button>
+        {% else %}
+            <button
+                type="button"
+                class="btn btn-ghost mt-1 h-7 min-h-0 rounded-lg px-2 text-[10px] font-medium text-base-content/45 hover:bg-base-200 hover:text-base-content/70"
+                hx-get="{% url 'expense-update' expense.pk %}?period={{ expense.period }}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+            >
+                Düzenle
+            </button>
+        {% endif %}
 
     </td>
 

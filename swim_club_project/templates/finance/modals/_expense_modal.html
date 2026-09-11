@@ -80,6 +80,29 @@
                     {% endif %}
                 </label>
 
+                <fieldset class="form-control min-w-0 max-w-full sm:col-span-2">
+                    <legend class="mb-2 text-[11px] font-bold text-base-content/65">
+                        Gider durumu
+                    </legend>
+
+                    <div class="flex min-w-0 flex-wrap gap-1.5">
+                        {% for radio in form.status %}
+                            <label class="flex h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 transition-all active:scale-[.98] has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
+                                {{ radio.tag }}
+                                <span class="text-[10px] font-medium">
+                                    {{ radio.choice_label }}
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    {% if form.status.errors %}
+                        <span class="mt-1 text-[10px] font-medium text-error">
+                            {{ form.status.errors|striptags }}
+                        </span>
+                    {% endif %}
+                </fieldset>
+
                 <label class="form-control">
                     <span class="mb-1.5 text-[10px] font-medium text-base-content/55">
                         Alıcı / firma

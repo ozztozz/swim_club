@@ -86,21 +86,30 @@
             <div class="space-y-3">
 
                 <!-- Kategori -->
-                <label class="form-control">
+                <fieldset class="form-control min-w-0">
 
-                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
+                    <legend class="mb-1.5 text-[10px] font-bold text-base-content/60">
                         Kategori
-                    </span>
+                    </legend>
 
-                    {{ form.category }}
+                    <div class="flex min-w-0 flex-wrap gap-1.5">
+                        {% for radio in form.category %}
+                            <label class="flex min-h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 py-1.5 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
+                                {{ radio.tag }}
+                                <span class="truncate text-[10px] font-medium">
+                                    {{ radio.choice_label }}
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
 
                     {% if form.category.errors %}
                         <span class="mt-1 text-[10px] text-error">
-                            {{ form.category.errors }}
+                            {{ form.category.errors|striptags }}
                         </span>
                     {% endif %}
 
-                </label>
+                </fieldset>
 
 
                 <!-- Tutar + Tarih -->

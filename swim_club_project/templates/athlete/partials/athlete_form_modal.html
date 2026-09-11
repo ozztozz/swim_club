@@ -38,6 +38,12 @@
                 </div>
             {% endif %}
 
+            {% if form.errors %}
+                <div class="mb-3 rounded-xl border border-error/20 bg-error/5 px-3 py-2 text-[11px] text-error">
+                    Formda eksik veya hatalı alanlar var. Lütfen kırmızı uyarıları kontrol edin.
+                </div>
+            {% endif %}
+
 
             <!-- Temel bilgiler -->
             <div class="mb-4">
@@ -180,17 +186,13 @@
                         <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
                             Durum
                         </span>
-                        {{ form.status }}
-                        {% if form.status.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.status.errors }}</span>
-                        {% endif %}
-                    </label>
-
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
-                            Kulübe katılım tarihi
+                        <span class="flex h-10 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3">
+                            {{ form.is_active }}
+                            <span class="text-xs font-semibold text-base-content/70">Aktif sporcu</span>
                         </span>
-                        {{ form.joined_date }}
+                        {% if form.is_active.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.is_active.errors }}</span>
+                        {% endif %}
                     </label>
 
                     <label class="form-control">
@@ -260,11 +262,11 @@
 
                     <label class="form-control">
                         <span class="mb-1.5 text-[10px] font-bold text-base-content/60">
-                            İndirim (%)
+                            Özel ders ücreti (TL)
                         </span>
-                        {{ form.discount_percentage }}
-                        {% if form.discount_percentage.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.discount_percentage.errors }}</span>
+                        {{ form.private_lesson_fee }}
+                        {% if form.private_lesson_fee.errors %}
+                            <span class="mt-1 text-[10px] text-error">{{ form.private_lesson_fee.errors }}</span>
                         {% endif %}
                     </label>
 

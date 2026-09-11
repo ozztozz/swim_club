@@ -11,7 +11,7 @@ class AthleteForm(forms.ModelForm):
         fields = (
             'parent', 'parent_phone', 'parent_email', 'first_name', 'last_name', 'phone_number', 'tc_identity', 'birth_date',
             'gender', 'school', 'license_number', 'joined_date', 'photo',
-            'is_active', 'team', 'custom_fee', 'discount_percentage',
+            'is_active', 'team', 'custom_fee', 'private_lesson_fee',
             'regular_payment_day',
         )
         widgets = {
@@ -31,7 +31,7 @@ class AthleteForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'toggle toggle-primary'}),
             'team': forms.Select(attrs={'class': 'select select-bordered w-full'}),
             'custom_fee': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'numeric', 'step': '1', 'min': '0'}),
-            'discount_percentage': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'step': '1', 'min': '0', 'max': '100'}),
+            'private_lesson_fee': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'numeric', 'step': '1', 'min': '0'}),
             'regular_payment_day': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'min': '1', 'max': '31'}),
         }
 
@@ -118,10 +118,18 @@ class AthletePaymentCreateForm(forms.ModelForm):
 
 
 class EquipmentSaleForm(forms.Form):
-    def __init__(self, *args, initial_quantities=None, **kwargs):
+    def __init__(self, *args, initial_quantities=None, coach_queryset=None, **kwargs):
         super().__init__(*args, **kwargs)
         initial_quantities = initial_quantities or {}
-        self.equipment_items = list(Equipment.objects.all())
+        if coach_queryset is not None:
+            self.fields['coach'] = forms.ModelChoiceField(
+                queryset=coach_queryset,
+                label='Stok sahibi antrenör',
+                required=False,
+                empty_label='Antrenör seçin',
+                widget=forms.Select(attrs={'class': 'select select-bordered w-full'}),
+            )
+        self.equipment_items = list(Equipment.objects.filter(is_active=True))
         for equipment in self.equipment_items:
             self.fields[f'equipment_{equipment.pk}'] = forms.IntegerField(
                 label=equipment.name,
@@ -162,7 +170,7 @@ class EquipmentSaleForm(forms.Form):
     status = forms.ChoiceField(
         choices=PaymentRecord.STATUS_CHOICES,
         label='Durum',
-        initial='paid',
+        initial='pending',
         widget=forms.RadioSelect(attrs={'class': 'radio radio-primary'}),
     )
     notes = forms.CharField(

@@ -4,7 +4,27 @@ from django.db.models import Sum
 from athletes.models import Athlete
 from decimal import Decimal
 from django.db.models import Q
-from .models import TeamFeeHistory, PaymentRecord, Expense
+from .models import EquipmentStockMovement, TeamFeeHistory, PaymentRecord, Expense
+
+
+def get_equipment_central_stock(equipment):
+    movements = EquipmentStockMovement.objects.filter(equipment=equipment)
+    stock_in = movements.filter(movement_type='stock_in').aggregate(total=Sum('quantity'))['total'] or 0
+    returns = movements.filter(movement_type='coach_return').aggregate(total=Sum('quantity'))['total'] or 0
+    transfers = movements.filter(movement_type='coach_transfer').aggregate(total=Sum('quantity'))['total'] or 0
+    direct_distributions = movements.filter(
+        movement_type='athlete_distribution',
+        coach__isnull=True,
+    ).aggregate(total=Sum('quantity'))['total'] or 0
+    return stock_in + returns - transfers - direct_distributions
+
+
+def get_equipment_coach_stock(equipment, coach):
+    movements = EquipmentStockMovement.objects.filter(equipment=equipment, coach=coach)
+    received = movements.filter(movement_type='coach_transfer').aggregate(total=Sum('quantity'))['total'] or 0
+    distributed = movements.filter(movement_type='athlete_distribution').aggregate(total=Sum('quantity'))['total'] or 0
+    returned = movements.filter(movement_type='coach_return').aggregate(total=Sum('quantity'))['total'] or 0
+    return received - distributed - returned
 
 def get_athlete_fee_for_period(athlete, period_str):
     """
@@ -119,7 +139,6 @@ def get_financial_summary(period_str=None, monthly_payments=None):
     total_income = PaymentRecord.objects.filter(
         period=period_str,
         status='paid',
-        athlete__is_active=True,
     ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
     pending_income = sum(
         (payment.amount for payment in monthly_payments if payment.payment_status != 'paid'),
@@ -130,6 +149,7 @@ def get_financial_summary(period_str=None, monthly_payments=None):
     total_expense = Expense.objects.filter(
         period=period_str,
         is_active=True,
+        status__in=('paid', 'pending'),
     ).aggregate(total=Sum('amount'))['total'] or 0.00
 
     net_balance = float(total_income) - float(total_expense)

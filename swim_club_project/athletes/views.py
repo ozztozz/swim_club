@@ -4,7 +4,9 @@ from decimal import Decimal
 import re
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db import models
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -14,10 +16,13 @@ from django.views.decorators.http import require_POST
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from django.db.models import Sum
 from .forms import AthleteForm, AthletePaymentCreateForm, AthletePaymentEditForm, EquipmentSaleForm
 from .models import Athlete
 from .serializers import AthleteSerializer
-from finance.models import Equipment, EquipmentSaleItem, PaymentRecord
+from finance.models import Equipment, EquipmentSaleItem, EquipmentStockMovement, PaymentRecord
+from finance.services import get_equipment_central_stock, get_equipment_coach_stock
 
 MONTH_NAMES = (
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -162,10 +167,10 @@ def athlete_detail(request, pk):
 
 
 @login_required
-def athlete_make_payment(request, pk, period=None, payment_id=None):
+def athlete_make_payment(request, athlete_id, period=None, payment_id=None):
     from finance.services import get_athlete_fee_for_period
 
-    athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
+    athlete = get_object_or_404(_athlete_queryset(request), pk=athlete_id)
     dashboard_mode = request.GET.get('dashboard') == '1'
     if payment_id is not None:
         payment = get_object_or_404(
@@ -184,14 +189,29 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
 
         payment = None
 
-    fee_amount = get_athlete_fee_for_period(athlete, period)
+    private_lesson_fee = athlete.private_lesson_fee or 0
+    is_private_lesson = private_lesson_fee > 0
+    fee_amount = private_lesson_fee if is_private_lesson else get_athlete_fee_for_period(athlete, period)
+    paid_amount = PaymentRecord.objects.filter(athlete=athlete, period=period, payment_type='fee', status='paid').aggregate(total_paid=Sum('amount'))['total_paid'] or Decimal('0.00')
+
+    lesson_count = 1
+    if is_private_lesson and payment and fee_amount:
+        lesson_count = max(1, int(payment.amount or fee_amount) // int(fee_amount))
+
     amount = payment.amount or fee_amount if payment else fee_amount
+    if not is_private_lesson:
+        amount -= paid_amount if paid_amount and amount > paid_amount else Decimal('0.00')
+
     item = {
         'period': period,
         'label': f'{MONTH_NAMES[month - 1]} {year}',
+        'fee_amount': fee_amount,
+        'private_lesson_fee': private_lesson_fee,
+        'is_private_lesson': is_private_lesson,
+        'lesson_count': lesson_count,
         'amount': amount,
         'payment': payment,
-        'paid_amount': payment.amount if payment and payment.status == 'paid' else Decimal('0.00'),
+        'paid_amount': paid_amount,
         'payment_type': payment.payment_type if payment else 'fee',
         'payment_type_display': payment.get_payment_type_display() if payment else 'Aidat',
         'is_paid': payment is not None and payment.status == 'paid',
@@ -214,15 +234,24 @@ def athlete_make_payment(request, pk, period=None, payment_id=None):
         }, status=405)
 
     try:
-        raw_amount = request.POST.get('amount', '').strip()
-        normalized_amount = raw_amount.replace(',', '').replace('.', '').replace(' ', '')
-        if not normalized_amount.isdigit():
-            raise ValueError
-        amount = int(normalized_amount)
-        if amount < 0:
-            raise ValueError
+        if is_private_lesson:
+            raw_lesson_count = request.POST.get('lesson_count', '').strip()
+            if not raw_lesson_count.isdigit() or int(raw_lesson_count) < 1:
+                raise ValueError
+            lesson_count = int(raw_lesson_count)
+            amount = private_lesson_fee * lesson_count
+            item['lesson_count'] = lesson_count
+            item['amount'] = amount
+        else:
+            raw_amount = request.POST.get('amount', '').strip()
+            normalized_amount = raw_amount.replace(',', '').replace('.', '').replace(' ', '')
+            if not normalized_amount.isdigit():
+                raise ValueError
+            amount = int(normalized_amount)
+            if amount < 0:
+                raise ValueError
     except (TypeError, ValueError):
-        item['amount_error'] = 'Geçerli, sıfır veya daha büyük bir tutar girin.'
+        item['amount_error'] = 'Geçerli bir ders sayısı veya tutar girin.'
         return render(request, 'athlete/partials/athlete_payment_modal.html', {
             'athlete': athlete,
             'item': item,
@@ -300,10 +329,37 @@ def athlete_create_payment(request, pk):
 @login_required
 def athlete_create_equipment_sale(request, pk):
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
+    coach_queryset = get_user_model().objects.filter(role='coach', is_active=True).order_by('first_name', 'last_name')
+    if request.user.is_coach:
+        coach_queryset = get_user_model().objects.filter(pk=request.user.pk)
     if request.method == 'POST':
-        form = EquipmentSaleForm(request.POST)
+        form = EquipmentSaleForm(request.POST, coach_queryset=coach_queryset)
         if form.is_valid():
-            sale_data = _equipment_sale_data(form, request.user)
+            distribution_mode = request.POST.get('distribution_mode') == '1'
+            stock_source = request.POST.get('stock_source', 'coach')
+            coach = form.cleaned_data['coach']
+            if distribution_mode and stock_source == 'coach' and coach is None:
+                form.add_error('coach', 'Dağıtım için antrenör seçilmelidir.')
+                sale_data = None
+            else:
+                sale_data = _equipment_sale_data(form, request.user)
+            if sale_data:
+                insufficient = []
+                if distribution_mode and stock_source == 'coach':
+                    insufficient = [
+                        f'{equipment.name}: mevcut {get_equipment_coach_stock(equipment, coach)}, istenen {quantity}'
+                        for equipment, quantity, _ in sale_data['items']
+                        if quantity > get_equipment_coach_stock(equipment, coach)
+                    ]
+                elif distribution_mode and stock_source == 'central':
+                    insufficient = [
+                        f'{equipment.name}: merkezde mevcut {get_equipment_central_stock(equipment)}, istenen {quantity}'
+                        for equipment, quantity, _ in sale_data['items']
+                        if quantity > get_equipment_central_stock(equipment)
+                    ]
+                if insufficient:
+                    form.add_error(None, f'Antrenör stoğu yetersiz: {", ".join(insufficient)}')
+                    sale_data = None
             if sale_data:
                 with transaction.atomic():
                     payment = PaymentRecord.objects.create(
@@ -312,32 +368,43 @@ def athlete_create_equipment_sale(request, pk):
                         payment_method=form.cleaned_data['payment_method'],
                         period=date.today().strftime('%Y-%m'),
                         amount=sale_data['amount'],
-                        status=sale_data['status'],
+                        status='pending' if distribution_mode else sale_data['status'],
                         due_date=date.today(),
                         paid_at=sale_data['paid_at'],
                         collected_by=sale_data['collected_by'],
                         notes=sale_data['notes'],
                     )
-                    EquipmentSaleItem.objects.bulk_create([
-                        EquipmentSaleItem(
+                    for equipment, quantity, unit_price in sale_data['items']:
+                        sale_item = EquipmentSaleItem.objects.create(
                             payment=payment,
                             equipment=equipment,
                             quantity=quantity,
                             unit_price=unit_price,
                         )
-                        for equipment, quantity, unit_price in sale_data['items']
-                    ])
+                        if distribution_mode:
+                            EquipmentStockMovement.objects.create(
+                                equipment=equipment,
+                                movement_type='athlete_distribution',
+                                quantity=quantity,
+                                coach=coach if stock_source == 'coach' else None,
+                                athlete=athlete,
+                                payment=payment,
+                                sale_item=sale_item,
+                                created_by=request.user,
+                                notes='Sporcuya dağıtım',
+                            )
                 response = HttpResponse(status=204)
                 response['HX-Redirect'] = request.build_absolute_uri(
                     reverse('athlete-manage-detail', args=[athlete.pk])
                 )
                 return response
     else:
-        form = EquipmentSaleForm()
+        form = EquipmentSaleForm(coach_queryset=coach_queryset)
 
     return render(request, 'athlete/partials/athlete_equipment_sale_modal.html', {
         'athlete': athlete,
         'form': form,
+        'distribution_mode': True,
         'sale_url': reverse('athlete-manage-equipment-sale-create', args=[athlete.pk]),
     })
 
@@ -438,7 +505,7 @@ def _equipment_sale_data(form, user, unit_prices=None):
 def _equipment_sale_quantities(notes):
     quantities = {}
     first_line = (notes or '').splitlines()[0] if notes else ''
-    for equipment in Equipment.objects.all():
+    for equipment in Equipment.objects.filter(is_active=True):
         match = re.search(rf'(?:^|,\s*){re.escape(equipment.name)}\s+x(\d+)(?:,|$)', first_line.removeprefix('Malzemeler: '))
         if match:
             quantities[equipment.pk] = int(match.group(1))
@@ -465,7 +532,7 @@ def _equipment_sale_items(payment):
 
     items = []
     sale_items = first_line.removeprefix('Malzemeler: ')
-    for equipment in Equipment.objects.all():
+    for equipment in Equipment.objects.filter(is_active=True):
         match = re.search(
             rf'(?:^|,\s*){re.escape(equipment.name)}\s+x(\d+)(?:,|$)',
             sale_items,

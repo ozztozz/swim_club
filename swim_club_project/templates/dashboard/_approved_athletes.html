@@ -9,14 +9,12 @@
     >
 
         <!-- Sporcu bilgisi -->
-        <div class="min-w-0 flex-1">
+        <a
+            href="{% url 'athlete-manage-detail' athlete.pk %}"
+            class="min-w-0 flex-1 block rounded-xl py-1 transition-colors active:bg-base-200/60"
+            >
             <p class="truncate text-sm font-semibold text-base-content/80">
-                <a
-                    href="{% url 'athlete-manage-detail' athlete.pk %}"
-                    class="hover:text-primary hover:underline focus:text-primary focus:outline-none"
-                >
-                    {{ athlete.first_name }} {{ athlete.last_name }}
-                </a>
+                {{ athlete.first_name }} {{ athlete.last_name }}
             </p>
 
             <div class="mt-0.5 flex items-center gap-1.5">
@@ -30,7 +28,7 @@
                     </span>
                 {% endif %}
             </div>
-        </div>
+        </a>
 
         <!-- İşlem -->
         <div class="shrink-0">
