@@ -7,6 +7,7 @@ from django.shortcuts import render
 # finance/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q, Sum
 from django.urls import reverse
@@ -75,6 +76,8 @@ def equipment_toggle_active(request, pk):
 
 @login_required
 def equipment_stock(request):
+    if request.user.is_coach:
+        raise PermissionDenied
     equipments = list(Equipment.objects.filter(is_active=True).order_by('name'))
     coaches = [request.user] if request.user.is_coach else list(
         request.user.__class__.objects.filter(role='coach', is_active=True).order_by('first_name', 'last_name')
@@ -171,6 +174,8 @@ def equipment_stock(request):
 
 @login_required
 def equipment_stock_modal(request):
+    if request.user.is_coach:
+        raise PermissionDenied
     equipments = Equipment.objects.filter(is_active=True).order_by('name')
     coaches = [request.user] if request.user.is_coach else request.user.__class__.objects.filter(
         role='coach', is_active=True,

@@ -5,6 +5,7 @@ import re
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db import models
 from django.db.models import Q
@@ -32,6 +33,8 @@ MONTH_NAMES = (
 
 def _athlete_queryset(request):
     queryset = Athlete.objects.select_related('team').order_by('-is_active', 'team__name', 'first_name', 'last_name')
+    if request.user.is_coach:
+        return queryset.filter(team__coaches=request.user)
     if request.user.is_parent:
         return queryset.filter(parent_email=request.user.email)
     return queryset
@@ -40,7 +43,11 @@ def _athlete_queryset(request):
 def _athlete_context(request):
     query = request.GET.get('q', '').strip()
     has_search = len(query) >= 3
+    show_coach_roster = request.user.is_coach and not query
     athletes = _athlete_queryset(request).none()
+    if show_coach_roster:
+        athletes = _athlete_queryset(request)
+        has_search = True
     if has_search:
         athletes = _athlete_queryset(request).filter(
             Q(first_name__icontains=query) |
@@ -328,6 +335,13 @@ def athlete_create_payment(request, pk):
 
 @login_required
 def athlete_create_equipment_sale(request, pk):
+    if not (
+        request.user.is_superuser
+        or request.user.is_coach
+        or request.user.is_club_admin
+        or request.user.is_finance
+    ):
+        raise PermissionDenied
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     coach_queryset = get_user_model().objects.filter(role='coach', is_active=True).order_by('first_name', 'last_name')
     if request.user.is_coach:
@@ -337,6 +351,10 @@ def athlete_create_equipment_sale(request, pk):
         if form.is_valid():
             distribution_mode = request.POST.get('distribution_mode') == '1'
             stock_source = request.POST.get('stock_source', 'coach')
+            if request.user.is_coach and not distribution_mode:
+                raise PermissionDenied
+            if request.user.is_coach:
+                stock_source = 'coach'
             coach = form.cleaned_data['coach']
             if distribution_mode and stock_source == 'coach' and coach is None:
                 form.add_error('coach', 'Dağıtım için antrenör seçilmelidir.')

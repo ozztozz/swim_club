@@ -424,7 +424,7 @@
                        bg-base-200/20
                        p-2.5">
 
-                <button
+                {% if request.user.is_coach or request.user.is_club_admin or request.user.is_finance or request.user.is_superuser %}<button
                     type="button"
                     class="flex h-9 w-full items-center justify-center gap-1.5
                            rounded-xl
@@ -454,10 +454,10 @@
                     </span>
 
                     <span>
-                        Malzeme Satışı Ekle
+                        Malzeme Dağıtımı Ekle
                     </span>
 
-                </button>
+                </button>{% endif %}
 
             </div>
 

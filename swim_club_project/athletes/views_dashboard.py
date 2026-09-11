@@ -146,6 +146,6 @@ def parent_dashboard(request):
         'children_count': len(children),
         'payments': payments,
         'total_due': total_due,
-        'has_pending': pending_payments.exists(),
+        'has_pending': bool(pending_payments),
     }
     return render(request, 'users_temps/parent_dashboard.html', context)
