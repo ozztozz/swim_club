@@ -237,6 +237,34 @@
             padding: 14px;
 
             padding-bottom: 20px;
+
+            position: relative;
+            z-index: 1;
+        }
+
+
+        body.modal-is-open {
+            overflow: hidden !important;
+        }
+
+
+        body.modal-is-open .app-content,
+        .app-content:has(dialog[open]),
+        .app-content:has(.modal.modal-open),
+        .app-content:has(.modal),
+        body:has(dialog[open]) .app-content,
+        body:has(.modal.modal-open) .app-content {
+
+            z-index: 1000 !important;
+        }
+
+
+        body.modal-is-open .bottom-nav,
+        body.modal-is-open .app-header,
+        body:has(dialog[open]) .bottom-nav,
+        body:has(.modal.modal-open) .bottom-nav {
+
+            z-index: 1 !important;
         }
 
 
@@ -336,12 +364,13 @@
         ========================================================== */
 
         dialog.modal,
-        dialog.modal.modal-open {
+        dialog.modal.modal-open,
+        .modal.modal-open {
 
             position: fixed;
             inset: 0;
 
-            z-index: 100;
+            z-index: 9999 !important;
 
             width: 100%;
             max-width: none;
@@ -351,22 +380,27 @@
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
             overscroll-behavior: contain;
+
+            padding-bottom: env(safe-area-inset-bottom, 0px);
         }
 
 
         dialog.modal::backdrop {
-            z-index: 99;
+            z-index: 9998 !important;
         }
 
 
-        dialog.modal .modal-box {
+        dialog.modal .modal-box,
+        .modal .modal-box {
 
-            max-height: calc(100dvh - 1rem);
+            max-height: calc(100dvh - 2rem - env(safe-area-inset-bottom, 0px));
 
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
             overscroll-behavior: contain;
+
+            margin-bottom: env(safe-area-inset-bottom, 0px);
         }
 
 
@@ -607,11 +641,136 @@
 
 
 
+            function updateModalState() {
+
+                const hasModal =
+                    document.querySelector('dialog[open], dialog.modal-open, .modal.modal-open');
+
+
+                if (hasModal) {
+
+                    document.body.classList.add('modal-is-open');
+
+
+                    const appContent =
+                        document.querySelector('.app-content');
+
+                    if (appContent) {
+                        appContent.style.zIndex = '1000';
+                    }
+
+
+                    const bottomNav =
+                        document.querySelector('.bottom-nav');
+
+                    if (bottomNav) {
+                        bottomNav.style.zIndex = '1';
+                    }
+
+                } else {
+
+                    document.body.classList.remove('modal-is-open');
+
+
+                    const appContent =
+                        document.querySelector('.app-content');
+
+                    if (appContent) {
+                        appContent.style.zIndex = '';
+                    }
+
+
+                    const bottomNav =
+                        document.querySelector('.bottom-nav');
+
+                    if (bottomNav) {
+                        bottomNav.style.zIndex = '';
+                    }
+
+                }
+
+            }
+
+
+
+            function initializeModals(root) {
+
+                if (!root) {
+                    return;
+                }
+
+                var elements = [];
+
+                if (root.matches && root.matches('dialog.modal, .modal')) {
+                    elements.push(root);
+                }
+
+                if (root.querySelectorAll) {
+                    root.querySelectorAll('dialog.modal, .modal').forEach(function (el) {
+                        elements.push(el);
+                    });
+                }
+
+                elements.forEach(function (modal) {
+
+                    if (modal.id === 'mobile-more-menu') {
+                        return;
+                    }
+
+                    // Move modal to document.body root.
+                    // This solves iOS WebKit stacking context issues across all iOS versions
+                    // by removing fixed modals from nested scroll containers (.app-content).
+                    if (modal.parentElement && modal.parentElement !== document.body) {
+                        document.body.appendChild(modal);
+                    }
+
+                    if (modal.tagName === 'DIALOG') {
+
+                        if (
+                            typeof modal.showModal === 'function' &&
+                            !modal.open
+                        ) {
+
+                            try {
+                                modal.showModal();
+                            } catch (e) {
+                                modal.setAttribute('open', '');
+                            }
+
+                        }
+
+                    }
+
+                });
+
+
+                updateModalState();
+            }
+
+
+
+            const modalObserver =
+                new MutationObserver(function () {
+                    updateModalState();
+                });
+
+
+
             document.addEventListener(
                 'DOMContentLoaded',
                 function () {
 
                     prepareMoneyInputs(document);
+                    initializeModals(document);
+                    updateModalState();
+
+
+                    modalObserver.observe(document.body, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['open', 'class']
+                    });
 
                 }
             );
@@ -623,6 +782,8 @@
                 function (event) {
 
                     prepareMoneyInputs(event.target);
+                    initializeModals(event.target);
+                    updateModalState();
 
                 }
             );
