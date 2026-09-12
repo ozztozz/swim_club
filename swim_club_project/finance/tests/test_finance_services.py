@@ -168,13 +168,13 @@ class FinanceModelAndServiceTests(TestCase):
         create_url = reverse('equipment-create')
 
         self.assertEqual(self.client.get(list_url).status_code, 200)
-        response = self.client.post(create_url, {'name': 'Bone', 'price': '125.00'})
+        response = self.client.post(create_url, {'name': 'Bone', 'price': '125.00', 'is_active': 'on'})
         self.assertRedirects(response, list_url)
 
         equipment = Equipment.objects.get(name='Bone')
         response = self.client.post(
             reverse('equipment-update', args=[equipment.pk]),
-            {'name': 'Silikon Bone', 'price': '150.00'},
+            {'name': 'Silikon Bone', 'price': '150.00', 'is_active': 'on'},
         )
         self.assertRedirects(response, list_url)
         equipment.refresh_from_db()
