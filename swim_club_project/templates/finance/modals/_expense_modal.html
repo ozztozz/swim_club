@@ -204,11 +204,14 @@
 <script>
 function closeExpenseModal() {
     const modal = document.getElementById('expense_modal');
+    const content = modal?.closest('.app-content');
 
     if (modal) {
         modal.close?.();
         modal.remove();
     }
+
+    content?.classList.remove('modal-active');
 
     const container = document.getElementById('modal-container');
 

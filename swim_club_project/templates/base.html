@@ -251,6 +251,12 @@
         }
 
 
+        .app-content.modal-active {
+
+            z-index: 50 !important;
+        }
+
+
         .app-content::-webkit-scrollbar {
             display: none;
         }
@@ -624,6 +630,40 @@
                 function (event) {
 
                     prepareMoneyInputs(event.target);
+
+                }
+            );
+
+
+            document.addEventListener(
+                'htmx:afterSwap',
+                function (event) {
+
+                    const target = event.detail.target;
+
+                    if (
+                        target?.querySelector(
+                            '.modal-open, dialog[open]'
+                        )
+                    ) {
+
+                        target
+                            .closest('.app-content')
+                            ?.classList.add('modal-active');
+
+                    }
+
+                }
+            );
+
+
+            document.addEventListener(
+                'closeExpenseModal',
+                function () {
+
+                    document
+                        .querySelector('.app-content.modal-active')
+                        ?.classList.remove('modal-active');
 
                 }
             );
