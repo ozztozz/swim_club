@@ -31,7 +31,7 @@ MANIFEST = """
 """.strip()
 
 SERVICE_WORKER = """
-const CACHE_NAME = "alphaacademy-static-v1";
+const CACHE_NAME = "alphaacademy-static-v2";
 const STATIC_ASSETS = [
         "/manifest.webmanifest",
     "/media/logos/icon-192.png",
