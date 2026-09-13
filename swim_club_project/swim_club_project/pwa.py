@@ -15,14 +15,14 @@ MANIFEST = """
     "lang": "tr-TR",
     "icons": [
         {
-            "src": "/media/logos/icon-192.png",
-            "sizes": "192x192",
+            "src": "/media/logos/logo_new.png",
+            "sizes": "1024x1024",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "/media/logos/icon-512.png",
-            "sizes": "512x512",
+            "src": "/media/logos/logo_new.png",
+            "sizes": "1024x1024",
             "type": "image/png",
             "purpose": "any maskable"
         }
@@ -31,11 +31,10 @@ MANIFEST = """
 """.strip()
 
 SERVICE_WORKER = """
-const CACHE_NAME = "alphaacademy-static-v2";
+const CACHE_NAME = "alphaacademy-static-v3";
 const STATIC_ASSETS = [
         "/manifest.webmanifest",
-    "/media/logos/icon-192.png",
-    "/media/logos/icon-512.png"
+    "/media/logos/logo_new.png"
 ];
 
 self.addEventListener("install", (event) => {
