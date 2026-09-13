@@ -46,6 +46,8 @@
         ========================================================== */
 
         * {
+            box-sizing: border-box;
+
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
         }
@@ -231,9 +233,10 @@
 
         .app-content {
 
-            flex: 1;
+            flex: 1 1 auto;
 
             min-height: 0;
+            min-width: 0;
 
             overflow-x: hidden;
             overflow-y: auto;
@@ -281,7 +284,9 @@
 
         .bottom-nav {
 
-            flex-shrink: 0;
+            flex: 0 0 auto;
+
+            min-height: 65px;
 
             padding-bottom: env(safe-area-inset-bottom);
 
@@ -300,6 +305,7 @@
         .bottom-nav-inner {
 
             height: 64px;
+            min-height: 64px;
 
             display: grid;
 

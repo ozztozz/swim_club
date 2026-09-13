@@ -6,7 +6,7 @@ MANIFEST = """
     "name": "Alpha Academy Kulup Yonetim Paneli",
     "short_name": "Alphaacademy",
     "description": "Alpha Academy spor kulubu yonetim paneli",
-    "start_url": "/",
+    "start_url": "/dashboard/",
     "scope": "/",
     "display": "standalone",
     "orientation": "portrait-primary",
@@ -15,8 +15,14 @@ MANIFEST = """
     "lang": "tr-TR",
     "icons": [
         {
-            "src": "/media/logos/fk1.png",
-            "sizes": "any",
+            "src": "/media/logos/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/media/logos/icon-512.png",
+            "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
         }
@@ -28,7 +34,8 @@ SERVICE_WORKER = """
 const CACHE_NAME = "alphaacademy-static-v1";
 const STATIC_ASSETS = [
         "/manifest.webmanifest",
-    "/media/logos/fk1.png"
+    "/media/logos/icon-192.png",
+    "/media/logos/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
