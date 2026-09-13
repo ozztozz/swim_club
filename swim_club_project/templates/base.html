@@ -279,18 +279,21 @@
             left: 0;
             right: 0;
             bottom: 0;
+            visibility: visible;
+            opacity: 1;
+            isolation: isolate;
 
             padding-bottom: env(safe-area-inset-bottom);
 
             background: oklch(var(--b1) / .96);
 
-            backdrop-filter: blur(20px);
-                font-size: 12px;
+            font-size: 12px;
 
             border-top:
                 1px solid oklch(var(--b3) / .7);
 
             z-index: 1000;
+            transform: translateZ(0);
         }
 
 
@@ -308,6 +311,9 @@
                 repeat(3, minmax(0, 1fr));
 
             padding: 4px 6px;
+            visibility: visible;
+            opacity: 1;
+            transform: translateZ(0);
         }
 
 
