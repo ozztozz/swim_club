@@ -22,8 +22,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from users.views import user_login_view, user_logout_view  # users view'larınızı içe aktarın
+from .pwa import service_worker
 
 urlpatterns = [
+    path('sw.js', service_worker, name='service-worker'),
     # Auth Yolları
     path('login/', user_login_view, name='user-login'),
     path('logout/', user_logout_view, name='user-logout'),
