@@ -11,13 +11,13 @@
   "lang": "tr-TR",
   "icons": [
     {
-      "src": "/media/logos/logo_new.png",
+      "src": "/media/logos/new_logo.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/media/logos/logo_new.png",
+      "src": "/media/logos/new_logo.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"
