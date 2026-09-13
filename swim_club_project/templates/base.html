@@ -765,6 +765,31 @@
                         </li>
 
                         <li>
+                        <script>
+                            (function () {
+                                function restoreBottomNavigation() {
+                                    window.requestAnimationFrame(function () {
+                                        document.querySelectorAll('.bottom-nav').forEach(function (nav) {
+                                            nav.style.visibility = 'visible';
+                                            nav.style.opacity = '1';
+                                            nav.style.zIndex = '1000';
+                                        });
+                                    });
+                                }
+
+                                document.addEventListener('DOMContentLoaded', restoreBottomNavigation);
+                                document.addEventListener('pageshow', restoreBottomNavigation);
+                                document.addEventListener('htmx:afterSwap', restoreBottomNavigation);
+                                document.addEventListener('htmx:afterSettle', restoreBottomNavigation);
+
+                                new MutationObserver(restoreBottomNavigation).observe(
+                                    document.body,
+                                    { childList: true, subtree: true }
+                                );
+                            })();
+                        </script>
+
+
                             <a href="{% url 'team-list' %}">
                                 Takımlar
                             </a>
