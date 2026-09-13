@@ -69,8 +69,14 @@
         <div class="mt-3 border-t border-base-200 pt-2">
             {% for category in expense_summary.category_totals %}
                 <div class="flex items-center justify-between gap-2 py-0.5 text-xs">
-                    <span class="truncate text-base-content/60">{{ category.name }}</span>
-                    <span class="shrink-0 font-bold text-error">{{ category.total|floatformat:0 }}</span>
+                    <span class="truncate {% if category.parent_name %}pl-3 text-base-content/50{% else %}font-semibold text-base-content/80{% endif %}">
+                        {% if category.parent_name %}
+                             {{ category.name }}
+                        {% else %}
+                            {{ category.name }}
+                        {% endif %}
+                    </span>
+                    <span class="shrink-0 font-bold {% if category.parent_name %}text-error/70{% else %}text-primary{% endif %}">{{ category.total|floatformat:0 }}</span>
                 </div>
             {% empty %}
                 <p class="text-xs text-base-content/40">Kayıt yok.</p>

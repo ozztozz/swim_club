@@ -96,13 +96,44 @@ class ExpenseForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        category_queryset = ExpenseCategory.objects.select_related('parent').order_by(
+            'parent__name', 'name'
+        )
+        categories = list(category_queryset)
+        self.fields['category'].queryset = category_queryset
+        self.fields['category'].label_from_instance = lambda category: (
+            f'{category.parent.name} / {category.name}'
+            if category.parent_id else category.name
+        )
+        self.category_roots = [category for category in categories if not category.parent_id]
+        selected_category_id = self['category'].value()
+        self.selected_category_id = str(selected_category_id) if selected_category_id else ''
+        self.category_groups = [
+            {
+                'parent': parent,
+                'children': [child for child in categories if child.parent_id == parent.pk],
+                'is_selected': str(selected_category_id) in {
+                    str(parent.pk),
+                    *[
+                        str(child.pk)
+                        for child in categories
+                        if child.parent_id == parent.pk
+                    ],
+                },
+            }
+            for parent in self.category_roots
+        ]
+
 
 class ExpenseCategoryForm(forms.ModelForm):
     class Meta:
         model = ExpenseCategory
-        fields = ['name', 'description']
+        fields = ['name', 'parent', 'description']
         labels = {
             'name': 'Kategori adı',
+            'parent': 'Üst kategori',
             'description': 'Açıklama',
         }
         widgets = {
@@ -110,6 +141,9 @@ class ExpenseCategoryForm(forms.ModelForm):
                 'class': 'input input-bordered input-sm w-full',
                 'placeholder': 'Örn. Havuz kirası',
                 'autofocus': True,
+            }),
+            'parent': forms.Select(attrs={
+                'class': 'select select-bordered select-sm w-full',
             }),
             'description': forms.Textarea(attrs={
                 'class': 'textarea textarea-bordered textarea-sm w-full',

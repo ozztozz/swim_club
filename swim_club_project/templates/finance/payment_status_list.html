@@ -29,6 +29,9 @@
 
             <p class="mt-1 text-sm font-bold {% if payment_status == 'paid' %}text-success{% else %}text-warning{% endif %}">
                 Toplam {{ total_amount|floatformat:0 }} TL
+                <span class="font-medium text-base-content/40">
+                    · {{ athlete_count }} sporcu
+                </span>
             </p>
 
         </div>

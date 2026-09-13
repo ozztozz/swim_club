@@ -205,9 +205,12 @@ def athlete_make_payment(request, athlete_id, period=None, payment_id=None):
     if is_private_lesson and payment and fee_amount:
         lesson_count = max(1, int(payment.amount or fee_amount) // int(fee_amount))
 
-    amount = payment.amount or fee_amount if payment else fee_amount
-    if not is_private_lesson:
-        amount -= paid_amount if paid_amount and amount > paid_amount else Decimal('0.00')
+    if payment:
+        amount = payment.amount or fee_amount
+    else:
+        amount = fee_amount
+    if not is_private_lesson and fee_amount:
+        amount = max(fee_amount - paid_amount, Decimal('0.00'))
 
     item = {
         'period': period,

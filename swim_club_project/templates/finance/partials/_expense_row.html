@@ -28,7 +28,11 @@
 
         <div class="mt-0.5 truncate text-[10px] text-base-content/45">
             {% if expense.category %}
-                {{ expense.category.name }}
+                {% if expense.category.parent %}
+                    {{ expense.category.parent.name }} - {{ expense.category.name }}
+                {% else %}
+                    {{ expense.category.name }}
+                {% endif %}
             {% else %}
                 Kategorisiz
             {% endif %}

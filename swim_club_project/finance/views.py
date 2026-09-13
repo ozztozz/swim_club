@@ -14,12 +14,13 @@ from django.urls import reverse
 from django.utils import timezone
 from .models import PaymentRecord
 from .forms import EquipmentForm, ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
-from .services import get_equipment_central_stock, get_equipment_coach_stock, get_or_create_monthly_payments, get_financial_summary
+from .services import get_athlete_fee_for_period, get_equipment_central_stock, get_equipment_coach_stock, get_or_create_monthly_payments, get_financial_summary
 from athletes.models import Team, Athlete
 from .models import Equipment, EquipmentSaleItem, EquipmentStockMovement, Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, date
+from decimal import Decimal
 
 
 @login_required
@@ -234,11 +235,23 @@ def payment_status_list(request, payment_status):
         if athlete.payment_status == payment_status
         and (not team_id or str(athlete.team_id) == team_id)
     ]
+    total_amount = sum(
+        (
+            athlete.paid_amount
+            if payment_status == 'paid'
+            else athlete.amount
+            for athlete in payments
+        ),
+        Decimal('0.00'),
+    )
+    athlete_count = len({athlete.pk for athlete in payments})
     teams = Team.objects.filter(is_active=True).order_by('name')
 
     return render(request, 'finance/payment_status_list.html', {
         'period': period,
         'payments': payments,
+        'total_amount': total_amount,
+        'athlete_count': athlete_count,
         'payment_status': payment_status,
         'status_label': 'Ödeyen sporcular' if payment_status == 'paid' else 'Bekleyen sporcular',
         'teams': teams,
@@ -252,9 +265,73 @@ def get_expense_summary(period):
         is_active=True,
         status__in=('paid', 'pending'),
     )
-    category_totals = active_expenses.values('category__name').annotate(
+    category_rows = active_expenses.values(
+        'category_id',
+        'category__name',
+        'category__parent_id',
+        'category__parent__name',
+    ).annotate(
         total=Sum('amount')
-    ).order_by('-total')
+    )
+    direct_totals = {
+        row['category_id']: row['total']
+        for row in category_rows
+    }
+    category_info = {
+        row['category_id']: row
+        for row in category_rows
+        if row['category_id'] is not None
+    }
+    for row in category_rows:
+        parent_id = row['category__parent_id']
+        if parent_id is not None and parent_id not in category_info:
+            category_info[parent_id] = {
+                'category__name': row['category__parent__name'],
+                'category__parent_id': None,
+            }
+    children_by_parent = {}
+    for category_id, row in category_info.items():
+        children_by_parent.setdefault(row['category__parent_id'], []).append(category_id)
+
+    def category_total(category_id):
+        return direct_totals.get(category_id, 0) + sum(
+            category_total(child_id)
+            for child_id in children_by_parent.get(category_id, [])
+        )
+
+    category_totals = []
+    root_ids = [
+        category_id
+        for category_id, row in category_info.items()
+        if row['category__parent_id'] is None
+    ]
+    for category_id in sorted(root_ids, key=category_total, reverse=True):
+        row = category_info[category_id]
+        category_totals.append({
+            'name': row['category__name'],
+            'parent_name': None,
+            'total': category_total(category_id),
+        })
+        child_ids = sorted(
+            children_by_parent.get(category_id, []),
+            key=category_total,
+            reverse=True,
+        )
+        for child_id in child_ids:
+            child = category_info[child_id]
+            category_totals.append({
+                'name': child['category__name'],
+                'parent_name': row['category__name'],
+                'total': category_total(child_id),
+            })
+
+    uncategorized_total = direct_totals.get(None)
+    if uncategorized_total:
+        category_totals.append({
+            'name': 'Kategorisiz',
+            'parent_name': None,
+            'total': uncategorized_total,
+        })
     regular_expense_summary = get_regular_expense_summary(period)
     return {
         'total_expense': active_expenses.aggregate(total=Sum('amount'))['total'] or 0,
@@ -262,13 +339,7 @@ def get_expense_summary(period):
         'paid_expense_total': active_expenses.filter(status='paid').aggregate(total=Sum('amount'))['total'] or 0,
         'pending_expense_total': active_expenses.filter(status='pending').aggregate(total=Sum('amount'))['total'] or 0,
         **get_regular_expense_summary(period),
-        'category_totals': [
-            {
-                'name': item['category__name'] or 'Kategorisiz',
-                'total': item['total'],
-            }
-            for item in category_totals
-        ],
+        'category_totals': category_totals,
     }
 
 
@@ -751,8 +822,20 @@ def mark_payment_paid_htmx(request, pk):
     else:
         form = ProcessPaymentForm(instance=payment)
 
+    payable_amount = payment.amount
+    if payment.payment_type == 'fee' and payment.athlete_id:
+        expected_fee = get_athlete_fee_for_period(payment.athlete, payment.period)
+        paid_amount = PaymentRecord.objects.filter(
+            athlete_id=payment.athlete_id,
+            period=payment.period,
+            payment_type='fee',
+            status='paid',
+        ).exclude(pk=payment.pk).aggregate(total=Sum('amount'))['total'] or 0
+        payable_amount = max(expected_fee - paid_amount, 0)
+
     return render(request, 'finance/modals/_mark_paid_modal.html', {
         'payment': payment,
+        'payable_amount': payable_amount,
         'form': form
     })
 

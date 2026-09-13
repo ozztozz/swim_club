@@ -22,6 +22,12 @@
             {% if form.name.errors %}<span class="label-text-alt text-error">{{ form.name.errors|striptags }}</span>{% endif %}
         </label>
         <label class="form-control">
+            <span class="label label-text text-xs font-bold">Üst kategori</span>
+            {{ form.parent }}
+            {% if form.parent.errors %}<span class="label-text-alt text-error">{{ form.parent.errors|striptags }}</span>{% endif %}
+            <span class="label-text-alt text-base-content/50">Boş bırakırsanız ana kategori oluşturulur.</span>
+        </label>
+        <label class="form-control">
             <span class="label label-text text-xs font-bold">Açıklama</span>
             {{ form.description }}
         </label>

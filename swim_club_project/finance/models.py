@@ -227,6 +227,14 @@ class EquipmentStockMovement(models.Model):
 class ExpenseCategory(models.Model):
     """Harcama Kategorileri (örn: Havuz Kirası, Personel Maaşı, Ekipman, Organizasyon)"""
     name = models.CharField(max_length=100, verbose_name="Kategori Adı")
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name="Üst Kategori",
+    )
     description = models.TextField(blank=True, null=True, verbose_name="Açıklama")
 
     class Meta:

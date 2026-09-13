@@ -21,24 +21,34 @@
 
     </div>
 
-    <div class="flex min-w-0 flex-wrap gap-1.5">
+    <div class="space-y-2" data-category-picker>
+        <div>
+            <p class="mb-1 text-[10px] font-medium text-base-content/50">Üst kategoriler</p>
+            <div class="flex min-w-0 flex-wrap gap-1.5">
+                {% for category in form.category_roots %}
+                    <label class="flex h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 transition-all active:scale-[.98] has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
+                        <input type="radio" name="category" value="{{ category.pk }}" class="radio radio-primary radio-xs" {% if form.category.value|stringformat:'s' == category.pk|stringformat:'s' %}checked{% endif %}>
+                        <span class="text-[10px] font-medium">{{ category.name }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
 
-        {% for radio in form.category %}
-
-            <label
-                class="flex h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 transition-all active:scale-[.98] has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary"
-            >
-
-                {{ radio.tag }}
-
-                <span class="text-[10px] font-medium">
-                    {{ radio.choice_label }}
-                </span>
-
-            </label>
-
+        {% for group in form.category_groups %}
+            {% if group.children %}
+                <div class="{% if not group.is_selected %}hidden{% endif %} rounded-xl border border-base-200 bg-base-200/30 p-2" data-category-children="{{ group.parent.pk }}">
+                    <p class="mb-1 text-[10px] font-medium text-base-content/50">Alt kategoriler</p>
+                    <div class="flex min-w-0 flex-wrap gap-1.5">
+                        {% for child in group.children %}
+                            <label class="flex h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 transition-all active:scale-[.98] has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
+                                <input type="radio" name="category" value="{{ child.pk }}" class="radio radio-primary radio-xs" {% if form.category.value|stringformat:'s' == child.pk|stringformat:'s' %}checked{% endif %}>
+                                <span class="text-[10px] font-medium">{{ child.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
         {% endfor %}
-
     </div>
 
     {% if form.category.errors %}
@@ -48,3 +58,23 @@
     {% endif %}
 
 </fieldset>
+
+<script>
+(function () {
+    const picker = document.querySelector('[data-category-picker]');
+    if (!picker) return;
+
+    const children = picker.querySelectorAll('[data-category-children]');
+    const updateChildren = () => {
+        const selected = picker.querySelector('input[name="category"]:checked');
+        const selectedGroup = selected?.closest('[data-category-children]');
+        const selectedParent = selectedGroup?.dataset.categoryChildren || selected?.value;
+        children.forEach((group) => {
+            group.classList.toggle('hidden', group.dataset.categoryChildren !== selectedParent);
+        });
+    };
+
+    picker.addEventListener('change', updateChildren);
+    updateChildren();
+})();
+</script>
