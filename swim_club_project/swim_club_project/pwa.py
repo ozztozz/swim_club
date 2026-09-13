@@ -4,7 +4,7 @@ from django.http import HttpResponse
 MANIFEST = """
 {
     "name": "Alpha Academy Kulup Yonetim Paneli",
-    "short_name": "Alphaacademy",
+    "short_name": "Alpha",
     "description": "Alpha Academy spor kulubu yonetim paneli",
     "start_url": "/dashboard/",
     "scope": "/",
