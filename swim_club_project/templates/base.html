@@ -253,20 +253,6 @@
         }
 
 
-        /* Modal açıldığında .app-content katmanını alt nav'ın (z-index 40) üstüne çıkar */
-        .app-content:has(.modal-open),
-        .app-content:has(dialog[open]) {
-
-            z-index: 50 !important;
-        }
-
-
-        .app-content.modal-active {
-
-            z-index: 50 !important;
-        }
-
-
         .app-content::-webkit-scrollbar {
             display: none;
         }
@@ -667,41 +653,6 @@
 
                 }
             );
-
-
-            document.addEventListener(
-                'htmx:afterSwap',
-                function (event) {
-
-                    const target = event.detail.target;
-
-                    if (
-                        target?.querySelector(
-                            '.modal-open, dialog[open]'
-                        )
-                    ) {
-
-                        target
-                            .closest('.app-content')
-                            ?.classList.add('modal-active');
-
-                    }
-
-                }
-            );
-
-
-            document.addEventListener(
-                'closeExpenseModal',
-                function () {
-
-                    document
-                        .querySelector('.app-content.modal-active')
-                        ?.classList.remove('modal-active');
-
-                }
-            );
-
 
 
             document.addEventListener(
