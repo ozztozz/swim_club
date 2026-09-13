@@ -1,10 +1,33 @@
 from django.http import HttpResponse
 
 
+MANIFEST = """
+{
+    "name": "Alpha Academy Kulup Yonetim Paneli",
+    "short_name": "Alphaacademy",
+    "description": "Alpha Academy spor kulubu yonetim paneli",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "lang": "tr-TR",
+    "icons": [
+        {
+            "src": "/media/logos/fk1.png",
+            "sizes": "any",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
+""".strip()
+
 SERVICE_WORKER = """
 const CACHE_NAME = "alphaacademy-static-v1";
 const STATIC_ASSETS = [
-    "/static/manifest.webmanifest",
+        "/manifest.webmanifest",
     "/media/logos/fk1.png"
 ];
 
@@ -48,6 +71,10 @@ self.addEventListener("fetch", (event) => {
     }
 });
 """.strip()
+
+
+def manifest(request):
+    return HttpResponse(MANIFEST, content_type="application/manifest+json")
 
 
 def service_worker(request):
