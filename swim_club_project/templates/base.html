@@ -117,6 +117,7 @@
             flex-direction: column;
 
             overflow: hidden;
+            position: relative;
 
             margin: 0 auto;
 
@@ -269,14 +270,15 @@
 
         .bottom-nav {
 
-            flex: 0 0 auto;
-
             height: calc(65px + env(safe-area-inset-bottom, 0px));
             min-height: calc(65px + env(safe-area-inset-bottom, 0px));
             width: 100%;
             display: block;
             overflow: hidden;
-            position: relative;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
 
             padding-bottom: env(safe-area-inset-bottom);
 
@@ -288,7 +290,7 @@
             border-top:
                 1px solid oklch(var(--b3) / .7);
 
-            z-index: 40;
+            z-index: 1000;
         }
 
 
