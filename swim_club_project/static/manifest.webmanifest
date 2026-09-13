@@ -2,7 +2,7 @@
   "name": "Alpha Academy Kulup Yonetim Paneli",
   "short_name": "Alphaacademy",
   "description": "Alpha Academy spor kulubu yonetim paneli",
-  "start_url": "/",
+  "start_url": "/dashboard/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
