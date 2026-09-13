@@ -237,7 +237,6 @@
 
             min-height: 0;
             min-width: 0;
-            padding-bottom: calc(20px + 65px + env(safe-area-inset-bottom, 0px));
 
             overflow-x: hidden;
             overflow-y: auto;
@@ -247,6 +246,7 @@
             overscroll-behavior-y: contain;
 
             padding: 14px;
+            padding-bottom: calc(20px + 65px + env(safe-area-inset-bottom, 0px));
 
             position: relative;
             z-index: 1;
@@ -290,6 +290,7 @@
             width: 100%;
             display: block;
             overflow: hidden;
+            position: relative;
 
             padding-bottom: env(safe-area-inset-bottom);
 
@@ -307,6 +308,8 @@
 
         .bottom-nav-inner {
 
+            position: absolute;
+            inset: 0 0 auto;
             height: 64px;
             min-height: 64px;
 
