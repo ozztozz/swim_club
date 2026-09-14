@@ -8,6 +8,9 @@ from finance.services import get_or_create_monthly_payments
 from .services import IletiMerkeziService
 
 
+SMS_TEST_PHONE = "905302442670"
+
+
 SMS_MESSAGE_TEMPLATE = (
     'Sayın velimiz, sporcumuz {athlete_name} {period} '
     'aidatı ({amount} TL) ödenmemiş görünmektedir. Ödeme yaptıysanız '
@@ -19,7 +22,7 @@ def build_unpaid_payment_message(athlete, period):
     return SMS_MESSAGE_TEMPLATE.format(
         athlete_name=athlete.get_full_name(),
         period=period,
-        amount=f'{athlete.amount:.2f}',
+        amount=f'{athlete.amount}',
     )
 
 
@@ -43,12 +46,12 @@ def send_sms(request):
     athletes = []
     for athlete in unpaid_athletes:
         message = build_unpaid_payment_message(athlete, period)
-        sms_result = IletiMerkeziService.send_sms("5302442670", message)
+        sms_result = IletiMerkeziService.send_sms(SMS_TEST_PHONE, message)
         athlete_data = {
             'id': athlete.pk,
             'name': athlete.get_full_name(),
             'team': athlete.team.name if athlete.team_id else None,
-            'parent_phone': "5302442670",
+            'parent_phone': athlete.parent_phone,
             'parent_email': athlete.parent_email,
             'amount': float(athlete.amount),
             'regular_payment_day': athlete.regular_payment_day,

@@ -38,9 +38,7 @@ class IletiMerkeziServiceTests(TestCase):
                     },
                     "order": {
                         "sender": "APITEST",
-                        "sendDateTime": [],
-                        "iys": "1",
-                        "iysList": "BIREYSEL",
+                        "iys": "0",
                         "message": {
                             "text": "Antrenman bugün 18:00",
                             "receipents": {"number": ["5302442670"]},
@@ -109,7 +107,7 @@ class SendSmsViewTests(TestCase):
         self.assertEqual(data["athletes"][0]["sms_status"], "success")
         self.assertEqual(data["athletes"][0]["sms_id"], "order-456")
         send_sms.assert_called_once_with(
-            "05321234567",
+            "5302442670",
             "Sayın velimiz, sporcumuz Ahmet Yılmaz 2026-09 aidatı "
             "(1500.00 TL) ödenmemiş görünmektedir. Ödeme yaptıysanız "
             "bu mesajı dikkate almayınız. Alpha Academy",

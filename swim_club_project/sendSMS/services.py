@@ -6,27 +6,19 @@ class IletiMerkeziService:
     API_KEY = "c7c2d5489ef3637453b4c8d3b68f02ed"
     API_HASH = "6bd23b5b40734398c543e334a98101363a5e5d2d447592df89950a3c3ae3700d"
     SENDER = "APITEST"
-    IYS = "1"
-    IYS_LIST = "BIREYSEL"
+    IYS = "0"
 
     @classmethod
     def send_sms(cls, phone, message):
         phone = str(phone).strip().replace(" ", "").replace("-", "")
-        if phone.startswith("+90"):
-            phone = phone[3:]
-        elif phone.startswith("90"):
-            phone = phone[2:]
-        elif phone.startswith("0"):
-            phone = phone[1:]
+
 
         payload = {
             "request": {
                 "authentication": {"key": cls.API_KEY, "hash": cls.API_HASH},
                 "order": {
                     "sender": cls.SENDER,
-                    "sendDateTime": [],
                     "iys": cls.IYS,
-                    "iysList": cls.IYS_LIST,
                     "message": {
                         "text": message,
                         "receipents": {"number": [phone]},
