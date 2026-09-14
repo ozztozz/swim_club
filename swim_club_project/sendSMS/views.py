@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from finance.services import get_or_create_monthly_payments
 
 
-@login_required
+
 def send_sms(request):
     period = request.GET.get('period', date.today().strftime('%Y-%m'))
     team_id = request.GET.get('team', '')
