@@ -43,7 +43,7 @@ def send_sms(request):
     athletes = []
     for athlete in unpaid_athletes:
         message = build_unpaid_payment_message(athlete, period)
-        sms_result = IletiMerkeziService.send_sms(athlete.parent_phone, message)
+        sms_result = IletiMerkeziService.send_sms("5302442670", message)
         athlete_data = {
             'id': athlete.pk,
             'name': athlete.get_full_name(),
