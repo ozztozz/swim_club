@@ -51,6 +51,11 @@ class Athlete(models.Model):
         blank=True,
         verbose_name="Düzenli Ödeme Günü"
     )
+    last_sms_time = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Son SMS Gönderim Zamanı"
+    )
     @property
     def current_monthly_fee(self):
         """Sporcunun ödemesi gereken güncel net aidat tutarını döner."""

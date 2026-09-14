@@ -1,7 +1,8 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.utils import timezone
 
 from finance.services import get_or_create_monthly_payments
 
@@ -9,6 +10,7 @@ from .services import IletiMerkeziService
 
 
 SMS_TEST_PHONE = "905302442670"
+SMS_RESEND_COOLDOWN_DAYS = 3
 
 
 SMS_MESSAGE_TEMPLATE = (
@@ -31,6 +33,7 @@ def send_sms(request):
     period = request.GET.get('period', date.today().strftime('%Y-%m'))
     team_id = request.GET.get('team', '')
     monthly_payments = get_or_create_monthly_payments(period)
+    cooldown_cutoff = timezone.now() - timedelta(days=SMS_RESEND_COOLDOWN_DAYS)
     unpaid_athletes = [
         athlete for athlete in monthly_payments
         if (
@@ -38,6 +41,7 @@ def send_sms(request):
             and athlete.parent_phone
             and getattr(athlete, 'regular_payment_day', None) is not None
             and athlete.regular_payment_day +3 < date.today().day
+            and (athlete.last_sms_time is None or athlete.last_sms_time < cooldown_cutoff)
         )
         and (not team_id or str(athlete.team_id) == team_id)
     ]
@@ -62,6 +66,8 @@ def send_sms(request):
         }
         if sms_result.get('status') == 'success':
             athlete_data['sms_id'] = sms_result.get('id')
+            athlete.last_sms_time = timezone.now()
+            athlete.save(update_fields=['last_sms_time'])
         else:
             athlete_data['sms_error'] = sms_result.get('message', 'SMS gönderilemedi.')
         athletes.append(athlete_data)
