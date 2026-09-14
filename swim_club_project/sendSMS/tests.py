@@ -92,7 +92,10 @@ class SendSmsViewTests(TestCase):
         with patch(
             "sendSMS.views.get_or_create_monthly_payments",
             return_value=[athlete],
-        ):
+        ), patch(
+            "sendSMS.views.IletiMerkeziService.send_sms",
+            return_value={"status": "success", "id": "order-456"},
+        ) as send_sms:
             response = self.client.get(
                 reverse("send-sms"),
                 {"period": "2026-09", "team": "3"},
@@ -103,3 +106,11 @@ class SendSmsViewTests(TestCase):
         self.assertEqual(data["count"], 1)
         self.assertEqual(data["athletes"][0]["name"], "Ahmet Yılmaz")
         self.assertEqual(data["athletes"][0]["amount"], 1500.0)
+        self.assertEqual(data["athletes"][0]["sms_status"], "success")
+        self.assertEqual(data["athletes"][0]["sms_id"], "order-456")
+        send_sms.assert_called_once_with(
+            "05321234567",
+            "Sayın velimiz, sporcumuz Ahmet Yılmaz 2026-09 aidatı "
+            "(1500.00 TL) ödenmemiş görünmektedir. Ödeme yaptıysanız "
+            "bu mesajı dikkate almayınız. Alpha Academy",
+        )
