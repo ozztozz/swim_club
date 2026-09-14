@@ -4,7 +4,7 @@ from .services import get_sms_service
 
 def send_sms(request):
     # Kendi telefon numaranızı yazarak test edin
-    test_phone = "5054152225" 
+    test_phone = "5302442670" 
     sms_text = "SLM"
     
     result = get_sms_service().send(test_phone, sms_text)
