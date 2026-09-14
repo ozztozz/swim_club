@@ -1,6 +1,10 @@
+from datetime import date
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 
 from .services import IletiMerkeziService
 
@@ -62,3 +66,39 @@ class IletiMerkeziServiceTests(TestCase):
         self.assertEqual(result["status"], "error")
         self.assertEqual(result["code"], 450)
         self.assertEqual(result["message"], "Gönderilen başlık kullanıma uygun değil")
+
+
+class SendSmsViewTests(TestCase):
+    def test_send_view_returns_unpaid_athletes_as_json(self):
+        user = get_user_model().objects.create_user(
+            username="sms-view-user",
+            password="test-password",
+        )
+        team = SimpleNamespace(name="A Takımı")
+        athlete = SimpleNamespace(
+            pk=12,
+            team_id=3,
+            team=team,
+            parent_phone="05321234567",
+            parent_email="veli@example.com",
+            amount=1500,
+            due_date=date(2026, 9, 15),
+            payment_status="pending",
+            get_full_name=lambda: "Ahmet Yılmaz",
+        )
+
+        self.client.force_login(user)
+        with patch(
+            "sendSMS.views.get_or_create_monthly_payments",
+            return_value=[athlete],
+        ):
+            response = self.client.get(
+                reverse("send-sms"),
+                {"period": "2026-09", "team": "3"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["athletes"][0]["name"], "Ahmet Yılmaz")
+        self.assertEqual(data["athletes"][0]["amount"], 1500.0)

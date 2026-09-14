@@ -222,7 +222,7 @@ class FinanceModelAndServiceTests(TestCase):
         self.assertIsNone(p1.payment_record)
         self.assertIsNone(p2.payment_record)
         self.assertEqual(PaymentRecord.objects.filter(period=period, payment_type='fee').count(), 0)
-        
+
         # Calling function again should still not create database rows
         payments_again = get_or_create_monthly_payments(period)
         self.assertEqual(len(payments_again), 2)

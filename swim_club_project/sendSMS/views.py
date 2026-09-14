@@ -1,25 +1,37 @@
+from datetime import date
+
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
-from .services import IletiMerkeziService
+from finance.services import get_or_create_monthly_payments
 
+
+@login_required
 def send_sms(request):
-    result = IletiMerkeziService.send_sms(
-        "5302442670",
-        "SLM",
-    )
-    return JsonResponse({
-            "message": result.get("status"),
-            "sms_id": result.get("id"),
-        })
-
-
-    if result.get("status") == "success":
-        return JsonResponse({
-            "message": "SMS başarıyla sıraya alındı.",
-            "sms_id": result.get("id"),
-        })
+    period = request.GET.get('period', date.today().strftime('%Y-%m'))
+    team_id = request.GET.get('team', '')
+    monthly_payments = get_or_create_monthly_payments(period)
+    unpaid_athletes = [
+        athlete for athlete in monthly_payments
+        if athlete.payment_status == 'pending'
+        and (not team_id or str(athlete.team_id) == team_id)
+    ]
 
     return JsonResponse({
-        "error": "SMS gönderimi başarısız oldu.",
-        "details": result,
-    }, status=400)
+        'period': period,
+        'count': len(unpaid_athletes),
+        'athletes': [
+            {
+                'id': athlete.pk,
+                'name': athlete.get_full_name(),
+                'team': athlete.team.name if athlete.team_id else None,
+                'parent_phone': athlete.parent_phone,
+                'parent_email': athlete.parent_email,
+                'amount': float(athlete.amount),
+                'due_date': athlete.due_date.isoformat() if athlete.due_date else None,
+                'is_overdue': athlete.due_date < date.today() if athlete.due_date else False,
+                'payment_status': athlete.payment_status,
+            }
+            for athlete in unpaid_athletes
+        ],
+    })
