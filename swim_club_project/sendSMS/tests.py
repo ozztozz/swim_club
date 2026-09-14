@@ -84,6 +84,7 @@ class SendSmsViewTests(TestCase):
             amount=1500,
             due_date=date(2026, 9, 15),
             payment_status="pending",
+            regular_payment_day=1,
             get_full_name=lambda: "Ahmet Yılmaz",
         )
 

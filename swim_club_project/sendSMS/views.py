@@ -13,7 +13,12 @@ def send_sms(request):
     monthly_payments = get_or_create_monthly_payments(period)
     unpaid_athletes = [
         athlete for athlete in monthly_payments
-        if athlete.payment_status == 'pending'
+        if (
+            athlete.payment_status == 'pending'
+            and athlete.parent_phone
+            and getattr(athlete, 'regular_payment_day', None) is not None
+            and athlete.regular_payment_day < date.today().day
+        )
         and (not team_id or str(athlete.team_id) == team_id)
     ]
 
