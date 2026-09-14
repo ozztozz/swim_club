@@ -40,6 +40,7 @@ urlpatterns = [
     path('', include('athletes.urls')), # Dashboard URL'lerini dahil etmek için
     path('finance/', include('finance.urls')),
     path('teams/', include('teams.urls')),
+    path('sendSMS/', include('sendSMS.urls')),
 ]
 
 # Geliştirme ortamında medya dosyalarını sunmak için

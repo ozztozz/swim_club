@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     "teams",
     "finance",
     "rest_framework",
-    "django_data_seed",
+    "sendSMS",
 ]
 
 MIDDLEWARE = [
