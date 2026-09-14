@@ -7,6 +7,11 @@ def send_sms(request):
         "5302442670",
         "SLM",
     )
+    return JsonResponse({
+            "message": result.get("status"),
+            "sms_id": result.get("id"),
+        })
+
 
     if result.get("status") == "success":
         return JsonResponse({
