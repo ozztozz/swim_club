@@ -76,8 +76,14 @@
             <div class="mt-4">
 
                 <a
+                    href="{% url 'team-schedule' team.pk %}"
+                    class="btn btn-primary h-10 min-h-0 w-full rounded-xl text-xs font-bold shadow-sm">
+                    Haftalık antrenman programı
+                </a>
+
+                <a
                     href="{% url 'fee-management' %}"
-                    class="btn btn-outline h-9 min-h-0 w-full rounded-xl border-base-300 text-[10px] font-bold">
+                    class="btn btn-outline mt-2 h-9 min-h-0 w-full rounded-xl border-base-300 text-[10px] font-bold">
                     Ücret yönetimine git
                 </a>
 

@@ -38,7 +38,7 @@ from django.contrib import messages
 def user_login_view(request):
     if request.user.is_authenticated:
         if request.user.is_coach:
-            return redirect('athlete-manage-list')
+            return redirect('training-attendance')
         return redirect('dashboard-index')
 
     if request.method == 'POST':
@@ -49,7 +49,7 @@ def user_login_view(request):
         if user is not None:
             login(request, user)
             if user.is_coach:
-                return redirect('athlete-manage-list')
+                return redirect('training-attendance')
             return redirect('dashboard-index')
         else:
             messages.error(request, 'Hatalı kullanıcı adı veya şifre!')
@@ -58,4 +58,5 @@ def user_login_view(request):
 
 def user_logout_view(request):
     logout(request)
-    return redirect('user-login')
+    request.session.flush()
+    return render(request, 'users/login.html')

@@ -9,17 +9,19 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    >
+                        {% if not request.user.is_coach %}
+                            <li>
+                                <a href="{% url 'team-list' %}">
+                                    Takımlar
+                                </a>
+                            </li>
+                        {% endif %}
 
-    <meta name="theme-color" content="#ffffff">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Alpha">
-
-    <link rel="manifest" href="{% url 'web-manifest' %}">
-    <link rel="apple-touch-icon" sizes="1024x1024" href="/media/logos/new_logo.png">
-
+                        <li>
+                            <a href="{% url 'training-attendance' %}">
+                                Antrenman Takibi
+                            </a>
+                        </li>
     <title>Kulüp Yönetim Paneli</title>
 
 
@@ -314,6 +316,11 @@
             visibility: visible;
             opacity: 1;
             transform: translateZ(0);
+        }
+
+
+        .bottom-nav-inner.coach-nav-inner {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
 
@@ -714,104 +721,6 @@
 
             <div class="flex min-w-0 items-center">
 
-                <div class="dropdown">
-
-                    <label
-                        tabindex="0"
-                        class="header-button cursor-pointer"
-                        aria-label="Menüyü aç"
-                    >
-
-                        <svg
-                            class="h-5 w-5"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                        >
-
-                            <path d="M4 6h16"/>
-                            <path d="M4 12h16"/>
-                            <path d="M4 18h16"/>
-
-                        </svg>
-
-                    </label>
-
-
-                    <ul
-                        tabindex="0"
-                        class="
-                            menu
-                            menu-sm
-                            dropdown-content
-                            z-[100]
-                            mt-2
-                            w-56
-                            rounded-2xl
-                            border
-                            border-base-300
-                            bg-base-100
-                            p-2
-                            shadow-2xl
-                        "
-                    >
-
-                        <li>
-                            <a href="{% url 'dashboard-index' %}">
-                                Ana Sayfa
-                            </a>
-                        </li>
-
-                        <li>
-                        <script>
-                            (function () {
-                                function restoreBottomNavigation() {
-                                    window.requestAnimationFrame(function () {
-                                        document.querySelectorAll('.bottom-nav').forEach(function (nav) {
-                                            nav.style.visibility = 'visible';
-                                            nav.style.opacity = '1';
-                                            nav.style.zIndex = '1000';
-                                        });
-                                    });
-                                }
-
-                                document.addEventListener('DOMContentLoaded', restoreBottomNavigation);
-                                document.addEventListener('pageshow', restoreBottomNavigation);
-                                document.addEventListener('htmx:afterSwap', restoreBottomNavigation);
-                                document.addEventListener('htmx:afterSettle', restoreBottomNavigation);
-
-                                new MutationObserver(restoreBottomNavigation).observe(
-                                    document.body,
-                                    { childList: true, subtree: true }
-                                );
-                            })();
-                        </script>
-
-
-                            <a href="{% url 'team-list' %}">
-                                Takımlar
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{% url 'athlete-manage-list' %}">
-                                Sporcular
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{% url 'finance-dashboard' %}">
-                                Finans
-                            </a>
-                        </li>
-
-                    </ul>
-
-                </div>
-
-
                 <!-- Logo -->
 
                 <a
@@ -846,6 +755,8 @@
                         avatar
                         placeholder
                         cursor-pointer
+                        gap-2
+                        px-2
                     "
                     aria-label="Kullanıcı menüsü"
                 >
@@ -863,11 +774,23 @@
 
                         <span>
 
-                            {{request.user.first_name|first|default:request.user.username|first|upper}}
+                            {% if request.user.first_name %}
+                                {{ request.user.first_name|first|upper }}
+                            {% else %}
+                                {{ request.user.username|first|upper }}
+                            {% endif %}
 
                         </span>
 
                     </div>
+
+                    <span class="max-w-[150px] truncate text-xs font-semibold text-base-content">
+                        {% if request.user.get_full_name %}
+                            {{ request.user.get_full_name }}
+                        {% else %}
+                            {{ request.user.username }}
+                        {% endif %}
+                    </span>
 
                 </label>
 
@@ -902,9 +825,11 @@
 
                         <p class="truncate p-0 text-xs font-black">
 
-                            {{
-                                request.user.get_full_name|default:request.user.username
-                            }}
+                            {% if request.user.get_full_name %}
+                                {{ request.user.get_full_name }}
+                            {% else %}
+                                {{ request.user.username }}
+                            {% endif %}
 
                         </p>
 
@@ -919,14 +844,12 @@
 
 
                     <li>
-
-                        <a
-                            href="{% url 'user-logout' %}"
-                            class="text-error"
-                        >
-                            Çıkış yap
-                        </a>
-
+                        <form method="post" action="{% url 'user-logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left text-error">
+                                Çıkış yap
+                            </button>
+                        </form>
                     </li>
 
                 </ul>
@@ -955,7 +878,48 @@
     ========================================================== -->
 <nav class="bottom-nav">
 
-    <div class="bottom-nav-inner">
+    <div class="bottom-nav-inner {% if request.user.is_coach %}coach-nav-inner{% endif %}">
+
+        {% if request.user.is_coach %}
+            <a
+                href="{% url 'athlete-manage-list' %}"
+                class="bottom-nav-item {% if 'athlete-manage' in request.resolver_match.url_name %}active{% endif %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M3 21v-2a6 6 0 0 1 12 0v2"/>
+                        <path d="M16 3.5a4 4 0 0 1 0 7.5"/>
+                        <path d="M21 21v-2a5 5 0 0 0-3.5-4.8"/>
+                    </svg>
+                </span>
+                <span>Sporcular</span>
+            </a>
+
+            <a
+                href="{% url 'training-attendance' %}"
+                class="bottom-nav-item {% if 'training-attendance' in request.resolver_match.url_name %}active{% endif %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="8"/>
+                        <path d="M12 8v4l2.5 2.5"/>
+                    </svg>
+                </span>
+                <span>Antrenman</span>
+            </a>
+
+            <a
+                href="{% url 'team-schedule-home' %}"
+                class="bottom-nav-item {% if request.resolver_match.url_name == 'team-schedule-home' or request.resolver_match.url_name == 'team-schedule' %}active{% endif %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="17" rx="2"/>
+                        <path d="M8 2v4M16 2v4M3 9h18"/>
+                        <path d="M8 13h3M13 13h3M8 17h3"/>
+                    </svg>
+                </span>
+                <span>Çizelge</span>
+            </a>
+        {% else %}
 
 
         <!-- Ana Sayfa -->
@@ -1059,6 +1023,8 @@
 
 
     </div>
+
+        {% endif %}
 
 </nav>
 

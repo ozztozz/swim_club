@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="w-full min-w-0 space-y-3 overflow-x-hidden">
+
+    <header>
+        {% if team %}
+        <a
+            href="{% url 'team-detail' team.pk %}"
+            class="inline-flex min-h-9 items-center gap-1 rounded-xl px-2 text-xs font-bold text-base-content/55 active:bg-base-200">
+            <span class="text-lg leading-none">‹</span>
+            Takım profili
+        </a>
+        {% endif %}
+
+        <form method="get" class="mt-2">
+            <label class="form-control">
+                <span class="mb-1 text-[10px] font-bold text-base-content/50">Takım seç</span>
+                <select name="team" onchange="this.form.submit()" class="select select-bordered h-10 min-h-0 w-full rounded-lg bg-base-100 text-xs font-semibold">
+                    {% for schedule_team in schedule_teams %}
+                        <option value="{{ schedule_team.pk }}" {% if team.pk == schedule_team.pk %}selected{% endif %}>{{ schedule_team.name }}</option>
+                    {% empty %}
+                        <option>Atanmış takım yok</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </form>
+
+    </header>
+
+        {% if team %}
+        <div class="mt-2 overflow-hidden rounded-xl border border-base-300/90 bg-base-100 p-2 text-base-content shadow-sm">
+            <h1 class="truncate px-1 text-lg font-bold tracking-tight">
+                {{ team.name }}
+            </h1>
+
+            <div class="mt-2 grid grid-cols-3 gap-1">
+                <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
+                    <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Yüzme</p>
+                    <p class="mt-0.5 text-base font-bold text-primary">{{ swimming_count }}</p>
+                    <p class="truncate text-[9px] text-base-content/40">{{ swimming_training_hours }}s {{ swimming_training_minutes }}dk</p>
+                </div>
+                <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
+                    <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Kara</p>
+                    <p class="mt-0.5 text-base font-bold text-primary">{{ land_count }}</p>
+                    <p class="truncate text-[9px] text-base-content/40">{{ land_training_hours }}s {{ land_training_minutes }}dk</p>
+                </div>
+                <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
+                    <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Toplam süre</p>
+                    <p class="mt-0.5 truncate text-sm font-bold text-base-content">{{ total_training_hours }}s {{ total_training_minutes }}dk</p>
+                    <p class="text-[9px] text-base-content/40">{{ scheduled_day_count }}/7 gün</p>
+                </div>
+            </div>
+        </div>
+    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+        <div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
+            <div>
+                <h2 class="text-sm font-black">Haftanın akışı</h2>
+               
+            </div>
+        </div>
+
+        {% include 'team/partials/weekly_schedule_board.html' %}
+    </section>
+</div>
+        {% else %}
+            <div class="mt-3 rounded-xl border border-dashed border-base-300 px-4 py-10 text-center text-xs text-base-content/45">Görüntülenecek takım bulunmuyor.</div>
+        {% endif %}
+
+<div id="schedule-modal-container"></div>
+
+<script>
+    function focusTodaySchedule() {
+        const today = new Date(Date.now()).getDay();
+        const weekday = (today + 6) % 7;
+        const todayColumn = document.querySelector(`[data-weekday="${weekday}"]`);
+
+        document.querySelectorAll('[data-weekday]').forEach((column) => {
+            column.classList.toggle('border-primary', column === todayColumn);
+            column.classList.toggle('bg-primary/[.03]', column === todayColumn);
+        });
+
+        todayColumn?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center',
+        });
+    }
+
+    focusTodaySchedule();
+    document.body.addEventListener('htmx:afterSwap', focusTodaySchedule);
+
+    document.body.addEventListener('closeScheduleModal', function () {
+        const modal = document.getElementById('schedule_modal');
+        if (modal) modal.remove();
+
+        const container = document.getElementById('schedule-modal-container');
+        if (container) container.innerHTML = '';
+    });
+</script>
+
+{% endblock %}

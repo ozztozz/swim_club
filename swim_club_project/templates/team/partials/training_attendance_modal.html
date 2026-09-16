@@ -1,0 +1,8 @@
+<dialog id="attendance_modal" class="modal modal-open fixed inset-0 z-[10000] flex items-center justify-center bg-base-content/30 p-2" style="width: 100vw; max-width: 100vw; margin: 0;" onclick="if (event.target === this) closeAttendanceModal()">
+    <div class="modal-box z-[10001] max-h-[calc(100dvh-5rem)] overflow-y-auto rounded-2xl p-4 sm:p-5" style="width: min(calc(100vw - 1rem), 28rem); max-width: 28rem;">
+        <div class="-mb-2 flex justify-end">
+            <button type="button" class="btn btn-circle btn-ghost h-8 w-8 min-h-0 text-sm" onclick="closeAttendanceModal()" aria-label="Kapat">✕</button>
+        </div>
+        {% include 'team/partials/training_attendance_panel.html' %}
+    </div>
+</dialog>

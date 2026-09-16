@@ -2,7 +2,7 @@ from django import forms
 
 from users.models import User
 
-from .models import Team
+from .models import Team, TeamTrainingSchedule
 
 
 class TeamForm(forms.ModelForm):
@@ -34,3 +34,29 @@ class TeamForm(forms.ModelForm):
             is_active=True,
         ).order_by('first_name', 'last_name', 'email')
         self.fields['coaches'].required = False
+
+
+class TeamTrainingScheduleForm(forms.ModelForm):
+    class Meta:
+        model = TeamTrainingSchedule
+        fields = ('weekday', 'training_type', 'start_time', 'end_time', 'location')
+        widgets = {
+            'weekday': forms.Select(attrs={
+                'class': 'select select-bordered h-11 min-h-0 w-full rounded-xl bg-base-100 text-sm',
+            }),
+            'training_type': forms.RadioSelect(attrs={
+                'class': 'radio radio-primary radio-sm',
+            }),
+            'start_time': forms.TimeInput(attrs={
+                'type': 'time',
+                'class': 'input input-bordered h-11 min-h-0 w-full rounded-xl bg-base-100 text-sm',
+            }),
+            'end_time': forms.TimeInput(attrs={
+                'type': 'time',
+                'class': 'input input-bordered h-11 min-h-0 w-full rounded-xl bg-base-100 text-sm',
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'input input-bordered h-11 min-h-0 w-full rounded-xl bg-base-100 text-sm',
+                'placeholder': 'Örn. Olimpik havuz',
+            }),
+        }
