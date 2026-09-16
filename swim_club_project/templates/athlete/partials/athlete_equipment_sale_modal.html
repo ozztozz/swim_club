@@ -1,3 +1,5 @@
+{% load l10n %}
+
 <dialog id="athlete_equipment_sale_modal" class="modal modal-open items-start z-[9999] pt-4 sm:pt-8">
     <div class="modal-box relative z-[10000] max-h-[calc(100vh-2rem)] w-[calc(100%-1rem)] max-w-lg overflow-y-auto p-5 sm:max-h-[calc(100vh-4rem)] sm:w-11/12 sm:p-6">
         <p class="text-xs font-bold uppercase tracking-widest text-primary">Malzeme dağıtımı</p>
@@ -46,7 +48,7 @@
                             data-variant-builder
                             data-variants-input="{{ row.variants_field.id_for_label }}"
                             data-equipment-id="{{ row.equipment.pk }}"
-                            data-price="{{ row.equipment.price }}"
+                            data-price="{{ row.equipment.price|unlocalize }}"
                         >
                             <div class="min-w-0">
                                 <span class="truncate font-semibold">{{ row.equipment.display_name }}</span>
@@ -111,11 +113,32 @@
         </div>
         <div class="mt-4 space-y-2">
             {% for row in form.equipment_rows %}
-                <div class="rounded-xl border border-base-300 p-3" data-picker-equipment="{{ row.equipment.pk }}">
-                    <div class="flex items-center justify-between gap-3">
-                        <span class="font-semibold">{{ row.equipment.display_name }}</span>
-                        <span class="text-sm font-bold text-base-content/60">{{ row.equipment.price }}</span>
-                    </div>
+                <details class="group rounded-xl border border-base-300" data-picker-equipment="{{ row.equipment.pk }}">
+                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 font-semibold transition-colors hover:bg-base-200/50 [&::-webkit-details-marker]:hidden">
+                        <span class="flex min-w-0 items-center gap-2">
+                            <svg class="h-4 w-4 shrink-0 text-base-content/40 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="truncate">{{ row.equipment.display_name }}</span>
+                        </span>
+                        <span class="shrink-0 text-sm font-bold text-base-content/60">{{ row.equipment.price }}</span>
+                    </summary>
+                    <div class="border-t border-base-300 p-3">
+                    {% if row.equipment.images.exists %}
+                        <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
+                            {% for image in row.equipment.images.all %}
+                                <button
+                                    type="button"
+                                    class="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-base-300 bg-base-200 transition hover:border-primary"
+                                    data-gallery-image="{{ image.image.url }}"
+                                    data-gallery-alt="{{ row.equipment.name }}"
+                                    aria-label="{{ row.equipment.name }} görselini büyüt"
+                                >
+                                    <img src="{{ image.image.url }}" alt="{{ row.equipment.name }}" class="h-full w-full object-cover">
+                                </button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     <div class="mt-3 grid gap-3 sm:grid-cols-2">
                         {% if row.colors %}
                             <fieldset>
@@ -151,11 +174,20 @@
                         </label>
                         <button type="button" class="btn btn-primary btn-sm" data-add-picker-equipment="{{ row.equipment.pk }}">Forma ekle</button>
                     </div>
-                </div>
+                    </div>
+                </details>
             {% empty %}
                 <div class="alert alert-warning">Henüz malzeme tanımlanmamış.</div>
             {% endfor %}
         </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>kapat</button></form>
+</dialog>
+
+<dialog id="equipment-image-gallery" class="modal z-[10002]">
+    <div class="modal-box relative flex max-h-[calc(100vh-2rem)] w-[calc(100%-1rem)] max-w-2xl items-center justify-center overflow-hidden bg-base-300 p-2">
+        <button type="button" class="btn btn-circle btn-sm absolute right-3 top-3 z-10 bg-base-100/90" data-close-image-gallery aria-label="Galeriyi kapat">×</button>
+        <img src="" alt="" data-gallery-preview class="max-h-[calc(100vh-3rem)] max-w-full rounded-lg object-contain">
     </div>
     <form method="dialog" class="modal-backdrop"><button>kapat</button></form>
 </dialog>
@@ -169,6 +201,10 @@
         const picker = document.getElementById('equipment-picker-modal');
         if (picker && picker.parentElement !== document.body) {
             document.body.appendChild(picker);
+        }
+        const gallery = document.getElementById('equipment-image-gallery');
+        if (gallery && gallery.parentElement !== document.body) {
+            document.body.appendChild(gallery);
         }
 
         const sourceInputs = document.querySelectorAll('#athlete_equipment_sale_modal input[name="stock_source"]');
@@ -229,7 +265,9 @@
                 try { variants = JSON.parse(input.value || '[]'); } catch (error) { variants = []; }
                 return sum + variants.reduce((lineSum, variant) => lineSum + (Number(variant.quantity) || 0) * price, 0);
             }, 0);
-            total.textContent = amount.toFixed(2);
+            total.textContent = new Intl.NumberFormat('tr-TR', {
+                maximumFractionDigits: 0,
+            }).format(amount);
         };
 
         builders.forEach((builder) => {
@@ -244,6 +282,24 @@
 
         document.querySelector('[data-open-equipment-picker]')?.addEventListener('click', () => picker?.showModal());
         document.querySelector('[data-close-equipment-picker]')?.addEventListener('click', () => picker?.close());
+        document.querySelectorAll('[data-gallery-image]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const preview = gallery?.querySelector('[data-gallery-preview]');
+                if (!preview || !gallery) return;
+                preview.src = button.dataset.galleryImage;
+                preview.alt = button.dataset.galleryAlt || '';
+                gallery.showModal();
+            });
+        });
+        document.querySelector('[data-close-image-gallery]')?.addEventListener('click', () => gallery?.close());
+        document.querySelectorAll('#equipment-picker-modal [data-picker-equipment]').forEach((section) => {
+            section.addEventListener('toggle', () => {
+                if (!section.open) return;
+                document.querySelectorAll('#equipment-picker-modal [data-picker-equipment]').forEach((other) => {
+                    if (other !== section) other.open = false;
+                });
+            });
+        });
         document.querySelectorAll('[data-add-picker-equipment]').forEach((button) => {
             button.addEventListener('click', () => {
                 const equipmentId = button.dataset.addPickerEquipment;
