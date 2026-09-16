@@ -28,7 +28,7 @@ class UserAPITests(APITestCase):
     def test_jwt_login_success(self):
         """Geçerli bilgilerle JWT Login testi"""
         data = {
-            'email': 'parent@example.com',
+            'username': 'parent',
             'password': 'ParentPassword123!'
         }
         response = self.client.post(self.login_url, data)

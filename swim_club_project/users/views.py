@@ -32,7 +32,9 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
 # users/views.py
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 
 def user_login_view(request):
@@ -60,3 +62,21 @@ def user_logout_view(request):
     logout(request)
     request.session.flush()
     return render(request, 'users/login.html')
+
+
+@login_required(login_url='user-login')
+def password_change_view(request):
+    form = PasswordChangeForm(request.user, request.POST or None)
+
+    for field in form.fields.values():
+        field.widget.attrs.update({
+            'class': 'input input-bordered h-11 min-h-0 w-full rounded-xl border-base-300/80 bg-base-100 px-3 text-sm outline-none focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/10',
+        })
+
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, 'Şifreniz başarıyla değiştirildi.')
+        return redirect('password-change')
+
+    return render(request, 'users/password_change.html', {'form': form})

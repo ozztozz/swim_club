@@ -21,7 +21,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
-from users.views import user_login_view, user_logout_view  # users view'larınızı içe aktarın
+from users.views import password_change_view, user_login_view, user_logout_view  # users view'larınızı içe aktarın
 from .pwa import manifest, service_worker
 
 urlpatterns = [
@@ -30,6 +30,7 @@ urlpatterns = [
     # Auth Yolları
     path('login/', user_login_view, name='user-login'),
     path('logout/', user_logout_view, name='user-logout'),
+    path('sifre-degistir/', password_change_view, name='password-change'),
     # Kök adresi sporcu listesini ana sayfa olarak açar.
     path('', lambda request: redirect('athlete-manage-list')),
     

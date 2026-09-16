@@ -318,6 +318,11 @@
         }
 
 
+        .bottom-nav-inner.admin-nav-inner {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+
+
         .bottom-nav-item {
 
             min-width: 0;
@@ -360,6 +365,8 @@
         .bottom-nav-item.active {
 
             color: oklch(var(--p));
+
+            background: oklch(var(--p) / .08);
         }
 
 
@@ -838,6 +845,13 @@
 
 
                     <li>
+                        <a href="{% url 'password-change' %}">
+                            Şifre değiştir
+                        </a>
+                    </li>
+
+
+                    <li>
                         <form method="post" action="{% url 'user-logout' %}">
                             {% csrf_token %}
                             <button type="submit" class="w-full text-left text-error">
@@ -872,7 +886,7 @@
     ========================================================== -->
 <nav class="bottom-nav">
 
-    <div class="bottom-nav-inner {% if request.user.is_coach %}coach-nav-inner{% endif %}">
+    <div class="bottom-nav-inner {% if request.user.is_coach %}coach-nav-inner{% elif request.user.is_club_admin %}admin-nav-inner{% endif %}">
 
         {% if request.user.is_coach %}
             <a
@@ -958,7 +972,11 @@
             href="{% url 'other-menu' %}"
             class="
                 bottom-nav-item
-                order-3
+                    {% if request.user.is_club_admin %}
+                        order-6
+                    {% else %}
+                        order-3
+                    {% endif %}
                 {% if request.resolver_match.url_name == 'other-menu' or request.resolver_match.url_name == 'team-list' or request.resolver_match.url_name == 'team-detail' or request.resolver_match.url_name == 'athlete-manage-list' or request.resolver_match.url_name == 'athlete-manage-detail' or 'equipment' in request.resolver_match.url_name or 'regular-expense' in request.resolver_match.url_name or request.resolver_match.url_name == 'fee-management' %}
                     active
                 {% endif %}
@@ -1014,6 +1032,34 @@
             <span>Finans</span>
 
         </a>
+
+
+        {% if request.user.is_club_admin %}
+            <a
+                href="{% url 'training-attendance' %}"
+                class="bottom-nav-item order-4 {% if 'training-attendance' in request.resolver_match.url_name %}active{% endif %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="8"/>
+                        <path d="M12 8v4l2.5 2.5"/>
+                    </svg>
+                </span>
+                <span>Antrenman</span>
+            </a>
+
+            <a
+                href="{% url 'team-schedule-home' %}"
+                class="bottom-nav-item order-5 {% if request.resolver_match.url_name == 'team-schedule-home' or request.resolver_match.url_name == 'team-schedule' %}active{% endif %}">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="17" rx="2"/>
+                        <path d="M8 2v4M16 2v4M3 9h18"/>
+                        <path d="M8 13h3M13 13h3M8 17h3"/>
+                    </svg>
+                </span>
+                <span>Çizelge</span>
+            </a>
+        {% endif %}
 
 
     </div>
@@ -1110,6 +1156,9 @@
                     text-center
                     transition
                     active:scale-[.97]
+                    {% if request.resolver_match.url_name == 'athlete-manage-list' or request.resolver_match.url_name == 'athlete-manage-detail' %}
+                        border-primary/30 bg-primary/10 text-primary
+                    {% endif %}
                 "
             >
 
@@ -1121,6 +1170,9 @@
                     rounded-xl
                     bg-primary/10
                     text-primary
+                    {% if request.resolver_match.url_name == 'athlete-manage-list' or request.resolver_match.url_name == 'athlete-manage-detail' %}
+                        bg-primary/20
+                    {% endif %}
                 ">
 
                     <svg
@@ -1171,6 +1223,9 @@
                     text-center
                     transition
                     active:scale-[.97]
+                    {% if request.resolver_match.url_name == 'team-list' or request.resolver_match.url_name == 'team-detail' %}
+                        border-primary/30 bg-primary/10 text-primary
+                    {% endif %}
                 "
             >
 
@@ -1182,6 +1237,9 @@
                     rounded-xl
                     bg-primary/10
                     text-primary
+                    {% if request.resolver_match.url_name == 'team-list' or request.resolver_match.url_name == 'team-detail' %}
+                        bg-primary/20
+                    {% endif %}
                 ">
 
                     <svg
@@ -1234,6 +1292,9 @@
                     text-center
                     transition
                     active:scale-[.97]
+                    {% if request.resolver_match.url_name == 'finance-dashboard' or request.resolver_match.url_name == 'expense-list' or request.resolver_match.url_name == 'expense-summary' or request.resolver_match.url_name == 'expense-create' or request.resolver_match.url_name == 'expense-update' or request.resolver_match.url_name == 'expense-category-create' or request.resolver_match.url_name == 'finance-mark-paid' %}
+                        border-primary/30 bg-primary/10 text-primary
+                    {% endif %}
                 "
             >
 
@@ -1245,6 +1306,9 @@
                     rounded-xl
                     bg-primary/10
                     text-primary
+                    {% if request.resolver_match.url_name == 'finance-dashboard' or request.resolver_match.url_name == 'expense-list' or request.resolver_match.url_name == 'expense-summary' or request.resolver_match.url_name == 'expense-create' or request.resolver_match.url_name == 'expense-update' or request.resolver_match.url_name == 'expense-category-create' or request.resolver_match.url_name == 'finance-mark-paid' %}
+                        bg-primary/20
+                    {% endif %}
                 ">
 
                     <svg

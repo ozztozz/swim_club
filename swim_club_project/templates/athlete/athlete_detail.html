@@ -249,6 +249,24 @@
                        bg-base-200/70
                        p-1">
 
+                <!-- ANTRENMAN -->
+
+                <button
+                    type="button"
+                    data-payment-tab="training"
+                    onclick="showPaymentTab('training')"
+                    class="h-8 rounded-lg
+                           bg-primary
+                           px-2
+                           text-[11px] font-extrabold
+                           text-primary-content
+                           shadow-sm
+                           transition-all">
+
+                    Antrenman
+
+                </button>
+
                 {% if request.user.is_club_admin %}
                 <!-- AYLIK -->
 
@@ -257,12 +275,11 @@
                     data-payment-tab="monthly"
                     onclick="showPaymentTab('monthly')"
                     class="h-8 rounded-lg
-                           bg-primary
                            px-2
                            text-[11px] font-extrabold
-                           text-primary-content
-                           shadow-sm
-                           transition-all">
+                           text-base-content/55
+                           transition-all
+                           hover:text-base-content">
 
                     Aylık
 
@@ -302,21 +319,6 @@
                            hover:text-base-content">
 
                     Malzemeler
-
-                </button>
-
-                <button
-                    type="button"
-                    data-payment-tab="training"
-                    onclick="showPaymentTab('training')"
-                    class="h-8 rounded-lg
-                           px-2
-                           text-[11px] font-extrabold
-                           text-base-content/55
-                           transition-all
-                           hover:text-base-content">
-
-                    Antrenman
 
                 </button>
 
@@ -903,11 +905,7 @@
              * Varsayılan sekme
              */
 
-            {% if request.user.is_club_admin %}
-            showPaymentTab('monthly');
-            {% else %}
             showPaymentTab('training');
-            {% endif %}
 
             if (new URLSearchParams(window.location.search).has('attendance_month')) {
                 showPaymentTab('training');

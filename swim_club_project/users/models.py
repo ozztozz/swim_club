@@ -20,9 +20,9 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True, verbose_name="Telefon Numarası")
     tc_identity = models.CharField(max_length=11, blank=True, null=True, verbose_name="T.C. Kimlik No")
 
-    # Giriş işlemlerinde kullanıcı adı yerine e-posta kullanılacaksa
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    # Kullanıcı girişi kullanıcı adı ile yapılır; e-posta hesap iletişimi için tutulur.
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
     class Meta:
         verbose_name = "Kullanıcı"
