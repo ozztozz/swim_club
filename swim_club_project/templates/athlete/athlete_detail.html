@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="w-full space-y-3 pb-4">
+<div class="athlete-detail-page flex h-full min-h-0 w-full min-w-0 max-w-full flex-col gap-3 overflow-hidden pb-4">
 
     <!-- ================================================= -->
     <!-- ÜST BAR -->
@@ -50,7 +50,7 @@
     <!-- ================================================= -->
 
     <section
-        class="overflow-hidden
+        class="min-w-0 shrink-0 overflow-hidden
                rounded-2xl
                border border-base-300
                bg-base-100
@@ -148,6 +148,7 @@
         <!-- PROFİL AKSİYONLARI -->
         <!-- ================================================= -->
 
+        {% if request.user.is_club_admin %}
         <div
             class="grid grid-cols-2 gap-2
                    border-t border-base-200
@@ -214,6 +215,7 @@
             </button>
 
         </div>
+        {% endif %}
 
     </section>
 
@@ -223,7 +225,7 @@
     <!-- ================================================= -->
 
     <section
-        class="overflow-hidden
+        class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden
                rounded-2xl
                border border-base-300
                bg-base-100
@@ -252,11 +254,12 @@
         <div class="px-3 pt-3">
 
             <div
-                class="grid grid-cols-3 gap-1
+                class="grid min-w-0 {% if request.user.is_club_admin %}grid-cols-4{% else %}grid-cols-2{% endif %} gap-1
                        rounded-xl
                        bg-base-200/70
                        p-1">
 
+                {% if request.user.is_club_admin %}
                 <!-- AYLIK -->
 
                 <button
@@ -292,6 +295,7 @@
                     Diğer
 
                 </button>
+                {% endif %}
 
 
                 <!-- MALZEMELER -->
@@ -311,7 +315,136 @@
 
                 </button>
 
+                <button
+                    type="button"
+                    data-payment-tab="training"
+                    onclick="showPaymentTab('training')"
+                    class="h-8 rounded-lg
+                           px-2
+                           text-[11px] font-extrabold
+                           text-base-content/55
+                           transition-all
+                           hover:text-base-content">
+
+                    Antrenman
+
+                </button>
+
             </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- ANTRENMAN KATILIMI -->
+        <!-- ================================================= -->
+
+        <div
+            id="training-payments-tab"
+            class="mt-2 min-h-0 flex-1 overflow-hidden hidden">
+
+            <div class="grid min-w-0 grid-cols-2 gap-2 px-3 py-1.5">
+                <div class="min-w-0 overflow-hidden rounded-xl bg-base-200/60 px-2.5 py-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-[10px] font-bold text-base-content/45">Toplam antrenman</p>
+                        <p class="text-lg font-black text-base-content">{{ attendance_total }}</p>
+                    </div>
+                    <div class="mt-1 grid grid-cols-2 gap-2 border-t border-base-300/60 pt-1">
+                        <div>
+                            <p class="text-[9px] font-bold text-info/80">Yüzme</p>
+                            <p class="text-sm font-black text-info">{{ attendance_swimming }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-bold text-warning/90">Kara</p>
+                            <p class="text-sm font-black text-warning">{{ attendance_land }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="min-w-0 overflow-hidden rounded-xl bg-error/10 px-2.5 py-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-[10px] font-bold text-error/70">Katılmadığı</p>
+                        <p class="text-lg font-black text-error">{{ attendance_absent }}</p>
+                    </div>
+                    <div class="mt-1 grid grid-cols-2 gap-2 border-t border-error/15 pt-1">
+                        <div>
+                            <p class="text-[9px] font-bold text-error/70">Yüzme</p>
+                            <p class="text-sm font-black text-error">{{ attendance_absent_swimming }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-bold text-error/70">Kara</p>
+                            <p class="text-sm font-black text-error">{{ attendance_absent_land }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if attendance_period %}
+                <div class="flex items-center justify-between gap-2 px-3 pb-1">
+                    {% if attendance_previous_period %}
+                        <a href="?attendance_month={{ attendance_previous_period }}" class="btn btn-outline btn-sm h-8 min-h-0 w-9 rounded-lg px-0 text-lg font-black" aria-label="Önceki ay">←</a>
+                    {% else %}
+                        <span class="h-8 w-8"></span>
+                    {% endif %}
+
+                    <span class="text-[11px] font-black text-base-content/55">Takvim</span>
+
+                    {% if attendance_next_period %}
+                        <a href="?attendance_month={{ attendance_next_period }}" class="btn btn-outline btn-sm h-8 min-h-0 w-9 rounded-lg px-0 text-lg font-black" aria-label="Sonraki ay">→</a>
+                    {% else %}
+                        <span class="h-8 w-8"></span>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% for month in attendance_months %}
+
+                <div class="border-t border-base-200">
+
+                    <div class="flex items-center justify-between bg-base-200/20 px-3 py-1">
+                        <h3 class="text-xs font-black text-base-content">{{ month.label }}</h3>
+                        <span class="text-[10px] font-semibold text-base-content/45">
+                            {{ month.total_count }} toplam · <span class="text-error">{{ month.absent_count }} gelmedi</span>
+                        </span>
+                    </div>
+
+                    <div class="grid min-w-0 grid-cols-7 gap-px border-t border-base-200 bg-base-200">
+
+                        {% for weekday in month.weekdays %}
+                            <div class="min-w-0 overflow-hidden bg-base-100 px-0.5 py-1 text-center text-[9px] font-black text-base-content/60">
+                                {{ weekday.label|slice:":3" }}
+                            </div>
+                        {% endfor %}
+
+                        {% for week in month.calendar_weeks %}
+                            {% for day in week %}
+                                {% if day %}
+                                    <div class="min-w-0 h-9 overflow-hidden bg-base-100 px-0.5 py-0.5 text-center {% if not day.sessions %}text-base-content/25{% endif %}">
+                                        <div class="text-[10px] font-black leading-4">{{ day.number }}</div>
+                                        <div class="flex h-4 justify-center gap-0.5 whitespace-nowrap">
+                                            {% for session in day.sessions %}
+                                                <span class="rounded px-0.5 text-[10px] font-black leading-4 {% if session.status == 'absent' %}bg-error/10 text-error{% else %}text-success{% endif %}">{{ session.label }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="h-9 bg-base-100/60"></div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            {% empty %}
+
+                <div class="flex min-h-[130px] flex-col items-center justify-center px-6 text-center">
+                    <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/35">◷</div>
+                    <p class="text-xs font-bold text-base-content/60">Antrenman katılım kaydı bulunmuyor.</p>
+                    <p class="mt-1 text-[10px] text-base-content/40">Katılım bilgileri burada görünecek.</p>
+                </div>
+
+            {% endfor %}
 
         </div>
 
@@ -320,9 +453,10 @@
         <!-- AYLIK ÖDEMELER -->
         <!-- ================================================= -->
 
+        {% if request.user.is_club_admin %}
         <div
             id="monthly-payments-tab"
-            class="mt-2 divide-y divide-base-200">
+            class="mt-2 min-h-0 flex-1 overflow-hidden divide-y divide-base-200">
 
             {% for item in monthly_payments %}
 
@@ -362,15 +496,17 @@
             {% endfor %}
 
         </div>
+        {% endif %}
 
 
         <!-- ================================================= -->
         <!-- DİĞER ÖDEMELER -->
         <!-- ================================================= -->
 
+        {% if request.user.is_club_admin %}
         <div
             id="other-payments-tab"
-            class="mt-2 hidden divide-y divide-base-200">
+            class="mt-2 min-h-0 flex-1 overflow-hidden hidden divide-y divide-base-200">
 
             {% for item in other_payments %}
 
@@ -410,6 +546,7 @@
             {% endfor %}
 
         </div>
+        {% endif %}
 
 
         <!-- ================================================= -->
@@ -418,7 +555,7 @@
 
         <div
             id="equipment-payments-tab"
-            class="mt-2 hidden">
+            class="mt-2 min-h-0 flex-1 overflow-hidden hidden">
            <div
                 class="border-t border-base-200
                        bg-base-200/20
@@ -547,6 +684,10 @@
 
             equipment: document.getElementById(
                 'equipment-payments-tab'
+            ),
+
+            training: document.getElementById(
+                'training-payments-tab'
             )
         };
 
@@ -562,6 +703,10 @@
 
             equipment: document.querySelector(
                 '[data-payment-tab="equipment"]'
+            ),
+
+            training: document.querySelector(
+                '[data-payment-tab="training"]'
             )
         };
 
@@ -762,11 +907,21 @@
         'DOMContentLoaded',
         function () {
 
+            document.querySelector('.app-content')?.classList.add('athlete-detail-no-scroll');
+
             /*
              * Varsayılan sekme
              */
 
+            {% if request.user.is_club_admin %}
             showPaymentTab('monthly');
+            {% else %}
+            showPaymentTab('training');
+            {% endif %}
+
+            if (new URLSearchParams(window.location.search).has('attendance_month')) {
+                showPaymentTab('training');
+            }
 
         }
     );

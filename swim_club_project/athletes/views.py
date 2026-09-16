@@ -1,7 +1,9 @@
 # athletes/views.py
+from calendar import monthrange
 from datetime import date
 from decimal import Decimal
 import re
+from collections import OrderedDict
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -21,6 +23,7 @@ from rest_framework.response import Response
 from django.db.models import Sum
 from .forms import AthleteForm, AthletePaymentCreateForm, AthletePaymentEditForm, EquipmentSaleForm
 from .models import Athlete
+from teams.models import TeamTrainingAttendance, TeamTrainingSchedule
 from .serializers import AthleteSerializer
 from finance.models import Equipment, EquipmentSaleItem, EquipmentStockMovement, PaymentRecord
 from finance.services import get_equipment_central_stock, get_equipment_coach_stock
@@ -28,6 +31,10 @@ from finance.services import get_equipment_central_stock, get_equipment_coach_st
 MONTH_NAMES = (
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
     'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+)
+WEEKDAY_NAMES = (
+    'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe',
+    'Cuma', 'Cumartesi', 'Pazar',
 )
 
 
@@ -78,6 +85,7 @@ def athlete_detail(request, pk):
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     first_month = athlete.joined_date.replace(day=1)
     current_month = date.today().replace(day=1)
+    attendance_first_month = current_month.replace(month=1)
     payments_records = PaymentRecord.objects.filter(
         athlete=athlete,
         payment_type='fee',
@@ -90,6 +98,11 @@ def athlete_detail(request, pk):
         athlete=athlete,
     ).exclude(payment_type__in=('fee', 'equipment_sale')).order_by(
         '-due_date', '-paid_at', '-created_at', '-pk'
+    )
+    attendance_records = TeamTrainingAttendance.objects.filter(
+        athlete=athlete,
+    ).select_related('schedule').order_by(
+        '-training_date', '-schedule__start_time', '-pk'
     )
 
     def payment_item(payment):
@@ -165,11 +178,164 @@ def athlete_detail(request, pk):
 
     monthly_payments.sort(key=payment_date, reverse=True)
 
+    attendance_months = OrderedDict()
+    for record in attendance_records:
+        period = record.training_date.strftime('%Y-%m')
+        if period not in attendance_months:
+            attendance_months[period] = {
+                'label': f'{MONTH_NAMES[record.training_date.month - 1]} {record.training_date.year}',
+                'weekdays': OrderedDict(),
+            }
+        weekdays = attendance_months[period]['weekdays']
+        weekday = record.training_date.weekday()
+        if weekday not in weekdays:
+            weekdays[weekday] = {
+                'label': WEEKDAY_NAMES[weekday],
+                'days': OrderedDict(),
+            }
+        days = weekdays[weekday]['days']
+        day = record.training_date.day
+        day_record = days.setdefault(day, {
+            'sessions': {},
+        })
+        session_label = 'S' if record.schedule.start_time.hour < 12 else 'A'
+        day_record['sessions'][session_label] = record.status
+
+    period_month = current_month
+    while period_month >= attendance_first_month:
+        period = period_month.strftime('%Y-%m')
+        attendance_months.setdefault(period, {
+            'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
+            'weekdays': OrderedDict(),
+        })
+        if period_month.month == 1:
+            period_month = period_month.replace(year=period_month.year - 1, month=12)
+        else:
+            period_month = period_month.replace(month=period_month.month - 1)
+
+    attendance_total = attendance_records.count()
+    attendance_absent = attendance_records.filter(
+        status=TeamTrainingAttendance.Status.ABSENT,
+    ).count()
+    attendance_swimming = attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.SWIMMING,
+    ).count()
+    attendance_land = attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.LAND,
+    ).count()
+    attendance_absent_swimming = attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.SWIMMING,
+        status=TeamTrainingAttendance.Status.ABSENT,
+    ).count()
+    attendance_absent_land = attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.LAND,
+        status=TeamTrainingAttendance.Status.ABSENT,
+    ).count()
+    for month in attendance_months.values():
+        month_records = [
+            status
+            for weekday in month['weekdays'].values()
+            for day_record in weekday['days'].values()
+            for status in day_record['sessions'].values()
+        ]
+        month['total_count'] = len(month_records)
+        month['absent_count'] = sum(
+            status == TeamTrainingAttendance.Status.ABSENT
+            for status in month_records
+        )
+
+    for period, month in attendance_months.items():
+        year, month_number = map(int, period.split('-'))
+        days_in_month = monthrange(year, month_number)[1]
+        first_weekday = date(year, month_number, 1).weekday()
+        calendar_days = [None] * first_weekday
+
+        for day_number in range(1, days_in_month + 1):
+            weekday = month['weekdays'].get(date(year, month_number, day_number).weekday())
+            day_record = weekday['days'].get(day_number) if weekday else None
+            calendar_days.append(
+                {
+                    'number': day_number,
+                    'sessions': [
+                        {
+                            'label': session,
+                            'status': status,
+                        }
+                        for session, status in sorted(
+                            (day_record or {'sessions': {}})['sessions'].items(),
+                            key=lambda item: 0 if item[0] == 'S' else 1,
+                        )
+                    ],
+                }
+            )
+
+        calendar_days.extend([None] * (-len(calendar_days) % 7))
+        month['calendar_weeks'] = [
+            calendar_days[index:index + 7]
+            for index in range(0, len(calendar_days), 7)
+        ]
+        month['weekdays'] = [
+            {'label': WEEKDAY_NAMES[weekday]}
+            for weekday in range(7)
+        ]
+
+    attendance_periods = sorted(attendance_months.keys(), reverse=True)
+    requested_period = request.GET.get('attendance_month')
+    selected_period = (
+        requested_period
+        if requested_period in attendance_months
+        else attendance_periods[0] if attendance_periods else None
+    )
+    selected_month = attendance_months.get(selected_period) if selected_period else None
+    selected_months = [selected_month] if selected_month else []
+    selected_index = attendance_periods.index(selected_period) if selected_period else -1
+    selected_attendance_records = attendance_records
+    if selected_period:
+        selected_year, selected_month_number = map(int, selected_period.split('-'))
+        selected_attendance_records = attendance_records.filter(
+            training_date__year=selected_year,
+            training_date__month=selected_month_number,
+        )
+    attendance_total = selected_attendance_records.count()
+    attendance_absent = selected_attendance_records.filter(
+        status=TeamTrainingAttendance.Status.ABSENT,
+    ).count()
+    attendance_swimming = selected_attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.SWIMMING,
+    ).count()
+    attendance_land = selected_attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.LAND,
+    ).count()
+    attendance_absent_swimming = selected_attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.SWIMMING,
+        status=TeamTrainingAttendance.Status.ABSENT,
+    ).count()
+    attendance_absent_land = selected_attendance_records.filter(
+        schedule__training_type=TeamTrainingSchedule.TrainingType.LAND,
+        status=TeamTrainingAttendance.Status.ABSENT,
+    ).count()
+
     return render(request, 'athlete/athlete_detail.html', {
         'athlete': athlete,
         'monthly_payments': monthly_payments,
         'equipment_sales': equipment_sale_items,
         'other_payments': other_payment_items,
+        'attendance_months': selected_months,
+        'attendance_period': selected_period,
+        'attendance_previous_period': (
+            attendance_periods[selected_index + 1]
+            if selected_index >= 0 and selected_index < len(attendance_periods) - 1 else None
+        ),
+        'attendance_next_period': (
+            attendance_periods[selected_index - 1]
+            if selected_index > 0 else None
+        ),
+        'attendance_total': attendance_total,
+        'attendance_absent': attendance_absent,
+        'attendance_swimming': attendance_swimming,
+        'attendance_land': attendance_land,
+        'attendance_absent_swimming': attendance_absent_swimming,
+        'attendance_absent_land': attendance_absent_land,
     })
 
 
