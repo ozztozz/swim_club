@@ -31,8 +31,16 @@
             <div class="divide-y divide-base-200">
                 {% for equipment in equipments %}
                     <div class="flex items-center gap-3 px-4 py-3 {% if not equipment.is_active %}opacity-60{% endif %}">
+                        {% with image=equipment.images.first %}
+                            {% if image %}
+                                <img src="{{ image.image.url }}" alt="{{ equipment.name }}" class="h-12 w-12 shrink-0 rounded-xl object-cover">
+                            {% else %}
+                                <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-base-200 text-xs text-base-content/40">Foto</div>
+                            {% endif %}
+                        {% endwith %}
                         <div class="min-w-0 flex-1">
-                            <p class="truncate text-base font-semibold">{{ equipment.name }}</p>
+                            <p class="truncate text-base font-semibold">{{ equipment.display_name }}</p>
+                            {% if equipment.variant_summary %}<p class="truncate text-xs text-base-content/50">{{ equipment.variant_summary }}</p>{% endif %}
                             <div class="mt-0.5 flex items-center gap-2 text-sm text-base-content/50">
                                 <span>Birim fiyat: {{ equipment.price|floatformat:2 }}</span>
                                 {% if equipment.is_active %}

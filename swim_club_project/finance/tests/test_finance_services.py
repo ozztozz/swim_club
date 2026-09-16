@@ -1,11 +1,16 @@
+import json
 from decimal import Decimal
 from datetime import date, timedelta
+from io import BytesIO
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
+from PIL import Image
 from teams.models import Team
 from athletes.models import Athlete
-from finance.models import Equipment, EquipmentSaleItem, PaymentRecord, ExpenseCategory, Expense, TeamFeeHistory
+from finance.models import Equipment, EquipmentImage, EquipmentSaleItem, PaymentRecord, ExpenseCategory, Expense, TeamFeeHistory
+from finance.forms import EquipmentForm
 from finance.services import get_athlete_fee_for_period, get_or_create_monthly_payments, get_financial_summary
 
 User = get_user_model()
@@ -112,6 +117,8 @@ class FinanceModelAndServiceTests(TestCase):
         equipment = Equipment.objects.create(
             name='Kulüp Tişörtü',
             price=Decimal('750.00'),
+            colors=['Pembe', 'Siyah'],
+            sizes=['Küçük', 'Büyük'],
         )
         self.client.force_login(self.user)
 
@@ -119,6 +126,8 @@ class FinanceModelAndServiceTests(TestCase):
             reverse('athlete-manage-equipment-sale-create', args=[self.athlete1.pk]),
             data={
                 f'equipment_{equipment.pk}': '2',
+                f'equipment_{equipment.pk}_color': 'Pembe',
+                f'equipment_{equipment.pk}_size': 'Büyük',
                 'payment_method': 'cash',
                 'status': 'paid',
                 'notes': 'Deneme satışı',
@@ -132,10 +141,12 @@ class FinanceModelAndServiceTests(TestCase):
         self.assertEqual(payment.amount, Decimal('1500.00'))
         self.assertEqual(payment.status, 'paid')
         self.assertEqual(payment.collected_by, self.user)
-        self.assertIn('Malzemeler: Kulüp Tişörtü x2', payment.notes)
+        self.assertIn('Malzemeler: Kulüp Tişörtü (Pembe / Büyük) x2', payment.notes)
         sale_item = EquipmentSaleItem.objects.get(payment=payment)
         self.assertEqual(sale_item.quantity, 2)
         self.assertEqual(sale_item.unit_price, Decimal('750.00'))
+        self.assertEqual(sale_item.selected_color, 'Pembe')
+        self.assertEqual(sale_item.selected_size, 'Büyük')
 
         equipment.price = Decimal('900.00')
         equipment.save(update_fields=('price',))
@@ -160,7 +171,37 @@ class FinanceModelAndServiceTests(TestCase):
         )
         payment.refresh_from_db()
         self.assertEqual(payment.amount, Decimal('2250.00'))
-        self.assertIn('Malzemeler: Kulüp Tişörtü x3', payment.notes)
+        self.assertIn('Malzemeler: Kulüp Tişörtü (Pembe / Büyük) x3', payment.notes)
+
+    def test_athlete_equipment_sale_accepts_multiple_variants(self):
+        equipment = Equipment.objects.create(
+            name='Kulüp Tişörtü',
+            price=Decimal('750.00'),
+            colors=['Pembe', 'Siyah'],
+            sizes=['Küçük', 'Büyük'],
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            reverse('athlete-manage-equipment-sale-create', args=[self.athlete1.pk]),
+            data={
+                f'equipment_{equipment.pk}_variants': json.dumps([
+                    {'color': 'Pembe', 'size': 'Büyük', 'quantity': 1},
+                    {'color': 'Siyah', 'size': 'Küçük', 'quantity': 2},
+                ]),
+                'payment_method': 'cash',
+                'status': 'paid',
+            },
+            HTTP_HX_REQUEST='true',
+        )
+
+        self.assertEqual(response.status_code, 204)
+        payment = PaymentRecord.objects.get(payment_type='equipment_sale')
+        self.assertEqual(payment.amount, Decimal('2250.00'))
+        self.assertEqual(
+            list(payment.equipment_sale_items.values_list('selected_color', 'selected_size', 'quantity')),
+            [('Pembe', 'Büyük', 1), ('Siyah', 'Küçük', 2)],
+        )
 
     def test_equipment_crud_and_active_toggle(self):
         self.client.force_login(self.user)
@@ -204,6 +245,65 @@ class FinanceModelAndServiceTests(TestCase):
         self.assertRedirects(response, list_url)
         sale_equipment.refresh_from_db()
         self.assertFalse(sale_equipment.is_active)
+
+    def test_equipment_variants_are_stored_as_json(self):
+        form = EquipmentForm(data={
+            'name': 'Tişört',
+            'price': '500',
+            'is_active': 'on',
+            'colors_text': 'Gri, Beyaz',
+            'sizes_text': 'Small, Medium, Large, XLarge',
+        })
+
+        self.assertTrue(form.is_valid(), form.errors)
+        equipment = form.save()
+
+        self.assertEqual(equipment.colors, ['Gri', 'Beyaz'])
+        self.assertEqual(equipment.sizes, ['Small', 'Medium', 'Large', 'XLarge'])
+        self.assertEqual(
+            equipment.variant_summary,
+            'Renk: Gri, Beyaz · Beden: Small, Medium, Large, XLarge',
+        )
+
+    def test_equipment_accepts_multiple_compressed_images(self):
+        self.client.force_login(self.user)
+
+        uploads = []
+        for color in ('red', 'blue'):
+            output = BytesIO()
+            Image.new('RGB', (2400, 1600), color=color).save(output, format='PNG')
+            uploads.append(SimpleUploadedFile(
+                f'{color}.png',
+                output.getvalue(),
+                content_type='image/png',
+            ))
+
+        response = self.client.post(
+            reverse('equipment-create'),
+            {'name': 'Gözlük', 'price': '250', 'is_active': 'on', 'images': uploads},
+        )
+
+        self.assertRedirects(response, reverse('equipment-list'))
+        equipment = Equipment.objects.get(name='Gözlük')
+        images = list(EquipmentImage.objects.filter(equipment=equipment))
+        self.assertEqual(len(images), 2)
+        for equipment_image in images:
+            with Image.open(equipment_image.image) as image:
+                self.assertLessEqual(max(image.size), 800)
+                self.assertEqual(image.format, 'JPEG')
+
+        response = self.client.post(
+            reverse('equipment-update', args=[equipment.pk]),
+            {
+                'name': equipment.name,
+                'price': equipment.price,
+                'is_active': 'on',
+                'delete_images': [str(images[0].pk)],
+            },
+        )
+
+        self.assertRedirects(response, reverse('equipment-list'))
+        self.assertEqual(EquipmentImage.objects.filter(equipment=equipment).count(), 1)
 
     def test_get_or_create_monthly_payments(self):
         period = "2026-08"

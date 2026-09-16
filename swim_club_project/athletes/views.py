@@ -2,6 +2,7 @@
 from calendar import monthrange
 from datetime import date
 from decimal import Decimal
+import json
 import re
 from collections import OrderedDict
 
@@ -535,13 +536,13 @@ def athlete_create_equipment_sale(request, pk):
                 if distribution_mode and stock_source == 'coach':
                     insufficient = [
                         f'{equipment.name}: mevcut {get_equipment_coach_stock(equipment, coach)}, istenen {quantity}'
-                        for equipment, quantity, _ in sale_data['items']
+                        for equipment, quantity, _, _, _ in sale_data['items']
                         if quantity > get_equipment_coach_stock(equipment, coach)
                     ]
                 elif distribution_mode and stock_source == 'central':
                     insufficient = [
                         f'{equipment.name}: merkezde mevcut {get_equipment_central_stock(equipment)}, istenen {quantity}'
-                        for equipment, quantity, _ in sale_data['items']
+                        for equipment, quantity, _, _, _ in sale_data['items']
                         if quantity > get_equipment_central_stock(equipment)
                     ]
                 if insufficient:
@@ -561,12 +562,14 @@ def athlete_create_equipment_sale(request, pk):
                         collected_by=sale_data['collected_by'],
                         notes=sale_data['notes'],
                     )
-                    for equipment, quantity, unit_price in sale_data['items']:
+                    for equipment, quantity, unit_price, color, size in sale_data['items']:
                         sale_item = EquipmentSaleItem.objects.create(
                             payment=payment,
                             equipment=equipment,
                             quantity=quantity,
                             unit_price=unit_price,
+                            selected_color=color,
+                            selected_size=size,
                         )
                         if distribution_mode:
                             EquipmentStockMovement.objects.create(
@@ -577,6 +580,8 @@ def athlete_create_equipment_sale(request, pk):
                                 athlete=athlete,
                                 payment=payment,
                                 sale_item=sale_item,
+                                selected_color=color,
+                                selected_size=size,
                                 created_by=request.user,
                                 notes='Sporcuya dağıtım',
                             )
@@ -607,19 +612,41 @@ def athlete_edit_equipment_sale(request, pk, payment_id):
     )
     existing_items = list(payment.equipment_sale_items.all())
     initial_quantities = (
-        {item.equipment_id: item.quantity for item in existing_items}
+        {equipment_id: sum(item.quantity for item in existing_items if item.equipment_id == equipment_id)
+         for equipment_id in {item.equipment_id for item in existing_items}}
         if existing_items else _equipment_sale_quantities(payment.notes)
     )
     unit_prices = {item.equipment_id: item.unit_price for item in existing_items}
+    initial_variants = {}
+    for item in existing_items:
+        initial_variants.setdefault(item.equipment_id, []).append({
+            'color': item.selected_color,
+            'size': item.selected_size,
+            'quantity': item.quantity,
+        })
     initial = {
         **initial_quantities,
         'payment_method': payment.payment_method,
         'status': payment.status,
         'notes': _equipment_sale_extra_notes(payment.notes),
     }
+    form_data = request.POST or None
+    if request.method == 'POST' and existing_items:
+        form_data = request.POST.copy()
+        for equipment_id, variants in initial_variants.items():
+            field_name = f'equipment_{equipment_id}_variants'
+            if not form_data.get(field_name):
+                legacy_quantity = form_data.get(f'equipment_{equipment_id}')
+                legacy_variants = [dict(variant) for variant in variants]
+                if legacy_quantity is not None and legacy_variants:
+                    legacy_variants[0]['quantity'] = int(legacy_quantity or 0)
+                    for variant in legacy_variants[1:]:
+                        variant['quantity'] = 0
+                form_data[field_name] = json.dumps(legacy_variants, ensure_ascii=False)
     form = EquipmentSaleForm(
-        request.POST or None,
+        form_data,
         initial_quantities=initial_quantities,
+        initial_variants=initial_variants,
         initial=initial,
     )
     if request.method == 'POST' and form.is_valid():
@@ -641,8 +668,10 @@ def athlete_edit_equipment_sale(request, pk, payment_id):
                     equipment=equipment,
                     quantity=quantity,
                     unit_price=unit_price,
+                    selected_color=color,
+                    selected_size=size,
                 )
-                for equipment, quantity, unit_price in sale_data['items']
+                for equipment, quantity, unit_price, color, size in sale_data['items']
             ])
             response = HttpResponse(status=204)
             response['HX-Redirect'] = request.build_absolute_uri(
@@ -660,17 +689,19 @@ def athlete_edit_equipment_sale(request, pk, payment_id):
 
 def _equipment_sale_data(form, user, unit_prices=None):
     selected_equipment = form.selected_equipment()
+    if form.errors:
+        return None
     if not selected_equipment:
         form.add_error(None, 'En az bir malzeme için adet girin.')
         return None
     unit_prices = unit_prices or {}
     total_amount = sum(
-        (unit_prices.get(equipment.pk, equipment.price) * quantity for equipment, quantity in selected_equipment),
+        (unit_prices.get(equipment.pk, equipment.price) * quantity for equipment, quantity, _, _ in selected_equipment),
         Decimal('0.00'),
     )
     sale_items = ', '.join(
-        f'{equipment.name} x{quantity}'
-        for equipment, quantity in selected_equipment
+        f'{equipment.display_name}{f" ({color} / {size})" if color or size else ""} x{quantity}'
+        for equipment, quantity, color, size in selected_equipment
     )
     sale_status = form.cleaned_data['status']
     notes = f'Malzemeler: {sale_items}'
@@ -679,8 +710,8 @@ def _equipment_sale_data(form, user, unit_prices=None):
     return {
         'amount': total_amount,
         'items': [
-            (equipment, quantity, unit_prices.get(equipment.pk, equipment.price))
-            for equipment, quantity in selected_equipment
+            (equipment, quantity, unit_prices.get(equipment.pk, equipment.price), color, size)
+            for equipment, quantity, color, size in selected_equipment
         ],
         'status': sale_status,
         'paid_at': timezone.now() if sale_status == 'paid' else None,
@@ -693,7 +724,7 @@ def _equipment_sale_quantities(notes):
     quantities = {}
     first_line = (notes or '').splitlines()[0] if notes else ''
     for equipment in Equipment.objects.filter(is_active=True):
-        match = re.search(rf'(?:^|,\s*){re.escape(equipment.name)}\s+x(\d+)(?:,|$)', first_line.removeprefix('Malzemeler: '))
+        match = re.search(rf'(?:^|,\s*){re.escape(equipment.display_name)}\s+x(\d+)(?:,|$)', first_line.removeprefix('Malzemeler: '))
         if match:
             quantities[equipment.pk] = int(match.group(1))
     return quantities
@@ -704,7 +735,9 @@ def _equipment_sale_items(payment):
     if sale_items:
         return [
             {
-                'name': item.equipment.name,
+                'name': item.equipment.display_name,
+                'color': item.selected_color,
+                'size': item.selected_size,
                 'price': item.unit_price,
                 'quantity': item.quantity,
                 'total': item.line_total,
@@ -721,13 +754,15 @@ def _equipment_sale_items(payment):
     sale_items = first_line.removeprefix('Malzemeler: ')
     for equipment in Equipment.objects.filter(is_active=True):
         match = re.search(
-            rf'(?:^|,\s*){re.escape(equipment.name)}\s+x(\d+)(?:,|$)',
+            rf'(?:^|,\s*){re.escape(equipment.display_name)}\s+x(\d+)(?:,|$)',
             sale_items,
         )
         if match:
             quantity = int(match.group(1))
             items.append({
-                'name': equipment.name,
+                'name': equipment.display_name,
+                'color': '',
+                'size': '',
                 'price': equipment.price,
                 'quantity': quantity,
                 'total': equipment.price * quantity,

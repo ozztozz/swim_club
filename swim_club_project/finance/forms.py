@@ -1,9 +1,45 @@
 # finance/forms.py
 from django import forms
+from django.forms.widgets import ClearableFileInput
 from .models import Equipment, Expense, ExpenseCategory, PaymentRecord, RegularExpense
 
 
+class MultipleFileInput(ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleImageField(forms.ImageField):
+    widget = MultipleFileInput
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if not data:
+            return []
+        if not isinstance(data, (list, tuple)):
+            data = [data]
+        return [single_file_clean(item, initial) for item in data]
+
+
 class EquipmentForm(forms.ModelForm):
+    colors_text = forms.CharField(
+        required=False,
+        label='Renk seçenekleri',
+        help_text='Virgülle ayırın. Örn: Pembe, Siyah',
+        widget=forms.TextInput(attrs={
+            'class': 'textarea textarea-bordered w-full',
+            'placeholder': 'Pembe, Siyah',
+        }),
+    )
+    sizes_text = forms.CharField(
+        required=False,
+        label='Beden seçenekleri',
+        help_text='Virgülle ayırın. Örn: Küçük, Büyük veya Small, Medium, Large, XLarge',
+        widget=forms.TextInput(attrs={
+            'class': 'input input-bordered w-full',
+            'placeholder': 'Small, Medium, Large, XLarge',
+        }),
+    )
+
     class Meta:
         model = Equipment
         fields = ('name', 'price', 'is_active')
@@ -27,6 +63,46 @@ class EquipmentForm(forms.ModelForm):
                 'class': 'toggle toggle-primary',
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk and not self.is_bound:
+            self.initial['colors_text'] = ', '.join(self.instance.colors)
+            self.initial['sizes_text'] = ', '.join(self.instance.sizes)
+
+    @staticmethod
+    def _split_options(value):
+        return list(dict.fromkeys(
+            option.strip()
+            for option in value.replace('\n', ',').split(',')
+            if option.strip()
+        ))
+
+    def clean_colors_text(self):
+        return self._split_options(self.cleaned_data.get('colors_text', ''))
+
+    def clean_sizes_text(self):
+        return self._split_options(self.cleaned_data.get('sizes_text', ''))
+
+    def save(self, commit=True):
+        equipment = super().save(commit=False)
+        equipment.colors = self.cleaned_data.get('colors_text', [])
+        equipment.sizes = self.cleaned_data.get('sizes_text', [])
+        if commit:
+            equipment.save()
+        return equipment
+
+
+class EquipmentImagesForm(forms.Form):
+    images = MultipleImageField(
+        required=False,
+        label='Malzeme görselleri',
+        widget=MultipleFileInput(attrs={
+            'class': 'file-input file-input-bordered w-full',
+            'accept': 'image/*',
+            'multiple': True,
+        }),
+    )
 
 class ProcessPaymentForm(forms.ModelForm):
     class Meta:

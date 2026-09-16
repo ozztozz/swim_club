@@ -13,10 +13,10 @@ from django.db.models import Count, F, Prefetch, Q, Sum
 from django.urls import reverse
 from django.utils import timezone
 from .models import PaymentRecord
-from .forms import EquipmentForm, ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
+from .forms import EquipmentForm, EquipmentImagesForm, ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
 from .services import get_athlete_fee_for_period, get_equipment_central_stock, get_equipment_coach_stock, get_or_create_monthly_payments, get_financial_summary
 from athletes.models import Team, Athlete
-from .models import Equipment, EquipmentSaleItem, EquipmentStockMovement, Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
+from .models import Equipment, EquipmentImage, EquipmentSaleItem, EquipmentStockMovement, Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, date
@@ -26,7 +26,7 @@ from decimal import Decimal
 @login_required
 def equipment_list(request):
     return render(request, 'finance/equipment_list.html', {
-        'equipments': Equipment.objects.all(),
+        'equipments': Equipment.objects.prefetch_related('images').all(),
         'form': EquipmentForm(),
     })
 
@@ -35,13 +35,21 @@ def equipment_list(request):
 def equipment_create(request):
     if request.method == 'POST':
         form = EquipmentForm(request.POST)
-        if form.is_valid():
-            form.save()
+        images_form = EquipmentImagesForm(request.POST, request.FILES)
+        if form.is_valid() and images_form.is_valid():
+            equipment = form.save()
+            for image in images_form.cleaned_data['images']:
+                EquipmentImage.objects.create(equipment=equipment, image=image)
             messages.success(request, 'Malzeme eklendi.')
             return redirect('equipment-list')
     else:
         form = EquipmentForm()
-    return render(request, 'finance/equipment_form.html', {'form': form, 'title': 'Malzeme ekle'})
+        images_form = EquipmentImagesForm()
+    return render(request, 'finance/equipment_form.html', {
+        'form': form,
+        'images_form': images_form,
+        'title': 'Malzeme ekle',
+    })
 
 
 @login_required
@@ -50,17 +58,32 @@ def equipment_update(request, pk):
     if request.method == 'POST':
         active_state = equipment.is_active
         form = EquipmentForm(request.POST, instance=equipment)
-        if form.is_valid():
+        images_form = EquipmentImagesForm(request.POST, request.FILES)
+        if form.is_valid() and images_form.is_valid():
             equipment = form.save(commit=False)
             if 'is_active' not in request.POST:
                 equipment.is_active = active_state
             equipment.save()
+
+            delete_ids = request.POST.getlist('delete_images')
+            images_to_delete = equipment.images.filter(pk__in=delete_ids)
+            for equipment_image in images_to_delete:
+                image_name = equipment_image.image.name
+                if getattr(equipment_image.image, 'file', None):
+                    equipment_image.image.file.close()
+                equipment_image.image.storage.delete(image_name)
+                equipment_image.delete()
+
+            for image in images_form.cleaned_data['images']:
+                EquipmentImage.objects.create(equipment=equipment, image=image)
             messages.success(request, 'Malzeme güncellendi.')
             return redirect('equipment-list')
     else:
         form = EquipmentForm(instance=equipment)
+        images_form = EquipmentImagesForm()
     return render(request, 'finance/equipment_form.html', {
         'form': form,
+        'images_form': images_form,
         'title': 'Malzeme düzenle',
         'equipment': equipment,
     })

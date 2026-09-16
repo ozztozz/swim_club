@@ -1,4 +1,6 @@
-# athletes/forms.py
+ # athletes/forms.py
+import json
+
 from django import forms
 from finance.models import Equipment, PaymentRecord
 from .models import Athlete
@@ -118,9 +120,10 @@ class AthletePaymentCreateForm(forms.ModelForm):
 
 
 class EquipmentSaleForm(forms.Form):
-    def __init__(self, *args, initial_quantities=None, coach_queryset=None, **kwargs):
+    def __init__(self, *args, initial_quantities=None, initial_variants=None, coach_queryset=None, **kwargs):
         super().__init__(*args, **kwargs)
         initial_quantities = initial_quantities or {}
+        initial_variants = initial_variants or {}
         if coach_queryset is not None:
             self.fields['coach'] = forms.ModelChoiceField(
                 queryset=coach_queryset,
@@ -131,8 +134,12 @@ class EquipmentSaleForm(forms.Form):
             )
         self.equipment_items = list(Equipment.objects.filter(is_active=True))
         for equipment in self.equipment_items:
+            variant_initial = initial_variants.get(equipment.pk, [])
+            if isinstance(variant_initial, dict):
+                variant_initial = [variant_initial]
+            first_variant = variant_initial[0] if variant_initial else {}
             self.fields[f'equipment_{equipment.pk}'] = forms.IntegerField(
-                label=equipment.name,
+                label=equipment.display_name,
                 required=False,
                 min_value=0,
                 initial=initial_quantities.get(equipment.pk, 0),
@@ -143,13 +150,69 @@ class EquipmentSaleForm(forms.Form):
                     'data-price': str(equipment.price),
                 }),
             )
+            colors = [(color, color) for color in equipment.colors]
+            sizes = [(size, size) for size in equipment.sizes]
+            self.fields[f'equipment_{equipment.pk}_color'] = forms.ChoiceField(
+                choices=colors,
+                required=False,
+                initial=first_variant.get('color') or (equipment.colors[0] if equipment.colors else ''),
+                widget=forms.RadioSelect(attrs={'class': 'radio radio-primary radio-xs'}),
+            )
+            self.fields[f'equipment_{equipment.pk}_size'] = forms.ChoiceField(
+                choices=sizes,
+                required=False,
+                initial=first_variant.get('size') or (equipment.sizes[0] if equipment.sizes else ''),
+                widget=forms.RadioSelect(attrs={'class': 'radio radio-primary radio-xs'}),
+            )
+            self.fields[f'equipment_{equipment.pk}_variants'] = forms.CharField(
+                required=False,
+                initial=json.dumps(variant_initial, ensure_ascii=False),
+                widget=forms.HiddenInput(),
+            )
 
     def selected_equipment(self):
-        return [
-            (equipment, self.cleaned_data.get(f'equipment_{equipment.pk}') or 0)
-            for equipment in self.equipment_items
-            if (self.cleaned_data.get(f'equipment_{equipment.pk}') or 0) > 0
-        ]
+        selected = []
+        for equipment in self.equipment_items:
+            variants_raw = self.cleaned_data.get(f'equipment_{equipment.pk}_variants') or ''
+            if variants_raw:
+                try:
+                    variants = json.loads(variants_raw)
+                except (TypeError, ValueError):
+                    self.add_error(f'equipment_{equipment.pk}_variants', 'Varyant bilgisi geçersiz.')
+                    continue
+                if not isinstance(variants, list):
+                    self.add_error(f'equipment_{equipment.pk}_variants', 'Varyant bilgisi geçersiz.')
+                    continue
+                for variant in variants:
+                    if not isinstance(variant, dict):
+                        self.add_error(f'equipment_{equipment.pk}_variants', 'Varyant bilgisi geçersiz.')
+                        continue
+                    quantity = int(variant.get('quantity') or 0)
+                    if quantity <= 0:
+                        continue
+                    color = variant.get('color') or ''
+                    size = variant.get('size') or ''
+                    if equipment.colors and color not in equipment.colors:
+                        self.add_error(f'equipment_{equipment.pk}_variants', 'Geçerli bir renk seçin.')
+                        continue
+                    if equipment.sizes and size not in equipment.sizes:
+                        self.add_error(f'equipment_{equipment.pk}_variants', 'Geçerli bir beden seçin.')
+                        continue
+                    selected.append((equipment, quantity, color, size))
+                continue
+            quantity = self.cleaned_data.get(f'equipment_{equipment.pk}') or 0
+            if quantity <= 0:
+                continue
+            color = self.cleaned_data.get(f'equipment_{equipment.pk}_color') or (equipment.colors[0] if equipment.colors else '')
+            size = self.cleaned_data.get(f'equipment_{equipment.pk}_size') or (equipment.sizes[0] if equipment.sizes else '')
+            if equipment.colors and not color:
+                self.add_error(f'equipment_{equipment.pk}_color', 'Renk seçin.')
+                continue
+            if equipment.sizes and not size:
+                self.add_error(f'equipment_{equipment.pk}_size', 'Beden seçin.')
+                continue
+            selected.append((equipment, quantity, color, size))
+        return selected
 
     @property
     def equipment_rows(self):
@@ -157,6 +220,11 @@ class EquipmentSaleForm(forms.Form):
             {
                 'equipment': equipment,
                 'field': self[f'equipment_{equipment.pk}'],
+                'color_field': self[f'equipment_{equipment.pk}_color'],
+                'size_field': self[f'equipment_{equipment.pk}_size'],
+                'variants_field': self[f'equipment_{equipment.pk}_variants'],
+                'colors': bool(equipment.colors),
+                'sizes': bool(equipment.sizes),
             }
             for equipment in self.equipment_items
         ]

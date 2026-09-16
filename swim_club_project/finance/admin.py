@@ -1,6 +1,11 @@
 # finance/admin.py
 from django.contrib import admin
-from .models import Equipment, EquipmentSaleItem, PaymentRecord, ExpenseCategory, Expense,RegularExpense,TeamFeeHistory
+from .models import Equipment, EquipmentImage, EquipmentSaleItem, PaymentRecord, ExpenseCategory, Expense,RegularExpense,TeamFeeHistory
+
+
+class EquipmentImageInline(admin.TabularInline):
+    model = EquipmentImage
+    extra = 1
 
 
 class EquipmentSaleItemInline(admin.TabularInline):
@@ -10,8 +15,9 @@ class EquipmentSaleItemInline(admin.TabularInline):
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price')
+    list_display = ('name', 'variant_summary', 'price')
     search_fields = ('name',)
+    inlines = (EquipmentImageInline,)
 
 @admin.register(PaymentRecord)
 class PaymentRecordAdmin(admin.ModelAdmin):
