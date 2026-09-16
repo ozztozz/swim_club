@@ -9,19 +9,8 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-                        {% if not request.user.is_coach %}
-                            <li>
-                                <a href="{% url 'team-list' %}">
-                                    Takımlar
-                                </a>
-                            </li>
-                        {% endif %}
+    >
 
-                        <li>
-                            <a href="{% url 'training-attendance' %}">
-                                Antrenman Takibi
-                            </a>
-                        </li>
     <title>Kulüp Yönetim Paneli</title>
 
 
