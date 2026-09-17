@@ -70,6 +70,103 @@
     }
 
     document.body.addEventListener('htmx:afterSwap', liftAttendanceModal);
+    document.body.addEventListener('click', function (event) {
+        const removeButton = event.target.closest('.remove-makeup-athlete');
+        if (removeButton) {
+            const athleteId = removeButton.dataset.athleteId;
+            const form = removeButton.closest('form');
+            removeButton.closest('.makeup-attendance-row, .attendance-row')?.remove();
+            form?.querySelectorAll('input[name="makeup_athlete"], input[name="extra_athlete"]').forEach((input) => {
+                if (input.value === athleteId) input.remove();
+            });
+            return;
+        }
+
+        const addButton = event.target.closest('.add-makeup-athlete');
+        if (!addButton) return;
+
+        const result = addButton.closest('div');
+        const list = document.getElementById('attendance-athlete-list');
+        const form = addButton.closest('form');
+        if (!list || !form) return;
+
+        const isMakeup = Boolean(result?.querySelector('.makeup-athlete-radio:checked'));
+        const athleteId = addButton.dataset.athleteId;
+        const athleteName = addButton.dataset.athleteName;
+
+        list.querySelectorAll('.makeup-attendance-row').forEach((row) => {
+            if (row.dataset.athleteId === athleteId) row.remove();
+        });
+        form.querySelectorAll('input[name="makeup_athlete"], input[name="extra_athlete"]').forEach((input) => {
+            if (input.value === athleteId) input.remove();
+        });
+
+        const row = document.createElement('div');
+        row.className = 'makeup-attendance-row attendance-row flex min-h-11 items-center gap-2 border-b border-base-200 bg-success/5 px-2.5 py-2';
+        row.dataset.athleteId = athleteId;
+
+        const name = document.createElement('span');
+        name.className = 'min-w-0 flex-1 truncate text-sm font-semibold';
+        name.textContent = athleteName;
+
+        const status = document.createElement('span');
+        status.className = 'text-[10px] font-semibold text-success';
+        status.textContent = 'Katıldı';
+
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = isMakeup ? 'makeup_athlete' : 'extra_athlete';
+        hidden.value = athleteId;
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove-makeup-athlete btn btn-ghost btn-xs h-7 min-h-0 rounded-lg px-2 text-[10px] font-bold text-error';
+        remove.dataset.athleteId = athleteId;
+        remove.textContent = 'Sil';
+
+        row.append(name);
+        if (isMakeup) {
+            const note = document.createElement('span');
+            note.className = 'text-[10px] font-bold text-primary';
+            note.textContent = 'Telafi';
+            row.append(note);
+        }
+        row.append(status, remove);
+        list.prepend(row);
+        form.appendChild(hidden);
+        document.getElementById('makeup-athlete-search-results').innerHTML = '';
+    });
+    document.body.addEventListener('change', function (event) {
+        const radio = event.target.closest('input[type="radio"][name^="attendance_"]');
+        if (!radio) return;
+
+        const row = radio.closest('.attendance-row');
+        if (!row) return;
+
+        row.classList.toggle('bg-success/5', radio.value === 'attended');
+        row.classList.toggle('bg-error/5', radio.value === 'absent');
+    });
+    document.body.addEventListener('input', function (event) {
+        const searchInput = event.target.closest('input[name="q"][minlength="3"]');
+        if (searchInput && searchInput.value.trim().length < 3) {
+            const results = document.getElementById('makeup-athlete-search-results');
+            if (results) results.innerHTML = '';
+        }
+    });
+    document.body.addEventListener('submit', function (event) {
+        const form = event.target.closest('form[hx-post*="training-attendance-save"]');
+        if (!form) return;
+
+        form.querySelectorAll('input[name="absent_athletes"]').forEach((input) => input.remove());
+        form.querySelectorAll('input[type="radio"][value="absent"]:checked').forEach((radio) => {
+            const athleteId = radio.name.replace('attendance_', '');
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'absent_athletes';
+            input.value = athleteId;
+            form.appendChild(input);
+        });
+    });
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') closeAttendanceModal();
     });

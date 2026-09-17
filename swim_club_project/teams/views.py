@@ -206,18 +206,33 @@ def _today_training_context(team, selected_schedule=None, training_date=None):
 		.order_by('first_name', 'last_name')
 	)
 	attendance_by_athlete = {}
+	extra_athletes = []
 	if selected_schedule:
-		attendance_by_athlete = {
-			record.athlete_id: record
-			for record in TeamTrainingAttendance.objects.filter(
+		attendance_records = list(TeamTrainingAttendance.objects.filter(
 				schedule=selected_schedule,
 				training_date=training_date,
-			)
+			).select_related('athlete'))
+		attendance_by_athlete = {
+			record.athlete_id: record
+			for record in attendance_records
 		}
+		extra_athletes = [
+			record.athlete
+			for record in attendance_records
+			if record.athlete.team_id != team.pk and record.athlete.is_active
+		]
 	athlete_rows = [
 		{
 			'athlete': athlete,
 			'record': attendance_by_athlete.get(athlete.pk),
+			'is_extra': True,
+		}
+		for athlete in extra_athletes
+	] + [
+		{
+			'athlete': athlete,
+			'record': attendance_by_athlete.get(athlete.pk),
+			'is_extra': False,
 		}
 		for athlete in athletes
 	]
@@ -230,6 +245,25 @@ def _today_training_context(team, selected_schedule=None, training_date=None):
 		'athlete_rows': athlete_rows,
 		'attendance_by_athlete': attendance_by_athlete,
 	}
+
+
+def _attendance_summary(schedule, training_date):
+	attended_count = TeamTrainingAttendance.objects.filter(
+		schedule=schedule,
+		training_date=training_date,
+		status=TeamTrainingAttendance.Status.ATTENDED,
+		athlete__is_active=True,
+	).values('athlete_id').distinct().count()
+	extra_athlete_count = TeamTrainingAttendance.objects.filter(
+		schedule=schedule,
+		training_date=training_date,
+		athlete__is_active=True,
+	).exclude(athlete__team=schedule.team).values('athlete_id').distinct().count()
+	participant_count = Athlete.objects.filter(
+		team=schedule.team,
+		is_active=True,
+	).count() + extra_athlete_count
+	return attended_count, max(participant_count - attended_count, 0)
 
 
 @login_required
@@ -256,10 +290,7 @@ def training_attendance(request):
 		)
 	).order_by('start_time', 'team__name', 'pk'))
 	for schedule in schedules:
-		schedule.absent_count = max(
-			schedule.active_athlete_count - schedule.attended_count,
-			0,
-		)
+		schedule.attended_count, schedule.absent_count = _attendance_summary(schedule, today)
 	return render(request, 'team/training_attendance.html', {
 		'today': today,
 		'selected_date': today,
@@ -299,6 +330,30 @@ def training_attendance_schedule(request, team_pk, schedule_pk):
 
 
 @login_required
+def training_attendance_athlete_search(request, team_pk, schedule_pk):
+	today = _attendance_date(request)
+	team = get_object_or_404(Team, pk=team_pk, is_active=True)
+	get_object_or_404(
+		TeamTrainingSchedule,
+		pk=schedule_pk,
+		team=team,
+		weekday=today.weekday(),
+	)
+	query = request.GET.get('q', '').strip()
+	search_results = Athlete.objects.filter(is_active=True).exclude(team=team)
+	if len(query) >= 3:
+		search_results = search_results.filter(
+			Q(first_name__icontains=query) | Q(last_name__icontains=query)
+		).order_by('first_name', 'last_name')[:10]
+	else:
+		search_results = []
+	return render(request, 'team/partials/training_attendance_athlete_results.html', {
+		'search_results': search_results,
+		'search_query': query,
+	})
+
+
+@login_required
 def training_attendance_save(request, team_pk, schedule_pk):
 	today = _attendance_date(request)
 	team = get_object_or_404(Team, pk=team_pk, is_active=True)
@@ -310,8 +365,22 @@ def training_attendance_save(request, team_pk, schedule_pk):
 	)
 	if request.method == 'POST':
 		absent_ids = set(request.POST.getlist('absent_athletes'))
+		absent_ids.update(
+			field_name.removeprefix('attendance_')
+			for field_name, value in request.POST.items()
+			if field_name.startswith('attendance_') and value == 'absent'
+		)
+		makeup_ids = set(request.POST.getlist('makeup_athlete'))
+		extra_athlete_ids = set(request.POST.getlist('extra_athlete'))
+		selected_extra_ids = makeup_ids | extra_athlete_ids
 		athletes = Athlete.objects.filter(team=team, is_active=True)
 		with transaction.atomic():
+			TeamTrainingAttendance.objects.filter(
+				schedule=schedule,
+				training_date=today,
+			).exclude(athlete__team=team).exclude(
+				athlete_id__in=selected_extra_ids,
+			).delete()
 			for athlete in athletes:
 				TeamTrainingAttendance.objects.update_or_create(
 					schedule=schedule,
@@ -325,16 +394,24 @@ def training_attendance_save(request, team_pk, schedule_pk):
 						),
 					},
 				)
-		attended_count = TeamTrainingAttendance.objects.filter(
-			schedule=schedule,
-			training_date=today,
-			status=TeamTrainingAttendance.Status.ATTENDED,
-		).count()
-		active_athlete_count = Athlete.objects.filter(team=team, is_active=True).count()
+			for athlete in Athlete.objects.filter(
+				pk__in=makeup_ids | extra_athlete_ids,
+				is_active=True,
+			).exclude(team=team):
+				TeamTrainingAttendance.objects.update_or_create(
+					schedule=schedule,
+					athlete=athlete,
+					training_date=today,
+					defaults={
+						'status': TeamTrainingAttendance.Status.ATTENDED,
+						'notes': 'Telafi' if str(athlete.pk) in makeup_ids else '',
+					},
+				)
+		attended_count, absent_count = _attendance_summary(schedule, today)
 		response_body = render_to_string('team/partials/training_attendance_count.html', {
 			'schedule': schedule,
 			'attended_count': attended_count,
-			'absent_count': max(active_athlete_count - attended_count, 0),
+			'absent_count': absent_count,
 		})
 		return HttpResponse(
 			response_body,

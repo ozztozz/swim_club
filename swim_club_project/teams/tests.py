@@ -214,6 +214,93 @@ class TeamTrainingScheduleTests(TestCase):
 			).status == TeamTrainingAttendance.Status.ATTENDED
 		)
 
+		self.client.post(url, {
+			f'attendance_{athlete_one.pk}': 'attended',
+			f'attendance_{athlete_two.pk}': 'absent',
+		})
+		self.assertTrue(
+			TeamTrainingAttendance.objects.get(
+				schedule=schedule, athlete=athlete_one, training_date=today
+			).status == TeamTrainingAttendance.Status.ATTENDED
+		)
+		self.assertFalse(
+			TeamTrainingAttendance.objects.get(
+				schedule=schedule, athlete=athlete_two, training_date=today
+			).status == TeamTrainingAttendance.Status.ATTENDED
+		)
+
+		makeup_athlete = Athlete.objects.create(
+			parent="Veli",
+			first_name="Mehmet",
+			last_name="Demir",
+			birth_date=date(2015, 1, 1),
+			gender="M",
+			joined_date=date(2025, 1, 1),
+			is_active=True,
+		)
+		search_response = self.client.get(
+			reverse(
+				"training-attendance-athlete-search",
+				kwargs={"team_pk": self.team.pk, "schedule_pk": schedule.pk},
+			),
+			{"q": "Mehmet", "training_date": today.isoformat()},
+		)
+		self.assertContains(search_response, makeup_athlete.get_full_name())
+		short_search_response = self.client.get(
+			reverse(
+				"training-attendance-athlete-search",
+				kwargs={"team_pk": self.team.pk, "schedule_pk": schedule.pk},
+			),
+			{"q": "Me", "training_date": today.isoformat()},
+		)
+		self.assertNotContains(short_search_response, makeup_athlete.get_full_name())
+
+		response = self.client.post(url, {
+			f'attendance_{athlete_one.pk}': 'attended',
+			f'attendance_{athlete_two.pk}': 'attended',
+			'makeup_athlete': makeup_athlete.pk,
+		})
+		self.assertContains(response, '3 katıldı')
+		self.assertContains(response, '0 katılmadı')
+		makeup_record = TeamTrainingAttendance.objects.get(
+			schedule=schedule, athlete=makeup_athlete, training_date=today
+		)
+		self.assertEqual(makeup_record.status, TeamTrainingAttendance.Status.ATTENDED)
+		self.assertEqual(makeup_record.notes, 'Telafi')
+		modal_response = self.client.get(
+			reverse(
+				"training-attendance-schedule",
+				kwargs={"team_pk": self.team.pk, "schedule_pk": schedule.pk},
+			),
+			{"training_date": today.isoformat()},
+		)
+		self.assertContains(modal_response, makeup_athlete.get_full_name())
+		self.assertContains(modal_response, 'Telafi')
+
+		self.client.post(url, {
+			f'attendance_{athlete_one.pk}': 'attended',
+			f'attendance_{athlete_two.pk}': 'attended',
+			'extra_athlete': makeup_athlete.pk,
+		})
+		self.assertEqual(
+			TeamTrainingAttendance.objects.get(
+				schedule=schedule, athlete=makeup_athlete, training_date=today
+			).notes,
+			'',
+		)
+
+		response = self.client.post(url, {
+			f'attendance_{athlete_one.pk}': 'attended',
+			f'attendance_{athlete_two.pk}': 'attended',
+		})
+		self.assertContains(response, '2 katıldı')
+		self.assertContains(response, '0 katılmadı')
+		self.assertFalse(
+			TeamTrainingAttendance.objects.filter(
+				schedule=schedule, athlete=makeup_athlete, training_date=today
+			).exists()
+		)
+
 	def test_attendance_page_uses_selected_date(self):
 		selected_date = date(2026, 9, 20)
 		TeamTrainingSchedule.objects.create(

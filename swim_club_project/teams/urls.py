@@ -15,6 +15,7 @@ urlpatterns = [
     path('attendance/', views.training_attendance, name='training-attendance'),
     path('attendance/team/<int:team_pk>/', views.training_attendance_team, name='training-attendance-team'),
     path('attendance/team/<int:team_pk>/schedule/<int:schedule_pk>/', views.training_attendance_schedule, name='training-attendance-schedule'),
+    path('attendance/team/<int:team_pk>/schedule/<int:schedule_pk>/athlete-search/', views.training_attendance_athlete_search, name='training-attendance-athlete-search'),
     path('attendance/team/<int:team_pk>/schedule/<int:schedule_pk>/save/', views.training_attendance_save, name='training-attendance-save'),
     path('<int:pk>/edit/', views.team_update, name='team-update'),
 ]

@@ -1,0 +1,24 @@
+{% if search_query %}
+    {% for athlete in search_results %}
+        <div class="flex items-center gap-2 rounded-lg border border-base-300 px-2.5 py-2 text-xs has-[:checked]:border-primary/40 has-[:checked]:bg-primary/5">
+            <span class="min-w-0 flex-1 truncate font-semibold">{{ athlete.get_full_name }}</span>
+            <label class="flex shrink-0 cursor-pointer items-center gap-1 text-[10px] font-bold text-primary">
+                <input
+                    type="radio"
+                    value="yes"
+                    class="makeup-athlete-radio radio radio-primary radio-xs"
+                    name="makeup_athlete_{{ athlete.pk }}">
+                Telafi
+            </label>
+            <button
+                type="button"
+                class="add-makeup-athlete btn btn-primary btn-xs h-7 min-h-0 rounded-lg px-2 text-[10px] font-bold"
+                data-athlete-id="{{ athlete.pk }}"
+                data-athlete-name="{{ athlete.get_full_name }}">
+                Ekle
+            </button>
+        </div>
+    {% empty %}
+        <p class="px-1 text-[10px] text-base-content/45">Sporcu bulunamadı.</p>
+    {% endfor %}
+{% endif %}

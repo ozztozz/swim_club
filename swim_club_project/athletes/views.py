@@ -200,7 +200,10 @@ def athlete_detail(request, pk):
             'sessions': {},
         })
         session_label = 'S' if record.schedule.start_time.hour < 12 else 'A'
-        day_record['sessions'][session_label] = record.status
+        day_record['sessions'][session_label] = {
+            'status': record.status,
+            'is_makeup': record.notes == 'Telafi',
+        }
 
     period_month = current_month
     while period_month >= attendance_first_month:
@@ -241,8 +244,8 @@ def athlete_detail(request, pk):
         ]
         month['total_count'] = len(month_records)
         month['absent_count'] = sum(
-            status == TeamTrainingAttendance.Status.ABSENT
-            for status in month_records
+            record['status'] == TeamTrainingAttendance.Status.ABSENT
+            for record in month_records
         )
 
     for period, month in attendance_months.items():
@@ -260,9 +263,9 @@ def athlete_detail(request, pk):
                     'sessions': [
                         {
                             'label': session,
-                            'status': status,
+                            **session_data,
                         }
-                        for session, status in sorted(
+                        for session, session_data in sorted(
                             (day_record or {'sessions': {}})['sessions'].items(),
                             key=lambda item: 0 if item[0] == 'S' else 1,
                         )

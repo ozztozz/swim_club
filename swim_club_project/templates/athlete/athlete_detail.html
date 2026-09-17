@@ -414,7 +414,7 @@
                                         <div class="text-[10px] font-black leading-4">{{ day.number }}</div>
                                         <div class="flex h-4 justify-center gap-0.5 whitespace-nowrap">
                                             {% for session in day.sessions %}
-                                                <span class="rounded px-0.5 text-[10px] font-black leading-4 {% if session.status == 'absent' %}bg-error/10 text-error{% else %}text-success{% endif %}">{{ session.label }}</span>
+                                                <span class="rounded px-0.5 text-[10px] font-black leading-4 {% if session.status == 'absent' %}bg-error/10 text-error{% else %}text-success{% endif %}">{{ session.label }}{% if session.is_makeup %}<span class="text-info">T</span>{% endif %}</span>
                                             {% endfor %}
                                         </div>
                                     </div>
