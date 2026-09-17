@@ -7,42 +7,47 @@
             <span class="text-lg leading-none">‹</span>
             Takımlar
         </a>
-        <div class="mt-2">
-            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-primary/70">Antrenman takibi</p>
-            <h1 class="mt-0.5 text-xl font-bold tracking-tight">Katılım takibi</h1>
-            <p class="mt-1 text-xs text-base-content/45">Tarih seçerek antrenman katılımını yönetin.</p>
-        </div>
+
     </header>
 
-    <form method="get" class="flex items-end gap-2 rounded-xl border border-base-300/90 bg-base-100 p-2.5 shadow-sm">
+    <form method="get" class="flex items-end gap-1.5 rounded-xl border border-base-300/90 bg-base-100 p-2.5 shadow-sm">
+        <a
+            href="?training_date={{ previous_date|date:'Y-m-d' }}"
+            class="btn btn-ghost h-12 min-h-0 w-11 shrink-0 rounded-lg px-0 text-2xl leading-none"
+            title="Önceki gün"
+            aria-label="Önceki gün">
+            ‹
+        </a>
         <label class="form-control min-w-0 flex-1">
             <span class="mb-1 text-[10px] font-bold text-base-content/50">Antrenman tarihi</span>
             <input type="date" name="training_date" value="{{ selected_date|date:'Y-m-d' }}" class="input input-bordered h-10 min-h-0 w-full rounded-lg text-xs">
         </label>
         <button type="submit" class="btn btn-primary h-10 min-h-0 rounded-lg px-3 text-xs font-bold">Göster</button>
+        <a
+            href="?training_date={{ next_date|date:'Y-m-d' }}"
+            class="btn btn-ghost h-12 min-h-0 w-11 shrink-0 rounded-lg px-0 text-2xl leading-none"
+            title="Sonraki gün"
+            aria-label="Sonraki gün">
+            ›
+        </a>
     </form>
 
-    <section class="space-y-2">
-        {% for schedule in schedules %}
-            <button
-                type="button"
-                class="flex w-full items-center gap-3 rounded-xl border border-base-300/90 bg-base-100 p-3 text-left shadow-sm transition active:scale-[.99]"
-                hx-get="{% url 'training-attendance-schedule' schedule.team.pk schedule.pk %}?training_date={{ selected_date|date:'Y-m-d' }}"
-                hx-target="#attendance-modal-container"
-                hx-swap="innerHTML">
-                <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-base-200/80 text-primary/70" aria-hidden="true">{{ schedule.start_time|time:"H:i" }}</span>
-                <span class="min-w-0 flex-1">
-                    <span class="block truncate text-sm font-bold">{{ schedule.team.name }}</span>
-                    <span class="mt-0.5 block text-xs text-base-content/45">{{ schedule.get_training_type_display }} · {{ schedule.location }}</span>
-                </span>
-                <span class="shrink-0 text-right">
-                    <span class="block text-xs font-bold tabular-nums text-base-content/45">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
-                    {% include 'team/partials/training_attendance_count.html' with attended_count=schedule.attended_count absent_count=schedule.absent_count %}
-                </span>
-            </button>
-        {% empty %}
-            <div class="rounded-xl border border-dashed border-base-300 px-4 py-10 text-center text-xs text-base-content/45">
-                Bugün için planlanmış antrenman bulunmuyor.
+    <section class="space-y-3">
+        {% for period_label, period_schedules in period_groups %}
+            <div class="space-y-1.5">
+                <div class="flex items-center gap-2 px-1">
+                    <h2 class="text-sm font-black">{{ period_label }}</h2>
+                    <span class="text-[10px] font-semibold text-base-content/40">{{ period_schedules|length }} antrenman</span>
+                </div>
+                <div class="space-y-2">
+                    {% for schedule in period_schedules %}
+                        {% include 'team/partials/training_attendance_schedule_card.html' %}
+                    {% empty %}
+                        <div class="rounded-xl border border-dashed border-base-300 px-4 py-4 text-center text-xs text-base-content/40">
+                            Bu bölümde planlanmış antrenman yok.
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         {% endfor %}
     </section>

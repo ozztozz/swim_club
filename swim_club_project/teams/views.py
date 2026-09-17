@@ -294,7 +294,15 @@ def training_attendance(request):
 	return render(request, 'team/training_attendance.html', {
 		'today': today,
 		'selected_date': today,
+		'previous_date': today - timedelta(days=1),
+		'next_date': today + timedelta(days=1),
 		'schedules': schedules,
+		'morning_schedules': [schedule for schedule in schedules if schedule.start_time < time(12, 0)],
+		'evening_schedules': [schedule for schedule in schedules if schedule.start_time >= time(12, 0)],
+		'period_groups': [
+			('Sabah', [schedule for schedule in schedules if schedule.start_time < time(12, 0)]),
+			('Akşam', [schedule for schedule in schedules if schedule.start_time >= time(12, 0)]),
+		],
 	})
 
 
