@@ -14,27 +14,23 @@
         </a>
         {% endif %}
 
-        <form method="get" class="mt-2">
-            <label class="form-control">
-                <span class="mb-1 text-[10px] font-bold text-base-content/50">Takım seç</span>
-                <select name="team" onchange="this.form.submit()" class="select select-bordered h-10 min-h-0 w-full rounded-lg bg-base-100 text-xs font-semibold">
-                    {% for schedule_team in schedule_teams %}
-                        <option value="{{ schedule_team.pk }}" {% if team.pk == schedule_team.pk %}selected{% endif %}>{{ schedule_team.name }}</option>
-                    {% empty %}
-                        <option>Atanmış takım yok</option>
-                    {% endfor %}
-                </select>
-            </label>
-        </form>
-
     </header>
 
         {% if team %}
         <div class="mt-2 overflow-hidden rounded-xl border border-base-300/90 bg-base-100 p-2 text-base-content shadow-sm">
-            <h1 class="truncate px-1 text-lg font-bold tracking-tight">
-                {{ team.name }}
-            </h1>
-
+            <h2 class="mb-2 flex min-w-0 items-center justify-center gap-1 text-center">
+                <span class="min-w-0 truncate text-[9px] font-bold text-base-content/60" title="{{ team.name }}">{{ team.name }}</span>
+                <label class="sr-only" for="schedule-team-select">Takım seç</label>
+                <form method="get" class="min-w-0">
+                    <select id="schedule-team-select" name="team" onchange="this.form.submit()" class="select select-bordered h-6 min-h-0 w-16 shrink-0 rounded-md px-1 text-[8px] font-semibold">
+                        {% for schedule_team in schedule_teams %}
+                            <option value="{{ schedule_team.pk }}" {% if team.pk == schedule_team.pk %}selected{% endif %}>{{ schedule_team.name }}</option>
+                        {% empty %}
+                            <option>Takım yok</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </h2>
             <div class="mt-2 grid grid-cols-3 gap-1">
                 <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
                     <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Yüzme</p>
@@ -76,15 +72,21 @@
         const weekday = (today + 6) % 7;
         const todayColumn = document.querySelector(`[data-weekday="${weekday}"]`);
 
-        document.querySelectorAll('[data-weekday]').forEach((column) => {
-            column.classList.toggle('border-primary', column === todayColumn);
-            column.classList.toggle('bg-primary/[.03]', column === todayColumn);
+        document.querySelectorAll('[data-weekday]').forEach((row) => {
+            const isToday = row === todayColumn;
+            row.classList.toggle('bg-primary/[.08]', isToday);
+            row.classList.toggle('font-semibold', isToday);
+
+            row.querySelectorAll('th, td').forEach((cell) => {
+                cell.classList.toggle('border-y-2', isToday);
+                cell.classList.toggle('border-primary', isToday);
+            });
         });
 
         todayColumn?.scrollIntoView({
             behavior: 'smooth',
-            block: 'nearest',
-            inline: 'center',
+            block: 'center',
+            inline: 'nearest',
         });
     }
 

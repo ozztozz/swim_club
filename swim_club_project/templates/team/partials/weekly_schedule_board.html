@@ -1,82 +1,32 @@
-<div id="weekly-schedule-board" class="min-h-0 flex-1 overflow-x-auto overflow-y-hidden px-1 py-1.5 sm:px-2 sm:py-2">
-    <div class="grid h-full auto-cols-[minmax(150px,1fr)] grid-flow-col gap-1 sm:auto-cols-[minmax(180px,1fr)] sm:gap-2">
-        {% for day in weekly_days %}
-            <article data-weekday="{{ day.value }}" class="flex h-full min-w-0 flex-col rounded-lg border border-base-200 bg-base-100 p-1 shadow-sm transition-colors sm:rounded-xl sm:p-1.5">
-                <div class="border-b border-base-200 pb-1 text-center sm:pb-1.5">
-                    <h3 class="truncate text-[10px] font-bold text-base-content sm:text-xs">{{ day.label }}</h3>
-                    <p class="mt-0.5 text-[9px] text-base-content/45 sm:text-[10px]">{{ day.schedules|length }} antrenman</p>
-                    <button
-                        type="button"
-                        class="btn btn-primary btn-xs mt-1 h-6 min-h-0 w-full rounded-md px-0 text-[9px] font-semibold sm:h-7 sm:text-[10px]"
-                        hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}"
-                        hx-target="#schedule-modal-container"
-                        hx-swap="innerHTML"
-                        aria-label="{{ day.label }} gününe antrenman ekle">
-                        <span class="text-sm leading-none">+</span>
-                    </button>
-                </div>
-
-                <ul class="timeline timeline-vertical timeline-compact mt-1 grid min-h-0 flex-1 w-full grid-rows-[minmax(0,1fr)_2rem_minmax(0,1fr)] text-base-content sm:mt-2">
-                    <li class="min-h-0 rounded-lg bg-base-200/45 px-0.5">
-                        {% if not forloop.first %}<hr class="bg-base-300">{% endif %}
-                        <div class="timeline-start text-[9px] font-semibold text-base-content/50 sm:text-[10px]">Sabah</div>
-                        <div class="timeline-middle text-primary/70">●</div>
-                        <div class="timeline-end max-h-full w-[calc(100%-1.5rem)] overflow-y-auto pb-1 sm:pb-2">
-                            {% for schedule in day.morning_schedules %}
-                                <div class="mb-1 rounded-md bg-base-200/55 p-1 last:mb-0">
-                                    <div class="flex items-center justify-between gap-1">
-                                        <div class="min-w-0 truncate text-[9px] font-semibold text-primary/70 sm:text-[10px]">{{ schedule.get_training_type_display }}</div>
-                                        <div class="flex shrink-0 items-center gap-0.5">
-                                            <button type="button" class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-primary" hx-get="{% url 'team-schedule-update' team.pk schedule.pk %}" hx-target="#schedule-modal-container" hx-swap="innerHTML" title="Düzenle" aria-label="Antrenmanı düzenle">✎</button>
-                                            <form method="post" hx-post="{% url 'team-schedule-delete' team.pk schedule.pk %}" hx-target="#weekly-schedule-board" hx-swap="outerHTML">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-error" title="Sil" aria-label="{{ day.label }} antrenmanını sil">×</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <div class="mt-0.5 text-[9px] font-semibold leading-none tabular-nums sm:text-[10px]">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</div>
-                                    <div class="mt-0.5 truncate text-[8px] leading-none text-base-content/50 sm:text-[9px]">{{ schedule.location }}</div>
-                                </div>
-                            {% empty %}
-                                <div class="rounded-md bg-base-200/40 px-1 py-2 text-center text-[9px] font-semibold text-base-content/35">OFF</div>
-                            {% endfor %}
+<div id="weekly-schedule-board" class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-0.5 py-0.5 sm:px-1 sm:py-1">
+    <table class="w-full table-fixed border-separate border-spacing-0 text-base-content">
+        <thead>
+            <tr class="text-left">
+                <th class="w-[24%] border-b border-base-300 px-1 py-1 text-[10px] font-bold uppercase tracking-wide text-base-content/50 sm:px-2 sm:py-1.5 sm:text-xs">Gün</th>
+                <th class="w-[38%] border-b border-base-300 bg-base-200/35 px-1 py-1 text-[10px] font-bold uppercase tracking-wide text-base-content/50 sm:px-2 sm:py-1.5 sm:text-xs">Sabah</th>
+                <th class="w-[38%] border-b border-base-300 bg-primary/5 px-1 py-1 text-[10px] font-bold uppercase tracking-wide text-base-content/50 sm:px-2 sm:py-1.5 sm:text-xs">Akşam</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for day in weekly_days %}
+                <tr data-weekday="{{ day.value }}" class="transition-colors">
+                    <th class="border-b border-base-200 px-1 py-1.5 align-top sm:px-2 sm:py-2">
+                        <div class="flex min-w-0 flex-col items-start gap-0.5">
+                            <div class="min-w-0 max-w-full">
+                                <h3 class="break-words text-xs font-bold sm:text-sm">{{ day.label }}</h3>
+                                <p class="mt-0.5 text-[9px] font-normal text-base-content/45 sm:text-[10px]">{{ day.schedules|length }} antrenman</p>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-xs h-6 min-h-0 w-6 rounded-md p-0 text-sm leading-none" hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}" hx-target="#schedule-modal-container" hx-swap="innerHTML" title="Antrenman ekle" aria-label="{{ day.label }} gününe antrenman ekle">+</button>
                         </div>
-                        <hr class="bg-base-300">
-                    </li>
-
-                    <li class="relative h-8 min-h-0">
-                        <div class="timeline-start"></div>
-                        <div class="timeline-middle"></div>
-                        <div class="timeline-end"></div>
-                        <div class="pointer-events-none absolute inset-x-0 top-1/2 z-10 h-0.5 bg-primary/30"></div>
-                    </li>
-
-                    <li class="min-h-0 rounded-lg bg-primary/10 px-0.5">
-                        <div class="timeline-start text-[9px] font-semibold text-base-content/50 sm:text-[10px]">Akşam</div>
-                        <div class="timeline-middle text-primary/70">●</div>
-                        <div class="timeline-end max-h-full w-[calc(100%-1.5rem)] overflow-y-auto">
-                            {% for schedule in day.evening_schedules %}
-                                <div class="mb-1 rounded-md bg-base-200/55 p-1 last:mb-0">
-                                    <div class="flex items-center justify-between gap-1">
-                                        <div class="min-w-0 truncate text-[9px] font-semibold text-primary/70 sm:text-[10px]">{{ schedule.get_training_type_display }}</div>
-                                        <div class="flex shrink-0 items-center gap-0.5">
-                                            <button type="button" class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-primary" hx-get="{% url 'team-schedule-update' team.pk schedule.pk %}" hx-target="#schedule-modal-container" hx-swap="innerHTML" title="Düzenle" aria-label="Antrenmanı düzenle">✎</button>
-                                            <form method="post" hx-post="{% url 'team-schedule-delete' team.pk schedule.pk %}" hx-target="#weekly-schedule-board" hx-swap="outerHTML">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-error" title="Sil" aria-label="{{ day.label }} antrenmanını sil">×</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <div class="mt-0.5 text-[9px] font-semibold leading-none tabular-nums sm:text-[10px]">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</div>
-                                    <div class="mt-0.5 truncate text-[8px] leading-none text-base-content/50 sm:text-[9px]">{{ schedule.location }}</div>
-                                </div>
-                            {% empty %}
-                                <div class="rounded-md bg-base-200/40 px-1 py-2 text-center text-[9px] font-semibold text-base-content/35">OFF</div>
-                            {% endfor %}
-                        </div>
-                    </li>
-                </ul>
-            </article>
-        {% endfor %}
-    </div>
+                    </th>
+                    <td class="min-w-0 border-b border-base-200 bg-base-200/20 px-1 py-1.5 align-top sm:px-2 sm:py-2">
+                        {% include 'team/partials/schedule_cell.html' with schedules=day.morning_schedules day_label=day.label align_right=False %}
+                    </td>
+                    <td class="min-w-0 border-b border-base-200 bg-primary/[.04] px-1 py-1.5 align-top sm:px-2 sm:py-2">
+                        {% include 'team/partials/schedule_cell.html' with schedules=day.evening_schedules day_label=day.label align_right=True %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
