@@ -76,10 +76,12 @@
             const isToday = row === todayColumn;
             row.classList.toggle('bg-primary/[.08]', isToday);
             row.classList.toggle('font-semibold', isToday);
+            row.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.03)' : '';
 
             row.querySelectorAll('th, td').forEach((cell) => {
-                cell.classList.toggle('border-y-2', isToday);
-                cell.classList.toggle('border-primary', isToday);
+                cell.classList.toggle('border-y', isToday);
+                cell.classList.toggle('border-primary/30', isToday);
+                cell.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.06)' : '';
             });
         });
 
