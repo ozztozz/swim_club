@@ -68,6 +68,7 @@ def get_or_create_monthly_payments(period_str=None):
 
     year, month = map(int, period_str.split('-'))
     default_due_date = date(year, month, 15)
+    target_date = date(year, month, 1)
 
     # 1. SORGU: Bu dönemde 'paid' (ödendi) olan mevcut ödeme kayıtları
     paid_payments = PaymentRecord.objects.filter(
@@ -83,14 +84,12 @@ def get_or_create_monthly_payments(period_str=None):
             continue
         athlete = payment.athlete
         paid_athlete_ids.add(athlete.id)
-
-        expected_fee = Decimal(get_athlete_fee_for_period(athlete, period_str))
         payment_amount = Decimal(payment.amount)
 
         athlete.period = period_str
         athlete.fee_type = payment.payment_type
         athlete.fee_type_display = payment.get_payment_type_display()
-        athlete.amount = expected_fee if expected_fee > 0 else payment_amount
+        athlete.amount = payment_amount
         athlete.paid_amount = payment_amount
         athlete.paid_by = athlete.get_full_name()
         athlete.due_date = payment.due_date
@@ -108,18 +107,40 @@ def get_or_create_monthly_payments(period_str=None):
     ).select_related('team')
 
     # Bu sporcular için varsa mevcut bekleyen ödeme kayıtları
+    unpaid_athletes = list(unpaid_athletes_qs)
+    unpaid_athlete_ids = [athlete.id for athlete in unpaid_athletes]
+
     pending_payments = PaymentRecord.objects.filter(
         period=period_str,
-        athlete_id__in=[a.id for a in unpaid_athletes_qs]
+        athlete_id__in=unpaid_athlete_ids,
     ).select_related('athlete', 'athlete__team')
     pending_payments_by_athlete_id = {
         p.athlete_id: p for p in pending_payments if p.athlete_id
     }
 
-    unpaid_athletes = []
-    for athlete in unpaid_athletes_qs:
+    all_athletes = [payment.athlete for payment in paid_payments if payment.athlete_id]
+    all_athletes.extend(unpaid_athletes)
+    team_ids = {athlete.team_id for athlete in all_athletes if athlete.team_id}
+    team_fees = {}
+    if team_ids:
+        team_fee_records = TeamFeeHistory.objects.filter(
+            team_id__in=team_ids,
+            start_date__lte=target_date,
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=target_date),
+        ).order_by('-start_date', '-pk')
+        team_fees = {
+            record.team_id: record.monthly_fee
+            for record in team_fee_records
+            if record.team_id not in team_fees
+        }
+
+    unpaid_results = []
+    for athlete in unpaid_athletes:
         payment_record = pending_payments_by_athlete_id.get(athlete.id)
-        fee = Decimal(get_athlete_fee_for_period(athlete, period_str))
+        fee = Decimal(athlete.custom_fee) if athlete.custom_fee is not None else Decimal(
+            team_fees.get(athlete.team_id, 0)
+        )
         if fee <= 0 and payment_record and payment_record.amount > 0:
             fee = Decimal(payment_record.amount)
 
@@ -137,10 +158,23 @@ def get_or_create_monthly_payments(period_str=None):
         athlete.payment_status = payment_record.status if payment_record else 'pending'
         athlete.paid_at = payment_record.paid_at if payment_record else None
         athlete.collected_by = payment_record.collected_by if payment_record else None
-        unpaid_athletes.append(athlete)
+        unpaid_results.append(athlete)
+
+    fee_by_athlete_id = {
+        athlete.id: (
+            Decimal(athlete.custom_fee)
+            if athlete.custom_fee is not None
+            else Decimal(team_fees.get(athlete.team_id, 0))
+        )
+        for athlete in all_athletes
+    }
+    for athlete in paid_athletes:
+        expected_fee = fee_by_athlete_id.get(athlete.id, Decimal('0.00'))
+        if expected_fee > 0:
+            athlete.amount = expected_fee
 
     # İki sorgunun birleştirilmesi
-    return paid_athletes + unpaid_athletes
+    return paid_athletes + unpaid_results
 
 def get_financial_summary(period_str=None, monthly_payments=None):
     """
