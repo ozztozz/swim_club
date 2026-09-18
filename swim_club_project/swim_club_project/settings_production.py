@@ -22,7 +22,7 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
-DATABASE_DIR = BASE_DIR.parent / "database"
+DATABASE_DIR = BASE_DIR.parent.parent / "database"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
