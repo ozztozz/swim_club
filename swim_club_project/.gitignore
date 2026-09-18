@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+my_env/
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+db2.sqlite3
+staticfiles/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# User-uploaded media
+media/athlete_photos/
+media/equipment_images/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary and generated files
+*.tmp
+*.temp
+*.bak
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Test and migration artifacts
+.dumpdata
+*.jsonl

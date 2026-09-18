@@ -11,17 +11,29 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from .env if present
+settings_module = os.environ.get("DJANGO_SETTINGS_MODULE", "")
+if settings_module.endswith("settings_local"):
+    env_filenames = [".env.local", ".env"]
+elif settings_module.endswith("settings_production"):
+    env_filenames = [".env.production", ".env"]
+else:
+    env_filenames = [".env"]
+
+# Load environment variables from the selected environment file if present
 for env_location in [BASE_DIR.parent.parent, BASE_DIR.parent, BASE_DIR]:
-    env_file = env_location / ".env"
-    if env_file.is_file():
-        with open(env_file, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    key, value = line.split("=", 1)
-                    os.environ.setdefault(key.strip(), value.strip().strip("'\""))
-        break
+    for env_filename in env_filenames:
+        env_file = env_location / env_filename
+        if env_file.is_file():
+            with open(env_file, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        key, value = line.split("=", 1)
+                        os.environ.setdefault(key.strip(), value.strip().strip("'\""))
+            break
+    else:
+        continue
+    break
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -159,14 +171,6 @@ LOGIN_REDIRECT_URL = "/dashboard/"
 
 # Custom user model
 AUTH_USER_MODEL = "users.User"
-
-
-# Email configuration
-MAILERS = {
-    "default": {
-        "BACKEND": "django.core.mail.backends.console.EmailBackend",
-    },
-}
 
 
 # Production Security Enhancements
