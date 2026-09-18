@@ -51,6 +51,66 @@
             </form>
         </section>
         <!-- =========================================================
+     ÖDEME DURUMU
+========================================================== -->
+        <section class="rounded-2xl bg-base-100 border border-base-300 p-4 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black text-base-content">Ödeme Durumu</h2>
+                    <p class="mt-0.5 text-sm text-base-content/50">{{ period }} dönemindeki ödemeler</p>
+                </div>
+                <svg class="w-5 h-5 text-base-content/20"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                </svg>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-2.5">
+                <!-- Ödendi -->
+                <a href="{% url 'payment-status-list' 'paid' %}?period={{ period }}"
+                   class="group rounded-2xl bg-success/10 border border-success/20 p-3.5 transition active:scale-[.97]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-success">Ödendi</span>
+                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-success text-success-content">
+                            <svg class="w-3.5 h-3.5"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="3">
+                                <path d="m5 12 4 4L19 6" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="mt-2 text-xl font-black text-base-content">
+                        {{ payment_counts.paid }}
+                        <span class="text-xs font-medium text-base-content/50">kişi</span>
+                    </p>
+                </a>
+                <!-- Bekliyor -->
+                <a href="{% url 'payment-status-list' 'pending' %}?period={{ period }}"
+                   class="group rounded-2xl bg-warning/10 border border-warning/20 p-3.5 transition active:scale-[.97]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-warning">Bekliyor</span>
+                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-warning text-warning-content">
+                            <svg class="w-3.5 h-3.5"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="3">
+                                <path d="M12 7v5l3 2" />
+                            </svg>
+                        </span>
+                    </div>
+                    <p class="mt-2 text-xl font-black text-base-content">
+                        {{ payment_counts.pending }}
+                        <span class="text-xs font-medium text-base-content/50">kişi</span>
+                    </p>
+                </a>
+            </div>
+        </section>
+        <!-- =========================================================
      FİNANS ÖZETİ
 ========================================================== -->
         <section id="financial-summary-strip"
@@ -106,7 +166,7 @@
             </div>
             <!-- Harcama -->
             <a href="{% url 'expense-list' %}?period={{ period }}"
-               class="rounded-2xl bg-base-100 border border-base-300 p-3.5 shadow-sm block transition active:scale-[.99]">
+                    class="touch-pan-y rounded-2xl bg-base-100 border border-base-300 p-3.5 shadow-sm block transition active:scale-[.99]">
                 <div class="flex items-center justify-between">
                     <span class="text-sm font-semibold text-base-content/50">Harcama</span>
                     <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-error/10 text-error">
@@ -168,66 +228,6 @@
                     {{ financial_summary.net_balance|floatformat:0 }}
                 </p>
                 <p class="mt-1 text-xs text-base-content/40">Kasa durumu</p>
-            </div>
-        </section>
-        <!-- =========================================================
-     ÖDEME DURUMU
-========================================================== -->
-        <section class="rounded-2xl bg-base-100 border border-base-300 p-4 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-black text-base-content">Ödeme Durumu</h2>
-                    <p class="mt-0.5 text-sm text-base-content/50">{{ period }} dönemindeki ödemeler</p>
-                </div>
-                <svg class="w-5 h-5 text-base-content/20"
-                     viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="2">
-                    <path d="M9 18l6-6-6-6" />
-                </svg>
-            </div>
-            <div class="mt-4 grid grid-cols-2 gap-2.5">
-                <!-- Ödendi -->
-                <a href="{% url 'payment-status-list' 'paid' %}?period={{ period }}"
-                   class="group rounded-2xl bg-success/10 border border-success/20 p-3.5 transition active:scale-[.97]">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-bold text-success">Ödendi</span>
-                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-success text-success-content">
-                            <svg class="w-3.5 h-3.5"
-                                 viewBox="0 0 24 24"
-                                 fill="none"
-                                 stroke="currentColor"
-                                 stroke-width="3">
-                                <path d="m5 12 4 4L19 6" />
-                            </svg>
-                        </span>
-                    </div>
-                    <p class="mt-2 text-xl font-black text-base-content">
-                        {{ payment_counts.paid }}
-                        <span class="text-xs font-medium text-base-content/50">kişi</span>
-                    </p>
-                </a>
-                <!-- Bekliyor -->
-                <a href="{% url 'payment-status-list' 'pending' %}?period={{ period }}"
-                   class="group rounded-2xl bg-warning/10 border border-warning/20 p-3.5 transition active:scale-[.97]">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-bold text-warning">Bekliyor</span>
-                        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-warning text-warning-content">
-                            <svg class="w-3.5 h-3.5"
-                                 viewBox="0 0 24 24"
-                                 fill="none"
-                                 stroke="currentColor"
-                                 stroke-width="3">
-                                <path d="M12 7v5l3 2" />
-                            </svg>
-                        </span>
-                    </div>
-                    <p class="mt-2 text-xl font-black text-base-content">
-                        {{ payment_counts.pending }}
-                        <span class="text-xs font-medium text-base-content/50">kişi</span>
-                    </p>
-                </a>
             </div>
         </section>
     </div>
