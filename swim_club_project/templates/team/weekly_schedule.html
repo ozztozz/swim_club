@@ -1,107 +1,102 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-<div class="weekly-schedule-page flex h-full min-h-0 w-full min-w-0 flex-col gap-3 overflow-hidden">
-
-    <header>
+    <div class="weekly-schedule-page flex h-full min-h-0 w-full min-w-0 flex-col gap-3 overflow-hidden">
+        <header>
+            {% if team %}
+                <a href="{% url 'team-detail' team.pk %}"
+                   class="inline-flex min-h-9 items-center gap-1 rounded-xl px-2 text-xs font-bold text-base-content/55 active:bg-base-200">
+                    <span class="text-lg leading-none">‹</span>
+                    Takım profili
+                </a>
+            {% endif %}
+        </header>
         {% if team %}
-        <a
-            href="{% url 'team-detail' team.pk %}"
-            class="inline-flex min-h-9 items-center gap-1 rounded-xl px-2 text-xs font-bold text-base-content/55 active:bg-base-200">
-            <span class="text-lg leading-none">‹</span>
-            Takım profili
-        </a>
-        {% endif %}
-
-    </header>
-
-        {% if team %}
-        <div class="mt-2 overflow-hidden rounded-xl border border-base-300/90 bg-base-100 p-2 text-base-content shadow-sm">
-            <h2 class="mb-2 flex min-w-0 items-center justify-center gap-1 text-center">
-                <span class="min-w-0 truncate text-[9px] font-bold text-base-content/60" title="{{ team.name }}">{{ team.name }}</span>
-                <label class="sr-only" for="schedule-team-select">Takım seç</label>
-                <form method="get" class="min-w-0">
-                    <select id="schedule-team-select" name="team" onchange="this.form.submit()" class="select select-bordered h-6 min-h-0 w-16 shrink-0 rounded-md px-1 text-[8px] font-semibold">
+            <div class="mt-2 overflow-hidden rounded-xl border border-base-300/90 bg-base-100 p-2 text-base-content shadow-sm">
+                <div class="mb-2 min-w-0">
+                    <h2 class="truncate text-center text-[9px] font-bold text-base-content/60"
+                        title="{{ team.name }}">{{ team.name }}</h2>
+                    <form method="get"
+                          class="mt-2 flex min-w-0 flex-wrap justify-center gap-1.5"
+                          aria-label="Takım seçimi">
                         {% for schedule_team in schedule_teams %}
-                            <option value="{{ schedule_team.pk }}" {% if team.pk == schedule_team.pk %}selected{% endif %}>{{ schedule_team.name }}</option>
+                            <button type="submit"
+                                    name="team"
+                                    value="{{ schedule_team.pk }}"
+                                    class="app-btn-team max-w-full {% if team.pk == schedule_team.pk %}bg-primary text-primary-content{% else %}bg-base-200 text-base-content/60 hover:bg-base-300{% endif %}"
+                                    {% if team.pk == schedule_team.pk %}aria-current="true"{% endif %}>
+                                {{ schedule_team.name }}
+                            </button>
                         {% empty %}
-                            <option>Takım yok</option>
+                            <span class="text-[10px] text-base-content/40">Takım yok</span>
                         {% endfor %}
-                    </select>
-                </form>
-            </h2>
-            <div class="mt-2 grid grid-cols-3 gap-1">
-                <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
-                    <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Yüzme</p>
-                    <p class="mt-0.5 text-base font-bold text-primary">{{ swimming_count }}</p>
-                    <p class="truncate text-[9px] text-base-content/40">{{ swimming_training_hours }}s {{ swimming_training_minutes }}dk</p>
+                    </form>
                 </div>
-                <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
-                    <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Kara</p>
-                    <p class="mt-0.5 text-base font-bold text-primary">{{ land_count }}</p>
-                    <p class="truncate text-[9px] text-base-content/40">{{ land_training_hours }}s {{ land_training_minutes }}dk</p>
-                </div>
-                <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
-                    <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Toplam süre</p>
-                    <p class="mt-0.5 truncate text-sm font-bold text-base-content">{{ total_training_hours }}s {{ total_training_minutes }}dk</p>
-                    <p class="text-[9px] text-base-content/40">{{ scheduled_day_count }}/7 gün</p>
+                <div class="mt-2 grid grid-cols-3 gap-1">
+                    <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
+                        <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Yüzme</p>
+                        <p class="mt-0.5 text-base font-bold text-primary">{{ swimming_count }}</p>
+                        <p class="truncate text-[9px] text-base-content/40">{{ swimming_training_hours }}s {{ swimming_training_minutes }}dk</p>
+                    </div>
+                    <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
+                        <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Kara</p>
+                        <p class="mt-0.5 text-base font-bold text-primary">{{ land_count }}</p>
+                        <p class="truncate text-[9px] text-base-content/40">{{ land_training_hours }}s {{ land_training_minutes }}dk</p>
+                    </div>
+                    <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
+                        <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Toplam süre</p>
+                        <p class="mt-0.5 truncate text-sm font-bold text-base-content">{{ total_training_hours }}s {{ total_training_minutes }}dk</p>
+                        <p class="text-[9px] text-base-content/40">{{ scheduled_day_count }}/7 gün</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
-            <div>
-                <h2 class="text-sm font-black">Haftanın akışı</h2>
-               
+            <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+                <div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
+                    <div>
+                        <h2 class="text-sm font-black">Haftanın akışı</h2>
+                    </div>
+                </div>
+                {% include "team/partials/weekly_schedule_board.html" %}
+            </section>
             </div>
-        </div>
-
-        {% include 'team/partials/weekly_schedule_board.html' %}
-    </section>
-</div>
         {% else %}
             <div class="mt-3 rounded-xl border border-dashed border-base-300 px-4 py-10 text-center text-xs text-base-content/45">Görüntülenecek takım bulunmuyor.</div>
         {% endif %}
+        <div id="schedule-modal-container"></div>
+        <script>
+            function focusTodaySchedule() {
+                const today = new Date(Date.now()).getDay();
+                const weekday = (today + 6) % 7;
+                const todayColumn = document.querySelector(`[data-weekday="${weekday}"]`);
 
-<div id="schedule-modal-container"></div>
+                document.querySelectorAll('[data-weekday]').forEach((row) => {
+                    const isToday = row === todayColumn;
+                    row.classList.toggle('bg-primary/[.08]', isToday);
+                    row.classList.toggle('font-semibold', isToday);
+                    row.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.03)' : '';
 
-<script>
-    function focusTodaySchedule() {
-        const today = new Date(Date.now()).getDay();
-        const weekday = (today + 6) % 7;
-        const todayColumn = document.querySelector(`[data-weekday="${weekday}"]`);
+                    row.querySelectorAll('th, td').forEach((cell) => {
+                        cell.classList.toggle('border-y', isToday);
+                        cell.classList.toggle('border-primary/30', isToday);
+                        cell.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.06)' : '';
+                    });
+                });
 
-        document.querySelectorAll('[data-weekday]').forEach((row) => {
-            const isToday = row === todayColumn;
-            row.classList.toggle('bg-primary/[.08]', isToday);
-            row.classList.toggle('font-semibold', isToday);
-            row.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.03)' : '';
+                todayColumn?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest',
+                });
+            }
 
-            row.querySelectorAll('th, td').forEach((cell) => {
-                cell.classList.toggle('border-y', isToday);
-                cell.classList.toggle('border-primary/30', isToday);
-                cell.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.06)' : '';
+            focusTodaySchedule();
+            document.body.addEventListener('htmx:afterSwap', focusTodaySchedule);
+
+            document.body.addEventListener('closeScheduleModal', function() {
+                const modal = document.getElementById('schedule_modal');
+                if (modal) modal.remove();
+
+                const container = document.getElementById('schedule-modal-container');
+                if (container) container.innerHTML = '';
             });
-        });
-
-        todayColumn?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-            inline: 'nearest',
-        });
-    }
-
-    focusTodaySchedule();
-    document.body.addEventListener('htmx:afterSwap', focusTodaySchedule);
-
-    document.body.addEventListener('closeScheduleModal', function () {
-        const modal = document.getElementById('schedule_modal');
-        if (modal) modal.remove();
-
-        const container = document.getElementById('schedule-modal-container');
-        if (container) container.innerHTML = '';
-    });
-</script>
-
+        </script>
 {% endblock %}

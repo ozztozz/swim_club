@@ -6,11 +6,17 @@
             {% if athlete.is_active %}<strong>pasif</strong>{% else %}<strong>aktif</strong>{% endif %}
             yapmak istediğinize emin misiniz?
         </p>
-        <form method="post" hx-post="{% url 'athlete-manage-toggle-active' athlete.pk %}" hx-target="#athlete-status" hx-swap="outerHTML">
+        <form method="post"
+              hx-post="{% url 'athlete-manage-toggle-active' athlete.pk %}"
+              hx-target="#athlete-status"
+              hx-swap="outerHTML">
             {% csrf_token %}
             <div class="modal-action flex-col-reverse sm:flex-row">
-                <button type="button" class="btn btn-ghost w-full sm:w-auto" onclick="document.getElementById('athlete_status_modal').remove()">Vazgeç</button>
-                <button type="submit" class="btn w-full sm:w-auto {% if athlete.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                <button type="button"
+                        class="app-btn-secondary w-full sm:w-auto"
+                        onclick="document.getElementById('athlete_status_modal').remove()">Vazgeç</button>
+                <button type="submit"
+                        class="app-btn w-full sm:w-auto {% if athlete.is_active %}btn-warning{% else %}btn-success{% endif %}">
                     {% if athlete.is_active %}Pasif yap{% else %}Aktif yap{% endif %}
                 </button>
             </div>

@@ -1,58 +1,60 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="w-full space-y-4">
-    <header class="flex items-center gap-2 px-1">
-        <a href="{% url 'equipment-list' %}" class="flex h-9 w-9 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-lg text-base-content/60 shadow-sm" aria-label="Malzeme listesine dön">←</a>
-        <div>
-            <p class="text-xs font-black uppercase tracking-widest text-primary">Malzeme kataloğu</p>
-            <h1 class="text-2xl font-black text-base-content">{{ title }}</h1>
-        </div>
-    </header>
-
-    <section class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
-        <form method="post" enctype="multipart/form-data" class="space-y-4">
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="alert alert-error text-sm">{{ form.non_field_errors }}</div>
-            {% endif %}
-
-            {% for field in form %}
-                <label class="form-control">
-                    <span class="label label-text font-bold">{{ field.label }}</span>
-                    {{ field }}
-                    {% if field.help_text %}<span class="mt-1 text-xs text-base-content/50">{{ field.help_text }}</span>{% endif %}
-                    {% for error in field.errors %}<span class="mt-1 text-sm text-error">{{ error }}</span>{% endfor %}
-                </label>
-            {% endfor %}
-
-            <label class="form-control">
-                <span class="label label-text font-bold">{{ images_form.images.label }}</span>
-                {{ images_form.images }}
-                <span class="mt-1 text-xs text-base-content/50">Birden fazla görsel seçebilirsiniz. Görseller yükleme sırasında küçültülür.</span>
-                {% for error in images_form.images.errors %}<span class="mt-1 text-sm text-error">{{ error }}</span>{% endfor %}
-            </label>
-
-            {% if equipment.images.exists %}
-                <div class="grid grid-cols-3 gap-2">
-                    {% for image in equipment.images.all %}
-                        <label class="relative block cursor-pointer">
-                            <img src="{{ image.image.url }}" alt="{{ equipment.name }}" class="aspect-square w-full rounded-xl object-cover">
-                            <span class="absolute inset-x-1 bottom-1 flex items-center gap-1 rounded-lg bg-base-100/90 px-2 py-1 text-[10px] font-bold text-error shadow-sm">
-                                <input type="checkbox" name="delete_images" value="{{ image.pk }}" class="checkbox checkbox-error checkbox-xs">
-                                Sil
-                            </span>
-                        </label>
-                    {% endfor %}
-                </div>
-                <p class="text-xs text-base-content/50">Silmek istediğiniz görselleri işaretleyip kaydedin.</p>
-            {% endif %}
-
-            <div class="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
-                <a href="{% url 'equipment-list' %}" class="btn btn-ghost w-full rounded-xl sm:w-auto">Vazgeç</a>
-                <button type="submit" class="btn btn-primary w-full rounded-xl sm:w-auto">Kaydet</button>
+    <div class="w-full space-y-4">
+        <header class="flex items-center gap-2 px-1">
+            <a href="{% url 'equipment-list' %}"
+               class="flex h-9 w-9 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-lg text-base-content/60 shadow-sm"
+               aria-label="Malzeme listesine dön">←</a>
+            <div>
+                <p class="text-xs font-black uppercase tracking-widest text-primary">Malzeme kataloğu</p>
+                <h1 class="text-2xl font-black text-base-content">{{ title }}</h1>
             </div>
-        </form>
-    </section>
-</div>
+        </header>
+        <section class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+            <form method="post" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error text-sm">{{ form.non_field_errors }}</div>
+                {% endif %}
+                {% for field in form %}
+                    <label class="form-control">
+                        <span class="label label-text font-bold">{{ field.label }}</span>
+                        {{ field }}
+                        {% if field.help_text %}<span class="mt-1 text-xs text-base-content/50">{{ field.help_text }}</span>{% endif %}
+                        {% for error in field.errors %}<span class="mt-1 text-sm text-error">{{ error }}</span>{% endfor %}
+                    </label>
+                {% endfor %}
+                <label class="form-control">
+                    <span class="label label-text font-bold">{{ images_form.images.label }}</span>
+                    {{ images_form.images }}
+                    <span class="mt-1 text-xs text-base-content/50">Birden fazla görsel seçebilirsiniz. Görseller yükleme sırasında küçültülür.</span>
+                    {% for error in images_form.images.errors %}<span class="mt-1 text-sm text-error">{{ error }}</span>{% endfor %}
+                </label>
+                {% if equipment.images.exists %}
+                    <div class="grid grid-cols-3 gap-2">
+                        {% for image in equipment.images.all %}
+                            <label class="relative block cursor-pointer">
+                                <img src="{{ image.image.url }}"
+                                     alt="{{ equipment.name }}"
+                                     class="aspect-square w-full rounded-xl object-cover">
+                                <span class="absolute inset-x-1 bottom-1 flex items-center gap-1 rounded-lg bg-base-100/90 px-2 py-1 text-[10px] font-bold text-error shadow-sm">
+                                    <input type="checkbox"
+                                           name="delete_images"
+                                           value="{{ image.pk }}"
+                                           class="checkbox checkbox-error checkbox-xs">
+                                    Sil
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-base-content/50">Silmek istediğiniz görselleri işaretleyip kaydedin.</p>
+                {% endif %}
+                <div class="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                    <a href="{% url 'equipment-list' %}"
+                       class="app-btn-secondary w-full sm:w-auto">Vazgeç</a>
+                    <button type="submit" class="app-btn-primary w-full sm:w-auto">Kaydet</button>
+                </div>
+            </form>
+        </section>
+    </div>
 {% endblock %}

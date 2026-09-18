@@ -1,18 +1,15 @@
-<section
-    id="dashboard-payment-list"
-    hx-get="{% url 'dashboard-recent-payments' %}"
-    hx-trigger="refreshDashboardPayments from:body"
-    hx-swap="outerHTML"
-    class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+<section id="dashboard-payment-list"
+         hx-get="{% url 'dashboard-recent-payments' %}"
+         hx-trigger="refreshDashboardPayments from:body"
+         hx-swap="outerHTML"
+         class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
     <div class="flex items-center justify-between px-4 py-3">
         <h2 class="text-sm font-black text-base-content">Son tahsilatlar</h2>
         <span class="text-[10px] text-base-content/40">Son 10 kayıt</span>
     </div>
-
     <div id="dashboard-payment-items" class="divide-y divide-base-200">
         {% for payment in recent_payments %}
-            {% include 'dashboard/_recent_payment_row.html' %}
-
+            {% include "dashboard/_recent_payment_row.html" %}
         {% endfor %}
     </div>
 </section>

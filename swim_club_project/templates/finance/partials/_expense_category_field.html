@@ -1,47 +1,45 @@
-<fieldset
-    id="category-field"
-    class="form-control min-w-0 max-w-full sm:col-span-2"
->
+<fieldset id="category-field"
+          class="form-control min-w-0 max-w-full sm:col-span-2">
     <div class="mb-2 flex items-center justify-between gap-3">
-
-        <legend class="text-[11px] font-bold text-base-content/65">
-            Harcama kategorisi
-        </legend>
-
-        <button
-            type="button"
-            class="btn btn-ghost h-7 min-h-0 shrink-0 gap-1 rounded-lg px-2 text-[10px] font-semibold text-primary/80 hover:bg-primary/10 hover:text-primary"
-            hx-get="{% url 'expense-category-create' %}"
-            hx-target="#category-field"
-            hx-swap="outerHTML"
-        >
+        <legend class="text-[11px] font-bold text-base-content/65">Harcama kategorisi</legend>
+        <button type="button"
+                class="btn btn-ghost h-7 min-h-0 shrink-0 gap-1 rounded-lg px-2 text-[10px] font-semibold text-primary/80 hover:bg-primary/10 hover:text-primary"
+                hx-get="{% url 'expense-category-create' %}"
+                hx-target="#category-field"
+                hx-swap="outerHTML">
             <span class="text-sm leading-none">+</span>
             Yeni kategori
         </button>
-
     </div>
-
     <div class="space-y-2" data-category-picker>
         <div>
             <p class="mb-1 text-[10px] font-medium text-base-content/50">Üst kategoriler</p>
             <div class="flex min-w-0 flex-wrap gap-1.5">
                 {% for category in form.category_roots %}
                     <label class="flex h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 transition-all active:scale-[.98] has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
-                        <input type="radio" name="category" value="{{ category.pk }}" class="radio radio-primary radio-xs" {% if form.category.value|stringformat:'s' == category.pk|stringformat:'s' %}checked{% endif %}>
+                        <input type="radio"
+                               name="category"
+                               value="{{ category.pk }}"
+                               class="radio radio-primary radio-xs"
+                               {% if form.category.value|stringformat:'s' == category.pk|stringformat:'s' %}checked{% endif %}>
                         <span class="text-[10px] font-medium">{{ category.name }}</span>
                     </label>
                 {% endfor %}
             </div>
         </div>
-
         {% for group in form.category_groups %}
             {% if group.children %}
-                <div class="{% if not group.is_selected %}hidden{% endif %} rounded-xl border border-base-200 bg-base-200/30 p-2" data-category-children="{{ group.parent.pk }}">
+                <div class="{% if not group.is_selected %}hidden{% endif %} rounded-xl border border-base-200 bg-base-200/30 p-2"
+                     data-category-children="{{ group.parent.pk }}">
                     <p class="mb-1 text-[10px] font-medium text-base-content/50">Alt kategoriler</p>
                     <div class="flex min-w-0 flex-wrap gap-1.5">
                         {% for child in group.children %}
                             <label class="flex h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 transition-all active:scale-[.98] has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
-                                <input type="radio" name="category" value="{{ child.pk }}" class="radio radio-primary radio-xs" {% if form.category.value|stringformat:'s' == child.pk|stringformat:'s' %}checked{% endif %}>
+                                <input type="radio"
+                                       name="category"
+                                       value="{{ child.pk }}"
+                                       class="radio radio-primary radio-xs"
+                                       {% if form.category.value|stringformat:'s' == child.pk|stringformat:'s' %}checked{% endif %}>
                                 <span class="text-[10px] font-medium">{{ child.name }}</span>
                             </label>
                         {% endfor %}
@@ -50,31 +48,26 @@
             {% endif %}
         {% endfor %}
     </div>
-
     {% if form.category.errors %}
-        <span class="mt-1 text-[10px] font-medium text-error">
-            {{ form.category.errors|striptags }}
-        </span>
+        <span class="mt-1 text-[10px] font-medium text-error">{{ form.category.errors|striptags }}</span>
     {% endif %}
-
 </fieldset>
-
 <script>
-(function () {
-    const picker = document.querySelector('[data-category-picker]');
-    if (!picker) return;
+    (function() {
+        const picker = document.querySelector('[data-category-picker]');
+        if (!picker) return;
 
-    const children = picker.querySelectorAll('[data-category-children]');
-    const updateChildren = () => {
-        const selected = picker.querySelector('input[name="category"]:checked');
-        const selectedGroup = selected?.closest('[data-category-children]');
-        const selectedParent = selectedGroup?.dataset.categoryChildren || selected?.value;
-        children.forEach((group) => {
-            group.classList.toggle('hidden', group.dataset.categoryChildren !== selectedParent);
-        });
-    };
+        const children = picker.querySelectorAll('[data-category-children]');
+        const updateChildren = () => {
+            const selected = picker.querySelector('input[name="category"]:checked');
+            const selectedGroup = selected?.closest('[data-category-children]');
+            const selectedParent = selectedGroup?.dataset.categoryChildren || selected?.value;
+            children.forEach((group) => {
+                group.classList.toggle('hidden', group.dataset.categoryChildren !== selectedParent);
+            });
+        };
 
-    picker.addEventListener('change', updateChildren);
-    updateChildren();
-})();
+        picker.addEventListener('change', updateChildren);
+        updateChildren();
+    })();
 </script>

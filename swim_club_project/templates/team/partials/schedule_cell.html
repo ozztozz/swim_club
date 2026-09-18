@@ -1,16 +1,29 @@
 {% if schedules %}
-    <div class="grid min-w-0 grid-cols-2 {% if align_right %}justify-items-end{% else %}justify-items-start{% endif %} gap-1">
+    <div class="grid min-w-0 grid-cols-2 {% if align_right %}justify-items-end{% else %}justify-items-start{% endif %} gap-0.5">
         {% for schedule in schedules %}
-            <div class="{% if align_right and schedules|length == 1 %}col-start-2 {% endif %}min-w-0 max-w-full overflow-hidden rounded-md px-1 pb-0.5 pt-1 shadow-sm sm:px-1.5 sm:pb-1 sm:pt-1.5 {% if schedule.training_type == 'land' %}bg-warning/15{% else %}bg-info/15{% endif %}">
+            <div class="{% if schedules|length == 1 %}col-span-2 {% endif %}w-full min-w-0 max-w-full overflow-hidden rounded-md px-1 pb-0.5 pt-1 shadow-sm sm:px-1.5 sm:pb-1 sm:pt-1.5 {% if schedule.training_type == 'land' %}bg-warning/15{% else %}bg-info/15{% endif %}">
                 <div class="flex flex-nowrap items-center justify-between gap-0.5">
-                    <div class="badge badge-xs shrink-0 border-0 text-[9px] font-black {% if schedule.training_type == 'land' %}bg-warning/30 text-warning-content{% else %}bg-info/25 text-info-content{% endif %}" title="{{ schedule.get_training_type_display }}">
-                        {% if schedule.training_type == 'land' %}K{% else %}Y{% endif %}
+                    <div class="badge badge-xs shrink-0 border-0 text-[9px] font-black {% if schedule.training_type == 'land' %}bg-warning/30 text-warning-content{% else %}bg-info/25 text-info-content{% endif %}"
+                         title="{{ schedule.get_training_type_display }}">
+                        {% if schedule.training_type == "land" %}K{% else %}Y{% endif %}
                     </div>
                     <div class="flex shrink-0 items-center gap-0.5">
-                        <button type="button" class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-primary" hx-get="{% url 'team-schedule-update' team.pk schedule.pk %}" hx-target="#schedule-modal-container" hx-swap="innerHTML" title="Düzenle" aria-label="Antrenmanı düzenle">✎</button>
-                        <form method="post" hx-post="{% url 'team-schedule-delete' team.pk schedule.pk %}" hx-target="#weekly-schedule-board" hx-swap="outerHTML">
+                        <button type="button"
+                                class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-primary"
+                                hx-get="{% url 'team-schedule-update' team.pk schedule.pk %}"
+                                hx-target="#schedule-modal-container"
+                                hx-swap="innerHTML"
+                                title="Düzenle"
+                                aria-label="Antrenmanı düzenle">✎</button>
+                        <form method="post"
+                              hx-post="{% url 'team-schedule-delete' team.pk schedule.pk %}"
+                              hx-target="#weekly-schedule-board"
+                              hx-swap="outerHTML">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-error" title="Sil" aria-label="{{ day_label }} antrenmanını sil">×</button>
+                            <button type="submit"
+                                    class="btn btn-ghost btn-xs h-5 min-h-0 w-5 rounded-md p-0 text-[10px] font-semibold leading-none text-error"
+                                    title="Sil"
+                                    aria-label="{{ day_label }} antrenmanını sil">×</button>
                         </form>
                     </div>
                 </div>

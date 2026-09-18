@@ -1,919 +1,319 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-<div class="athlete-detail-page flex h-full min-h-0 w-full min-w-0 max-w-full flex-col gap-3 overflow-hidden pb-4">
-
-    <!-- ================================================= -->
-    <!-- ÜST BAR -->
-    <!-- ================================================= -->
-
-    <header class="flex items-center gap-3 px-1 py-1">
-
-        <a
-            href="{% url 'athlete-manage-list' %}"
-            class="flex h-9 w-9 shrink-0 items-center justify-center
-                   rounded-xl
-                   border border-base-300
-                   bg-base-100
-                   text-lg font-medium
-                   text-base-content/70
-                   shadow-sm
-                   transition-all
-                   hover:bg-base-200
-                   active:scale-95"
-            aria-label="Sporcu listesine dön">
-
-            <span class="-mt-0.5">←</span>
-
-        </a>
-
-        <div class="min-w-0 flex-1">
-
-            <p class="text-[10px] font-extrabold uppercase
-                      tracking-[0.18em] text-primary">
-                Sporcu
-            </p>
-
-            <h1 class="truncate text-lg font-black leading-tight
-                       text-base-content">
-                Profil
-            </h1>
-
-        </div>
-
-    </header>
-
-
-    <!-- ================================================= -->
-    <!-- SPORCU PROFİLİ -->
-    <!-- ================================================= -->
-
-    <section
-        class="min-w-0 shrink-0 overflow-hidden
-               rounded-2xl
-               border border-base-300
-               bg-base-100
-               shadow-sm">
-
-        <!-- PROFİL BİLGİLERİ -->
-
-        <div class="flex items-center gap-3 p-4">
-
-            <!-- FOTOĞRAF -->
-
-            <div class="shrink-0">
-
-                {% if athlete.photo %}
-
-                    <img
-                        src="{{ athlete.photo.url }}"
-                        alt="{{ athlete.get_full_name }}"
-                        class="h-14 w-14 rounded-2xl
-                               object-cover
-                               ring-2 ring-base-200"
-                    >
-
-                {% else %}
-
-                    <img
-                        src="/media/logos/logo4.jpeg"
-                        alt="{{ athlete.get_full_name }}"
-                        class="h-14 w-14 rounded-2xl
-                               object-cover
-                               ring-2 ring-base-200"
-                    >
-
-                {% endif %}
-
-            </div>
-
-
-            <!-- BİLGİLER -->
-
+    <div class="athlete-detail-page flex h-full min-h-0 w-full min-w-0 max-w-full flex-col gap-3 overflow-hidden pb-4">
+        <!-- ================================================= -->
+        <!-- ÜST BAR -->
+        <!-- ================================================= -->
+        <header class="flex items-center gap-3 px-1 py-1">
+            <a href="{% url 'athlete-manage-list' %}"
+               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-lg font-medium text-base-content/70 shadow-sm transition-all hover:bg-base-200 active:scale-95"
+               aria-label="Sporcu listesine dön">
+                <span class="-mt-0.5">←</span>
+            </a>
             <div class="min-w-0 flex-1">
-
-                <h2
-                    class="truncate text-base font-black leading-tight
-                           text-base-content">
-
-                    {{ athlete.get_full_name }}
-
-                </h2>
-
-
-                <div class="mt-1 flex min-w-0 items-center gap-1.5">
-
-                    <span class="shrink-0 text-[11px] text-base-content/45">
-                        Takım
-                    </span>
-
-                    <span
-                        class="truncate text-[11px] font-semibold
-                               text-base-content/65">
-
-                        {% if athlete.team %}
-                            {{ athlete.team.name }}
-                        {% else %}
-                            Atama yok
-                        {% endif %}
-
-                    </span>
-
-                </div>
-
-
-                <div class="mt-0.5 flex min-w-0 items-center gap-1.5">
-
-                    <span class="shrink-0 text-[11px] text-base-content/45">
-                        Veli
-                    </span>
-
-                    <span
-                        class="truncate text-[11px] font-semibold
-                               text-base-content/55">
-
-                        {{ athlete.parent|default:'Belirtilmedi' }}
-
-                    </span>
-
-                </div>
-
+                <p class="text-[10px] font-extrabold uppercase tracking-[0.18em] text-primary">Sporcu</p>
+                <h1 class="truncate text-lg font-black leading-tight text-base-content">Profil</h1>
             </div>
-
-        </div>
-
-
+        </header>
         <!-- ================================================= -->
-        <!-- PROFİL AKSİYONLARI -->
+        <!-- SPORCU PROFİLİ -->
         <!-- ================================================= -->
-
-        {% if request.user.is_club_admin %}
-        <div
-            class="grid grid-cols-2 gap-2
-                   border-t border-base-200
-                   bg-base-200/20
-                   p-2.5">
-
-            <!-- DÜZENLE -->
-
-            <button
-                type="button"
-                class="flex h-9 items-center justify-center gap-1.5
-                       rounded-xl
-                       border border-base-300
-                       bg-base-100
-                       px-3
-                       text-[11px] font-extrabold
-                       text-base-content/75
-                       shadow-sm
-                       transition-all
-                       hover:border-primary/30
-                       hover:bg-base-200
-                       active:scale-[.98]"
-                hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1"
-                hx-target="#athlete-modal-container"
-                hx-swap="innerHTML">
-
-                <span class="text-xs leading-none">
-                    ✎
-                </span>
-
-                <span>
-                    Düzenle
-                </span>
-
-            </button>
-
-
-            <!-- ÖDEME EKLE -->
-
-            <button
-                type="button"
-                class="flex h-9 items-center justify-center gap-1.5
-                       rounded-xl
-                       bg-primary
-                       px-3
-                       text-[11px] font-extrabold
-                       text-primary-content
-                       shadow-sm
-                       transition-all
-                       hover:brightness-95
-                       active:scale-[.98]"
-                hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}"
-                hx-target="#athlete-payment-modal-container"
-                hx-swap="innerHTML">
-
-                <span class="text-sm leading-none">
-                    +
-                </span>
-
-                <span>
-                    Ödeme Ekle
-                </span>
-
-            </button>
-
-        </div>
-        {% endif %}
-
-    </section>
-
-
-    <!-- ================================================= -->
-    <!-- ÖDEMELER -->
-    <!-- ================================================= -->
-
-    <section
-        class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden
-               rounded-2xl
-               border border-base-300
-               bg-base-100
-               shadow-sm">
-
-
-        <!-- BAŞLIK -->
-
-
-
-
-        <!-- ================================================= -->
-        <!-- SEKME MENÜSÜ -->
-        <!-- ================================================= -->
-
-        <div class="px-3 pt-3">
-
-            <div
-                class="grid min-w-0 {% if request.user.is_club_admin %}grid-cols-4{% else %}grid-cols-2{% endif %} gap-1
-                       rounded-xl
-                       bg-base-200/70
-                       p-1">
-
-                <!-- ANTRENMAN -->
-
-                <button
-                    type="button"
-                    data-payment-tab="training"
-                    onclick="showPaymentTab('training')"
-                    class="h-8 rounded-lg
-                           bg-primary
-                           px-2
-                           text-[11px] font-extrabold
-                           text-primary-content
-                           shadow-sm
-                           transition-all">
-
-                    Antrenman
-
-                </button>
-
-                {% if request.user.is_club_admin %}
-                <!-- AYLIK -->
-
-                <button
-                    type="button"
-                    data-payment-tab="monthly"
-                    onclick="showPaymentTab('monthly')"
-                    class="h-8 rounded-lg
-                           px-2
-                           text-[11px] font-extrabold
-                           text-base-content/55
-                           transition-all
-                           hover:text-base-content">
-
-                    Aylık
-
-                </button>
-
-
-                <!-- DİĞER -->
-
-                <button
-                    type="button"
-                    data-payment-tab="other"
-                    onclick="showPaymentTab('other')"
-                    class="h-8 rounded-lg
-                           px-2
-                           text-[11px] font-extrabold
-                           text-base-content/55
-                           transition-all
-                           hover:text-base-content">
-
-                    Diğer
-
-                </button>
-                {% endif %}
-
-
-                <!-- MALZEMELER -->
-
-                <button
-                    type="button"
-                    data-payment-tab="equipment"
-                    onclick="showPaymentTab('equipment')"
-                    class="h-8 rounded-lg
-                           px-2
-                           text-[11px] font-extrabold
-                           text-base-content/55
-                           transition-all
-                           hover:text-base-content">
-
-                    Malzemeler
-
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- ================================================= -->
-        <!-- ANTRENMAN KATILIMI -->
-        <!-- ================================================= -->
-
-        <div
-            id="training-payments-tab"
-            class="mt-2 min-h-0 flex-1 overflow-hidden hidden">
-
-            <div class="grid min-w-0 grid-cols-2 gap-2 px-3 py-1.5">
-                <div class="min-w-0 overflow-hidden rounded-xl bg-base-200/60 px-2.5 py-1.5">
-                    <div class="flex items-center justify-between gap-2">
-                        <p class="text-[10px] font-bold text-base-content/45">Toplam antrenman</p>
-                        <p class="text-lg font-black text-base-content">{{ attendance_total }}</p>
-                    </div>
-                    <div class="mt-1 grid grid-cols-2 gap-2 border-t border-base-300/60 pt-1">
-                        <div>
-                            <p class="text-[9px] font-bold text-info/80">Yüzme</p>
-                            <p class="text-sm font-black text-info">{{ attendance_swimming }}</p>
-                        </div>
-                        <div>
-                            <p class="text-[9px] font-bold text-warning/90">Kara</p>
-                            <p class="text-sm font-black text-warning">{{ attendance_land }}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="min-w-0 overflow-hidden rounded-xl bg-error/10 px-2.5 py-1.5">
-                    <div class="flex items-center justify-between gap-2">
-                        <p class="text-[10px] font-bold text-error/70">Katılmadığı</p>
-                        <p class="text-lg font-black text-error">{{ attendance_absent }}</p>
-                    </div>
-                    <div class="mt-1 grid grid-cols-2 gap-2 border-t border-error/15 pt-1">
-                        <div>
-                            <p class="text-[9px] font-bold text-error/70">Yüzme</p>
-                            <p class="text-sm font-black text-error">{{ attendance_absent_swimming }}</p>
-                        </div>
-                        <div>
-                            <p class="text-[9px] font-bold text-error/70">Kara</p>
-                            <p class="text-sm font-black text-error">{{ attendance_absent_land }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {% if attendance_period %}
-                <div class="flex items-center justify-between gap-2 px-3 pb-1">
-                    {% if attendance_previous_period %}
-                        <a href="?attendance_month={{ attendance_previous_period }}" class="btn btn-outline btn-sm h-8 min-h-0 w-9 rounded-lg px-0 text-lg font-black" aria-label="Önceki ay">←</a>
+        <section class="min-w-0 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+            <!-- PROFİL BİLGİLERİ -->
+            <div class="flex items-center gap-3 p-4">
+                <!-- FOTOĞRAF -->
+                <div class="shrink-0">
+                    {% if athlete.photo %}
+                        <img src="{{ athlete.photo.url }}"
+                             alt="{{ athlete.get_full_name }}"
+                             class="h-14 w-14 rounded-2xl object-cover ring-2 ring-base-200">
                     {% else %}
-                        <span class="h-8 w-8"></span>
-                    {% endif %}
-
-                    <span class="text-[11px] font-black text-base-content/55">Takvim</span>
-
-                    {% if attendance_next_period %}
-                        <a href="?attendance_month={{ attendance_next_period }}" class="btn btn-outline btn-sm h-8 min-h-0 w-9 rounded-lg px-0 text-lg font-black" aria-label="Sonraki ay">→</a>
-                    {% else %}
-                        <span class="h-8 w-8"></span>
+                        <img src="/media/logos/logo4.jpeg"
+                             alt="{{ athlete.get_full_name }}"
+                             class="h-14 w-14 rounded-2xl object-cover ring-2 ring-base-200">
                     {% endif %}
                 </div>
-            {% endif %}
-
-            {% for month in attendance_months %}
-
-                <div class="border-t border-base-200">
-
-                    <div class="flex items-center justify-between bg-base-200/20 px-3 py-1">
-                        <h3 class="text-xs font-black text-base-content">{{ month.label }}</h3>
-                        <span class="text-[10px] font-semibold text-base-content/45">
-                            {{ month.total_count }} toplam · <span class="text-error">{{ month.absent_count }} gelmedi</span>
+                <!-- BİLGİLER -->
+                <div class="min-w-0 flex-1">
+                    <h2 class="truncate text-base font-black leading-tight text-base-content">{{ athlete.get_full_name }}</h2>
+                    <div class="mt-1 flex min-w-0 items-center gap-1.5">
+                        <span class="shrink-0 text-[11px] text-base-content/45">Takım</span>
+                        <span class="truncate text-[11px] font-semibold text-base-content/65">
+                            {% if athlete.team %}
+                                {{ athlete.team.name }}
+                            {% else %}
+                                Atama yok
+                            {% endif %}
                         </span>
                     </div>
-
-                    <div class="grid min-w-0 grid-cols-7 gap-px border-t border-base-200 bg-base-200">
-
-                        {% for weekday in month.weekdays %}
-                            <div class="min-w-0 overflow-hidden bg-base-100 px-0.5 py-1 text-center text-[9px] font-black text-base-content/60">
-                                {{ weekday.label|slice:":3" }}
-                            </div>
-                        {% endfor %}
-
-                        {% for week in month.calendar_weeks %}
-                            {% for day in week %}
-                                {% if day %}
-                                    <div class="min-w-0 h-9 overflow-hidden bg-base-100 px-0.5 py-0.5 text-center {% if not day.sessions %}text-base-content/25{% endif %}">
-                                        <div class="text-[10px] font-black leading-4">{{ day.number }}</div>
-                                        <div class="flex h-4 justify-center gap-0.5 whitespace-nowrap">
-                                            {% for session in day.sessions %}
-                                                <span class="rounded px-0.5 text-[10px] font-black leading-4 {% if session.status == 'absent' %}bg-error/10 text-error{% else %}text-success{% endif %}">{{ session.label }}{% if session.is_makeup %}<span class="text-info">T</span>{% endif %}</span>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    <div class="h-9 bg-base-100/60"></div>
-                                {% endif %}
-                            {% endfor %}
-                        {% endfor %}
-
+                    <div class="mt-0.5 flex min-w-0 items-center gap-1.5">
+                        <span class="shrink-0 text-[11px] text-base-content/45">Veli</span>
+                        <span class="truncate text-[11px] font-semibold text-base-content/55">
+                            {{ athlete.parent|default:'Belirtilmedi' }}
+                        </span>
                     </div>
-
                 </div>
-
-            {% empty %}
-
-                <div class="flex min-h-[130px] flex-col items-center justify-center px-6 text-center">
-                    <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/35">◷</div>
-                    <p class="text-xs font-bold text-base-content/60">Antrenman katılım kaydı bulunmuyor.</p>
-                    <p class="mt-1 text-[10px] text-base-content/40">Katılım bilgileri burada görünecek.</p>
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-
-        <!-- ================================================= -->
-        <!-- AYLIK ÖDEMELER -->
-        <!-- ================================================= -->
-
-        {% if request.user.is_club_admin %}
-        <div
-            id="monthly-payments-tab"
-            class="mt-2 min-h-0 flex-1 overflow-hidden divide-y divide-base-200">
-
-            {% for item in monthly_payments %}
-
-                <div class="px-2.5 py-1">
-
-                    {% include 'athlete/partials/athlete_payment_row.html' %}
-
-                </div>
-
-            {% empty %}
-
-                <div
-                    class="flex min-h-[130px]
-                           flex-col items-center justify-center
-                           px-6 text-center">
-
-                    <div
-                        class="mb-2 flex h-9 w-9 items-center justify-center
-                               rounded-xl
-                               bg-base-200
-                               text-sm text-base-content/35">
-
-                        ₺
-
-                    </div>
-
-                    <p class="text-xs font-bold text-base-content/60">
-                        Henüz ödeme dönemi bulunmuyor.
-                    </p>
-
-                    <p class="mt-1 text-[10px] text-base-content/40">
-                        Aylık ödeme kayıtları burada görünecek.
-                    </p>
-
-                </div>
-
-            {% endfor %}
-
-        </div>
-        {% endif %}
-
-
-        <!-- ================================================= -->
-        <!-- DİĞER ÖDEMELER -->
-        <!-- ================================================= -->
-
-        {% if request.user.is_club_admin %}
-        <div
-            id="other-payments-tab"
-            class="mt-2 min-h-0 flex-1 overflow-hidden hidden divide-y divide-base-200">
-
-            {% for item in other_payments %}
-
-                <div class="px-2.5 py-1">
-
-                    {% include 'athlete/partials/athlete_payment_row.html' %}
-
-                </div>
-
-            {% empty %}
-
-                <div
-                    class="flex min-h-[130px]
-                           flex-col items-center justify-center
-                           px-6 text-center">
-
-                    <div
-                        class="mb-2 flex h-9 w-9 items-center justify-center
-                               rounded-xl
-                               bg-base-200
-                               text-sm text-base-content/35">
-
-                        ₺
-
-                    </div>
-
-                    <p class="text-xs font-bold text-base-content/60">
-                        Diğer ödeme kaydı bulunmuyor.
-                    </p>
-
-                    <p class="mt-1 text-[10px] text-base-content/40">
-                        Diğer ödeme kayıtları burada görünecek.
-                    </p>
-
-                </div>
-
-            {% endfor %}
-
-        </div>
-        {% endif %}
-
-
-        <!-- ================================================= -->
-        <!-- MALZEME SATIŞLARI -->
-        <!-- ================================================= -->
-
-        <div
-            id="equipment-payments-tab"
-            class="mt-2 min-h-0 flex-1 overflow-hidden hidden">
-           <div
-                class="border-t border-base-200
-                       bg-base-200/20
-                       p-2.5">
-
-                {% if request.user.is_coach or request.user.is_club_admin or request.user.is_finance or request.user.is_superuser %}<button
-                    type="button"
-                    class="flex h-9 w-full items-center justify-center gap-1.5
-                           rounded-xl
-                           border border-base-300
-                           bg-base-100
-                           px-3
-                           text-[11px] font-extrabold
-                           text-base-content/75
-                           shadow-sm
-                           transition-all
-                           hover:border-primary/30
-                           hover:bg-base-200
-                           active:scale-[.99]"
-                    hx-get="{% url 'athlete-manage-equipment-sale-create' athlete.pk %}"
-                    hx-target="#athlete-equipment-sale-modal-container"
-                    hx-swap="innerHTML">
-
-                    <span
-                        class="flex h-5 w-5 items-center justify-center
-                               rounded-md
-                               bg-primary/10
-                               text-xs font-black
-                               text-primary">
-
-                        +
-
-                    </span>
-
-                    <span>
-                        Malzeme Dağıtımı Ekle
-                    </span>
-
-                </button>{% endif %}
-
             </div>
-
-            {% if equipment_sales %}
-
-                <div class="divide-y divide-base-200">
-
-                    {% for item in equipment_sales %}
-
-                        <div class="px-2.5 py-1">
-
-                            {% include 'athlete/partials/athlete_payment_row.html' %}
-
-                        </div>
-
-                    {% endfor %}
-
+            <!-- ================================================= -->
+            <!-- PROFİL AKSİYONLARI -->
+            <!-- ================================================= -->
+            {% if request.user.is_club_admin %}
+                <div class="grid grid-cols-2 gap-2 border-t border-base-200 bg-base-200/20 p-2.5">
+                    <!-- DÜZENLE -->
+                    <button type="button"
+                            class="flex h-9 items-center justify-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-3 text-[11px] font-extrabold text-base-content/75 shadow-sm transition-all hover:border-primary/30 hover:bg-base-200 active:scale-[.98]"
+                            hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1"
+                            hx-target="#athlete-modal-container"
+                            hx-swap="innerHTML">
+                        <span class="text-xs leading-none">✎</span>
+                        <span>Düzenle</span>
+                    </button>
+                    <!-- ÖDEME EKLE -->
+                    <button type="button"
+                            class="flex h-9 items-center justify-center gap-1.5 rounded-xl bg-primary px-3 text-[11px] font-extrabold text-primary-content shadow-sm transition-all hover:brightness-95 active:scale-[.98]"
+                            hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}"
+                            hx-target="#athlete-payment-modal-container"
+                            hx-swap="innerHTML">
+                        <span class="text-sm leading-none">+</span>
+                        <span>Ödeme Ekle</span>
+                    </button>
                 </div>
-
-            {% else %}
-
-                <div
-                    class="flex min-h-[130px]
-                           flex-col items-center justify-center
-                           px-6 text-center">
-
-                    <div
-                        class="mb-2 flex h-9 w-9 items-center justify-center
-                               rounded-xl
-                               bg-base-200
-                               text-sm text-base-content/35">
-
-                        +
-
-                    </div>
-
-                    <p class="text-xs font-bold text-base-content/60">
-                        Malzeme satışı bulunmuyor.
-                    </p>
-
-                    <p class="mt-1 text-[10px] text-base-content/40">
-                        Malzeme satışları burada görünecek.
-                    </p>
-
-                </div>
-
             {% endif %}
-
-
+        </section>
+        <!-- ================================================= -->
+        <!-- ÖDEMELER -->
+        <!-- ================================================= -->
+        <section class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
+            <!-- BAŞLIK -->
             <!-- ================================================= -->
-            <!-- MALZEME SATIŞI EKLE -->
+            <!-- SEKME MENÜSÜ -->
             <!-- ================================================= -->
-
- 
-        </div>
-
-    </section>
-
-</div>
-
-
-<!-- ================================================= -->
-<!-- MODAL KONTEYNERLERİ -->
-<!-- ================================================= -->
-
-<div id="athlete-payment-modal-container"></div>
-
-<div id="athlete-equipment-sale-modal-container"></div>
-
-
-<script>
-
-    /* =====================================================
-       ÖDEME SEKME YÖNETİMİ
-       ===================================================== */
-
-    function showPaymentTab(tab) {
-
-        const tabs = {
-            monthly: document.getElementById(
-                'monthly-payments-tab'
-            ),
-
-            other: document.getElementById(
-                'other-payments-tab'
-            ),
-
-            equipment: document.getElementById(
-                'equipment-payments-tab'
-            ),
-
-            training: document.getElementById(
-                'training-payments-tab'
-            )
-        };
-
-
-        const buttons = {
-            monthly: document.querySelector(
-                '[data-payment-tab="monthly"]'
-            ),
-
-            other: document.querySelector(
-                '[data-payment-tab="other"]'
-            ),
-
-            equipment: document.querySelector(
-                '[data-payment-tab="equipment"]'
-            ),
-
-            training: document.querySelector(
-                '[data-payment-tab="training"]'
-            )
-        };
-
-
-        /*
-         * İçerikleri göster / gizle
-         */
-
-        Object.entries(tabs).forEach(
-            ([key, element]) => {
-
-                if (!element) {
-                    return;
-                }
-
-                element.classList.toggle(
-                    'hidden',
-                    key !== tab
-                );
-
-            }
-        );
-
-
-        /*
-         * Aktif sekme görünümü
-         */
-
-        Object.entries(buttons).forEach(
-            ([key, button]) => {
-
-                if (!button) {
-                    return;
-                }
-
-                const active = key === tab;
-
-
-                button.classList.toggle(
-                    'bg-primary',
-                    active
-                );
-
-                button.classList.toggle(
-                    'text-primary-content',
-                    active
-                );
-
-                button.classList.toggle(
-                    'shadow-sm',
-                    active
-                );
-
-
-                button.classList.toggle(
-                    'text-base-content/55',
-                    !active
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       DÜZENLEME MODALI
-       ===================================================== */
-
-    document.body.addEventListener(
-        'closeAthleteModal',
-        function () {
-
-            const modal =
-                document.getElementById(
-                    'athlete_modal'
-                );
-
-            if (modal) {
-                modal.remove();
-            }
-
-
-            const container =
-                document.getElementById(
-                    'athlete-modal-container'
-                );
-
-            if (container) {
-                container.innerHTML = '';
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       ÖDEME MODALI
-       ===================================================== */
-
-    document.body.addEventListener(
-        'closeAthletePaymentModal',
-        function () {
-
-            const modal =
-                document.getElementById(
-                    'athlete_payment_modal'
-                );
-
-            if (modal) {
-                modal.remove();
-            }
-
-
-            const container =
-                document.getElementById(
-                    'athlete-payment-modal-container'
-                );
-
-            if (container) {
-                container.innerHTML = '';
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       MALZEME SATIŞI MODALI
-       ===================================================== */
-
-    document.body.addEventListener(
-        'closeAthleteEquipmentSaleModal',
-        function () {
-
-            const modal =
-                document.getElementById(
-                    'athlete_equipment_sale_modal'
-                );
-
-            if (modal) {
-                modal.remove();
-            }
-
-
-            const container =
-                document.getElementById(
-                    'athlete-equipment-sale-modal-container'
-                );
-
-            if (container) {
-                container.innerHTML = '';
-            }
-
-        }
-    );
-
-
-    /* =====================================================
-       HTMX HATA DURUMU
-       ===================================================== */
-
-    document.body.addEventListener(
-        'htmx:responseError',
-        function (event) {
-
-            console.error(
-                'HTMX response error:',
-                event.detail
-            );
-
-        }
-    );
-
-
-    /* =====================================================
-       HTMX İSTEK HATASI
-       ===================================================== */
-
-    document.body.addEventListener(
-        'htmx:sendError',
-        function (event) {
-
-            console.error(
-                'HTMX request error:',
-                event.detail
-            );
-
-        }
-    );
-
-
-    /* =====================================================
-       SAYFA YÜKLENDİĞİNDE
-       ===================================================== */
-
-    document.addEventListener(
-        'DOMContentLoaded',
-        function () {
-
-            document.querySelector('.app-content')?.classList.add('athlete-detail-no-scroll');
-
-            /*
-             * Varsayılan sekme
-             */
-
-            showPaymentTab('training');
-
-            if (new URLSearchParams(window.location.search).has('attendance_month')) {
-                showPaymentTab('training');
-            }
-
-        }
-    );
-
-</script>
-
+            <div class="px-3 pt-3">
+                <div class="grid min-w-0 {% if request.user.is_club_admin %}grid-cols-4{% else %}grid-cols-2{% endif %} gap-1 rounded-xl bg-base-200/70 p-1">
+                    <!-- ANTRENMAN -->
+                    <button type="button"
+                            data-payment-tab="training"
+                            onclick="showPaymentTab('training')"
+                            class="h-8 rounded-lg bg-primary px-2 text-[11px] font-extrabold text-primary-content shadow-sm transition-all">
+                        Antrenman
+                    </button>
+                    {% if request.user.is_club_admin %}
+                        <!-- AYLIK -->
+                        <button type="button"
+                                data-payment-tab="monthly"
+                                onclick="showPaymentTab('monthly')"
+                                class="h-8 rounded-lg px-2 text-[11px] font-extrabold text-base-content/55 transition-all hover:text-base-content">
+                            Aylık
+                        </button>
+                        <!-- DİĞER -->
+                        <button type="button"
+                                data-payment-tab="other"
+                                onclick="showPaymentTab('other')"
+                                class="h-8 rounded-lg px-2 text-[11px] font-extrabold text-base-content/55 transition-all hover:text-base-content">
+                            Diğer
+                        </button>
+                    {% endif %}
+                    <!-- MALZEMELER -->
+                    <button type="button"
+                            data-payment-tab="equipment"
+                            onclick="showPaymentTab('equipment')"
+                            class="h-8 rounded-lg px-2 text-[11px] font-extrabold text-base-content/55 transition-all hover:text-base-content">
+                        Malzemeler
+                    </button>
+                </div>
+            </div>
+            <!-- ================================================= -->
+            <!-- ANTRENMAN KATILIMI -->
+            <!-- ================================================= -->
+            <div id="training-payments-tab"
+                 class="mt-2 min-h-0 flex-1 overflow-hidden hidden">
+                <div class="grid min-w-0 grid-cols-2 gap-2 px-3 py-1.5">
+                    <div class="min-w-0 overflow-hidden rounded-xl bg-base-200/60 px-2.5 py-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] font-bold text-base-content/45">Toplam antrenman</p>
+                            <p class="text-lg font-black text-base-content">{{ attendance_total }}</p>
+                        </div>
+                        <div class="mt-1 grid grid-cols-2 gap-2 border-t border-base-300/60 pt-1">
+                            <div>
+                                <p class="text-[9px] font-bold text-info/80">Yüzme</p>
+                                <p class="text-sm font-black text-info">{{ attendance_swimming }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-bold text-warning/90">Kara</p>
+                                <p class="text-sm font-black text-warning">{{ attendance_land }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="min-w-0 overflow-hidden rounded-xl bg-error/10 px-2.5 py-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] font-bold text-error/70">Katılmadığı</p>
+                            <p class="text-lg font-black text-error">{{ attendance_absent }}</p>
+                        </div>
+                        <div class="mt-1 grid grid-cols-2 gap-2 border-t border-error/15 pt-1">
+                            <div>
+                                <p class="text-[9px] font-bold text-error/70">Yüzme</p>
+                                <p class="text-sm font-black text-error">{{ attendance_absent_swimming }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-bold text-error/70">Kara</p>
+                                <p class="text-sm font-black text-error">{{ attendance_absent_land }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if attendance_period %}
+                    <div class="flex items-center justify-between gap-2 px-3 pb-1">
+                        {% if attendance_previous_period %}
+                            <a href="?attendance_month={{ attendance_previous_period }}"
+                               class="btn btn-outline btn-sm h-8 min-h-0 w-9 rounded-lg px-0 text-lg font-black"
+                               aria-label="Önceki ay">←</a>
+                        {% else %}
+                            <span class="h-8 w-8"></span>
+                        {% endif %}
+                        <span class="text-[11px] font-black text-base-content/55">Takvim</span>
+                        {% if attendance_next_period %}
+                            <a href="?attendance_month={{ attendance_next_period }}"
+                               class="btn btn-outline btn-sm h-8 min-h-0 w-9 rounded-lg px-0 text-lg font-black"
+                               aria-label="Sonraki ay">→</a>
+                        {% else %}
+                            <span class="h-8 w-8"></span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% for month in attendance_months %}
+                    <div class="border-t border-base-200">
+                        <div class="flex items-center justify-between bg-base-200/20 px-3 py-1">
+                            <h3 class="text-xs font-black text-base-content">{{ month.label }}</h3>
+                            <span class="text-[10px] font-semibold text-base-content/45">
+                                {{ month.total_count }} toplam · <span class="text-error">{{ month.absent_count }} gelmedi</span>
+                            </span>
+                        </div>
+                        <div class="grid min-w-0 grid-cols-7 gap-px border-t border-base-200 bg-base-200">
+                            {% for weekday in month.weekdays %}
+                                <div class="min-w-0 overflow-hidden bg-base-100 px-0.5 py-1 text-center text-[9px] font-black text-base-content/60">
+                                    {{ weekday.label|slice:":3" }}
+                                </div>
+                            {% endfor %}
+                            {% for week in month.calendar_weeks %}
+                                {% for day in week %}
+                                    {% if day %}
+                                        <div class="min-w-0 h-9 overflow-hidden bg-base-100 px-0.5 py-0.5 text-center {% if not day.sessions %}text-base-content/25{% endif %}">
+                                            <div class="text-[10px] font-black leading-4">{{ day.number }}</div>
+                                            <div class="flex h-4 justify-center gap-0.5 whitespace-nowrap">
+                                                {% for session in day.sessions %}
+                                                    <span class="rounded px-0.5 text-[10px] font-black leading-4 {% if session.status == 'absent' %}bg-error/10 text-error{% else %}text-success{% endif %}">{{ session.label }}{% if session.is_makeup %}<span class="text-info">T</span>{% endif %}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="h-9 bg-base-100/60"></div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="flex min-h-[130px] flex-col items-center justify-center px-6 text-center">
+                        <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/35">◷</div>
+                        <p class="text-xs font-bold text-base-content/60">Antrenman katılım kaydı bulunmuyor.</p>
+                        <p class="mt-1 text-[10px] text-base-content/40">Katılım bilgileri burada görünecek.</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <!-- ================================================= -->
+            <!-- AYLIK ÖDEMELER -->
+            <!-- ================================================= -->
+            {% if request.user.is_club_admin %}
+                <div id="monthly-payments-tab"
+                     class="mt-2 min-h-0 flex-1 overflow-hidden divide-y divide-base-200">
+                    {% for group in monthly_payment_groups %}
+                        <div class="border-b border-base-200">
+                            <div class="flex items-center justify-between gap-2 bg-base-200/30 px-3 py-2">
+                                <h3 class="text-xs font-black text-base-content">{{ group.label }}</h3>
+                                <div class="flex items-center gap-2 text-[10px] font-bold">
+                                    <span class="text-base-content/50">{{ group.total_paid|floatformat:0 }} / {{ group.fee_amount|floatformat:0 }} TL</span>
+                                    {% if group.is_paid_sufficient %}
+                                        <span class="text-lg font-black leading-none text-success"
+                                              title="Dönem aidatı karşılandı"
+                                              aria-label="Dönem aidatı karşılandı">✓</span>
+                                    {% else %}
+                                        <span class="text-warning"
+                                              title="Dönem aidatı eksik"
+                                              aria-label="Dönem aidatı eksik">⚠</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% for item in group.items %}
+                                <div class="px-2.5 py-1">{% include "athlete/partials/athlete_payment_row.html" %}</div>
+                            {% endfor %}
+                        </div>
+                    {% empty %}
+                        <div class="flex min-h-[130px] flex-col items-center justify-center px-6 text-center">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/35">₺</div>
+                            <p class="text-xs font-bold text-base-content/60">Henüz ödeme dönemi bulunmuyor.</p>
+                            <p class="mt-1 text-[10px] text-base-content/40">Aylık ödeme kayıtları burada görünecek.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <!-- ================================================= -->
+            <!-- DİĞER ÖDEMELER -->
+            <!-- ================================================= -->
+            {% if request.user.is_club_admin %}
+                <div id="other-payments-tab"
+                     class="mt-2 min-h-0 flex-1 overflow-hidden hidden divide-y divide-base-200">
+                    {% for item in other_payments %}
+                        <div class="px-2.5 py-1">{% include "athlete/partials/athlete_payment_row.html" %}</div>
+                    {% empty %}
+                        <div class="flex min-h-[130px] flex-col items-center justify-center px-6 text-center">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/35">₺</div>
+                            <p class="text-xs font-bold text-base-content/60">Diğer ödeme kaydı bulunmuyor.</p>
+                            <p class="mt-1 text-[10px] text-base-content/40">Diğer ödeme kayıtları burada görünecek.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <!-- ================================================= -->
+            <!-- MALZEME SATIŞLARI -->
+            <!-- ================================================= -->
+            <div id="equipment-payments-tab"
+                 class="mt-2 min-h-0 flex-1 overflow-hidden hidden">
+                <div class="border-t border-base-200 bg-base-200/20 p-2.5">
+                    {% if request.user.is_coach or request.user.is_club_admin or request.user.is_finance or request.user.is_superuser %}
+                        <button type="button"
+                                class="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-3 text-[11px] font-extrabold text-base-content/75 shadow-sm transition-all hover:border-primary/30 hover:bg-base-200 active:scale-[.99]"
+                                hx-get="{% url 'athlete-manage-equipment-sale-create' athlete.pk %}"
+                                hx-target="#athlete-equipment-sale-modal-container"
+                                hx-swap="innerHTML">
+                            <span class="flex h-5 w-5 items-center justify-center rounded-md bg-primary/10 text-xs font-black text-primary">
+                                +
+                            </span>
+                            <span>Malzeme Dağıtımı Ekle</span>
+                        </button>
+                    {% endif %}
+                </div>
+                {% if equipment_sales %}
+                    <div class="divide-y divide-base-200">
+                        {% for item in equipment_sales %}
+                            <div class="px-2.5 py-1">{% include "athlete/partials/athlete_payment_row.html" %}</div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="flex min-h-[130px] flex-col items-center justify-center px-6 text-center">
+                        <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/35">+</div>
+                        <p class="text-xs font-bold text-base-content/60">Malzeme satışı bulunmuyor.</p>
+                        <p class="mt-1 text-[10px] text-base-content/40">Malzeme satışları burada görünecek.</p>
+                    </div>
+                {% endif %}
+                <!-- ================================================= -->
+                <!-- MALZEME SATIŞI EKLE -->
+                <!-- ================================================= -->
+            </div>
+        </section>
+    </div>
+    <!-- ================================================= -->
+    <!-- MODAL KONTEYNERLERİ -->
+    <!-- ================================================= -->
+    <div id="athlete-payment-modal-container"></div>
+    <div id="athlete-equipment-sale-modal-container"></div>
 {% endblock %}

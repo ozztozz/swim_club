@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+	.app-btn {
+		@apply btn h-10 min-h-0 rounded-xl px-3 text-xs font-bold transition-transform active:scale-[.97];
+	}
+
+	.app-btn-primary {
+		@apply app-btn btn-primary shadow-sm;
+	}
+
+	.app-btn-secondary {
+		@apply app-btn btn-ghost;
+	}
+
+	.app-btn-danger {
+		@apply app-btn btn-error text-white;
+	}
+
+	.app-btn-warning {
+		@apply app-btn btn-warning text-base-content;
+	}
+
+	.app-btn-sm {
+		@apply btn h-8 min-h-0 rounded-lg px-2.5 text-[10px] font-bold transition-transform active:scale-[.97];
+	}
+
+	.app-btn-team {
+		@apply btn h-7 min-h-0 rounded-md px-2.5 py-0 text-[10px] font-semibold transition-colors active:scale-[.98];
+	}
+
+	.app-btn-icon {
+		@apply btn btn-circle h-8 min-h-0 w-8 rounded-lg p-0;
+	}
+}
+
 /* Shared application shell styles. */
 * {
 	box-sizing: border-box;

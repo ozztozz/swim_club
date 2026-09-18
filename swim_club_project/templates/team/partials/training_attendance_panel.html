@@ -8,53 +8,50 @@
             </div>
             <span class="shrink-0 rounded-lg bg-base-200 px-2 py-1 text-[10px] font-semibold text-base-content/50">{{ athletes|length }} aktif</span>
         </div>
-
         <div class="mt-3 flex gap-1 overflow-x-auto pb-0.5">
             {% for schedule in schedules %}
-                <a
-                    href="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
-                    hx-get="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
-                    hx-target="#attendance-modal-container"
-                    hx-swap="innerHTML"
-                    class="shrink-0 rounded-lg border px-2.5 py-2 text-[10px] font-semibold {% if schedule.pk == selected_schedule.pk %}border-primary/40 bg-primary/5 text-primary{% else %}border-base-300 text-base-content/55{% endif %}">
+                <a href="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
+                   hx-get="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
+                   hx-target="#attendance-modal-container"
+                   hx-swap="innerHTML"
+                   class="shrink-0 rounded-lg border px-2.5 py-2 text-[10px] font-semibold {% if schedule.pk == selected_schedule.pk %}border-primary/40 bg-primary/5 text-primary{% else %}border-base-300 text-base-content/55{% endif %}">
                     <span class="block">{{ schedule.get_training_type_display }}</span>
                     <span class="mt-0.5 block tabular-nums">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
                 </a>
             {% endfor %}
         </div>
     </div>
-
     {% if selected_schedule %}
-            <form
-            method="post"
-            hx-post="{% url 'training-attendance-save' team.pk selected_schedule.pk %}"
-            hx-target="#attendance-modal-container"
-            hx-swap="innerHTML"
-            class="space-y-3 pt-4">
+        <form method="post"
+              hx-post="{% url 'training-attendance-save' team.pk selected_schedule.pk %}"
+              hx-target="#attendance-modal-container"
+              hx-swap="innerHTML"
+              class="space-y-3 pt-4">
             {% csrf_token %}
             <input type="hidden" name="training_date" value="{{ today|date:'Y-m-d' }}">
             {% for row in athlete_rows %}
                 {% if row.is_extra %}
                     {% with athlete=row.athlete record=row.record %}
-                        <input type="hidden" name="{% if record.notes == 'Telafi' %}makeup_athlete{% else %}extra_athlete{% endif %}" value="{{ athlete.pk }}">
+                        <input type="hidden"
+                               name="{% if record.notes == 'Telafi' %}makeup_athlete{% else %}extra_athlete{% endif %}"
+                               value="{{ athlete.pk }}">
                     {% endwith %}
                 {% endif %}
             {% endfor %}
             <div class="space-y-2 border-b border-base-200 pb-3">
                 <label class="form-control">
                     <span class="mb-1 text-[10px] font-bold text-base-content/50">Takım harici sporcu ara</span>
-                    <input
-                        type="search"
-                        name="q"
-                        value=""
-                        placeholder="Ad veya soyad"
-                        minlength="3"
-                        class="input input-bordered h-9 min-h-0 rounded-lg text-xs"
-                        autocomplete="off"
-                        hx-get="{% url 'training-attendance-athlete-search' team.pk selected_schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
-                        hx-trigger="keyup[this.value.length >= 3] changed[this.value.length >= 3] delay:300ms"
-                        hx-target="#makeup-athlete-search-results"
-                        hx-swap="innerHTML">
+                    <input type="search"
+                           name="q"
+                           value=""
+                           placeholder="Ad veya soyad"
+                           minlength="3"
+                           class="input input-bordered h-9 min-h-0 rounded-lg text-xs"
+                           autocomplete="off"
+                           hx-get="{% url 'training-attendance-athlete-search' team.pk selected_schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
+                           hx-trigger="keyup[this.value.length >= 3] changed[this.value.length >= 3] delay:300ms"
+                           hx-target="#makeup-athlete-search-results"
+                           hx-swap="innerHTML">
                 </label>
                 <div id="makeup-athlete-search-results"></div>
             </div>
@@ -62,59 +59,51 @@
                 <span>Katılım durumunu seçin</span>
                 <span>{{ selected_schedule.location }}</span>
             </div>
-
-            <div id="attendance-athlete-list" class="divide-y divide-base-200 rounded-lg border border-base-200">
+            <div id="attendance-athlete-list"
+                 class="divide-y divide-base-200 rounded-lg border border-base-200">
                 {% for row in athlete_rows %}
                     {% with athlete=row.athlete record=row.record %}
-                    <div class="attendance-row flex min-h-11 items-center gap-2 px-2.5 py-2 {% if record and record.status == 'absent' %}bg-error/5{% else %}bg-success/5{% endif %}">
-                        <span class="min-w-0 flex-1 truncate text-sm font-semibold">{{ athlete.get_full_name }}</span>
-                        {% if row.is_extra %}
-                            {% if record.notes == 'Telafi' %}
-                                <span class="text-[10px] font-bold text-primary">Telafi</span>
+                        <div class="attendance-row flex min-h-11 items-center gap-2 px-2.5 py-2 {% if record and record.status == 'absent' %}bg-error/5{% else %}bg-success/5{% endif %}">
+                            <span class="min-w-0 flex-1 truncate text-sm font-semibold">{{ athlete.get_full_name }}</span>
+                            {% if row.is_extra %}
+                                {% if record.notes == "Telafi" %}
+                                    <span class="text-[10px] font-bold text-primary">Telafi</span>
+                                {% endif %}
+                                <span class="text-[10px] font-semibold text-success">Katıldı</span>
+                                <button type="button"
+                                        class="remove-makeup-athlete btn btn-ghost btn-xs h-7 min-h-0 rounded-lg px-2 text-[10px] font-bold text-error"
+                                        data-athlete-id="{{ athlete.pk }}">Sil</button>
+                            {% else %}
+                                <label class="flex cursor-pointer items-center gap-1.5 text-[10px] font-semibold text-success">
+                                    <input type="radio"
+                                           name="attendance_{{ athlete.pk }}"
+                                           value="attended"
+                                           class="radio radio-success radio-xs"
+                                           required
+                                           {% if record and record.status == 'attended' %}checked{% endif %}>
+                                    Katıldı
+                                </label>
+                                <label class="flex cursor-pointer items-center gap-1.5 text-[10px] font-semibold text-error">
+                                    <input type="radio"
+                                           name="attendance_{{ athlete.pk }}"
+                                           value="absent"
+                                           class="radio radio-error radio-xs"
+                                           {% if record and record.status == 'absent' %}checked{% endif %}>
+                                    Katılmadı
+                                </label>
                             {% endif %}
-                            <span class="text-[10px] font-semibold text-success">Katıldı</span>
-                            <button
-                                type="button"
-                                class="remove-makeup-athlete btn btn-ghost btn-xs h-7 min-h-0 rounded-lg px-2 text-[10px] font-bold text-error"
-                                data-athlete-id="{{ athlete.pk }}">
-                                Sil
-                            </button>
-                        {% else %}
-                            <label class="flex cursor-pointer items-center gap-1.5 text-[10px] font-semibold text-success">
-                                <input
-                                    type="radio"
-                                    name="attendance_{{ athlete.pk }}"
-                                    value="attended"
-                                    class="radio radio-success radio-xs"
-                                    required
-                                    {% if record and record.status == 'attended' %}checked{% endif %}>
-                                Katıldı
-                            </label>
-                            <label class="flex cursor-pointer items-center gap-1.5 text-[10px] font-semibold text-error">
-                                <input
-                                    type="radio"
-                                    name="attendance_{{ athlete.pk }}"
-                                    value="absent"
-                                    class="radio radio-error radio-xs"
-                                    {% if record and record.status == 'absent' %}checked{% endif %}>
-                                Katılmadı
-                            </label>
-                        {% endif %}
-                    </div>
+                        </div>
                     {% endwith %}
                 {% empty %}
                     <p class="px-3 py-8 text-center text-xs text-base-content/45">Bu takımda aktif sporcu yok.</p>
                 {% endfor %}
             </div>
-
             <div class="modal-action mt-4 grid grid-cols-2 gap-2">
-                <button
-                    type="button"
-                    class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs font-bold"
-                    onclick="closeAttendanceModal()">
-                    Vazgeç
-                </button>
-                <button type="submit" class="btn btn-primary h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm">
+                <button type="button"
+                        class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs font-bold"
+                        onclick="closeAttendanceModal()">Vazgeç</button>
+                <button type="submit"
+                        class="btn btn-primary h-10 min-h-0 rounded-xl text-xs font-bold shadow-sm">
                     Katılımı kaydet
                 </button>
             </div>

@@ -125,12 +125,20 @@ def athlete_detail(request, pk):
 
 
     monthly_payments = []
-    period_month = current_month
-    displayed_months = 0
-    while period_month >= first_month and displayed_months < 10:
+    payments_by_period = {}
+    for payment in payments_records:
+        payments_by_period.setdefault(payment.period, []).append(payment)
+
+    payment_periods = [
+        date.fromisoformat(f'{period}-01')
+        for period in payments_by_period
+    ]
+    period_month = max([current_month, *payment_periods])
+    earliest_period = min([first_month, *payment_periods])
+    while period_month >= earliest_period:
         period = period_month.strftime('%Y-%m')
-        payments_by_period = payments_records.filter(period=period)
-        if not payments_by_period.exists():
+        period_payments = payments_by_period.get(period, [])
+        if not period_payments:
             monthly_payments.append({
                 'period': period,
                 'label': f'{MONTH_NAMES[period_month.month - 1]} {period_month.year}',
@@ -143,7 +151,7 @@ def athlete_detail(request, pk):
                 'status': 'pending',
             })
         else:
-            for payment in payments_by_period:
+            for payment in period_payments:
                 fee_amount = get_athlete_fee_for_period(athlete, period)
                 monthly_payments.append({
                     'period': period,
@@ -160,7 +168,6 @@ def athlete_detail(request, pk):
                     'is_paid': payment.status == 'paid',
                     'status': payment.status,
                 })
-        displayed_months += 1
         if period_month.month == 1:
             period_month = period_month.replace(year=period_month.year - 1, month=12)
         else:
@@ -178,6 +185,28 @@ def athlete_detail(request, pk):
         return (date.fromisoformat(f"{item['period']}-15"), float('-inf'), float('-inf'), 0)
 
     monthly_payments.sort(key=payment_date, reverse=True)
+
+    monthly_payment_groups = OrderedDict()
+    for item in monthly_payments:
+        group = monthly_payment_groups.setdefault(item['period'], {
+            'period': item['period'],
+            'label': item['label'],
+            'fee_amount': item['amount'],
+            'total_paid': Decimal('0.00'),
+            'items': [],
+        })
+        group['items'].append(item)
+        group['total_paid'] += item['paid_amount']
+
+    for group in monthly_payment_groups.values():
+        group['is_paid_sufficient'] = group['total_paid'] >= group['fee_amount']
+    monthly_payment_groups = OrderedDict(
+        sorted(
+            monthly_payment_groups.items(),
+            key=lambda item: item[0],
+            reverse=True,
+        )
+    )
 
     attendance_months = OrderedDict()
     for record in attendance_records:
@@ -322,6 +351,7 @@ def athlete_detail(request, pk):
     return render(request, 'athlete/athlete_detail.html', {
         'athlete': athlete,
         'monthly_payments': monthly_payments,
+        'monthly_payment_groups': monthly_payment_groups.values(),
         'equipment_sales': equipment_sale_items,
         'other_payments': other_payment_items,
         'attendance_months': selected_months,

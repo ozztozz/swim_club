@@ -1,4 +1,5 @@
-<div id="category-field" class="rounded-xl border border-primary/25 bg-primary/5 p-3 sm:col-span-2">
+<div id="category-field"
+     class="rounded-xl border border-primary/25 bg-primary/5 p-3 sm:col-span-2">
     <div class="mb-3 flex items-center justify-between gap-3">
         <div>
             <p class="text-sm font-bold">Yeni kategori ekle</p>
@@ -6,9 +7,9 @@
         </div>
         <button type="button"
                 class="btn btn-ghost btn-xs"
-            hx-get="{% url 'expense-category-create' %}?cancel=1"
-            hx-target="#category-field"
-            hx-swap="outerHTML"
+                hx-get="{% url 'expense-category-create' %}?cancel=1"
+                hx-target="#category-field"
+                hx-swap="outerHTML"
                 aria-label="Kategori eklemeyi iptal et">İptal</button>
     </div>
     <form hx-post="{% url 'expense-category-create' %}"
