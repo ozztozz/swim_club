@@ -44,7 +44,7 @@
         <!-- =========================================================
          SPORCU LİSTESİ
     ========================================================== -->
-        <section class="overflow-hidden rounded-2xl border border-base-200 bg-base-100 shadow-sm">
+        <section class="max-h-[calc(100dvh-240px)] overflow-y-auto overflow-x-hidden rounded-2xl border border-base-200 bg-base-100 shadow-sm">
             <div class="divide-y divide-base-200">
                 {% for athlete in payments %}
                     <a href="{% url 'athlete-manage-detail' athlete.pk %}"

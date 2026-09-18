@@ -74,14 +74,16 @@
                 <p class="mt-2 text-base font-black text-success leading-none">{{ financial_summary.total_income|floatformat:0 }}</p>
                 <div class="mt-3 border-t border-base-200 pt-2">
                     <p class="mb-1 text-[10px] font-semibold text-base-content/45">Dağılım</p>
-                    {% for payment_type in collection_summary.payment_type_totals %}
-                        <div class="flex items-center justify-between gap-2 py-0.5 text-[10px]">
-                            <span class="truncate text-base-content/60">{{ payment_type.name }}</span>
-                            <span class="shrink-0 font-bold text-success">{{ payment_type.total|floatformat:0 }}</span>
-                        </div>
-                    {% empty %}
-                        <p class="text-[10px] text-base-content/40">Kayıt yok.</p>
-                    {% endfor %}
+                    <div class="max-h-24 overflow-y-auto overscroll-contain touch-pan-y">
+                        {% for payment_type in collection_summary.payment_type_totals %}
+                            <div class="flex items-center justify-between gap-2 py-0.5 text-[10px]">
+                                <span class="truncate text-base-content/60">{{ payment_type.name }}</span>
+                                <span class="shrink-0 font-bold text-success">{{ payment_type.total|floatformat:0 }}</span>
+                            </div>
+                        {% empty %}
+                            <p class="text-[10px] text-base-content/40">Kayıt yok.</p>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             <!-- Bekleyen -->
@@ -125,14 +127,16 @@
                 </div>
                 <div class="mt-3 border-t border-base-200 pt-2">
                     <p class="mb-1 text-[10px] font-semibold text-base-content/45">Dağılım</p>
-                    {% for category in expense_summary.category_totals %}
-                        <div class="flex items-center justify-between gap-2 py-0.5 text-[10px]">
-                            <span class="truncate text-base-content/60">{{ category.name }}</span>
-                            <span class="shrink-0 font-bold text-error">{{ category.total|floatformat:0 }}</span>
-                        </div>
-                    {% empty %}
-                        <p class="text-[10px] text-base-content/40">Kayıt yok.</p>
-                    {% endfor %}
+                    <div class="max-h-24 overflow-y-auto overscroll-contain touch-pan-y">
+                        {% for category in expense_summary.category_totals %}
+                            <div class="flex items-center justify-between gap-2 py-0.5 text-[10px]">
+                                <span class="truncate text-base-content/60">{{ category.name }}</span>
+                                <span class="shrink-0 font-bold text-error">{{ category.total|floatformat:0 }}</span>
+                            </div>
+                        {% empty %}
+                            <p class="text-[10px] text-base-content/40">Kayıt yok.</p>
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="mt-3 grid grid-cols-2 gap-2 border-t border-base-200 pt-2">
                     <div>

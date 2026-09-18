@@ -63,7 +63,10 @@
                                class="input input-bordered h-10 min-h-0 w-full rounded-xl border-base-300/80 bg-base-100 pl-9 pr-3 text-xs outline-none transition focus:border-primary/40 focus:outline-none">
                     </label>
                 </form>
-                <div id="collection-list">{% include "dashboard/_approved_athletes.html" %}</div>
+                <div id="collection-list"
+                     class="h-[calc(100dvh-300px)] min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain touch-pan-y">
+                    {% include "dashboard/_approved_athletes.html" %}
+                </div>
             </section>
             <!-- Son tahsilatlar -->
             {% include "dashboard/_recent_payments.html" %}
