@@ -31,7 +31,7 @@ MANIFEST = """
 """.strip()
 
 SERVICE_WORKER = """
-const CACHE_NAME = "alphaacademy-static-v5";
+const CACHE_NAME = "alphaacademy-static-v6";
 const STATIC_ASSETS = [
     "/manifest.webmanifest",
     "/static/css/app.css",
@@ -72,10 +72,8 @@ self.addEventListener("fetch", (event) => {
 
     if (isStaticAsset || isLogo) {
         event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                if (cachedResponse) return cachedResponse;
-
-                return fetch(event.request).then((response) => {
+            fetch(event.request)
+                .then((response) => {
                     if (!response.ok) return response;
 
                     const responseCopy = response.clone();
@@ -83,8 +81,8 @@ self.addEventListener("fetch", (event) => {
                         cache.put(event.request, responseCopy);
                     });
                     return response;
-                });
-            })
+                })
+                .catch(() => caches.match(event.request))
         );
     }
 });
