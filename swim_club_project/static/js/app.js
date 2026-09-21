@@ -1,160 +1,889 @@
 (function () {
-    'use strict';
 
-    function formatMoneyInput(input) {
-        const raw = input.value.replace(/\s/g, '');
-        if (!raw) return;
+    "use strict";
 
-        const separator = Math.max(raw.lastIndexOf(','), raw.lastIndexOf('.'));
-        const hasDecimal = separator >= 0 && raw.length - separator - 1 <= 2;
-        const integerPart = (hasDecimal ? raw.slice(0, separator) : raw)
-            .replace(/\D/g, '') || '0';
-        const decimalPart = hasDecimal
-            ? raw.slice(separator + 1).replace(/\D/g, '').slice(0, 2)
-            : '';
-        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-        input.value = hasDecimal
-            ? `${formattedInteger},${decimalPart}`
-            : formattedInteger;
+    /* =========================================================
+       HELPERS
+       ========================================================= */
+
+    function qs(selector, root = document) {
+        return root.querySelector(selector);
     }
 
-    function normalizeMoneyValue(value) {
-        const raw = value.replace(/\s/g, '');
-        if (!raw) return '';
 
-        const separator = Math.max(raw.lastIndexOf(','), raw.lastIndexOf('.'));
-        const hasDecimal = separator >= 0 && raw.length - separator - 1 <= 2;
-        const integerPart = (hasDecimal ? raw.slice(0, separator) : raw)
-            .replace(/\D/g, '') || '0';
-        const decimalPart = hasDecimal
-            ? raw.slice(separator + 1).replace(/\D/g, '').slice(0, 2).padEnd(2, '0')
-            : '00';
-
-        return `${integerPart}.${decimalPart}`;
+    function qsa(selector, root = document) {
+        return Array.from(
+            root.querySelectorAll(selector)
+        );
     }
 
-    function prepareMoneyInputs(root) {
-        if (!root || !root.querySelectorAll) return;
 
-        root.querySelectorAll('[data-money-input="true"]').forEach((input) => {
-            if (input.dataset.moneyReady) return;
-            input.dataset.moneyReady = 'true';
-            formatMoneyInput(input);
+    /* =========================================================
+       MODAL
+       ========================================================= */
 
-            input.addEventListener('input', () => {
-                const cursorAtEnd = input.selectionStart === input.value.length;
-                formatMoneyInput(input);
-                if (cursorAtEnd) {
-                    input.setSelectionRange(input.value.length, input.value.length);
+    function getModalContainer() {
+        return qs("#modal-container");
+    }
+
+
+    function getActiveModal() {
+
+        const container =
+            getModalContainer();
+
+        if (!container) {
+            return null;
+        }
+
+        if (!container.classList.contains("is-open")) {
+            return null;
+        }
+
+        return qs(
+            ".ui-modal, dialog",
+            container
+        );
+    }
+
+
+    function openModal() {
+
+        const container =
+            getModalContainer();
+
+        if (!container) {
+            return;
+        }
+
+        const modal =
+            qs(
+                ".ui-modal, dialog",
+                container
+            );
+
+        if (!modal) {
+            return;
+        }
+
+        /*
+         * Native dialog için open durumunu
+         * manuel yönetiyoruz.
+         */
+        if (modal.tagName === "DIALOG") {
+            modal.setAttribute("open", "");
+        }
+
+        container.classList.add("is-open");
+
+        container.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+        initializeModal(container);
+    }
+
+
+    function closeModal() {
+
+        const container =
+            getModalContainer();
+
+        if (!container) {
+            return;
+        }
+
+        const modal =
+            qs(
+                ".ui-modal, dialog",
+                container
+            );
+
+        if (
+            modal &&
+            modal.tagName === "DIALOG"
+        ) {
+            modal.removeAttribute("open");
+        }
+
+        container.classList.remove(
+            "is-open"
+        );
+
+        container.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+    }
+
+
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+
+
+    /* =========================================================
+       MODAL EVENTS
+       ========================================================= */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            /*
+             * Modal kapatma butonu
+             */
+            const closeButton =
+                event.target.closest(
+                    "[data-modal-close]"
+                );
+
+            if (closeButton) {
+
+                event.preventDefault();
+
+                closeModal();
+
+                return;
+            }
+
+
+            /*
+             * Modal container dış alanı
+             */
+            const container =
+                event.target.closest(
+                    "#modal-container"
+                );
+
+            if (
+                container &&
+                event.target === container
+            ) {
+
+                closeModal();
+
+                return;
+            }
+
+
+            /*
+             * Modal kendi backdrop alanı
+             */
+            const modal =
+                event.target.closest(
+                    ".ui-modal"
+                );
+
+            if (
+                modal &&
+                event.target === modal &&
+                modal.dataset.modalBackdropClose !== "false"
+            ) {
+
+                closeModal();
+            }
+        }
+    );
+
+
+    /* =========================================================
+       HTMX → MODAL
+       ========================================================= */
+
+    document.body.addEventListener(
+        "htmx:afterSwap",
+        function (event) {
+
+            const target =
+                event.detail.target;
+
+            if (!target) {
+                return;
+            }
+
+
+            /*
+             * Modal container değiştirildiyse
+             * modalı aç.
+             */
+            if (
+                target.id ===
+                "modal-container"
+            ) {
+
+                const modal =
+                    qs(
+                        ".ui-modal, dialog",
+                        target
+                    );
+
+                if (!modal) {
+                    return;
                 }
-            });
-            input.addEventListener('blur', () => {
-                if (input.value) formatMoneyInput(input);
-            });
-        });
+
+                openModal();
+
+                return;
+            }
+
+
+            /*
+             * HTMX ile başka bir içerik geldiyse
+             * dashboard tablarını tekrar initialize et.
+             */
+            initDashboardTabs(target);
+        }
+    );
+
+
+    /* =========================================================
+       MODAL INITIALIZE
+       ========================================================= */
+
+    function initializeModal(
+        root = document
+    ) {
+
+        const modal =
+            qs(
+                ".ui-modal, dialog",
+                root
+            );
+
+        if (!modal) {
+            return;
+        }
+
+        initializePrivateLesson(modal);
+    }
+/* =========================================================
+   MONEY INPUT
+   ========================================================= */
+
+function formatMoneyInput(input) {
+    if (!input) {
+        return;
     }
 
-    function clearModal(modalId, containerId) {
-        document.getElementById(modalId)?.remove();
-        document.getElementById(containerId)?.replaceChildren();
+    let value = input.value || "";
+
+    // Sadece rakamları bırak.
+    value = value.replace(/\D/g, "");
+
+    if (!value) {
+        input.value = "";
+        return;
     }
 
-    window.showPaymentTab = function (tab) {
-        const tabs = {
-            monthly: document.getElementById('monthly-payments-tab'),
-            other: document.getElementById('other-payments-tab'),
-            equipment: document.getElementById('equipment-payments-tab'),
-            training: document.getElementById('training-payments-tab'),
-        };
-        Object.entries(tabs).forEach(([key, element]) => {
-            element?.classList.toggle('hidden', key !== tab);
-        });
-        document.querySelectorAll('[data-payment-tab]').forEach((button) => {
-            const active = button.dataset.paymentTab === tab;
-            button.classList.toggle('bg-primary', active);
-            button.classList.toggle('text-primary-content', active);
-            button.classList.toggle('shadow-sm', active);
-            button.classList.toggle('text-base-content/55', !active);
-        });
-    };
+    // Binlik ayırıcı: Türkçe format
+    input.value = Number(value).toLocaleString("tr-TR");
+}
 
-    window.showDashboardTab = function (tab) {
-        const showCollections = tab === 'collections';
-        document.getElementById('collections-tab')?.classList.toggle('hidden', !showCollections);
-        document.getElementById('expenses-tab')?.classList.toggle('hidden', showCollections);
-        document.querySelectorAll('[data-dashboard-tab]').forEach((button) => {
-            const active = button.dataset.dashboardTab === tab;
-            button.classList.toggle('bg-base-100', active);
-            button.classList.toggle('text-base-content', active);
-            button.classList.toggle('shadow-sm', active);
-            button.classList.toggle('text-base-content/45', !active);
-        });
-    };
+function initializeMoneyInputs(root = document) {
+    qsa(
+        '[data-money-input="true"]',
+        root
+    ).forEach(function (input) {
 
-    window.switchFeeTab = function (tab) {
-        const teams = document.getElementById('fee-tab-teams');
-        const athletes = document.getElementById('fee-tab-athletes');
-        const isTeams = tab === 'teams';
-        teams?.classList.toggle('hidden', !isTeams);
-        athletes?.classList.toggle('hidden', isTeams);
-        document.querySelectorAll('[data-tab-button]').forEach((button) => {
-            const active = button.dataset.tabButton === tab;
-            button.classList.toggle('bg-base-100', active);
-            button.classList.toggle('shadow-sm', active);
-            button.classList.toggle('text-base-content', active);
-            button.classList.toggle('text-base-content/50', !active);
-        });
-    };
-
-    window.closeAthleteModal = () => {
-        document.getElementById('athlete_modal')?.remove();
-        document.getElementById('edit_athlete_modal')?.remove();
-        document.getElementById('athlete-modal-container')?.replaceChildren();
-        document.getElementById('modal-container')?.replaceChildren();
-    };
-    window.closeExpenseModal = () => {
-        document.getElementById('expense_modal')?.remove();
-        document.querySelector('.app-content')?.classList.remove('modal-active');
-        document.getElementById('modal-container')?.replaceChildren();
-    };
-    window.closePaymentModal = () => clearModal('payment_modal', 'modal-container');
-    window.closeAthletePaymentModal = () => clearModal('athlete_payment_modal', 'athlete-payment-modal-container');
-    window.closeRegularExpenseModal = () => {
-        document.getElementById('regular_expense_modal')?.remove();
-        document.getElementById('regular-expense-modal-container')?.replaceChildren();
-        document.getElementById('modal-container')?.replaceChildren();
-    };
-    window.closeAthleteEquipmentSaleModal = () => clearModal('athlete_equipment_sale_modal', 'athlete-equipment-sale-modal-container');
-
-    document.addEventListener('DOMContentLoaded', () => prepareMoneyInputs(document));
-    document.addEventListener('htmx:afterSwap', (event) => prepareMoneyInputs(event.target));
-    document.addEventListener('submit', (event) => {
-        event.target.querySelectorAll?.('[data-money-input="true"]').forEach((input) => {
-            input.value = normalizeMoneyValue(input.value);
-        });
-    }, true);
-
-    document.body.addEventListener('closeAthleteModal', window.closeAthleteModal);
-    document.body.addEventListener('closeExpenseModal', window.closeExpenseModal);
-    document.body.addEventListener('closeAthletePaymentModal', window.closeAthletePaymentModal);
-    document.body.addEventListener('closeRegularExpenseModal', window.closeRegularExpenseModal);
-    document.body.addEventListener('closeAthleteEquipmentSaleModal', window.closeAthleteEquipmentSaleModal);
-    document.body.addEventListener('htmx:responseError', (event) => console.error('HTMX response error:', event.detail));
-    document.body.addEventListener('htmx:sendError', (event) => console.error('HTMX request error:', event.detail));
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (document.querySelector('.app-content')) {
-            document.querySelector('.app-content').classList.add('athlete-detail-no-scroll');
+        if (
+            input.dataset.moneyInputInitialized === "true"
+        ) {
+            return;
         }
-        if (document.getElementById('training-payments-tab')) {
-            window.showPaymentTab('training');
-        }
+
+        input.dataset.moneyInputInitialized = "true";
+
+        formatMoneyInput(input);
     });
+}
 
-    window.addEventListener('load', () => {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+document.addEventListener(
+    "input",
+    function (event) {
+
+        const input =
+            event.target.closest(
+                '[data-money-input="true"]'
+            );
+
+        if (!input) {
+            return;
         }
-    });
+
+        formatMoneyInput(input);
+    }
+);
+
+document.addEventListener(
+    "focus",
+    function (event) {
+
+        const input =
+            event.target.closest(
+                '[data-money-input="true"]'
+            );
+
+        if (!input) {
+            return;
+        }
+
+        // İmleci sona al.
+        requestAnimationFrame(function () {
+            input.setSelectionRange(
+                input.value.length,
+                input.value.length
+            );
+        });
+    },
+    true
+);
+
+initializeMoneyInputs();
+
+    /* =========================================================
+       PRIVATE LESSON
+       ========================================================= */
+
+    function getPrivateLessonTotal(
+        modal
+    ) {
+
+        return qs(
+            "[data-private-lesson-total]",
+            modal
+        );
+    }
+
+
+    function parseMoneyValue(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return 0;
+        }
+
+        const raw =
+            String(value)
+                .trim()
+                .replace(/\s/g, "");
+
+        if (!raw) {
+            return 0;
+        }
+
+
+        /*
+         * 1.250,50
+         */
+        if (
+            raw.includes(",") &&
+            raw.includes(".")
+        ) {
+
+            return Number(
+                raw
+                    .replace(/\./g, "")
+                    .replace(",", ".")
+            );
+        }
+
+
+        /*
+         * 1250,50
+         */
+        if (raw.includes(",")) {
+
+            return Number(
+                raw.replace(",", ".")
+            );
+        }
+
+
+        /*
+         * 1250.50
+         *
+         * Burada noktayı binlik
+         * ayırıcı olarak silmiyoruz.
+         */
+        return Number(raw);
+    }
+
+
+    function updatePrivateLessonTotal(
+        input
+    ) {
+
+        const modal =
+            input.closest(
+                ".ui-modal, dialog"
+            );
+
+        if (!modal) {
+            return;
+        }
+
+
+        const total =
+            getPrivateLessonTotal(
+                modal
+            );
+
+        if (!total) {
+            return;
+        }
+
+
+        const count =
+            Math.max(
+                1,
+                Number(input.value) || 1
+            );
+
+
+        const unit =
+            parseMoneyValue(
+                input.dataset.privateLessonUnit
+            );
+
+
+        const amount =
+            count * unit;
+
+
+        total.textContent =
+            `${amount.toLocaleString(
+                "tr-TR",
+                {
+                    maximumFractionDigits: 2
+                }
+            )} TL`;
+    }
+
+
+    function initializePrivateLesson(
+        modal
+    ) {
+
+        const input =
+            qs(
+                "[data-private-lesson-count]",
+                modal
+            );
+
+        if (!input) {
+            return;
+        }
+
+        updatePrivateLessonTotal(input);
+    }
+
+
+    document.addEventListener(
+        "input",
+        function (event) {
+
+            const input =
+                event.target.closest(
+                    "[data-private-lesson-count]"
+                );
+
+            if (!input) {
+                return;
+            }
+
+            updatePrivateLessonTotal(input);
+        }
+    );
+
+
+    /* =========================================================
+       HTMX REQUEST
+       ========================================================= */
+
+    document.body.addEventListener(
+        "htmx:afterRequest",
+        function (event) {
+
+            const xhr =
+                event.detail.xhr;
+
+            const requestConfig =
+                event.detail.requestConfig;
+
+            if (
+                !xhr ||
+                !requestConfig
+            ) {
+                return;
+            }
+
+
+            /*
+             * Başarılı modal formundan sonra
+             * modalı kapat.
+             */
+            const trigger =
+                requestConfig.elt;
+
+            if (
+                trigger &&
+                trigger.closest(
+                    "[data-close-modal-on-success]"
+                ) &&
+                xhr.status >= 200 &&
+                xhr.status < 300
+            ) {
+
+                closeModal();
+            }
+
+
+            /*
+             * Server tarafından gönderilen toast.
+             */
+            const toast =
+                xhr.getResponseHeader(
+                    "X-App-Toast"
+                );
+
+            if (toast) {
+                showToast(toast);
+            }
+        }
+    );
+
+
+    /* =========================================================
+       TOAST
+       ========================================================= */
+
+    function showToast(message) {
+
+        const container =
+            qs("#toast-container");
+
+        if (!container) {
+            return;
+        }
+
+
+        const toast =
+            document.createElement("div");
+
+        toast.className =
+            "app-toast";
+
+        toast.textContent =
+            message;
+
+
+        container.appendChild(toast);
+
+
+        window.setTimeout(
+            function () {
+
+                toast.style.opacity = "0";
+
+                toast.style.transform =
+                    "translateY(-6px)";
+
+
+                window.setTimeout(
+                    function () {
+                        toast.remove();
+                    },
+                    180
+                );
+
+            },
+            2800
+        );
+    }
+
+
+    window.showToast = showToast;
+
+
+    /* =========================================================
+       HTMX LOADING
+       ========================================================= */
+
+    document.body.addEventListener(
+        "htmx:beforeRequest",
+        function () {
+
+            const loading =
+                qs("#global-loading");
+
+            if (!loading) {
+                return;
+            }
+
+            loading.classList.add(
+                "is-visible"
+            );
+        }
+    );
+
+
+    document.body.addEventListener(
+        "htmx:afterRequest",
+        function () {
+
+            const loading =
+                qs("#global-loading");
+
+            if (!loading) {
+                return;
+            }
+
+            loading.classList.remove(
+                "is-visible"
+            );
+        }
+    );
+
+
+    /* =========================================================
+       DASHBOARD TABS
+       ========================================================= */
+
+    function switchDashboardTab(
+        tabName
+    ) {
+
+        const collectionsTab =
+            qs("#collections-tab");
+
+        const expensesTab =
+            qs("#expenses-tab");
+
+
+        const collectionsButton =
+            qs("#collections-tab-button");
+
+        const expensesButton =
+            qs("#expenses-tab-button");
+
+
+        /*
+         * Dashboard sayfasında değilsek
+         * hiçbir şey yapma.
+         */
+        if (
+            !collectionsTab ||
+            !expensesTab ||
+            !collectionsButton ||
+            !expensesButton
+        ) {
+            return;
+        }
+
+
+        const showExpenses =
+            tabName === "expenses";
+
+
+        /*
+         * Paneller
+         */
+        collectionsTab.classList.toggle(
+            "hidden",
+            showExpenses
+        );
+
+        expensesTab.classList.toggle(
+            "hidden",
+            !showExpenses
+        );
+
+
+        /*
+         * Butonlar
+         */
+        collectionsButton.classList.toggle(
+            "active",
+            !showExpenses
+        );
+
+        expensesButton.classList.toggle(
+            "active",
+            showExpenses
+        );
+
+
+        /*
+         * ARIA
+         */
+        collectionsButton.setAttribute(
+            "aria-selected",
+            showExpenses
+                ? "false"
+                : "true"
+        );
+
+        expensesButton.setAttribute(
+            "aria-selected",
+            showExpenses
+                ? "true"
+                : "false"
+        );
+    }
+
+
+    function initDashboardTabs(
+        root = document
+    ) {
+
+        const buttons =
+            qsa(
+                "[data-dashboard-tab]",
+                root
+            );
+
+        if (!buttons.length) {
+            return;
+        }
+
+
+        buttons.forEach(
+            function (button) {
+
+                /*
+                 * Aynı butona ikinci kez
+                 * listener bağlama.
+                 */
+                if (
+                    button.dataset
+                        .dashboardTabBound === "true"
+                ) {
+                    return;
+                }
+
+
+                button.dataset
+                    .dashboardTabBound = "true";
+
+
+                button.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+
+
+                        const tabName =
+                            button.dataset
+                                .dashboardTab;
+
+
+                        if (!tabName) {
+                            return;
+                        }
+
+
+                        switchDashboardTab(
+                            tabName
+                        );
+                    }
+                );
+            }
+        );
+    }
+
+
+    /*
+     * İlk sayfa yüklemesi
+     */
+    initDashboardTabs();
+
+
+    /* =========================================================
+       ESC → MODAL CLOSE
+       ========================================================= */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key !==
+                "Escape"
+            ) {
+                return;
+            }
+
+
+            const modal =
+                getActiveModal();
+
+
+            if (!modal) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+            closeModal();
+        }
+    );
+
+
+    /* =========================================================
+       ACTIVE NAV
+       ========================================================= */
+
+    const currentPath =
+        window.location.pathname;
+
+
+    qsa(
+        ".app-bottom-nav-item"
+    ).forEach(
+        function (item) {
+
+            const href =
+                item.getAttribute(
+                    "href"
+                );
+
+
+            /*
+             * Button olan "Daha Fazla"
+             * gibi elemanları atla.
+             */
+            if (
+                !href ||
+                href === "#"
+            ) {
+                return;
+            }
+
+
+            if (
+                href === currentPath
+            ) {
+
+                item.classList.add(
+                    "active"
+                );
+            }
+        }
+    );
+
+
 })();

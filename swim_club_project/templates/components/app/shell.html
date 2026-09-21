@@ -1,0 +1,13 @@
+<div id="app" class="app">
+
+    {% include "components/app/topbar.html" %}
+
+    <main class="app-content">
+        <div class="app-main">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    {% include "components/app/bottom-nav.html" %}
+
+</div>

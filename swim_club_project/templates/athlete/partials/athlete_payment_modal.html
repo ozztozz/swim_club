@@ -1,135 +1,498 @@
-<dialog id="athlete_payment_modal" class="modal modal-open">
-    <div class="modal-box w-[calc(100%-1rem)] max-w-md rounded-2xl p-4 sm:p-5">
-        <p class="text-xs font-bold uppercase tracking-widest text-primary">
-            {% if mode == "create" %}Yeni ödeme{% elif mode == "edit" %}Ödeme düzenleme{% else %}Ödeme işlemi{% endif %}
-        </p>
-        <h3 class="mt-1 text-lg font-black text-base-content">
-            {% if mode == "create" %}
-                {{ athlete.get_full_name }}
-            {% elif mode == "edit" %}
-                {{ payment_label }}
-            {% else %}
-                {{ item.label }}
-            {% endif %}
-        </h3>
-        {% if mode == "create" or mode == "edit" %}
-            <form method="post"
-                  {% if mode == 'create' %} hx-post="{% url 'athlete-manage-payment-create' athlete.pk %}" {% else %} hx-post="{% url 'athlete-manage-payment-edit' athlete.pk payment.pk %}" {% endif %}
-                  {% if mode == 'edit' %}hx-target="#payment-{{ payment.pk }}" hx-swap="outerHTML"{% endif %}
-                  class="mt-4 space-y-3">
-                {% csrf_token %}
-                {% if form.non_field_errors %}<div class="alert alert-error">{{ form.non_field_errors }}</div>{% endif %}
-                <div class="grid gap-3 sm:grid-cols-2">
+<dialog
+    id="athlete_payment_modal"
+    class="ui-modal"
+    data-modal-backdrop-close="true"
+>
+
+    <div class="ui-modal-panel">
+
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
+
+        <header class="ui-modal-header">
+
+            <div class="min-w-0">
+
+                <p class="ui-modal-eyebrow">
                     {% if mode == "create" %}
-                        <label class="form-control"><span class="label label-text font-bold">Ödeme türü</span>{{ form.payment_type }}{{ form.payment_type.errors }}</label>
-                        <label class="form-control"><span class="label label-text font-bold">Dönem</span>{{ form.period }}{{ form.period.errors }}</label>
-                        <label class="form-control"><span class="label label-text font-bold">Son ödeme tarihi</span>{{ form.due_date }}{{ form.due_date.errors }}</label>
-                    {% endif %}
-                    <label class="form-control"><span class="label label-text font-bold">Tutar</span>{{ form.amount }}{{ form.amount.errors }}</label>
-                    <label class="form-control"><span class="label label-text font-bold">Ödeme yöntemi</span>{{ form.payment_method }}{{ form.payment_method.errors }}</label>
-                    <fieldset class="form-control sm:col-span-2">
-                        <legend class="label label-text py-1 font-bold">Durum</legend>
-                        <div class="grid grid-cols-3 gap-1.5">
-                            {% for radio in form.status %}
-                                <label class="label min-h-0 cursor-pointer justify-start gap-1.5 rounded-lg border border-base-300 px-2 py-1.5 text-xs transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/10">
-                                    {{ radio.tag }}
-                                    <span>{{ radio.choice_label }}</span>
-                                </label>
-                            {% endfor %}
-                        </div>
-                        {{ form.status.errors }}
-                    </fieldset>
-                </div>
-                <label class="form-control"><span class="label label-text py-1 font-bold">Not</span>{{ form.notes }}{{ form.notes.errors }}</label>
-                <div class="modal-action flex-col-reverse sm:flex-row">
-                    <button type="button"
-                            class="app-btn-secondary w-full sm:w-auto"
-                            onclick="document.getElementById('athlete_payment_modal').remove()">Vazgeç</button>
-                    <button type="submit"
-                            class="app-btn-primary w-full sm:w-auto">{% if mode == "create" %}Ödemeyi kaydet{% else %}Kaydet{% endif %}</button>
-                </div>
-            </form>
-        {% else %}
-            <form method="post" {% if item.payment %}hx-post="{% url 'athlete-manage-payment-by-id' athlete.pk item.payment.pk %}{% if dashboard_mode %}?dashboard=1{% endif %}"{% else %}hx-post="{% url 'athlete-manage-payment' athlete.pk item.period %}{% if dashboard_mode %}?dashboard=1{% endif %}"{% endif %} {% if dashboard_mode %}hx-target="#dashboard-payment-items" hx-swap="afterbegin"{% else %}hx-target="#payment-{{ item.payment.pk|default:item.period }}" hx-swap="outerHTML"{% endif %}>
-                {% csrf_token %}
-                <div class="mt-3 overflow-hidden rounded-xl border border-base-200 bg-base-200/50">
-                    <div class="px-4 py-3">
-                        <p class="text-[10px] font-medium text-base-content/40">Sporcu</p>
-                        <p class="mt-0.5 truncate text-sm font-bold">{{ athlete.get_full_name }}</p>
-                    </div>
-                    {% if item.is_private_lesson %}
-                        <div class="px-4 py-3">
-                            <p class="text-[10px] font-medium text-base-content/60">Özel ders ücreti</p>
-                            <p class="mt-0.5 text-sm font-black text-primary">{{ item.private_lesson_fee|floatformat:0 }} TL / ders</p>
-                        </div>
-                        <label class="flex items-center justify-between gap-3 border-t border-base-300 px-4 py-3">
-                            <span class="text-xs text-base-content/50">Ders sayısı</span>
-                            <input type="number"
-                                   name="lesson_count"
-                                   value="{{ item.lesson_count }}"
-                                   data-private-lesson-unit="{{ item.private_lesson_fee }}"
-                                   data-private-lesson-count
-                                   min="1"
-                                   step="1"
-                                   inputmode="numeric"
-                                   class="input input-bordered input-sm w-24 text-right text-base font-black text-primary"
-                                   required>
-                        </label>
-                        <div class="flex items-center justify-between border-t border-base-300 px-4 py-3">
-                            <span class="text-xs text-base-content/50">Ödenecek tutar</span>
-                            <strong id="private-lesson-total"
-                                    class="text-lg font-black text-primary">{{ item.amount|floatformat:0 }} TL</strong>
-                        </div>
+                        Yeni ödeme
+                    {% elif mode == "edit" %}
+                        Ödeme düzenleme
                     {% else %}
-                        <div class="px-4 py-3">
-                            <p class="text-[10px] font-medium text-base-content/60">Aidat: {{ item.fee_amount }}</p>
-                            <p class="text-[10px] font-medium text-base-content/60">Ödenen: {{ item.paid_amount }}</p>
+                        Ödeme işlemi
+                    {% endif %}
+                </p>
+
+                <h2 class="ui-modal-title">
+
+                    {% if mode == "create" %}
+                        {{ athlete.get_full_name }}
+
+                    {% elif mode == "edit" %}
+                        {{ payment_label }}
+
+                    {% else %}
+                        {{ item.label }}
+
+                    {% endif %}
+
+                </h2>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="ui-modal-close"
+                data-modal-close
+                aria-label="Kapat"
+            >
+                <span aria-hidden="true">×</span>
+            </button>
+
+        </header>
+
+
+        <!-- =====================================================
+             CREATE / EDIT PAYMENT
+        ====================================================== -->
+
+        {% if mode == "create" or mode == "edit" %}
+
+            <form
+                method="post"
+
+                {% if mode == "create" %}
+                    hx-post="{% url 'athlete-manage-payment-create' athlete.pk %}"
+                {% else %}
+                    hx-post="{% url 'athlete-manage-payment-edit' athlete.pk payment.pk %}"
+                {% endif %}
+
+                {% if mode == "edit" %}
+                    hx-target="#payment-{{ payment.pk }}"
+                    hx-swap="outerHTML"
+                {% endif %}
+
+                class="ui-modal-form"
+            >
+
+                {% csrf_token %}
+
+
+                <!-- Genel hata -->
+                {% if form.non_field_errors %}
+
+                    <div class="ui-form-alert ui-form-alert-error">
+                        {{ form.non_field_errors }}
+                    </div>
+
+                {% endif %}
+
+
+                <div class="ui-form-grid">
+
+                    <!-- Ödeme türü -->
+                    {% if mode == "create" %}
+
+                        <div class="ui-field">
+
+                            <label
+                                for="{{ form.payment_type.id_for_label }}"
+                                class="ui-label"
+                            >
+                                Ödeme türü
+                            </label>
+
+                            {{ form.payment_type }}
+
+                            {% if form.payment_type.errors %}
+                                <div class="ui-error">
+                                    {{ form.payment_type.errors }}
+                                </div>
+                            {% endif %}
+
                         </div>
-                        <label class="flex items-center justify-between gap-3 border-t border-base-300 px-4 py-3">
-                            <span class="text-xs text-base-content/50">Ödenecek tutar</span>
-                            <input type="text"
-                                   name="amount"
-                                   value="{{ item.amount|floatformat:0 }}"
-                                   min="0"
-                                   step="1"
-                                   inputmode="numeric"
-                                   autocomplete="off"
-                                   class="input input-bordered input-sm w-32 text-right text-base font-black text-primary"
-                                   required>
+
+
+                        <!-- Dönem -->
+                        <div class="ui-field">
+
+                            <label
+                                for="{{ form.period.id_for_label }}"
+                                class="ui-label"
+                            >
+                                Dönem
+                            </label>
+
+                            {{ form.period }}
+
+                            {% if form.period.errors %}
+                                <div class="ui-error">
+                                    {{ form.period.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Son ödeme tarihi -->
+                        <div class="ui-field">
+
+                            <label
+                                for="{{ form.due_date.id_for_label }}"
+                                class="ui-label"
+                            >
+                                Son ödeme tarihi
+                            </label>
+
+                            {{ form.due_date }}
+
+                            {% if form.due_date.errors %}
+                                <div class="ui-error">
+                                    {{ form.due_date.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- Tutar -->
+                    <div class="ui-field">
+
+                        <label
+                            for="{{ form.amount.id_for_label }}"
+                            class="ui-label"
+                        >
+                            Tutar
                         </label>
-                    {% endif %}
-                    {% if item.amount_error %}
-                        <p class="px-4 pb-2 text-xs text-error">{{ item.amount_error }}</p>
-                    {% endif %}
+
+                        {{ form.amount }}
+
+                        {% if form.amount.errors %}
+                            <div class="ui-error">
+                                {{ form.amount.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Ödeme yöntemi -->
+                    <div class="ui-field">
+
+                        <label
+                            for="{{ form.payment_method.id_for_label }}"
+                            class="ui-label"
+                        >
+                            Ödeme yöntemi
+                        </label>
+
+                        {{ form.payment_method }}
+
+                        {% if form.payment_method.errors %}
+                            <div class="ui-error">
+                                {{ form.payment_method.errors }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Durum -->
+                    <fieldset class="ui-field ui-field-full">
+
+                        <legend class="ui-label">
+                            Durum
+                        </legend>
+
+                        <div class="ui-choice-grid">
+
+                            {% for radio in form.status %}
+
+                                <label class="ui-choice">
+
+                                    {{ radio.tag }}
+
+                                    <span>
+                                        {{ radio.choice_label }}
+                                    </span>
+
+                                </label>
+
+                            {% endfor %}
+
+                        </div>
+
+                        {% if form.status.errors %}
+                            <div class="ui-error">
+                                {{ form.status.errors }}
+                            </div>
+                        {% endif %}
+
+                    </fieldset>
+
                 </div>
-                <div class="modal-action mt-4 grid grid-cols-2 gap-2">
-                    <button type="button"
-                            class="app-btn-secondary"
-                            onclick="document.getElementById('athlete_payment_modal').remove()">Vazgeç</button>
-                    <button type="submit" class="app-btn-primary">Ödendi</button>
+
+
+                <!-- Not -->
+                <div class="ui-field">
+
+                    <label
+                        for="{{ form.notes.id_for_label }}"
+                        class="ui-label"
+                    >
+                        Not
+                    </label>
+
+                    {{ form.notes }}
+
+                    {% if form.notes.errors %}
+                        <div class="ui-error">
+                            {{ form.notes.errors }}
+                        </div>
+                    {% endif %}
+
                 </div>
+
+
+                <!-- Actions -->
+                <div class="ui-modal-actions">
+
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-secondary"
+                        data-modal-close
+                    >
+                        Vazgeç
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="ui-btn ui-btn-primary"
+                    >
+                        {% if mode == "create" %}
+                            Ödemeyi kaydet
+                        {% else %}
+                            Kaydet
+                        {% endif %}
+                    </button>
+
+                </div>
+
             </form>
+
+
+        <!-- =====================================================
+             PAYMENT ACTION
+        ====================================================== -->
+
+        {% else %}
+
+            <form
+                method="post"
+
+                {% if item.payment %}
+
+                    hx-post="{% url 'athlete-manage-payment-by-id' athlete.pk item.payment.pk %}{% if dashboard_mode %}?dashboard=1{% endif %}"
+
+                {% else %}
+
+                    hx-post="{% url 'athlete-manage-payment' athlete.pk item.period %}{% if dashboard_mode %}?dashboard=1{% endif %}"
+
+                {% endif %}
+
+
+                {% if dashboard_mode %}
+
+                    hx-target="#dashboard-payment-items"
+                    hx-swap="afterbegin"
+
+                {% else %}
+
+                    hx-target="#payment-{{ item.payment.pk|default:item.period }}"
+                    hx-swap="outerHTML"
+
+                {% endif %}
+                data-close-modal-on-success
+            >
+
+                {% csrf_token %}
+
+
+                <!-- =================================================
+                     PAYMENT SUMMARY
+                ================================================== -->
+
+                <section class="ui-payment-summary">
+
+
+                    <!-- Sporcu -->
+                    <div class="ui-payment-summary-row">
+
+                        <span class="ui-payment-summary-label">
+                            Sporcu
+                        </span>
+
+                        <strong class="ui-payment-summary-value">
+                            {{ athlete.get_full_name }}
+                        </strong>
+
+                    </div>
+
+
+                    {% if item.is_private_lesson %}
+
+                        <!-- Özel ders ücreti -->
+                        <div class="ui-payment-summary-row">
+
+                            <span class="ui-payment-summary-label">
+                                Özel ders ücreti
+                            </span>
+
+                            <strong class="ui-payment-summary-highlight">
+                                {{ item.private_lesson_fee|floatformat:0 }} TL / ders
+                            </strong>
+
+                        </div>
+
+
+                        <!-- Ders sayısı -->
+                        <label class="ui-payment-input-row">
+
+                            <span class="ui-payment-summary-label">
+                                Ders sayısı
+                            </span>
+
+                            <input
+                                type="number"
+                                name="lesson_count"
+                                value="{{ item.lesson_count }}"
+                                data-private-lesson-count
+                                data-private-lesson-unit="{{ item.private_lesson_fee }}"
+                                min="1"
+                                step="1"
+                                inputmode="numeric"
+                                class="ui-input ui-payment-amount-input"
+                                required
+                            >
+
+                        </label>
+
+
+                        <!-- Ödenecek tutar -->
+                        <div class="ui-payment-total">
+
+                            <span>
+                                Ödenecek tutar
+                            </span>
+
+                            <strong
+                                class="ui-payment-total-value"
+                                data-private-lesson-total
+                            >
+                                {{ item.amount|floatformat:0 }} TL
+                            </strong>
+
+                        </div>
+
+
+                    {% else %}
+
+                        <!-- Aidat bilgileri -->
+                        <div class="ui-payment-summary-row">
+
+                            <div class="ui-payment-fee-info">
+
+                                <div>
+                                    <span>
+                                        Aidat
+                                    </span>
+
+                                    <strong>
+                                        {{ item.fee_amount }}
+                                    </strong>
+                                </div>
+
+                                <div>
+                                    <span>
+                                        Ödenen
+                                    </span>
+
+                                    <strong>
+                                        {{ item.paid_amount }}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Ödenecek tutar -->
+                        <label class="ui-payment-input-row">
+
+                            <span class="ui-payment-summary-label">
+                                Ödenecek tutar
+                            </span>
+
+                            <input
+                                type="text"
+                                name="amount"
+                                value="{{ item.amount|floatformat:0 }}"
+                                min="0"
+                                step="1"
+                                inputmode="numeric"
+                                autocomplete="off"
+                                class="ui-input ui-payment-amount-input"
+                                required
+                            >
+
+                        </label>
+
+                    {% endif %}
+
+
+                    {% if item.amount_error %}
+
+                        <div class="ui-payment-error">
+                            {{ item.amount_error }}
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <!-- =================================================
+                     ACTIONS
+                ================================================== -->
+
+                <div class="ui-modal-actions ui-modal-actions-payment">
+
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-secondary"
+                        data-modal-close
+                    >
+                        Vazgeç
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="ui-btn ui-btn-primary"
+                    >
+                        Ödendi
+                    </button>
+
+                </div>
+
+            </form>
+
         {% endif %}
+
     </div>
+
 </dialog>
-{% if item.is_private_lesson %}
-    <script>
-        (() => {
-            const countInput = document.querySelector('[data-private-lesson-count]');
-            const total = document.getElementById('private-lesson-total');
-            if (!countInput || !total) return;
-
-            const updateTotal = () => {
-                const count = Math.max(1, Number(countInput.value) || 1);
-                const unitValue = countInput.dataset.privateLessonUnit
-                    .replace(/\./g, '')
-                    .replace(',', '.');
-                const unit = Number(unitValue) || 0;
-                total.textContent = `${(count * unit).toLocaleString('tr-TR')} TL`;
-            };
-
-            countInput.addEventListener('input', updateTotal);
-            updateTotal();
-        })();
-    </script>
-{% endif %}

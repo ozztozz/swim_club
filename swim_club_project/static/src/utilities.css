@@ -1,0 +1,33 @@
+@layer utilities {
+
+    .no-scrollbar {
+        scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+
+    .safe-top {
+        padding-top:
+            env(safe-area-inset-top);
+    }
+
+
+    .safe-bottom {
+        padding-bottom:
+            env(safe-area-inset-bottom);
+    }
+
+
+    .touch-manipulation {
+        touch-action: manipulation;
+    }
+
+
+    .select-none {
+        user-select: none;
+    }
+
+}

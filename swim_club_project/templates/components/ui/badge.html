@@ -1,0 +1,17 @@
+<span
+    class="ui-badge
+        {% if variant == 'success' %}ui-badge-success
+        {% elif variant == 'warning' %}ui-badge-warning
+        {% elif variant == 'danger' %}ui-badge-danger
+        {% elif variant == 'dark' %}ui-badge-dark
+        {% elif variant == 'primary' %}ui-badge-primary
+        {% else %}ui-badge-neutral{% endif %}
+        {% if class %}{{ class }}{% endif %}
+    "
+>
+    {% if icon %}
+        <span aria-hidden="true">{{ icon }}</span>
+    {% endif %}
+
+    {{ text }}
+</span>

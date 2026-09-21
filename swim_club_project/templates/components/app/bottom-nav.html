@@ -1,0 +1,81 @@
+<nav
+    class="app-bottom-nav"
+    aria-label="Ana navigasyon"
+>
+    <div class="app-bottom-nav-inner">
+
+        <!-- Ana Sayfa -->
+        <a
+            href="/"
+            class="app-bottom-nav-item"
+        >
+            <span
+                class="app-bottom-nav-item-icon"
+                aria-hidden="true"
+            >
+                ⌂
+            </span>
+
+            <span class="app-bottom-nav-item-label">
+                Ana Sayfa
+            </span>
+        </a>
+
+
+        <!-- Sporcular -->
+        <a
+            href="{% url 'athlete-manage-list' %}"
+            class="app-bottom-nav-item"
+        >
+            <span
+                class="app-bottom-nav-item-icon"
+                aria-hidden="true"
+            >
+                ◉
+            </span>
+
+            <span class="app-bottom-nav-item-label">
+                Sporcular
+            </span>
+        </a>
+
+
+        <!-- Finans -->
+        <a
+            href="{% url 'fee-management' %}"
+            class="app-bottom-nav-item"
+        >
+            <span
+                class="app-bottom-nav-item-icon"
+                aria-hidden="true"
+            >
+                ₺
+            </span>
+
+            <span class="app-bottom-nav-item-label">
+                Finans
+            </span>
+        </a>
+
+
+        <!-- Daha Fazla -->
+        <button
+            type="button"
+            id="more-menu-button"
+            class="app-bottom-nav-item"
+            aria-label="Daha fazla"
+        >
+            <span
+                class="app-bottom-nav-item-icon"
+                aria-hidden="true"
+            >
+                ≡
+            </span>
+
+            <span class="app-bottom-nav-item-label">
+                Daha Fazla
+            </span>
+        </button>
+
+    </div>
+</nav>

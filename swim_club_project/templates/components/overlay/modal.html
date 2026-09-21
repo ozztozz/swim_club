@@ -1,0 +1,80 @@
+<div
+    class="app-modal"
+    role="dialog"
+    aria-modal="true"
+>
+
+    <div class="app-modal-header">
+
+        <div class="app-modal-title">
+            Yeni sporcu
+        </div>
+
+        <button
+            type="button"
+            class="app-modal-close"
+            data-modal-close
+            aria-label="Kapat"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="app-modal-body">
+
+        <form
+            method="post"
+            hx-post="{% url 'athlete-manage-create' %}"
+            hx-target="#athlete-table"
+            hx-swap="outerHTML"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="ui-field">
+
+                <label class="ui-label">
+                    Ad
+                </label>
+
+                <input
+                    type="text"
+                    name="first_name"
+                    class="ui-input"
+                    required
+                >
+
+            </div>
+
+
+            <div class="ui-field">
+
+                <label class="ui-label">
+                    Soyad
+                </label>
+
+                <input
+                    type="text"
+                    name="last_name"
+                    class="ui-input"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="ui-btn ui-btn-primary ui-btn-full"
+            >
+                Sporcu oluştur
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

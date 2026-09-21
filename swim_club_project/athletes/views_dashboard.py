@@ -16,7 +16,7 @@ from finance.models import Expense
 @role_required(allowed_roles=['admin', 'club_admin', 'coach'])
 def dashboard_index(request):
     if not (request.user.is_staff or request.user.is_superuser):
-        return redirect('parent-dashboard')  # Veli Dashboard
+        return redirect('pages/dashboard.html')  # Veli Dashboard
     pending_athletes = Athlete.objects.filter(is_active=False).select_related('team')
     approved_athletes = Athlete.objects.none()
     active_teams = Team.objects.filter(is_active=True).count()
@@ -27,7 +27,7 @@ def dashboard_index(request):
     expenses = Expense.objects.none()
     expense_summary = get_expense_summary(expense_period)
     
-    return render(request, 'dashboard/index.html', {
+    return render(request, 'pages/dashboard.html', {
         'pending_athletes': pending_athletes,
         'approved_athletes': approved_athletes,
         'active_teams': active_teams,

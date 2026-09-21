@@ -1,0 +1,40 @@
+<div class="ui-field {% if field_class %}{{ field_class }}{% endif %}">
+
+    {% if label %}
+        <label
+            for="{{ textarea_id|default:name }}"
+            class="ui-label"
+        >
+            {{ label }}
+
+            {% if required %}
+                <span class="ui-required">*</span>
+            {% endif %}
+        </label>
+    {% endif %}
+
+    <textarea
+        id="{{ textarea_id|default:name }}"
+        name="{{ name }}"
+        class="ui-textarea {% if textarea_class %}{{ textarea_class }}{% endif %}"
+        {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+        {% if rows %}rows="{{ rows }}"{% else %}rows="4"{% endif %}
+        {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+        {% if required %}required{% endif %}
+        {% if disabled %}disabled{% endif %}
+        {% if readonly %}readonly{% endif %}
+    >{{ value|default:'' }}</textarea>
+
+    {% if help_text %}
+        <p class="ui-help">
+            {{ help_text }}
+        </p>
+    {% endif %}
+
+    {% if error %}
+        <p class="ui-error">
+            {{ error }}
+        </p>
+    {% endif %}
+
+</div>

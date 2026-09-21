@@ -1,0 +1,29 @@
+<div class="ui-card {% if class %}{{ class }}{% endif %}">
+
+    {% if title or subtitle %}
+        <div class="ui-card-header">
+
+            <div class="min-w-0">
+
+                {% if title %}
+                    <h2 class="ui-card-title">
+                        {{ title }}
+                    </h2>
+                {% endif %}
+
+                {% if subtitle %}
+                    <p class="ui-card-subtitle">
+                        {{ subtitle }}
+                    </p>
+                {% endif %}
+
+            </div>
+
+        </div>
+    {% endif %}
+
+    <div class="ui-card-body {% if body_class %}{{ body_class }}{% endif %}">
+        {{ content }}
+    </div>
+
+</div>

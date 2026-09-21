@@ -44,50 +44,43 @@
         aria-label="Dashboard bölümleri"
     >
 
-        <button
-            type="button"
-            id="collections-tab-button"
-            data-dashboard-tab="collections"
-            onclick="showDashboardTab('collections')"
-            class="dashboard-tab active"
-            role="tab"
-            aria-selected="true"
-            aria-controls="collections-tab"
-        >
-            <span
-                class="dashboard-tab-icon"
-                aria-hidden="true"
+            <button
+                type="button"
+                id="collections-tab-button"
+                data-dashboard-tab="collections"
+                class="dashboard-tab active"
+                role="tab"
+                aria-selected="true"
+                aria-controls="collections-tab"
             >
-                ₺
-            </span>
+                <span
+                    class="dashboard-tab-icon"
+                    aria-hidden="true"
+                >
+                    ₺
+                </span>
 
-            <span>
-                Tahsilat
-            </span>
-        </button>
+                <span>Tahsilat</span>
+            </button>
 
-
-        <button
-            type="button"
-            id="expenses-tab-button"
-            data-dashboard-tab="expenses"
-            onclick="showDashboardTab('expenses')"
-            class="dashboard-tab"
-            role="tab"
-            aria-selected="false"
-            aria-controls="expenses-tab"
-        >
-            <span
-                class="dashboard-tab-icon"
-                aria-hidden="true"
+            <button
+                type="button"
+                id="expenses-tab-button"
+                data-dashboard-tab="expenses"
+                class="dashboard-tab"
+                role="tab"
+                aria-selected="false"
+                aria-controls="expenses-tab"
             >
-                ↗
-            </span>
+                <span
+                    class="dashboard-tab-icon"
+                    aria-hidden="true"
+                >
+                    ↗
+                </span>
 
-            <span>
-                Harcama
-            </span>
-        </button>
+                <span>Harcama</span>
+            </button>
 
     </div>
 
@@ -270,13 +263,18 @@
 
                 <button
                     type="button"
-                    class="ui-btn ui-btn-primary ui-btn-sm"
-                    hx-get="{% url 'expense-create' %}?period={{ expense_period }}&dashboard=1"
-                    hx-target="#modal-container"
-                    hx-swap="innerHTML"
+                    id="expenses-tab-button"
+                    data-dashboard-tab="expenses"
+                    class="dashboard-tab"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="expenses-tab"
                 >
-                    <span aria-hidden="true">
-                        +
+                    <span
+                        class="dashboard-tab-icon"
+                        aria-hidden="true"
+                    >
+                        ↗
                     </span>
 
                     <span>

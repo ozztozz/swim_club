@@ -1,0 +1,44 @@
+<div class="ui-field">
+
+    {% if label %}
+
+        <label
+            for="{{ id }}"
+            class="ui-label"
+        >
+            {{ label }}
+        </label>
+
+    {% endif %}
+
+
+    <input
+        id="{{ id }}"
+        name="{{ name }}"
+        type="{{ type|default:'text' }}"
+        class="ui-input"
+        value="{{ value|default:'' }}"
+        placeholder="{{ placeholder|default:'' }}"
+        {% if required %}
+            required
+        {% endif %}
+        {% if disabled %}
+            disabled
+        {% endif %}
+    >
+
+
+    {% if help %}
+        <div class="ui-help">
+            {{ help }}
+        </div>
+    {% endif %}
+
+
+    {% if error %}
+        <div class="ui-error">
+            {{ error }}
+        </div>
+    {% endif %}
+
+</div>

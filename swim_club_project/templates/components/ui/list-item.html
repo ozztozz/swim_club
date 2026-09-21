@@ -1,0 +1,37 @@
+<div class="ui-list-item {% if class %}{{ class }}{% endif %}">
+
+    {% if leading %}
+        <div class="ui-list-leading">
+            {{ leading }}
+        </div>
+    {% endif %}
+
+    <div class="ui-list-content">
+
+        {% if title %}
+            <div class="ui-list-title">
+                {{ title }}
+            </div>
+        {% endif %}
+
+        {% if subtitle %}
+            <div class="ui-list-subtitle">
+                {{ subtitle }}
+            </div>
+        {% endif %}
+
+        {% if meta %}
+            <div class="ui-list-meta">
+                {{ meta }}
+            </div>
+        {% endif %}
+
+    </div>
+
+    {% if trailing %}
+        <div class="ui-list-trailing">
+            {{ trailing }}
+        </div>
+    {% endif %}
+
+</div>
