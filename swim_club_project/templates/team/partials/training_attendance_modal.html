@@ -1,10 +1,10 @@
 <dialog id="attendance_modal"
-        class="attendance-modal modal modal-open fixed inset-0 z-[10000] flex items-center justify-center bg-base-content/30 p-2"
+        class="attendance-modal ui-modal"
         onclick="if (event.target === this) closeAttendanceModal()">
-    <div class="attendance-modal-box modal-box z-[10001] max-h-[calc(100dvh-5rem)] overflow-y-auto rounded-2xl p-4 sm:p-5">
-        <div class="-mb-2 flex justify-end">
+    <div class="attendance-modal-box ui-modal-panel">
+        <div>
             <button type="button"
-                    class="btn btn-circle btn-ghost h-8 w-8 min-h-0 text-sm"
+                    class="ui-modal-close"
                     onclick="closeAttendanceModal()"
                     aria-label="Kapat">✕</button>
         </div>

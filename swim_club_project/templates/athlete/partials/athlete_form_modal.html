@@ -1,197 +1,201 @@
-<dialog id="athlete_modal" class="modal modal-open">
-    <div class="modal-box flex max-h-[92vh] w-[calc(100%-1rem)] max-w-xl flex-col overflow-hidden rounded-2xl p-0 sm:w-11/12">
+<dialog id="athlete_modal">
+    <div>
         <!-- Başlık -->
-        <div class="shrink-0 border-b border-base-200 bg-base-100 px-4 py-3.5 sm:px-5">
-            <p class="text-[10px] font-black uppercase tracking-widest text-primary">Sporcu yönetimi</p>
-            <h3 class="mt-0.5 text-lg font-black text-base-content">{{ modal_title }}</h3>
+        <div>
+            <p>Sporcu yönetimi</p>
+            <h3>{{ modal_title }}</h3>
         </div>
         <!-- Form -->
-        <form method="post" enctype="multipart/form-data" hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}" hx-target="{% if return_to_detail %}#athlete-modal-container{% else %}#athlete-table{% endif %}" hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}" class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+        <form method="post"
+              enctype="multipart/form-data"
+              hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}"
+              hx-target="{% if return_to_detail %}#athlete-modal-container{% else %}#athlete-table{% endif %}"
+              hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}">
             {% csrf_token %}
             {% if return_to_detail %}
                 <input type="hidden" name="return_to_detail" value="1">
             {% endif %}
             {% if form.non_field_errors %}
-                <div class="alert alert-error mb-3 rounded-xl py-2 text-xs">{{ form.non_field_errors }}</div>
+                <div>{{ form.non_field_errors }}</div>
             {% endif %}
             {% if form.errors %}
-                <div class="mb-3 rounded-xl border border-error/20 bg-error/5 px-3 py-2 text-[11px] text-error">
+                <div>
                     Formda eksik veya hatalı alanlar var. Lütfen kırmızı uyarıları kontrol edin.
                 </div>
             {% endif %}
             <!-- Temel bilgiler -->
-            <div class="mb-4">
-                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">Temel bilgiler</p>
-                <div class="grid gap-3 sm:grid-cols-2">
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Ad</span>
+            <div>
+                <p>Temel bilgiler</p>
+                <div>
+                    <label>
+                        <span>Ad</span>
                         {{ form.first_name }}
                         {% if form.first_name.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.first_name.errors }}</span>
+                            <span>{{ form.first_name.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Soyad</span>
+                    <label>
+                        <span>Soyad</span>
                         {{ form.last_name }}
                         {% if form.last_name.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.last_name.errors }}</span>
+                            <span>{{ form.last_name.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Sporcu telefonu</span>
+                    <label>
+                        <span>Sporcu telefonu</span>
                         {{ form.phone_number }}
                         {% if form.phone_number.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.phone_number.errors }}</span>
+                            <span>{{ form.phone_number.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Cinsiyet</span>
+                    <label>
+                        <span>Cinsiyet</span>
                         {{ form.gender }}
                         {% if form.gender.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.gender.errors }}</span>
+                            <span>{{ form.gender.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Doğum tarihi</span>
+                    <label>
+                        <span>Doğum tarihi</span>
                         {{ form.birth_date }}
                         {% if form.birth_date.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.birth_date.errors }}</span>
+                            <span>{{ form.birth_date.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Kulübe katılım tarihi</span>
+                    <label>
+                        <span>Kulübe katılım tarihi</span>
                         {{ form.joined_date }}
                         {% if form.joined_date.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.joined_date.errors }}</span>
+                            <span>{{ form.joined_date.errors }}</span>
                         {% endif %}
                     </label>
                 </div>
             </div>
             <!-- Veli bilgileri -->
-            <div class="mb-4">
-                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">Veli bilgileri</p>
-                <div class="grid gap-3 sm:grid-cols-2">
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Veli</span>
+            <div>
+                <p>Veli bilgileri</p>
+                <div>
+                    <label>
+                        <span>Veli</span>
                         {{ form.parent }}
                         {% if form.parent.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.parent.errors }}</span>
+                            <span>{{ form.parent.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Veli telefonu</span>
+                    <label>
+                        <span>Veli telefonu</span>
                         {{ form.parent_phone }}
                         {% if form.parent_phone.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.parent_phone.errors }}</span>
+                            <span>{{ form.parent_phone.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control sm:col-span-2">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Veli e-postası</span>
+                    <label>
+                        <span>Veli e-postası</span>
                         {{ form.parent_email }}
                         {% if form.parent_email.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.parent_email.errors }}</span>
+                            <span>{{ form.parent_email.errors }}</span>
                         {% endif %}
                     </label>
                 </div>
             </div>
             <!-- Kulüp bilgileri -->
-            <div class="mb-4">
-                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">Kulüp bilgileri</p>
-                <div class="grid gap-3 sm:grid-cols-2">
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Takım</span>
+            <div>
+                <p>Kulüp bilgileri</p>
+                <div>
+                    <label>
+                        <span>Takım</span>
                         {{ form.team }}
                         {% if form.team.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.team.errors }}</span>
+                            <span>{{ form.team.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Durum</span>
-                        <span class="flex h-10 items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3">
+                    <label>
+                        <span>Durum</span>
+                        <span>
                             {{ form.is_active }}
-                            <span class="text-xs font-semibold text-base-content/70">Aktif sporcu</span>
+                            <span>Aktif sporcu</span>
                         </span>
                         {% if form.is_active.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.is_active.errors }}</span>
+                            <span>{{ form.is_active.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Lisans no</span>
+                    <label>
+                        <span>Lisans no</span>
                         {{ form.license_number }}
                     </label>
                 </div>
             </div>
             <!-- Kimlik / okul -->
-            <div class="mb-4">
-                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">Kimlik ve eğitim</p>
-                <div class="grid gap-3 sm:grid-cols-2">
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">T.C. kimlik no</span>
+            <div>
+                <p>Kimlik ve eğitim</p>
+                <div>
+                    <label>
+                        <span>T.C. kimlik no</span>
                         {{ form.tc_identity }}
                         {% if form.tc_identity.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.tc_identity.errors }}</span>
+                            <span>{{ form.tc_identity.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Okul</span>
+                    <label>
+                        <span>Okul</span>
                         {{ form.school }}
                         {% if form.school.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.school.errors }}</span>
+                            <span>{{ form.school.errors }}</span>
                         {% endif %}
                     </label>
                 </div>
             </div>
             <!-- Aidat -->
-            <div class="mb-4">
-                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">Aidat bilgileri</p>
-                <div class="grid gap-3 sm:grid-cols-3">
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Özel aidat (TL)</span>
+            <div>
+                <p>Aidat bilgileri</p>
+                <div>
+                    <label>
+                        <span>Özel aidat (TL)</span>
                         {{ form.custom_fee }}
                         {% if form.custom_fee.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.custom_fee.errors }}</span>
+                            <span>{{ form.custom_fee.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Özel ders ücreti (TL)</span>
+                    <label>
+                        <span>Özel ders ücreti (TL)</span>
                         {{ form.private_lesson_fee }}
                         {% if form.private_lesson_fee.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.private_lesson_fee.errors }}</span>
+                            <span>{{ form.private_lesson_fee.errors }}</span>
                         {% endif %}
                     </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Ödeme günü</span>
+                    <label>
+                        <span>Ödeme günü</span>
                         {{ form.regular_payment_day }}
                         {% if form.regular_payment_day.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.regular_payment_day.errors }}</span>
+                            <span>{{ form.regular_payment_day.errors }}</span>
                         {% endif %}
                     </label>
                 </div>
             </div>
             <!-- Fotoğraf -->
-            <div class="mb-4">
-                <p class="mb-2 text-[10px] font-black uppercase tracking-wider text-base-content/40">Fotoğraf</p>
-                <label class="form-control">
+            <div>
+                <p>Fotoğraf</p>
+                <label>
                     {{ form.photo }}
                     {% if form.photo.errors %}
-                        <span class="mt-1 text-[10px] text-error">{{ form.photo.errors }}</span>
+                        <span>{{ form.photo.errors }}</span>
                     {% endif %}
                 </label>
             </div>
             <!-- Aktiflik -->
-            <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-base-200 bg-base-200/40 px-3 py-3">
+            <label>
                 {{ form.is_active }}
                 <div>
-                    <p class="text-xs font-bold text-base-content">Aktif sporcu</p>
-                    <p class="mt-0.5 text-[10px] text-base-content/40">Sporcu kulüp kayıtlarında aktif olarak gösterilsin.</p>
+                    <p>Aktif sporcu</p>
+                    <p>Sporcu kulüp kayıtlarında aktif olarak gösterilsin.</p>
                 </div>
             </label>
             <!-- Aksiyonlar -->
-            <div class="mt-4 grid grid-cols-2 gap-2 border-t border-base-200 pt-4">
+            <div>
                 <button type="button"
-                        class="app-btn-secondary"
+                        class="ui-btn ui-btn-secondary"
                         onclick="document.getElementById('athlete_modal').remove()">İptal</button>
-                <button type="submit" class="app-btn-primary">{{ submit_label }}</button>
+                <button type="submit" class="ui-btn ui-btn-primary">{{ submit_label }}</button>
             </div>
         </form>
     </div>

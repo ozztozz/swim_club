@@ -2,80 +2,261 @@
     class="app-bottom-nav"
     aria-label="Ana navigasyon"
 >
-    <div class="app-bottom-nav-inner">
+    <div
+        class="
+            app-bottom-nav-inner
+            {% if request.user.is_coach %}
+                app-bottom-nav-inner-coach
+            {% elif request.user.is_club_admin %}
+                app-bottom-nav-inner-admin
+            {% endif %}
+        "
+    >
 
-        <!-- Ana Sayfa -->
-        <a
-            href="/"
-            class="app-bottom-nav-item"
-        >
-            <span
-                class="app-bottom-nav-item-icon"
-                aria-hidden="true"
+        {% if request.user.is_coach %}
+
+            <!-- SPORCULAR -->
+            <a
+                href="{% url 'athlete-manage-list' %}"
+                class="app-bottom-nav-item {% if 'athlete-manage' in request.resolver_match.url_name %}active{% endif %}"
             >
-                ⌂
-            </span>
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M3 21v-2a6 6 0 0 1 12 0v2"/>
+                        <path d="M16 3.5a4 4 0 0 1 0 7.5"/>
+                        <path d="M21 21v-2a5 5 0 0 0-3.5-4.8"/>
+                    </svg>
+                </span>
 
-            <span class="app-bottom-nav-item-label">
-                Ana Sayfa
-            </span>
-        </a>
+                <span class="app-bottom-nav-item-label">
+                    Sporcular
+                </span>
+            </a>
 
 
-        <!-- Sporcular -->
-        <a
-            href="{% url 'athlete-manage-list' %}"
-            class="app-bottom-nav-item"
-        >
-            <span
-                class="app-bottom-nav-item-icon"
-                aria-hidden="true"
+            <!-- ANTRENMAN -->
+            <a
+                href="{% url 'training-attendance' %}"
+                class="app-bottom-nav-item {% if 'training-attendance' in request.resolver_match.url_name %}active{% endif %}"
             >
-                ◉
-            </span>
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle cx="12" cy="12" r="8"/>
+                        <path d="M12 8v4l2.5 2.5"/>
+                    </svg>
+                </span>
 
-            <span class="app-bottom-nav-item-label">
-                Sporcular
-            </span>
-        </a>
+                <span class="app-bottom-nav-item-label">
+                    Antrenman
+                </span>
+            </a>
 
 
-        <!-- Finans -->
-        <a
-            href="{% url 'fee-management' %}"
-            class="app-bottom-nav-item"
-        >
-            <span
-                class="app-bottom-nav-item-icon"
-                aria-hidden="true"
+            <!-- ÇİZELGE -->
+            <a
+                href="{% url 'team-schedule-home' %}"
+                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'team-schedule-home' or request.resolver_match.url_name == 'team-schedule' %}active{% endif %}"
             >
-                ₺
-            </span>
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <rect
+                            x="3"
+                            y="4"
+                            width="18"
+                            height="17"
+                            rx="2"
+                        />
+                        <path d="M8 2v4"/>
+                        <path d="M16 2v4"/>
+                        <path d="M3 9h18"/>
+                        <path d="M8 13h3"/>
+                        <path d="M13 13h3"/>
+                        <path d="M8 17h3"/>
+                    </svg>
+                </span>
 
-            <span class="app-bottom-nav-item-label">
-                Finans
-            </span>
-        </a>
+                <span class="app-bottom-nav-item-label">
+                    Çizelge
+                </span>
+            </a>
 
 
-        <!-- Daha Fazla -->
-        <button
-            type="button"
-            id="more-menu-button"
-            class="app-bottom-nav-item"
-            aria-label="Daha fazla"
-        >
-            <span
-                class="app-bottom-nav-item-icon"
-                aria-hidden="true"
+        {% else %}
+
+            <!-- ANA SAYFA -->
+            <a
+                href="{% url 'dashboard-index' %}"
+                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'dashboard-index' %}active{% endif %}"
             >
-                ≡
-            </span>
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="m3 10 9-7 9 7"/>
+                        <path d="M5 9.5V20h14V9.5"/>
+                        <path d="M9 20v-6h6v6"/>
+                    </svg>
+                </span>
 
-            <span class="app-bottom-nav-item-label">
-                Daha Fazla
-            </span>
-        </button>
+                <span class="app-bottom-nav-item-label">
+                    Ana Sayfa
+                </span>
+            </a>
+
+
+            <!-- FİNANS -->
+            <a
+                href="{% url 'finance-dashboard' %}"
+                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'finance-dashboard' or request.resolver_match.url_name == 'expense-list' or request.resolver_match.url_name == 'expense-summary' or request.resolver_match.url_name == 'expense-create' or request.resolver_match.url_name == 'expense-update' or request.resolver_match.url_name == 'expense-category-create' or request.resolver_match.url_name == 'finance-mark-paid' %}active{% endif %}"
+            >
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <rect
+                            x="3"
+                            y="5"
+                            width="18"
+                            height="14"
+                            rx="2"
+                        />
+                        <path d="M3 10h18"/>
+                        <path d="M7 15h3"/>
+                    </svg>
+                </span>
+
+                <span class="app-bottom-nav-item-label">
+                    Finans
+                </span>
+            </a>
+
+
+            {% if request.user.is_club_admin %}
+
+                <!-- ANTRENMAN -->
+                <a
+                    href="{% url 'training-attendance' %}"
+                    class="app-bottom-nav-item {% if 'training-attendance' in request.resolver_match.url_name %}active{% endif %}"
+                >
+                    <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <circle cx="12" cy="12" r="8"/>
+                            <path d="M12 8v4l2.5 2.5"/>
+                        </svg>
+                    </span>
+
+                    <span class="app-bottom-nav-item-label">
+                        Antrenman
+                    </span>
+                </a>
+
+
+                <!-- ÇİZELGE -->
+                <a
+                    href="{% url 'team-schedule-home' %}"
+                    class="app-bottom-nav-item {% if request.resolver_match.url_name == 'team-schedule-home' or request.resolver_match.url_name == 'team-schedule' %}active{% endif %}"
+                >
+                    <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <rect
+                                x="3"
+                                y="4"
+                                width="18"
+                                height="17"
+                                rx="2"
+                            />
+                            <path d="M8 2v4"/>
+                            <path d="M16 2v4"/>
+                            <path d="M3 9h18"/>
+                            <path d="M8 13h3"/>
+                            <path d="M13 13h3"/>
+                            <path d="M8 17h3"/>
+                        </svg>
+                    </span>
+
+                    <span class="app-bottom-nav-item-label">
+                        Çizelge
+                    </span>
+                </a>
+
+            {% endif %}
+
+
+            <!-- DİĞER -->
+            <button
+                type="button"
+                id="more-menu-button"
+                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'other-menu' or request.resolver_match.url_name == 'team-list' or request.resolver_match.url_name == 'team-detail' or request.resolver_match.url_name == 'athlete-manage-list' or request.resolver_match.url_name == 'athlete-manage-detail' or 'equipment' in request.resolver_match.url_name or 'regular-expense' in request.resolver_match.url_name or request.resolver_match.url_name == 'fee-management' %}active{% endif %}"
+                aria-label="Diğer"
+            >
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <rect x="4" y="4" width="6" height="6" rx="1.5"/>
+                        <rect x="14" y="4" width="6" height="6" rx="1.5"/>
+                        <rect x="4" y="14" width="6" height="6" rx="1.5"/>
+                        <rect x="14" y="14" width="6" height="6" rx="1.5"/>
+                    </svg>
+                </span>
+
+                <span class="app-bottom-nav-item-label">
+                    Diğer
+                </span>
+            </button>
+
+        {% endif %}
 
     </div>
 </nav>

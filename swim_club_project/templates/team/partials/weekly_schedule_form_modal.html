@@ -1,13 +1,13 @@
-<dialog id="schedule_modal" class="modal modal-open">
-    <div class="modal-box w-[calc(100%-1rem)] max-w-md rounded-2xl p-0">
-        <div class="flex items-start justify-between gap-3 border-b border-base-200 px-4 py-4">
+<dialog id="schedule_modal" class="ui-modal">
+    <div class="ui-modal-panel">
+        <div class="ui-modal-header">
             <div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-primary">{{ team.name }}</p>
-                <h2 class="mt-1 text-xl font-black">{{ modal_title }}</h2>
-                <p class="mt-1 text-xs text-base-content/50">Gün, saat ve antrenman yerini belirleyin.</p>
+                <p class="ui-modal-eyebrow text-primary-custom">{{ team.name }}</p>
+                <h3 class="ui-modal-title">{{ modal_title }}</h3>
+                <p>Gün, saat ve antrenman yerini belirleyin.</p>
             </div>
             <button type="button"
-                    class="btn btn-circle btn-ghost h-8 w-8 min-h-0"
+                    class="ui-modal-close"
                     onclick="document.getElementById('schedule_modal').remove()"
                     aria-label="Kapat">✕</button>
         </div>
@@ -15,47 +15,48 @@
               hx-post="{% if schedule %}{% url 'team-schedule-update' team.pk schedule.pk %}{% else %}{% url 'team-schedule-create' team.pk %}{% endif %}"
               hx-target="#weekly-schedule-board"
               hx-swap="outerHTML"
-              class="space-y-4 px-4 py-4">
+              class="ui-modal-form">
             {% csrf_token %}
             {% if form.non_field_errors %}
-                <div class="alert alert-error text-xs">{{ form.non_field_errors }}</div>
+                <div class="ui-error">{{ form.non_field_errors }}</div>
             {% endif %}
-            <label class="form-control">
-                <span class="mb-1.5 text-xs font-bold text-base-content/60">Gün</span>
+            <div class="ui-field">
+                <label class="ui-label">Gün</label>
                 {{ form.weekday }}
-                {% if form.weekday.errors %}<span class="mt-1 text-xs text-error">{{ form.weekday.errors|striptags }}</span>{% endif %}
-            </label>
-            <label class="form-control">
-                <span class="mb-1.5 text-xs font-bold text-base-content/60">Antrenman türü</span>
-                <span class="grid grid-cols-2 gap-2">
+                {% if form.weekday.errors %}<span class="ui-error">{{ form.weekday.errors|striptags }}</span>{% endif %}
+            </div>
+            <div class="ui-field">
+                <label class="ui-label">Antrenman türü</label>
+                <div>
                     {% for radio in form.training_type %}
-                        <label class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-base-300/80 bg-base-100 px-3 text-sm font-semibold text-base-content/70 transition has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 has-[:checked]:text-primary">
+                        <label>
                             {{ radio.tag }}
                             <span>{{ radio.choice_label }}</span>
                         </label>
                     {% endfor %}
-                </span>
-                {% if form.training_type.errors %}<span class="mt-1 text-xs text-error">{{ form.training_type.errors|striptags }}</span>{% endif %}
-            </label>
-            <div class="grid grid-cols-2 gap-3">
-                <label class="form-control">
-                    <span class="mb-1.5 text-xs font-bold text-base-content/60">Başlangıç</span>
-                    {{ form.start_time }}
-                    {% if form.start_time.errors %}<span class="mt-1 text-xs text-error">{{ form.start_time.errors|striptags }}</span>{% endif %}
-                </label>
-                <label class="form-control">
-                    <span class="mb-1.5 text-xs font-bold text-base-content/60">Bitiş</span>
-                    {{ form.end_time }}
-                    {% if form.end_time.errors %}<span class="mt-1 text-xs text-error">{{ form.end_time.errors|striptags }}</span>{% endif %}
-                </label>
+                </div>
+                {% if form.training_type.errors %}<span class="ui-error">{{ form.training_type.errors|striptags }}</span>{% endif %}
             </div>
-            <label class="form-control">
-                <span class="mb-1.5 text-xs font-bold text-base-content/60">Antrenman yeri</span>
+            <div>
+                <div class="ui-field">
+                    <label class="ui-label">Başlangıç</label>
+                    {{ form.start_time }}
+                    {% if form.start_time.errors %}<span class="ui-error">{{ form.start_time.errors|striptags }}</span>{% endif %}
+                </div>
+                <div class="ui-field">
+                    <label class="ui-label">Bitiş</label>
+                    {{ form.end_time }}
+                    {% if form.end_time.errors %}<span class="ui-error">{{ form.end_time.errors|striptags }}</span>{% endif %}
+                </div>
+            </div>
+            <div class="ui-field">
+                <label class="ui-label">Antrenman yeri</label>
                 {{ form.location }}
-                {% if form.location.errors %}<span class="mt-1 text-xs text-error">{{ form.location.errors|striptags }}</span>{% endif %}
-            </label>
-            <button type="submit"
-                    class="btn btn-primary h-11 min-h-0 w-full rounded-xl text-sm font-bold">Programı kaydet</button>
+                {% if form.location.errors %}<span class="ui-error">{{ form.location.errors|striptags }}</span>{% endif %}
+            </div>
+            <div class="ui-modal-actions">
+                <button type="submit" class="ui-btn ui-btn-primary">Programı kaydet</button>
+            </div>
         </form>
     </div>
 </dialog>

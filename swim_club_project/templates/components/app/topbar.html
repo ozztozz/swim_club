@@ -1,23 +1,33 @@
+
 {% load static %}
 
 <header class="app-topbar">
+
     <div class="app-topbar-inner">
 
-        <!-- Marka -->
+        <!-- =====================================================
+             BRAND
+             ===================================================== -->
+
         <a
-            href="/"
+            href="{% url 'dashboard-index' %}"
             class="app-brand"
             aria-label="ALPHA ACADEMY ana sayfa"
         >
+
             <div class="app-brand-mark">
+
                 <img
                     src="/media/logos/fk1.png"
                     alt="ALPHA ACADEMY"
                     class="app-brand-logo"
                 >
+
             </div>
 
+
             <div class="app-brand-copy">
+
                 <span class="app-brand-name">
                     ALPHA ACADEMY
                 </span>
@@ -25,40 +35,139 @@
                 <span class="app-brand-label">
                     Kulüp Yönetimi
                 </span>
+
             </div>
+
         </a>
 
 
-        <!-- Sağ taraf -->
-        <div class="app-topbar-actions">
+        <!-- =====================================================
+             USER PROFILE
+             ===================================================== -->
 
-            <!-- Bildirimler -->
-            <button
-                type="button"
-                class="app-icon-button"
-                aria-label="Bildirimler"
-            >
-                <span
-                    class="app-icon"
-                    aria-hidden="true"
+        {% if request.user.is_authenticated %}
+
+            <details class="app-profile">
+
+                <summary
+                    class="app-profile-trigger"
+                    aria-label="Kullanıcı menüsü"
                 >
-                    ♧
-                </span>
-            </button>
+
+                    <span class="app-profile-avatar">
+
+                        {% if request.user.first_name %}
+                            {{ request.user.first_name|first|upper }}
+                        {% else %}
+                            {{ request.user.username|first|upper }}
+                        {% endif %}
+
+                    </span>
 
 
-            <!-- Profil -->
-            <button
-                type="button"
-                class="app-avatar-button"
-                aria-label="Profil"
-            >
-                <span class="app-avatar-small">
-                    A
-                </span>
-            </button>
+                    <span class="app-profile-info">
 
-        </div>
+                        <span class="app-profile-name">
+
+                            {% if request.user.get_full_name %}
+                                {{ request.user.get_full_name }}
+                            {% else %}
+                                {{ request.user.username }}
+                            {% endif %}
+
+                        </span>
+
+                    </span>
+
+
+                    <span
+                        class="app-profile-chevron"
+                        aria-hidden="true"
+                    >
+                        ˅
+                    </span>
+
+                </summary>
+
+
+                <!-- =================================================
+                     PROFILE MENU
+                     ================================================= -->
+
+                <div class="app-profile-menu">
+
+                    <div class="app-profile-menu-user">
+
+                        <div class="app-profile-menu-avatar">
+
+                            {% if request.user.first_name %}
+                                {{ request.user.first_name|first|upper }}
+                            {% else %}
+                                {{ request.user.username|first|upper }}
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="app-profile-menu-copy">
+
+                            <strong>
+
+                                {% if request.user.get_full_name %}
+                                    {{ request.user.get_full_name }}
+                                {% else %}
+                                    {{ request.user.username }}
+                                {% endif %}
+
+                            </strong>
+
+                            <span>
+                                {{ request.user.get_role_display }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="app-profile-divider"></div>
+
+
+                    <!-- ÇIKIŞ -->
+
+                    <form
+                        method="post"
+                        action="{% url 'user-logout' %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="app-profile-logout"
+                        >
+
+                            <span
+                                class="app-profile-menu-icon"
+                                aria-hidden="true"
+                            >
+                                ↪
+                            </span>
+
+                            <span>
+                                Çıkış yap
+                            </span>
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </details>
+
+        {% endif %}
 
     </div>
+
 </header>

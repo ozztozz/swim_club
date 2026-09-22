@@ -1,102 +1,69 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="weekly-schedule-page flex h-full min-h-0 w-full min-w-0 flex-col gap-3 overflow-hidden">
+    <div class="dashboard">
         <header>
             {% if team %}
-                <a href="{% url 'team-detail' team.pk %}"
-                   class="inline-flex min-h-9 items-center gap-1 rounded-xl px-2 text-xs font-bold text-base-content/55 active:bg-base-200">
-                    <span class="text-lg leading-none">‹</span>
+                <a href="{% url 'team-detail' team.pk %}" class="ui-btn ui-btn-sm ui-btn-ghost">
+                    <span>‹</span>
                     Takım profili
                 </a>
             {% endif %}
         </header>
+
         {% if team %}
-            <div class="mt-2 overflow-hidden rounded-xl border border-base-300/90 bg-base-100 p-2 text-base-content shadow-sm">
-                <div class="mb-2 min-w-0">
-                    <h2 class="truncate text-center text-[9px] font-bold text-base-content/60"
-                        title="{{ team.name }}">{{ team.name }}</h2>
-                    <form method="get"
-                          class="mt-2 flex min-w-0 flex-wrap justify-center gap-1.5"
-                          aria-label="Takım seçimi">
+            <div class="ui-card">
+                <div>
+                    <h2 title="{{ team.name }}">{{ team.name }}</h2>
+                    <form method="get" aria-label="Takım seçimi">
                         {% for schedule_team in schedule_teams %}
                             <button type="submit"
                                     name="team"
                                     value="{{ schedule_team.pk }}"
-                                    class="app-btn-team max-w-full {% if team.pk == schedule_team.pk %}bg-primary text-primary-content{% else %}bg-base-200 text-base-content/60 hover:bg-base-300{% endif %}"
+                                    class="ui-btn {% if team.pk == schedule_team.pk %}ui-btn-dark{% else %}ui-btn-secondary{% endif %}"
                                     {% if team.pk == schedule_team.pk %}aria-current="true"{% endif %}>
                                 {{ schedule_team.name }}
                             </button>
                         {% empty %}
-                            <span class="text-[10px] text-base-content/40">Takım yok</span>
+                            <span>Takım yok</span>
                         {% endfor %}
                     </form>
                 </div>
-                <div class="mt-2 grid grid-cols-3 gap-1">
-                    <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
-                        <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Yüzme</p>
-                        <p class="mt-0.5 text-base font-bold text-primary">{{ swimming_count }}</p>
-                        <p class="truncate text-[9px] text-base-content/40">{{ swimming_training_hours }}s {{ swimming_training_minutes }}dk</p>
+
+                <div class="ui-stat-grid">
+                    <div class="ui-stat">
+                        <p class="ui-stat-label">Yüzme</p>
+                        <p class="ui-stat-value text-primary-custom">{{ swimming_count }}</p>
+                        <p class="ui-stat-description">{{ swimming_training_hours }}s {{ swimming_training_minutes }}dk</p>
                     </div>
-                    <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
-                        <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Kara</p>
-                        <p class="mt-0.5 text-base font-bold text-primary">{{ land_count }}</p>
-                        <p class="truncate text-[9px] text-base-content/40">{{ land_training_hours }}s {{ land_training_minutes }}dk</p>
+                    <div class="ui-stat">
+                        <p class="ui-stat-label">Kara</p>
+                        <p class="ui-stat-value text-primary-custom">{{ land_count }}</p>
+                        <p class="ui-stat-description">{{ land_training_hours }}s {{ land_training_minutes }}dk</p>
                     </div>
-                    <div class="min-w-0 overflow-hidden rounded-lg border border-base-300/90 bg-base-100 px-1 py-2 text-center">
-                        <p class="text-[9px] font-bold uppercase tracking-wide text-base-content/40">Toplam süre</p>
-                        <p class="mt-0.5 truncate text-sm font-bold text-base-content">{{ total_training_hours }}s {{ total_training_minutes }}dk</p>
-                        <p class="text-[9px] text-base-content/40">{{ scheduled_day_count }}/7 gün</p>
+                    <div class="ui-stat">
+                        <p class="ui-stat-label">Toplam süre</p>
+                        <p class="ui-stat-value">{{ total_training_hours }}s {{ total_training_minutes }}dk</p>
+                        <p class="ui-stat-description">{{ scheduled_day_count }}/7 gün</p>
                     </div>
                 </div>
             </div>
-            <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="flex items-center justify-between border-b border-base-200 px-4 py-3">
+
+            <section class="ui-section">
+                <div class="ui-card">
+                    <div class="ui-card-header">
+                        <h2 class="ui-card-title">Haftanın akışı</h2>
+                    </div>
                     <div>
-                        <h2 class="text-sm font-black">Haftanın akışı</h2>
+                        {% include "team/partials/weekly_schedule_board.html" %}
                     </div>
                 </div>
-                {% include "team/partials/weekly_schedule_board.html" %}
             </section>
-            </div>
         {% else %}
-            <div class="mt-3 rounded-xl border border-dashed border-base-300 px-4 py-10 text-center text-xs text-base-content/45">Görüntülenecek takım bulunmuyor.</div>
+            <div class="ui-empty">
+                <p class="ui-empty-description">Görüntülenecek takım bulunmuyor.</p>
+            </div>
         {% endif %}
+
         <div id="schedule-modal-container"></div>
-        <script>
-            function focusTodaySchedule() {
-                const today = new Date(Date.now()).getDay();
-                const weekday = (today + 6) % 7;
-                const todayColumn = document.querySelector(`[data-weekday="${weekday}"]`);
-
-                document.querySelectorAll('[data-weekday]').forEach((row) => {
-                    const isToday = row === todayColumn;
-                    row.classList.toggle('bg-primary/[.08]', isToday);
-                    row.classList.toggle('font-semibold', isToday);
-                    row.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.03)' : '';
-
-                    row.querySelectorAll('th, td').forEach((cell) => {
-                        cell.classList.toggle('border-y', isToday);
-                        cell.classList.toggle('border-primary/30', isToday);
-                        cell.style.backgroundColor = isToday ? 'oklch(var(--p) / 0.06)' : '';
-                    });
-                });
-
-                todayColumn?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center',
-                    inline: 'nearest',
-                });
-            }
-
-            focusTodaySchedule();
-            document.body.addEventListener('htmx:afterSwap', focusTodaySchedule);
-
-            document.body.addEventListener('closeScheduleModal', function() {
-                const modal = document.getElementById('schedule_modal');
-                if (modal) modal.remove();
-
-                const container = document.getElementById('schedule-modal-container');
-                if (container) container.innerHTML = '';
-            });
-        </script>
+    </div>
 {% endblock %}

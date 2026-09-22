@@ -1,24 +1,23 @@
-<div id="weekly-schedule-board"
-     class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-0.5 py-0.5 sm:px-1 sm:py-1">
-    <table class="w-full table-fixed border-separate border-spacing-0 text-base-content">
+<div id="weekly-schedule-board">
+    <table class="ui-table">
         <thead>
-            <tr class="text-left">
-                <th class="w-[30%] border-b border-base-300 px-1 py-1 text-[10px] font-bold uppercase tracking-wide text-base-content/50 sm:px-2 sm:py-1.5 sm:text-xs">Gün</th>
-                <th class="w-[26%] border-b border-base-300 bg-base-200/35 px-1 py-1 text-[10px] font-bold uppercase tracking-wide text-base-content/50 sm:px-2 sm:py-1.5 sm:text-xs">Sabah</th>
-                <th class="w-[44%] border-b border-base-300 bg-primary/5 px-1 py-1 text-[10px] font-bold uppercase tracking-wide text-base-content/50 sm:px-2 sm:py-1.5 sm:text-xs">Akşam</th>
+            <tr class="ui-table-row">
+                <th class="ui-table-cell">Gün</th>
+                <th class="ui-table-cell">Sabah</th>
+                <th class="ui-table-cell">Akşam</th>
             </tr>
         </thead>
         <tbody>
             {% for day in weekly_days %}
-                <tr data-weekday="{{ day.value }}" class="transition-colors">
-                    <th class="border-b border-base-200 px-1 py-1.5 align-top sm:px-2 sm:py-2">
-                        <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-1">
-                            <div class="min-w-0">
-                                <h3 class="break-words text-xs font-bold sm:text-sm">{{ day.label }}</h3>
-                                <p class="mt-0.5 break-words text-[9px] font-normal text-base-content/45 sm:text-[10px]">{{ day.schedules|length }} antrenman</p>
+                <tr data-weekday="{{ day.value }}" class="ui-table-row">
+                    <th class="ui-table-cell">
+                        <div>
+                            <div>
+                                <h3>{{ day.label }}</h3>
+                                <p>{{ day.schedules|length }} antrenman</p>
                             </div>
                             <button type="button"
-                                    class="btn btn-primary btn-xs h-6 min-h-0 w-6 shrink-0 self-start rounded-md p-0 text-sm leading-none"
+                                    class="ui-btn ui-btn-sm ui-btn-primary"
                                     hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}"
                                     hx-target="#schedule-modal-container"
                                     hx-swap="innerHTML"
@@ -26,10 +25,10 @@
                                     aria-label="{{ day.label }} gününe antrenman ekle">+</button>
                         </div>
                     </th>
-                    <td class="min-w-0 border-b border-base-200 bg-base-200/20 px-1 pb-0.5 pt-1 {% if day.morning_schedules %}align-top{% else %}align-middle{% endif %} sm:px-2 sm:pb-1 sm:pt-1.5">
+                    <td class="ui-table-cell">
                         {% include "team/partials/schedule_cell.html" with schedules=day.morning_schedules day_label=day.label align_right=False %}
                     </td>
-                    <td class="min-w-0 border-b border-base-200 bg-primary/[.04] px-1 pb-0.5 pt-1 {% if day.evening_schedules %}align-top{% else %}align-middle{% endif %} sm:px-2 sm:pb-1 sm:pt-1.5">
+                    <td class="ui-table-cell">
                         {% include "team/partials/schedule_cell.html" with schedules=day.evening_schedules day_label=day.label align_right=True %}
                     </td>
                 </tr>

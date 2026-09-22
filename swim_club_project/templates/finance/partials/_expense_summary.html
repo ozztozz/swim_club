@@ -3,14 +3,13 @@
 ========================================================== -->
 <section id="financial-summary-strip"
          hx-swap-oob="true"
-         class="grid grid-cols-2 gap-3">
+         class="ui-stat-grid">
     <!-- Harcama -->
-    <div class="rounded-xl bg-base-100 border border-base-300 p-3 shadow-sm">
-        <div class="flex items-center justify-between">
-            <span class="text-sm font-semibold text-base-content/50">Harcama</span>
-            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-error/10 text-error">
-                <svg class="w-4 h-4"
-                     viewBox="0 0 24 24"
+    <div class="ui-stat">
+        <div>
+            <span class="ui-stat-label">Harcama</span>
+            <span>
+                <svg viewBox="0 0 24 24"
                      fill="none"
                      stroke="currentColor"
                      stroke-width="2">
@@ -20,47 +19,48 @@
                 </svg>
             </span>
         </div>
-        <p class="mt-2 text-lg font-black leading-none text-error">{{ expense_summary.total_expense|floatformat:0 }}</p>
-        <div class="mt-3 border-t border-base-200 pt-2">
-            {% for category in expense_summary.category_totals %}
-                <div class="flex items-center justify-between gap-2 py-0.5 text-xs">
-                    <span class="truncate {% if category.parent_name %}pl-3 text-base-content/50{% else %}font-semibold text-base-content/80{% endif %}">
-                        {% if category.parent_name %}
-                            {{ category.name }}
-                        {% else %}
-                            {{ category.name }}
-                        {% endif %}
-                    </span>
-                    <span class="shrink-0 font-bold {% if category.parent_name %}text-error/70{% else %}text-primary{% endif %}">{{ category.total|floatformat:0 }}</span>
-                </div>
-            {% empty %}
-                <p class="text-xs text-base-content/40">Kayıt yok.</p>
-            {% endfor %}
+        <p class="ui-stat-value">{{ expense_summary.total_expense|floatformat:0 }}</p>
+        <div>
+            <p>Dağılım</p>
+            <div class="ui-scroll-list">
+                {% for category in expense_summary.category_totals %}
+                    <div>
+                        <span>
+                            {% if category.parent_name %}
+                                {{ category.name }}
+                            {% else %}
+                                {{ category.name }}
+                            {% endif %}
+                        </span>
+                        <span>{{ category.total|floatformat:0 }}</span>
+                    </div>
+                {% empty %}
+                    <p>Kayıt yok.</p>
+                {% endfor %}
+            </div>
         </div>
-        <div class="mt-3 grid grid-cols-2 gap-2 border-t border-base-200 pt-2">
+        <div>
             <div>
-                <p class="text-[10px] text-base-content/45">Ödendi</p>
-                <p class="mt-0.5 text-sm font-black text-success">{{ expense_summary.paid_expense_total|floatformat:0 }}</p>
+                <p>Ödendi</p>
+                <p>{{ expense_summary.paid_expense_total|floatformat:0 }}</p>
             </div>
             <div>
-                <p class="text-[10px] text-base-content/45">Bekliyor</p>
-                <p class="mt-0.5 text-sm font-black text-warning">{{ expense_summary.pending_expense_total|floatformat:0 }}</p>
+                <p>Bekliyor</p>
+                <p>{{ expense_summary.pending_expense_total|floatformat:0 }}</p>
             </div>
         </div>
     </div>
     <!-- Net Bakiye -->
-    <div class="rounded-xl bg-base-100 border border-base-300 p-3 shadow-sm">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="text-sm font-semibold text-base-content/50">Düzenli Ödemeler</p>
-                <a href="{% url 'regular-expense-list' %}"
-                   class="mt-0.5 inline-block text-[10px] font-bold text-primary active:opacity-60">
+    <div class="ui-stat">
+        <div>
+            <div>
+                <p class="ui-stat-label">Düzenli Ödemeler</p>
+                <a href="{% url 'regular-expense-list' %}">
                     Düzenli ödemeleri yönet
                 </a>
             </div>
-            <span class="flex h-7 w-7 items-center justify-center rounded-lg {% if regular_expense_summary.regular_pending_total <= 0 %} bg-primary/10 text-primary {% else %} bg-error/10 text-error {% endif %}">
-                <svg class="w-4 h-4"
-                     viewBox="0 0 24 24"
+            <span>
+                <svg viewBox="0 0 24 24"
                      fill="none"
                      stroke="currentColor"
                      stroke-width="2">
@@ -69,14 +69,14 @@
                 </svg>
             </span>
         </div>
-        <div class="mt-3 grid grid-cols-2 gap-3 border-t border-base-200 pt-2">
+        <div>
             <div>
-                <p class="text-[10px] text-base-content/45">Ödenen</p>
-                <p class="mt-0.5 text-sm font-black text-primary">{{ regular_expense_summary.regular_paid_total|floatformat:0 }}</p>
+                <p>Ödenen</p>
+                <p>{{ regular_expense_summary.regular_paid_total|floatformat:0 }}</p>
             </div>
             <div>
-                <p class="text-[10px] text-base-content/45">Bekleyen</p>
-                <p class="mt-0.5 text-sm font-black {% if regular_expense_summary.regular_pending_total <= 0 %}text-primary{% else %}text-error{% endif %}">{{ regular_expense_summary.regular_pending_total|floatformat:0 }}</p>
+                <p>Bekleyen</p>
+                <p>{{ regular_expense_summary.regular_pending_total|floatformat:0 }}</p>
             </div>
         </div>
     </div>

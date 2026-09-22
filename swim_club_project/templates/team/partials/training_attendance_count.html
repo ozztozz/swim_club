@@ -1,6 +1,5 @@
 <span id="attendance-summary-{{ schedule.pk }}"
-      hx-swap-oob="outerHTML"
-      class="mt-0.5 block text-[10px] font-semibold">
-    <span class="text-primary">{{ attended_count }} katıldı</span>
-    <span class="text-error">{{ absent_count }} katılmadı</span>
+      hx-swap-oob="outerHTML">
+    <span class="text-primary-custom">{{ attended_count }} katıldı</span>
+    <span class="text-danger-custom">{{ absent_count }} katılmadı</span>
 </span>

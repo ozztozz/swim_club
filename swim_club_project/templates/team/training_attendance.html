@@ -1,46 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="w-full min-w-0 space-y-3 overflow-x-hidden">
-        <header class="px-1">
-            <a href="{% url 'team-list' %}"
-               class="inline-flex min-h-8 items-center gap-1 rounded-xl px-2 text-xs font-bold text-base-content/55 active:bg-base-200">
-                <span class="text-lg leading-none">‹</span>
+    <div class="dashboard">
+        <header>
+            <a href="{% url 'team-list' %}" class="ui-btn ui-btn-sm ui-btn-ghost">
+                <span>‹</span>
                 Takımlar
             </a>
         </header>
-        <form method="get"
-              class="flex items-end gap-1.5 rounded-xl border border-base-300/90 bg-base-100 p-2.5 shadow-sm">
+
+        <form method="get" class="ui-card">
             <a href="?training_date={{ previous_date|date:'Y-m-d' }}"
-               class="btn btn-ghost h-12 min-h-0 w-11 shrink-0 rounded-lg px-0 text-2xl leading-none"
+               class="ui-btn ui-btn-ghost"
                title="Önceki gün"
                aria-label="Önceki gün">‹</a>
-            <label class="form-control min-w-0 flex-1">
-                <span class="mb-1 text-[10px] font-bold text-base-content/50">Antrenman tarihi</span>
+            <label>
+                <span>Antrenman tarihi</span>
                 <input type="date"
                        name="training_date"
                        value="{{ selected_date|date:'Y-m-d' }}"
-                       class="input input-bordered h-10 min-h-0 w-full rounded-lg text-xs">
+                       class="ui-input">
             </label>
-            <button type="submit"
-                    class="btn btn-primary h-10 min-h-0 rounded-lg px-3 text-xs font-bold">Göster</button>
+            <button type="submit" class="ui-btn ui-btn-primary">Göster</button>
             <a href="?training_date={{ next_date|date:'Y-m-d' }}"
-               class="btn btn-ghost h-12 min-h-0 w-11 shrink-0 rounded-lg px-0 text-2xl leading-none"
+               class="ui-btn ui-btn-ghost"
                title="Sonraki gün"
                aria-label="Sonraki gün">›</a>
         </form>
-        <section class="space-y-3">
+
+        <section class="ui-section">
             {% for period_label, period_schedules in period_groups %}
-                <div class="space-y-1.5">
-                    <div class="flex items-center gap-2 px-1">
-                        <h2 class="text-sm font-black">{{ period_label }}</h2>
-                        <span class="text-[10px] font-semibold text-base-content/40">{{ period_schedules|length }} antrenman</span>
+                <div>
+                    <div>
+                        <h2>{{ period_label }}</h2>
+                        <span>{{ period_schedules|length }} antrenman</span>
                     </div>
-                    <div class="space-y-2">
+                    <div class="ui-list ">
                         {% for schedule in period_schedules %}
                             {% include "team/partials/training_attendance_schedule_card.html" %}
                         {% empty %}
-                            <div class="rounded-xl border border-dashed border-base-300 px-4 py-4 text-center text-xs text-base-content/40">
-                                Bu bölümde planlanmış antrenman yok.
+                            <div class="ui-empty">
+                                <p class="ui-empty-description">Bu bölümde planlanmış antrenman yok.</p>
                             </div>
                         {% endfor %}
                     </div>
@@ -100,15 +99,13 @@
             });
 
             const row = document.createElement('div');
-            row.className = 'makeup-attendance-row attendance-row flex min-h-11 items-center gap-2 border-b border-base-200 bg-success/5 px-2.5 py-2';
+            row.className = 'ui-list-item bg-ui-warning';
             row.dataset.athleteId = athleteId;
 
             const name = document.createElement('span');
-            name.className = 'min-w-0 flex-1 truncate text-sm font-semibold';
             name.textContent = athleteName;
 
             const status = document.createElement('span');
-            status.className = 'text-[10px] font-semibold text-success';
             status.textContent = 'Katıldı';
 
             const hidden = document.createElement('input');
@@ -118,14 +115,13 @@
 
             const remove = document.createElement('button');
             remove.type = 'button';
-            remove.className = 'remove-makeup-athlete btn btn-ghost btn-xs h-7 min-h-0 rounded-lg px-2 text-[10px] font-bold text-error';
+            remove.className = 'remove-makeup-athlete ui-btn ui-btn-sm ui-btn-primary';
             remove.dataset.athleteId = athleteId;
             remove.textContent = 'Sil';
 
             row.append(name);
             if (isMakeup) {
                 const note = document.createElement('span');
-                note.className = 'text-[10px] font-bold text-primary';
                 note.textContent = 'Telafi';
                 row.append(note);
             }
@@ -134,16 +130,15 @@
             form.appendChild(hidden);
             document.getElementById('makeup-athlete-search-results').innerHTML = '';
         });
+
         document.body.addEventListener('change', function(event) {
             const radio = event.target.closest('input[type="radio"][name^="attendance_"]');
             if (!radio) return;
 
             const row = radio.closest('.attendance-row');
             if (!row) return;
-
-            row.classList.toggle('bg-success/5', radio.value === 'attended');
-            row.classList.toggle('bg-error/5', radio.value === 'absent');
         });
+
         document.body.addEventListener('input', function(event) {
             const searchInput = event.target.closest('input[name="q"][minlength="3"]');
             if (searchInput && searchInput.value.trim().length < 3) {
@@ -151,6 +146,7 @@
                 if (results) results.innerHTML = '';
             }
         });
+
         document.body.addEventListener('submit', function(event) {
             const form = event.target.closest('form[hx-post*="training-attendance-save"]');
             if (!form) return;
@@ -165,6 +161,7 @@
                 form.appendChild(input);
             });
         });
+
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') closeAttendanceModal();
         });

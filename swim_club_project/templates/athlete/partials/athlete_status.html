@@ -1,6 +1,7 @@
-<div id="athlete-status" class="flex flex-wrap items-center gap-3">
-    {% if athlete.is_active %}<span class="badge badge-success">Aktif</span>{% else %}<span class="badge badge-ghost">Pasif</span>{% endif %}
-    <button class="btn btn-sm {% if athlete.is_active %}btn-warning{% else %}btn-success{% endif %}"
+<div id="athlete-status">
+    {% if athlete.is_active %}<span>Aktif</span>{% else %}<span>Pasif</span>{% endif %}
+    <button type="button"
+            class="ui-btn ui-btn-sm {% if athlete.is_active %}ui-btn-secondary{% else %}ui-btn-primary{% endif %}"
             hx-get="{% url 'athlete-manage-toggle-active' athlete.pk %}"
             hx-target="#athlete-modal-container"
             hx-swap="innerHTML">{% if athlete.is_active %}Pasif yap{% else %}Aktif yap{% endif %}</button>
