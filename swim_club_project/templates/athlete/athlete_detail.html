@@ -38,7 +38,14 @@
 
                 {% if request.user.is_club_admin %}
                     <div class="profile-hero-actions mt-4">
-                        <a href="#" class="ui-btn ui-btn-sm ui-btn-secondary">✎ Düzenle</a>
+                            <button
+                        type="button"
+                        class="ui-btn ui-btn-primary ui-btn-sm"
+                        hx-get="{% url 'athlete-manage-update' athlete.pk %}?period={{ expense_period }}&dashboard=1"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                    >✎ Düzenle</button>
+                       
                         <a href="#" class="ui-btn ui-btn-sm ui-btn-primary">+ Ödeme Ekle</a>
                     </div>
                 {% endif %}
@@ -115,68 +122,256 @@
 
         <!-- YENİ MODÜLER TAKVİM BİLEŞENİ -->
                  <!-- ANTRENMAN İSTATİSTİKLERİ PANELİ -->
-        <section id="collections-tab"
-                class="dashboard-panel"
-                role="tabpanel"
-                aria-labelledby="collections-tab-button">
-            <div class="ui-stat-grid">
-                <!-- Toplam Antrenman Kartı -->
-                <div class="ui-stat">
-                    <div class="ui-stat-content">
-                        <span class="ui-stat-label">Toplam Antrenman</span>
-                        <span class="ui-stat-value">8</span>
-                        <!-- Yeni Modüler Sınıfımız Entegre Edildi -->
-                        <div class="ui-stat-divider">
-                            <span>Yüzme: <strong>7</strong></span>
-                            <span>Kara: <strong>1</strong></span>
-                        </div>
-                    </div>
+
+<section id="collections-tab"
+         class="dashboard-panel"
+         role="tabpanel"
+         aria-labelledby="collections-tab-button">
+
+    <!-- =========================================================
+         ANTRENMAN ÖZETİ
+    ========================================================== -->
+    <div class="ui-stat-grid">
+
+        <!-- Toplam Antrenman -->
+        <div class="ui-stat">
+            <div class="ui-stat-content">
+
+                <span class="ui-stat-label">
+                    Toplam Antrenman
+                </span>
+
+                <span class="ui-stat-value">
+                    {{ attendance_total }}
+                </span>
+
+                <div class="ui-stat-divider">
+                    <span>
+                        Yüzme: <strong>{{ attendance_swimming }}</strong>
+                    </span>
+
+                    <span>
+                        Kara: <strong>{{ attendance_land }}</strong>
+                    </span>
                 </div>
 
-                <!-- Katılmadığı Antrenman Kartı (YENİ RENKLER VE SINIFLAR) -->
-                <div class="ui-stat">
-                    <div class="ui-stat-content">
-                        <span class="ui-stat-label ui-text-danger">Katılmadığı</span>
-                        <span class="ui-stat-value ui-text-danger">2</span>
-                        <div class="ui-stat-divider ui-text-danger">
-                            <span>Yüzme: <strong>2</strong></span>
-                            <span>Kara: <strong class="text-[var(--ui-text)]">0</strong></span>
-                        </div>
-                    </div>
+            </div>
+        </div>
+
+
+        <!-- Katılmadığı -->
+        <div class="ui-stat">
+            <div class="ui-stat-content">
+
+                <span class="ui-stat-label ui-text-danger">
+                    Katılmadığı
+                </span>
+
+                <span class="ui-stat-value ui-text-danger">
+                    {{ attendance_absent }}
+                </span>
+
+                <div class="ui-stat-divider ui-text-danger">
+                    <span>
+                        Yüzme: <strong>{{ attendance_absent_swimming }}</strong>
+                    </span>
+
+                    <span>
+                        Kara:
+                        <strong class="text-[var(--ui-text)]">{{ attendance_absent_land }}</strong>
+                    </span>
                 </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         AYLIK KATILIM TAKVİMLERİ
+    ========================================================== -->
+    {% for month in attendance_months %}
+
+        <div class="ui-card mt-4 ui-custom-calendar">
+
+            <!-- AY BAŞLIĞI -->
+            <div class="flex items-center justify-between gap-3 mb-2">
+
+                <div class="min-w-0">
+
+                    <h3 class="ui-calendar-month-title truncate">
+                        {{ month.label }}
+                    </h3>
+
+                    <div class="mt-0.5 text-[10px] font-medium text-base-content/45">
+                        {{ month.total_count }} toplam
+                        ·
+                        <span style="color: var(--ui-danger-text);">
+                            {{ month.absent_count }} gelmedi
+                        </span>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="ui-btn ui-btn-sm ui-btn-ghost shrink-0"
+                >
+                    ← Bugün
+                </button>
+
             </div>
 
-            <div class="ui-card ui-custom-calendar">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="ui-calendar-month-title">Ekim 2026</h3>
-                    <button class="ui-btn ui-btn-sm ui-btn-ghost">← Bugün</button>
-                </div>
-                
-                <!-- Gün Başlıkları Sınıfı -->
-                <div class="ui-calendar-week-row">
-                    <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
-                </div>
-                
-                <!-- Gün Hücreleri Sınıfı -->
-                <div class="ui-calendar-days-grid">
-                    <div class="ui-calendar-day-cell is-passive">28</div>
-                    <div class="ui-calendar-day-cell is-passive">29</div>
-                    <div class="ui-calendar-day-cell is-passive">30</div>
-                    <div class="ui-calendar-day-cell">1</div>
-                    <div class="ui-calendar-day-cell">2</div>
-                    <div class="ui-calendar-day-cell">3</div>
-                    <div class="ui-calendar-day-cell">4</div>
-                    <div class="ui-calendar-day-cell">5</div>
-                    <div class="ui-calendar-day-cell">6</div>
-                    <div class="ui-calendar-day-cell">7</div>
-                    <!-- Örnek: Bugünün hücresi aktifleşirse is-today eklenebilir -->
-                    <div class="ui-calendar-day-cell">8</div>
-                    <div class="ui-calendar-day-cell">9</div>
-                    <div class="ui-calendar-day-cell">10</div>
-                    <div class="ui-calendar-day-cell">11</div>
-                </div>
+
+            <!-- HAFTA GÜNLERİ -->
+            <div class="ui-calendar-week-row">
+                {% for weekday in month.weekdays %}
+                    <div>
+                        {{ weekday.label|slice:":3" }}
+                    </div>
+                {% endfor %}
             </div>
-        </section>
+
+
+            <!-- TAKVİM -->
+            <div class="ui-calendar-days-grid">
+
+                {% for week in month.calendar_weeks %}
+
+                    {% for day in week %}
+
+                        {% if day %}
+
+                            <div class="ui-calendar-day-cell">
+
+                                <!-- GÜN NUMARASI -->
+                                <div
+                                    class="text-[9px] font-medium leading-3"
+                                    style="color: var(--ui-text-soft);"
+                                >
+                                    {{ day.number }}
+                                </div>
+
+                                <!-- ANTRENMANLAR -->
+                                {% if day.sessions %}
+                                    <div class="mt-1 flex min-w-0 items-center justify-center gap-1">
+
+                                        {% for session in day.sessions %}
+
+                                            {% if session.status == 'absent' %}
+
+                                                <!-- KATILMADI -->
+                                                <span
+                                                    class="
+                                                        min-w-0
+                                                        truncate
+                                                        text-[11px]
+                                                        font-bold
+                                                        leading-4
+                                                    "
+                                                    style="color: var(--ui-danger-text);"
+                                                    title="{{ session.label }} · Katılmadı"
+                                                >
+                                                    {{ session.label }}
+                                                    {% if session.is_makeup %}
+                                                        <sup
+                                                            class="ml-px text-[8px] font-bold"
+                                                            style="color: var(--ui-primary-text);"
+                                                        >T</sup>
+                                                    {% endif %}
+                                                </span>
+
+                                            {% else %}
+
+                                                <!-- KATILDI -->
+                                                <span
+                                                    class="
+                                                        min-w-0
+                                                        truncate
+                                                        text-[11px]
+                                                        font-bold
+                                                        leading-4
+                                                    "
+                                                    style="color: var(--ui-success-text);"
+                                                    title="{{ session.label }} · Katıldı"
+                                                >
+                                                    {{ session.label }}
+                                                    {% if session.is_makeup %}
+                                                        <sup
+                                                            class="ml-px text-[8px] font-bold"
+                                                            style="color: var(--ui-primary-text);"
+                                                        >T</sup>
+                                                    {% endif %}
+                                                </span>
+
+                                            {% endif %}
+
+                                        {% endfor %}
+
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+                        {% else %}
+
+                            <!-- BOŞ GÜN -->
+                            <div class="ui-calendar-day-cell is-passive"></div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <!-- =====================================================
+             KAYIT YOK
+        ====================================================== -->
+        <div class="ui-card">
+
+            <div class="flex min-h-[130px] flex-col items-center justify-center px-6 text-center">
+
+                <div
+                    class="
+                        mb-2
+                        flex
+                        h-9
+                        w-9
+                        items-center
+                        justify-center
+                        rounded-xl
+                        bg-base-200
+                        text-sm
+                        text-base-content/35
+                    "
+                >
+                    ◷
+                </div>
+
+                <p class="text-xs font-bold text-base-content/60">
+                    Antrenman katılım kaydı bulunmuyor.
+                </p>
+
+                <p class="mt-1 text-[10px] text-base-content/40">
+                    Katılım bilgileri burada görünecek.
+                </p>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</section>
+
+            
 
         <!-- AYLIK ÖDEMELER GRUBU -->
         {% if request.user.is_club_admin %}

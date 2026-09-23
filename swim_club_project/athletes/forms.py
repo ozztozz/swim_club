@@ -6,40 +6,222 @@ from finance.models import Equipment, PaymentRecord
 from .models import Athlete
 from teams.models import Team
 
+from django import forms
+
+from .models import Athlete, Team
+
 
 class AthleteForm(forms.ModelForm):
     class Meta:
         model = Athlete
+
         fields = (
-            'parent', 'parent_phone', 'parent_email', 'first_name', 'last_name', 'phone_number', 'tc_identity', 'birth_date',
-            'gender', 'school', 'license_number', 'joined_date', 'photo',
-            'is_active', 'team', 'custom_fee', 'private_lesson_fee',
+            'parent',
+            'parent_phone',
+            'parent_email',
+            'first_name',
+            'last_name',
+            'phone_number',
+            'tc_identity',
+            'birth_date',
+            'gender',
+            'school',
+            'license_number',
+            'joined_date',
+            'photo',
+            'is_active',
+            'team',
+            'custom_fee',
+            'private_lesson_fee',
             'regular_payment_day',
         )
+
         widgets = {
-            'parent': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'parent_phone': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'parent_email': forms.EmailInput(attrs={'class': 'input input-bordered w-full'}),
-            'first_name': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'last_name': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'phone_number': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'tc_identity': forms.TextInput(attrs={'class': 'input input-bordered w-full', 'maxlength': '11'}),
-            'birth_date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'input input-bordered w-full', 'type': 'date'}),
-            'gender': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'school': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'license_number': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'joined_date': forms.DateInput(format='%Y-%m-%d', attrs={'class': 'input input-bordered w-full', 'type': 'date'}),
-            'photo': forms.ClearableFileInput(attrs={'class': 'file-input file-input-bordered w-full'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'toggle toggle-primary'}),
-            'team': forms.Select(attrs={'class': 'select select-bordered w-full'}),
-            'custom_fee': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'numeric', 'step': '1', 'min': '0'}),
-            'private_lesson_fee': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'inputmode': 'numeric', 'step': '1', 'min': '0'}),
-            'regular_payment_day': forms.NumberInput(attrs={'class': 'input input-bordered w-full', 'min': '1', 'max': '31'}),
+
+            # =====================================================
+            # VELİ
+            # =====================================================
+
+            'parent': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                    'autocomplete': 'name',
+                }
+            ),
+
+            'parent_phone': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                    'inputmode': 'tel',
+                    'autocomplete': 'tel',
+                }
+            ),
+
+            'parent_email': forms.EmailInput(
+                attrs={
+                    'class': 'ui-input',
+                    'inputmode': 'email',
+                    'autocomplete': 'email',
+                }
+            ),
+
+            # =====================================================
+            # SPORCU
+            # =====================================================
+
+            'first_name': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                    'autocomplete': 'given-name',
+                }
+            ),
+
+            'last_name': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                    'autocomplete': 'family-name',
+                }
+            ),
+
+            'phone_number': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                    'inputmode': 'tel',
+                    'autocomplete': 'tel',
+                }
+            ),
+
+            'tc_identity': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                    'maxlength': '11',
+                    'minlength': '11',
+                    'inputmode': 'numeric',
+                    'pattern': '[0-9]{11}',
+                    'autocomplete': 'off',
+                }
+            ),
+
+            'birth_date': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={
+                    'class': 'ui-input',
+                    'type': 'date',
+                }
+            ),
+
+            'gender': forms.Select(
+                attrs={
+                    'class': 'ui-select',
+                }
+            ),
+
+            'school': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                }
+            ),
+
+            'license_number': forms.TextInput(
+                attrs={
+                    'class': 'ui-input',
+                }
+            ),
+
+            'joined_date': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={
+                    'class': 'ui-input',
+                    'type': 'date',
+                }
+            ),
+
+            # =====================================================
+            # FOTOĞRAF
+            # =====================================================
+
+            'photo': forms.ClearableFileInput(
+                attrs={
+                    'class': 'file-input file-input-bordered w-full',
+                    'accept': 'image/*',
+                }
+            ),
+
+            # =====================================================
+            # KULÜP
+            # =====================================================
+
+            'is_active': forms.CheckboxInput(
+                attrs={
+                    'class': 'toggle toggle-primary',
+                }
+            ),
+
+            'team': forms.Select(
+                attrs={
+                    'class': 'ui-select',
+                }
+            ),
+
+            # =====================================================
+            # AİDAT
+            # =====================================================
+
+            'custom_fee': forms.NumberInput(
+                attrs={
+                    'class': 'ui-input',
+                    'inputmode': 'numeric',
+                    'step': '1',
+                    'min': '0',
+                }
+            ),
+
+            'private_lesson_fee': forms.NumberInput(
+                attrs={
+                    'class': 'ui-input',
+                    'inputmode': 'numeric',
+                    'step': '1',
+                    'min': '0',
+                }
+            ),
+
+            'regular_payment_day': forms.NumberInput(
+                attrs={
+                    'class': 'ui-input',
+                    'inputmode': 'numeric',
+                    'min': '1',
+                    'max': '31',
+                    'step': '1',
+                }
+            ),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['team'].queryset = Team.objects.filter(is_active=True).order_by('name')
+
+        # =========================================================
+        # AKTİF TAKIMLAR
+        # =========================================================
+
+        self.fields['team'].queryset = (
+            Team.objects
+            .filter(is_active=True)
+            .order_by('name')
+        )
+
+        # =========================================================
+        # ÖDEME GÜNÜ
+        # HTML tarafındaki sınırları garanti et
+        # =========================================================
+
+        self.fields['regular_payment_day'].widget.attrs.update({
+            'min': '1',
+            'max': '31',
+            'step': '1',
+            'inputmode': 'numeric',
+        })
+
+
 
 class AthleteTeamForm(forms.ModelForm):
     # Takım seçimi için dropdown (is_active=True olan takımlar)

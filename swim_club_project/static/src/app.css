@@ -54,7 +54,7 @@
 
     /* Başarı / Pozitif Durum (Yeşil) */
     --ui-success: #d8ebdc;
-    --ui-success-text: #35533f; /* Kontrast artırıldı, daha okunaklı */
+    --ui-success-text: #51cf7b; /* Kontrast artırıldı, daha okunaklı */
 
     /* Uyarı / Beklemede Durumu (Sarı/Turuncu) */
     --ui-warning: #f5e5be;
@@ -2318,4 +2318,12 @@ svg {
     background-color: var(--ui-dark);
     color: var(--ui-white);
     font-weight: var(--font-weight-bold);
+}
+
+.ui-badge-dot {
+    width: 5px;
+    height: 5px;
+    flex: 0 0 5px;
+    border-radius: 50%;
+    background: currentColor;
 }

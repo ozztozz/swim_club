@@ -5,7 +5,7 @@
         <h3>{{ athlete.get_full_name }}</h3>
         <form method="post"
               hx-post="{{ sale_url }}"
-              hx-target="#athlete-equipment-sale-modal-container"
+              hx-target="#modal-container"
               hx-swap="innerHTML">
             {% csrf_token %}
             {% if distribution_mode %}

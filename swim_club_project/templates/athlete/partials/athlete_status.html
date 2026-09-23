@@ -3,6 +3,6 @@
     <button type="button"
             class="ui-btn ui-btn-sm {% if athlete.is_active %}ui-btn-secondary{% else %}ui-btn-primary{% endif %}"
             hx-get="{% url 'athlete-manage-toggle-active' athlete.pk %}"
-            hx-target="#athlete-modal-container"
+            hx-target="#modal-container"
             hx-swap="innerHTML">{% if athlete.is_active %}Pasif yap{% else %}Aktif yap{% endif %}</button>
 </div>

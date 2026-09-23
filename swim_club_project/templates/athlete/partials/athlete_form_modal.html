@@ -1,202 +1,666 @@
-<dialog id="athlete_modal">
-    <div>
-        <!-- Başlık -->
-        <div>
-            <p>Sporcu yönetimi</p>
-            <h3>{{ modal_title }}</h3>
+<div id="modal-container" aria-hidden="true">
+
+    <dialog
+        id="athlete_modal"
+        class="ui-modal"
+        data-modal-backdrop-close="true"
+    >
+
+        <div class="ui-modal-panel">
+
+            <!-- =====================================================
+                 MODAL HEADER
+            ====================================================== -->
+
+            <div class="ui-modal-header">
+
+                <div>
+                    <p class="ui-modal-eyebrow">
+                        Sporcu yönetimi
+                    </p>
+
+                    <h3 class="ui-modal-title">
+                        {{ modal_title }}
+                    </h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="ui-modal-close"
+                    data-modal-close
+                    aria-label="Kapat"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <!-- =====================================================
+                 FORM
+            ====================================================== -->
+
+            <form
+
+            
+                method="post"
+                action="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% else %}{% url 'athlete-manage-create' %}{% endif %}"
+                enctype="multipart/form-data"
+
+                hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}"
+                hx-target="{% if return_to_detail %}#athlete-detail{% else %}#athlete-table{% endif %}"
+                hx-swap="{% if return_to_detail %}outerHTML{% else %}outerHTML{% endif %}"
+                hx-encoding="multipart/form-data"
+
+                data-close-modal-on-success
+
+                class="ui-modal-form"
+            >
+
+                {% csrf_token %}
+
+
+                <!-- =================================================
+                     RETURN TO DETAIL
+                ================================================== -->
+
+                {% if return_to_detail %}
+                    <input
+                        type="hidden"
+                        name="return_to_detail"
+                        value="1"
+                    >
+                {% endif %}
+
+
+                <!-- =================================================
+                     FORM GENEL HATALARI
+                ================================================== -->
+
+                {% if form.non_field_errors %}
+                    <div class="ui-error">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+
+                <!-- =================================================
+                     TEMEL BİLGİLER
+                ================================================== -->
+
+                <section class="ui-section">
+
+                    <div class="ui-card">
+
+                        <div class="ui-card-header">
+                            <h4 class="ui-card-title">
+                                Temel bilgiler
+                            </h4>
+                        </div>
+
+                        <div class="ui-card-body">
+
+                            <div class="ui-form-grid">
+
+                                <!-- AD -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.first_name.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Ad
+                                    </label>
+
+                                    {{ form.first_name }}
+
+                                    {% if form.first_name.errors %}
+                                        <p class="ui-error">
+                                            {{ form.first_name.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- SOYAD -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.last_name.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Soyad
+                                    </label>
+
+                                    {{ form.last_name }}
+
+                                    {% if form.last_name.errors %}
+                                        <p class="ui-error">
+                                            {{ form.last_name.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- SPORCU TELEFONU -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.phone_number.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Sporcu telefonu
+                                    </label>
+
+                                    {{ form.phone_number }}
+
+                                    {% if form.phone_number.errors %}
+                                        <p class="ui-error">
+                                            {{ form.phone_number.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- CİNSİYET -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.gender.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Cinsiyet
+                                    </label>
+
+                                    {{ form.gender }}
+
+                                    {% if form.gender.errors %}
+                                        <p class="ui-error">
+                                            {{ form.gender.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- DOĞUM TARİHİ -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.birth_date.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Doğum tarihi
+                                    </label>
+
+                                    {{ form.birth_date }}
+
+                                    {% if form.birth_date.errors %}
+                                        <p class="ui-error">
+                                            {{ form.birth_date.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- KATILIM TARİHİ -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.joined_date.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Kulübe katılım tarihi
+                                    </label>
+
+                                    {{ form.joined_date }}
+
+                                    {% if form.joined_date.errors %}
+                                        <p class="ui-error">
+                                            {{ form.joined_date.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     VELİ BİLGİLERİ
+                ================================================== -->
+
+                <section class="ui-section">
+
+                    <div class="ui-card">
+
+                        <div class="ui-card-header">
+                            <h4 class="ui-card-title">
+                                Veli bilgileri
+                            </h4>
+                        </div>
+
+                        <div class="ui-card-body">
+
+                            <div class="ui-form-grid">
+
+                                <!-- VELİ -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.parent.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Veli
+                                    </label>
+
+                                    {{ form.parent }}
+
+                                    {% if form.parent.errors %}
+                                        <p class="ui-error">
+                                            {{ form.parent.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- VELİ TELEFONU -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.parent_phone.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Veli telefonu
+                                    </label>
+
+                                    {{ form.parent_phone }}
+
+                                    {% if form.parent_phone.errors %}
+                                        <p class="ui-error">
+                                            {{ form.parent_phone.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- VELİ E-POSTA -->
+
+                                <div class="ui-field ui-field-full">
+
+                                    <label
+                                        for="{{ form.parent_email.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Veli e-postası
+                                    </label>
+
+                                    {{ form.parent_email }}
+
+                                    {% if form.parent_email.errors %}
+                                        <p class="ui-error">
+                                            {{ form.parent_email.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     KULÜP BİLGİLERİ
+                ================================================== -->
+
+                <section class="ui-section">
+
+                    <div class="ui-card">
+
+                        <div class="ui-card-header">
+                            <h4 class="ui-card-title">
+                                Kulüp bilgileri
+                            </h4>
+                        </div>
+
+                        <div class="ui-card-body">
+
+                            <div class="ui-form-grid">
+
+                                <!-- TAKIM -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.team.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Takım
+                                    </label>
+
+                                    {{ form.team }}
+
+                                    {% if form.team.errors %}
+                                        <p class="ui-error">
+                                            {{ form.team.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- LİSANS -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.license_number.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Lisans no
+                                    </label>
+
+                                    {{ form.license_number }}
+
+                                    {% if form.license_number.errors %}
+                                        <p class="ui-error">
+                                            {{ form.license_number.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- AKTİF -->
+
+                                <div class="ui-field ui-field-full">
+
+                                    <label class="ui-label">
+                                        Durum
+                                    </label>
+
+                                    <div class="flex items-center gap-3">
+
+                                        {{ form.is_active }}
+
+                                        <span class="text-sm text-base-content/70">
+                                            Aktif sporcu
+                                        </span>
+
+                                    </div>
+
+                                    {% if form.is_active.errors %}
+                                        <p class="ui-error">
+                                            {{ form.is_active.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     KİMLİK VE EĞİTİM
+                ================================================== -->
+
+                <section class="ui-section">
+
+                    <div class="ui-card">
+
+                        <div class="ui-card-header">
+                            <h4 class="ui-card-title">
+                                Kimlik ve eğitim
+                            </h4>
+                        </div>
+
+                        <div class="ui-card-body">
+
+                            <div class="ui-form-grid">
+
+                                <!-- TC -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.tc_identity.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        T.C. kimlik no
+                                    </label>
+
+                                    {{ form.tc_identity }}
+
+                                    {% if form.tc_identity.errors %}
+                                        <p class="ui-error">
+                                            {{ form.tc_identity.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- OKUL -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.school.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Okul
+                                    </label>
+
+                                    {{ form.school }}
+
+                                    {% if form.school.errors %}
+                                        <p class="ui-error">
+                                            {{ form.school.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     AİDAT BİLGİLERİ
+                ================================================== -->
+
+                <section class="ui-section">
+
+                    <div class="ui-card">
+
+                        <div class="ui-card-header">
+                            <h4 class="ui-card-title">
+                                Aidat bilgileri
+                            </h4>
+                        </div>
+
+                        <div class="ui-card-body">
+
+                            <div class="ui-form-grid">
+
+                                <!-- ÖZEL AİDAT -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.custom_fee.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Özel aidat (TL)
+                                    </label>
+
+                                    {{ form.custom_fee }}
+
+                                    {% if form.custom_fee.errors %}
+                                        <p class="ui-error">
+                                            {{ form.custom_fee.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- ÖZEL DERS -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.private_lesson_fee.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Özel ders ücreti (TL)
+                                    </label>
+
+                                    {{ form.private_lesson_fee }}
+
+                                    {% if form.private_lesson_fee.errors %}
+                                        <p class="ui-error">
+                                            {{ form.private_lesson_fee.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- ÖDEME GÜNÜ -->
+
+                                <div class="ui-field">
+
+                                    <label
+                                        for="{{ form.regular_payment_day.id_for_label }}"
+                                        class="ui-label"
+                                    >
+                                        Ödeme günü
+                                    </label>
+
+                                    {{ form.regular_payment_day }}
+
+                                    {% if form.regular_payment_day.errors %}
+                                        <p class="ui-error">
+                                            {{ form.regular_payment_day.errors }}
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     FOTOĞRAF
+                ================================================== -->
+
+                <section class="ui-section">
+
+                    <div class="ui-card">
+
+                        <div class="ui-card-header">
+                            <h4 class="ui-card-title">
+                                Fotoğraf
+                            </h4>
+                        </div>
+
+                        <div class="ui-card-body">
+
+                            <div class="ui-field">
+
+                                <label
+                                    for="{{ form.photo.id_for_label }}"
+                                    class="ui-label"
+                                >
+                                    Sporcu fotoğrafı
+                                </label>
+
+                                {{ form.photo }}
+
+                                {% if form.photo.errors %}
+                                    <p class="ui-error">
+                                        {{ form.photo.errors }}
+                                    </p>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     ACTIONS
+                ================================================== -->
+
+                <div class="ui-modal-actions">
+
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-sm ui-btn-secondary"
+                        data-modal-close
+                    >
+                        İptal
+                    </button>
+                    <button
+                        type="submit"
+                        class="ui-btn ui-btn-sm ui-btn-primary"
+                    >
+                        {{ submit_label }}
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
-        <!-- Form -->
-        <form method="post"
-              enctype="multipart/form-data"
-              hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}"
-              hx-target="{% if return_to_detail %}#athlete-modal-container{% else %}#athlete-table{% endif %}"
-              hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}">
-            {% csrf_token %}
-            {% if return_to_detail %}
-                <input type="hidden" name="return_to_detail" value="1">
-            {% endif %}
-            {% if form.non_field_errors %}
-                <div>{{ form.non_field_errors }}</div>
-            {% endif %}
-            {% if form.errors %}
-                <div>
-                    Formda eksik veya hatalı alanlar var. Lütfen kırmızı uyarıları kontrol edin.
-                </div>
-            {% endif %}
-            <!-- Temel bilgiler -->
-            <div>
-                <p>Temel bilgiler</p>
-                <div>
-                    <label>
-                        <span>Ad</span>
-                        {{ form.first_name }}
-                        {% if form.first_name.errors %}
-                            <span>{{ form.first_name.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Soyad</span>
-                        {{ form.last_name }}
-                        {% if form.last_name.errors %}
-                            <span>{{ form.last_name.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Sporcu telefonu</span>
-                        {{ form.phone_number }}
-                        {% if form.phone_number.errors %}
-                            <span>{{ form.phone_number.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Cinsiyet</span>
-                        {{ form.gender }}
-                        {% if form.gender.errors %}
-                            <span>{{ form.gender.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Doğum tarihi</span>
-                        {{ form.birth_date }}
-                        {% if form.birth_date.errors %}
-                            <span>{{ form.birth_date.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Kulübe katılım tarihi</span>
-                        {{ form.joined_date }}
-                        {% if form.joined_date.errors %}
-                            <span>{{ form.joined_date.errors }}</span>
-                        {% endif %}
-                    </label>
-                </div>
-            </div>
-            <!-- Veli bilgileri -->
-            <div>
-                <p>Veli bilgileri</p>
-                <div>
-                    <label>
-                        <span>Veli</span>
-                        {{ form.parent }}
-                        {% if form.parent.errors %}
-                            <span>{{ form.parent.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Veli telefonu</span>
-                        {{ form.parent_phone }}
-                        {% if form.parent_phone.errors %}
-                            <span>{{ form.parent_phone.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Veli e-postası</span>
-                        {{ form.parent_email }}
-                        {% if form.parent_email.errors %}
-                            <span>{{ form.parent_email.errors }}</span>
-                        {% endif %}
-                    </label>
-                </div>
-            </div>
-            <!-- Kulüp bilgileri -->
-            <div>
-                <p>Kulüp bilgileri</p>
-                <div>
-                    <label>
-                        <span>Takım</span>
-                        {{ form.team }}
-                        {% if form.team.errors %}
-                            <span>{{ form.team.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Durum</span>
-                        <span>
-                            {{ form.is_active }}
-                            <span>Aktif sporcu</span>
-                        </span>
-                        {% if form.is_active.errors %}
-                            <span>{{ form.is_active.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Lisans no</span>
-                        {{ form.license_number }}
-                    </label>
-                </div>
-            </div>
-            <!-- Kimlik / okul -->
-            <div>
-                <p>Kimlik ve eğitim</p>
-                <div>
-                    <label>
-                        <span>T.C. kimlik no</span>
-                        {{ form.tc_identity }}
-                        {% if form.tc_identity.errors %}
-                            <span>{{ form.tc_identity.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Okul</span>
-                        {{ form.school }}
-                        {% if form.school.errors %}
-                            <span>{{ form.school.errors }}</span>
-                        {% endif %}
-                    </label>
-                </div>
-            </div>
-            <!-- Aidat -->
-            <div>
-                <p>Aidat bilgileri</p>
-                <div>
-                    <label>
-                        <span>Özel aidat (TL)</span>
-                        {{ form.custom_fee }}
-                        {% if form.custom_fee.errors %}
-                            <span>{{ form.custom_fee.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Özel ders ücreti (TL)</span>
-                        {{ form.private_lesson_fee }}
-                        {% if form.private_lesson_fee.errors %}
-                            <span>{{ form.private_lesson_fee.errors }}</span>
-                        {% endif %}
-                    </label>
-                    <label>
-                        <span>Ödeme günü</span>
-                        {{ form.regular_payment_day }}
-                        {% if form.regular_payment_day.errors %}
-                            <span>{{ form.regular_payment_day.errors }}</span>
-                        {% endif %}
-                    </label>
-                </div>
-            </div>
-            <!-- Fotoğraf -->
-            <div>
-                <p>Fotoğraf</p>
-                <label>
-                    {{ form.photo }}
-                    {% if form.photo.errors %}
-                        <span>{{ form.photo.errors }}</span>
-                    {% endif %}
-                </label>
-            </div>
-            <!-- Aktiflik -->
-            <label>
-                {{ form.is_active }}
-                <div>
-                    <p>Aktif sporcu</p>
-                    <p>Sporcu kulüp kayıtlarında aktif olarak gösterilsin.</p>
-                </div>
-            </label>
-            <!-- Aksiyonlar -->
-            <div>
-                <button type="button"
-                        class="ui-btn ui-btn-secondary"
-                        onclick="document.getElementById('athlete_modal').remove()">İptal</button>
-                <button type="submit" class="ui-btn ui-btn-primary">{{ submit_label }}</button>
-            </div>
-        </form>
-    </div>
-</dialog>
+
+    </dialog>
+
+</div>

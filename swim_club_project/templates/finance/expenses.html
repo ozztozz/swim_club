@@ -13,9 +13,13 @@
                     <span class="ui-section-description">{{ period }} Dönemi</span>
                 </div>
                 <!-- "Yeni Harcama" Butonu Projenizin ui-btn-dark Kimliğine Kavuşturuldu -->
-                <a href="#" class="ui-btn ui-btn-sm ui-btn-dark shrink-0">
-                    + Yeni Harcama
-                </a>
+                <button
+                    type="button"
+                    class="ui-btn ui-btn-primary ui-btn-sm"
+                    hx-get="{% url 'expense-create' %}?period={{ expense_period }}&dashboard=1"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML"
+                >Yeni Harcama</button>
             </div>
 
             <!-- HARCAMA LİSTE TABLOSU (CSS 33. Table Yapısı Giydirildi) -->
