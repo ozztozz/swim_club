@@ -42,8 +42,7 @@
                     <label class="ui-label">Başlangıç</label>
                     {{ form.start_time }}
                     {% if form.start_time.errors %}<span class="ui-error">{{ form.start_time.errors|striptags }}</span>{% endif %}
-                </div>
-                <div class="ui-field">
+        
                     <label class="ui-label">Bitiş</label>
                     {{ form.end_time }}
                     {% if form.end_time.errors %}<span class="ui-error">{{ form.end_time.errors|striptags }}</span>{% endif %}

@@ -1,26 +1,44 @@
+
 {
-  "name": "Alpha Academy Kulup Yonetim Paneli",
+  "id": "/",
+  "name": "Alpha Academy Kulüp Yönetim Paneli",
   "short_name": "Alpha",
-  "description": "Alpha Academy spor kulubu yonetim paneli",
-  "start_url": "/dashboard/",
+  "description": "Alpha Academy spor kulübü yönetim paneli",
+  "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "orientation": "portrait-primary",
+
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
+
   "lang": "tr-TR",
+  "dir": "ltr",
+
+  "prefer_related_applications": false,
+
+  "categories": [
+    "business",
+    "sports"
+  ],
+
   "icons": [
     {
       "src": "/media/logos/new_logo.png",
       "sizes": "1024x1024",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/media/logos/new_logo.png",
       "sizes": "1024x1024",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
+

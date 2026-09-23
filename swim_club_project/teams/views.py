@@ -203,7 +203,7 @@ def _today_training_context(team, selected_schedule=None, training_date=None):
 		selected_schedule = schedules[0] if schedules else None
 	athletes = list(
 		Athlete.objects.filter(team=team, is_active=True)
-		.order_by('first_name', 'last_name')
+		.order_by('birth_date__year','gender', 'first_name', 'last_name')
 	)
 	attendance_by_athlete = {}
 	extra_athletes = []
@@ -381,7 +381,7 @@ def training_attendance_save(request, team_pk, schedule_pk):
 		makeup_ids = set(request.POST.getlist('makeup_athlete'))
 		extra_athlete_ids = set(request.POST.getlist('extra_athlete'))
 		selected_extra_ids = makeup_ids | extra_athlete_ids
-		athletes = Athlete.objects.filter(team=team, is_active=True)
+		athletes = Athlete.objects.filter(team=team, is_active=True).order_by('birth_date', 'first_name', 'last_name')
 		with transaction.atomic():
 			TeamTrainingAttendance.objects.filter(
 				schedule=schedule,

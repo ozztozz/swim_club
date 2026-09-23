@@ -1,15 +1,41 @@
-<div 
-        class="ui-list-item"
-        hx-get="{% url 'training-attendance-schedule' schedule.team.pk schedule.pk %}?training_date={{ selected_date|date:'Y-m-d' }}"
-        hx-target="#attendance-modal-container"
-        hx-swap="innerHTML">
-    <span aria-hidden="true">{{ schedule.start_time|time:"H:i" }} {{ schedule.end_time|time:"H:i" }}</span>
-    <div class="ui-list-item ">
-        <span>{{ schedule.team.name }}</span>
-        <span class="ui-primary-text">{{ schedule.get_training_type_display }} · {{ schedule.location }}</span>
-    </div>
-    <div>
+<div class="ui-training-item cursor-pointer"
+     hx-get="{% url 'training-attendance-schedule' schedule.team.pk schedule.pk %}?training_date={{ selected_date|date:'Y-m-d' }}"
+     hx-target="#attendance-modal-container"
+     hx-swap="innerHTML">
+    
+    <!-- Sol Bölüm: Saat ve Bilgiler -->
+    <div class="ui-training-meta-left">
+        <!-- CSS'te yazdığımız gömülü şık saat yuvarlağı -->
+        <div class="ui-training-time-badge">
+            {{ schedule.start_time|time:"H:i" }}
+        </div>
         
-        {% include "team/partials/training_attendance_count.html" with attended_count=schedule.attended_count absent_count=schedule.absent_count %}
+        <div class="ui-training-info-block">
+            <div class="ui-training-team-row">
+                <!-- Dinamik Nokta Renk Mantığı: Takım adına göre CSS sınıfı seçilir -->
+                <span class="ui-team-dot 
+                    {% if 'Turuncu' in schedule.team.name %}dot-orange is-active
+                    {% elif 'Kırmızı' in schedule.team.name %}dot-red
+                    {% elif 'Mavi' in schedule.team.name %}dot-blue
+                    {% else %}bg-gray-400{% endif %}">
+                </span>
+                <span class="ui-training-team-name">{{ schedule.team.name }}</span>
+            </div>
+            <span class="ui-training-branch-name">
+                {{ schedule.team.branch.name|default:"Yüzme" }} • {{ schedule.location.name|default:"Fenerbahçe" }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Sağ Bölüm: Süre ve Sporcu Sayısı Rozeti -->
+    <div class="ui-training-meta-right">
+        <span class="ui-training-duration">
+            {{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}
+        </span>
+        
+        <!-- Yoklama durumuna göre dinamik badge rengi değişimi -->
+        <span class="ui-badge {% if schedule.is_attendance_taken %}ui-badge-success{% else %}ui-badge-neutral{% endif %} text-[11px] px-2.5 py-0.5">
+            👤 <span class="ui-text-success">{{ schedule.attended_count|default:"0" }}</span> / <span class="ui-text-danger">{{ schedule.absent_count|default:"0" }}</span>
+        </span>
     </div>
 </div>

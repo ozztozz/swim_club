@@ -1,38 +1,89 @@
-<div id="weekly-schedule-board">
-    <table class="ui-table">
-        <thead>
-            <tr class="ui-table-row">
-                <th class="ui-table-cell">Gün</th>
-                <th class="ui-table-cell">Sabah</th>
-                <th class="ui-table-cell">Akşam</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for day in weekly_days %}
-                <tr data-weekday="{{ day.value }}" class="ui-table-row">
-                    <th class="ui-table-cell">
-                        <div>
-                            <div>
-                                <h3>{{ day.label }}</h3>
-                                <p>{{ day.schedules|length }} antrenman</p>
-                            </div>
-                            <button type="button"
-                                    class="ui-btn ui-btn-sm ui-btn-primary"
-                                    hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}"
-                                    hx-target="#schedule-modal-container"
-                                    hx-swap="innerHTML"
-                                    title="Antrenman ekle"
-                                    aria-label="{{ day.label }} gününe antrenman ekle">+</button>
+
+<div id="weekly-schedule-board" class="w-full">
+
+    <!-- Başlık -->
+    <div class="grid grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)] border-b border-base-200">
+
+        <div class="px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-base-content/40">
+            Gün
+        </div>
+
+        <div class="border-l border-base-200 px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-base-content/40">
+            Sabah
+        </div>
+
+        <div class="border-l border-base-200 px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-base-content/40">
+            Akşam
+        </div>
+
+    </div>
+
+
+    <!-- Günler -->
+    <div>
+
+        {% for day in weekly_days %}
+
+            <div
+                data-weekday="{{ day.value }}"
+                class="grid grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)] border-b border-base-200 last:border-b-0"
+            >
+
+                <!-- Gün -->
+                <div class="min-w-0 px-2 py-2">
+
+                    <div class="flex items-center gap-1">
+
+                        <div class="min-w-0 flex-1">
+
+                            <h3 class="truncate text-xs font-semibold text-base-content">
+                                {{ day.label }}
+                            </h3>
+
+                            <p class="mt-0.5 text-[9px] text-base-content/40">
+                                {{ day.schedules|length }} antre.
+                            </p>
+
                         </div>
-                    </th>
-                    <td class="ui-table-cell">
-                        {% include "team/partials/schedule_cell.html" with schedules=day.morning_schedules day_label=day.label align_right=False %}
-                    </td>
-                    <td class="ui-table-cell">
-                        {% include "team/partials/schedule_cell.html" with schedules=day.evening_schedules day_label=day.label align_right=True %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+                        <!-- Antrenman ekle -->
+                        <button
+                            type="button"
+                            class="ui-btn ui-btn-sm ui-btn-primary shrink-0"
+                            hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}"
+                            hx-target="#schedule-modal-container"
+                            hx-swap="innerHTML"
+                            title="Antrenman ekle"
+                            aria-label="{{ day.label }} gününe antrenman ekle"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Sabah -->
+                <div class="min-w-0 border-l border-base-200 px-2">
+
+                    {% include "team/partials/schedule_cell.html" with schedules=day.morning_schedules day_label=day.label align_right=False %}
+
+                </div>
+
+
+                <!-- Akşam -->
+                <div class="min-w-0 border-l border-base-200 px-2">
+
+                    {% include "team/partials/schedule_cell.html" with schedules=day.evening_schedules day_label=day.label align_right=True %}
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
 </div>
+

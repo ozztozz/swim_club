@@ -1,340 +1,237 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="dashboard">
+        <!-- Üst Header Alanı -->
+        <header class="mb-4">
+            <a href="{% url 'team-list' %}" class="ui-btn ui-btn-sm ui-btn-ghost">
+                <span>‹</span> Geri
+            </a>
+        </header>
 
+        <!-- YENİ CAM EFEKTİ (GLASSMORPHISM) PROFİL KARTI -->
+        <div class="profile-hero-card mb-6">
+            <div class="profile-hero-top">
+                <a href="javascript:history.back()" class="profile-hero-back-btn" title="Geri" aria-label="Geri">‹</a>
+                <h1 class="profile-hero-title">Sporcu Profili</h1>
+                <div class="w-9"></div> <!-- Simetri Dengesi İçin Boşluk -->
+            </div>
 
-<!-- ================================================= -->
-        <!-- SPORCU PROFİLİ (Görsel Odaklı Dribbble Tarzı) -->
-        <!-- ================================================= -->
-        <section class="ui-section">
-            <div class="profile-hero-card">
-                <!-- ÜST BAR: GERİ DÖN VE BAŞLIK -->
-                <div class="profile-hero-top">
-                    <a href="{% url 'athlete-manage-list' %}"
-                       class="profile-hero-back-btn"
-                       aria-label="Sporcu listesine dön">
-                        <span>←</span>
-                    </a>
-                    <h1 class="profile-hero-title">Sporcu Profili</h1>
-                    <div style="width: 44px;"></div> <!-- Dengeleme boşluğu -->
+            <div class="profile-hero-content">
+                {% if athlete.photo %}
+                    <img src="{{ athlete.photo.url }}" alt="{{ athlete.get_full_name }}" class="profile-hero-avatar">
+                {% else %}
+                    <div class="profile-hero-avatar bg-[var(--ui-dark)] flex items-center justify-center text-white text-xl font-bold">
+                        {{ athlete.get_full_name|slice:":1" }}
+                    </div>
+                {% endif %}
+
+                <h2 class="profile-hero-name">{{ athlete.get_full_name }}</h2>
+                
+                <div class="profile-hero-badges mt-2">
+                    <span class="profile-hero-badge">
+                        Takım: <span>{% if athlete.team %}{{ athlete.team.name }}{% else %}Atanmamış{% endif %}</span>
+                    </span>
+                    <span class="profile-hero-badge">
+                        Veli: <span>{{ athlete.parent|default:'Belirtilmedi' }}</span>
+                    </span>
                 </div>
 
-                <!-- ORTA BÖLÜM: FOTOĞRAF, İSİM VE UNVAN -->
-                <div class="profile-hero-content">
-                    {% if athlete.photo %}
-                        <img src="{{ athlete.photo.url }}"
-                             alt="{{ athlete.get_full_name }}"
-                             class="profile-hero-avatar">
-                    {% else %}
-                        <img src="/media/logos/logo4.jpeg"
-                             alt="{{ athlete.get_full_name }}"
-                             class="profile-hero-avatar">
-                    {% endif %}
+                {% if request.user.is_club_admin %}
+                    <div class="profile-hero-actions mt-4">
+                        <a href="#" class="ui-btn ui-btn-sm ui-btn-secondary">✎ Düzenle</a>
+                        <a href="#" class="ui-btn ui-btn-sm ui-btn-primary">+ Ödeme Ekle</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
 
-                    <h2 class="profile-hero-name">{{ athlete.get_full_name }}</h2>
-                    <p class="profile-hero-subtitle">
-                        {% if athlete.team %}
-                            {{ athlete.team.name }}
-                        {% else %}
-                            Takım Atanmamış
-                        {% endif %}
-                    </p>
 
-                    <!-- TAKIM VE VELİ BİLGİ ETİKETLERİ -->
-                    <div class="profile-hero-badges">
-                        <div class="profile-hero-badge">
-                            Veli: <span>{{ athlete.parent|default:'Belirtilmedi' }}</span>
+        <!-- PANEL SEKMELERİ -->
+        <div class="dashboard-tabs mt-6">
+            <button type="button" 
+                    id="collections-tab-button" 
+                    data-dashboard-tab="collections" 
+                    class="dashboard-tab active" role="tab" 
+                    aria-selected="true" 
+                    aria-controls="collections-tab" 
+                    data-dashboard-tab-bound="true">
+
+                    <span class="dashboard-tab-icon" aria-hidden="true">
+                        ₺
+                    </span>
+
+                    <span>
+                        Tahsilat
+                    </span>
+
+                </button>
+            {% if request.user.is_club_admin %}
+            <button
+                type="button"
+                id="expenses-tab-button"
+                data-dashboard-tab="expenses"
+                class="dashboard-tab"
+                role="tab"
+                aria-selected="false"
+                aria-controls="expenses-tab"
+            >
+
+                <span
+                    class="dashboard-tab-icon"
+                    aria-hidden="true"
+                >
+                    ↗
+                </span>
+
+                <span>
+                    Ödemeler
+                </span>
+
+            </button>
+            {% endif %}
+            <button
+                type="button"
+                id="equipment-sales-tab-button"
+                data-dashboard-tab="equipment-sales"
+                class="dashboard-tab"
+                role="tab"
+                aria-selected="false"
+                aria-controls="equipment-sales-tab"
+            >
+
+                <span
+                    class="dashboard-tab-icon"
+                    aria-hidden="true"
+                >
+                    ↗
+                </span>
+
+                <span>
+                    Malzeme
+                </span>
+
+            </button>
+        </div>
+
+        <!-- YENİ MODÜLER TAKVİM BİLEŞENİ -->
+                 <!-- ANTRENMAN İSTATİSTİKLERİ PANELİ -->
+        <section id="collections-tab"
+                class="dashboard-panel"
+                role="tabpanel"
+                aria-labelledby="collections-tab-button">
+            <div class="ui-stat-grid">
+                <!-- Toplam Antrenman Kartı -->
+                <div class="ui-stat">
+                    <div class="ui-stat-content">
+                        <span class="ui-stat-label">Toplam Antrenman</span>
+                        <span class="ui-stat-value">8</span>
+                        <!-- Yeni Modüler Sınıfımız Entegre Edildi -->
+                        <div class="ui-stat-divider">
+                            <span>Yüzme: <strong>7</strong></span>
+                            <span>Kara: <strong>1</strong></span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- ================================================= -->
-                    <!-- PROFİL AKSİYONLARI -->
-                    <!-- ================================================= -->
-                    {% if request.user.is_club_admin %}
-                        <div class="profile-hero-actions">
-                            <!-- DÜZENLE -->
-                            <button type="button"
-                                    class="ui-btn ui-btn-sm ui-btn-secondary"
-                                    hx-get="{% url 'athlete-manage-update' athlete.pk %}?return_to_detail=1"
-                                    hx-target="#athlete-modal-container"
-                                    hx-swap="innerHTML">
-                                <span>✎</span>
-                                <span>Düzenle</span>
-                            </button>
-                            <!-- ÖDEME EKLE -->
-                            <button type="button"
-                                    class="ui-btn ui-btn-sm ui-btn-primary"
-                                    hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}"
-                                    hx-target="#athlete-payment-modal-container"
-                                    hx-swap="innerHTML">
-                                <span>+</span>
-                                <span>Ödeme Ekle</span>
-                            </button>
+                <!-- Katılmadığı Antrenman Kartı (YENİ RENKLER VE SINIFLAR) -->
+                <div class="ui-stat">
+                    <div class="ui-stat-content">
+                        <span class="ui-stat-label ui-text-danger">Katılmadığı</span>
+                        <span class="ui-stat-value ui-text-danger">2</span>
+                        <div class="ui-stat-divider ui-text-danger">
+                            <span>Yüzme: <strong>2</strong></span>
+                            <span>Kara: <strong class="text-[var(--ui-text)]">0</strong></span>
                         </div>
-                    {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui-card ui-custom-calendar">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="ui-calendar-month-title">Ekim 2026</h3>
+                    <button class="ui-btn ui-btn-sm ui-btn-ghost">← Bugün</button>
+                </div>
+                
+                <!-- Gün Başlıkları Sınıfı -->
+                <div class="ui-calendar-week-row">
+                    <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
+                </div>
+                
+                <!-- Gün Hücreleri Sınıfı -->
+                <div class="ui-calendar-days-grid">
+                    <div class="ui-calendar-day-cell is-passive">28</div>
+                    <div class="ui-calendar-day-cell is-passive">29</div>
+                    <div class="ui-calendar-day-cell is-passive">30</div>
+                    <div class="ui-calendar-day-cell">1</div>
+                    <div class="ui-calendar-day-cell">2</div>
+                    <div class="ui-calendar-day-cell">3</div>
+                    <div class="ui-calendar-day-cell">4</div>
+                    <div class="ui-calendar-day-cell">5</div>
+                    <div class="ui-calendar-day-cell">6</div>
+                    <div class="ui-calendar-day-cell">7</div>
+                    <!-- Örnek: Bugünün hücresi aktifleşirse is-today eklenebilir -->
+                    <div class="ui-calendar-day-cell">8</div>
+                    <div class="ui-calendar-day-cell">9</div>
+                    <div class="ui-calendar-day-cell">10</div>
+                    <div class="ui-calendar-day-cell">11</div>
                 </div>
             </div>
         </section>
-        <!-- ================================================= -->
-        <!-- ÖDEMELER / BÖLÜMLER -->
-        <!-- ================================================= -->
-        <section class="ui-section">
-            <!-- ================================================= -->
-            <!-- ANA SEKME MENÜSÜ (Dashboard Tarzı) -->
-            <!-- ================================================= -->
-            <div class="dashboard-tabs"
-                 role="tablist"
-                 aria-label="Sporcu detay bölümleri">
-                <!-- ANTRENMAN SEKME BUTONU -->
-                <button type="button"
-                        id="training-tab-button"
-                        data-dashboard-tab="training"
-                        class="dashboard-tab active"
-                        role="tab"
-                        aria-selected="true"
-                        aria-controls="training-payments-tab"
-                        onclick="showPaymentTab('training')">
-                    <span class="dashboard-tab-icon" aria-hidden="true">◷</span>
-                    <span>Antrenman</span>
-                </button>
-                {% if request.user.is_club_admin %}
-                    <!-- AYLIK ÖDEME SEKME BUTONU -->
-                    <button type="button"
-                            id="monthly-tab-button"
-                            data-dashboard-tab="monthly"
-                            class="dashboard-tab"
-                            role="tab"
-                            aria-selected="false"
-                            aria-controls="monthly-payments-tab"
-                            onclick="showPaymentTab('monthly')">
-                        <span class="dashboard-tab-icon" aria-hidden="true">₺</span>
-                        <span>Aylık</span>
-                    </button>
-                    <!-- DİĞER ÖDEME SEKME BUTONU -->
-                    <button type="button"
-                            id="other-tab-button"
-                            data-dashboard-tab="other"
-                            class="dashboard-tab"
-                            role="tab"
-                            aria-selected="false"
-                            aria-controls="other-payments-tab"
-                            onclick="showPaymentTab('other')">
-                        <span class="dashboard-tab-icon" aria-hidden="true">+</span>
-                        <span>Diğer</span>
-                    </button>
-                {% endif %}
-                <!-- MALZEME SEKME BUTONU -->
-                <button type="button"
-                        id="equipment-tab-button"
-                        data-dashboard-tab="equipment"
-                        class="dashboard-tab"
-                        role="tab"
-                        aria-selected="false"
-                        aria-controls="equipment-payments-tab"
-                        onclick="showPaymentTab('equipment')">
-                    <span class="dashboard-tab-icon" aria-hidden="true">📦</span>
-                    <span>Malzemeler</span>
-                </button>
-            </div>
-            <!-- ================================================= -->
-            <!-- ANTRENMAN KATILIMI (PANEL) -->
-            <!-- ================================================= -->
-            <div id="training-payments-tab" class="month-card-container">
-                <!-- Özet Kartları -->
-                <div class="grid min-w-0 grid-cols-2 gap-2 px-3 py-1.5 shrink-0">
-                    <div class="month-card-summary">
-                        <div class="flex items-center justify-between gap-2">
-                            <p class="month-card-label">Toplam antrenman</p>
-                            <p class="month-card-value">8</p>
+
+        <!-- AYLIK ÖDEMELER GRUBU -->
+        {% if request.user.is_club_admin %}
+            <section     id="expenses-tab"
+                        class="dashboard-panel hidden"
+                        role="tabpanel"
+                        aria-labelledby="expenses-tab-button">
+                {% for group in monthly_payment_groups %}
+                    <div class="mb-5">
+                        <!-- Yeni Başlık Grubu Sınıfımız -->
+                        <div class="ui-payment-header-group">
+                            <h3 class="ui-payment-group-title">{{ group.label }}</h3>
+                            <span class="ui-payment-group-amount {% if group.is_paid_sufficient %}ui-text-success{% else %}ui-text-warning{% endif %}">
+                                {{ group.total_paid|floatformat:0 }} / {{ group.fee_amount|floatformat:0 }} TL 
+                                {% if group.is_paid_sufficient %} ✓ {% else %} ⚠ {% endif %}
+                            </span>
                         </div>
-                        <div class="month-card-sub-grid">
-                            <div>
-                                <p class="text-[9px] font-bold text-sky-600 dark:text-sky-400">Yüzme</p>
-                                <p class="text-sm font-black text-sky-700 dark:text-sky-300">7</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-amber-600 dark:text-amber-400">Kara</p>
-                                <p class="text-sm font-black text-amber-700 dark:text-amber-300">1</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="month-card-summary-error">
-                        <div class="flex items-center justify-between gap-2">
-                            <p class="text-[10px] font-bold text-red-600 dark:text-red-400">Katılmadığı</p>
-                            <p class="text-lg font-black text-red-600 dark:text-red-400">2</p>
-                        </div>
-                        <div class="mt-1 grid grid-cols-2 gap-2 border-t border-red-200 dark:border-red-900/40 pt-1">
-                            <div>
-                                <p class="text-[9px] font-bold text-red-600 dark:text-red-400">Yüzme</p>
-                                <p class="text-sm font-black text-red-600 dark:text-red-400">2</p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-red-600 dark:text-red-400">Kara</p>
-                                <p class="text-sm font-black text-red-600 dark:text-red-400">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                            
-                <!-- Ay Navigasyonu -->
-                <div class="flex items-center justify-between gap-2 px-3 pb-1 shrink-0">
-                    <a href="?attendance_month=2026-08" class="flex items-center justify-center h-8 w-9 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-lg font-black transition-colors" aria-label="Önceki ay">←</a>
-                    <span class="text-[11px] font-black text-slate-500 dark:text-slate-400">Takvim</span>
-                    <span class="h-8 w-8"></span>
-                </div>
-
-                        <div class="calendar-container">
-  <!-- Takvim Başlığı ve Ay Kontrolleri -->
-  <div class="calendar-header">
-    <h2 class="calendar-title">Ekim 2026</h2>
-    <div class="calendar-nav">
-      <button class="calendar-nav-btn" aria-label="Önceki Ay">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-      </button>
-      <button class="calendar-nav-btn" aria-label="Sonraki Ay">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Hafta Günleri -->
-  <div class="calendar-weekdays">
-    <span>Pzt</span>
-    <span>Sal</span>
-    <span>Çar</span>
-    <span>Per</span>
-    <span>Cum</span>
-    <span>Cmt</span>
-    <span>Paz</span>
-  </div>
-
-  <!-- Günler Grid Yapısı -->
-  <div class="calendar-grid">
-    <!-- Önceki Aydan Kalan Günler (Soluk) -->
-    <div class="calendar-day muted">28</div>
-    <div class="calendar-day muted">29</div>
-    <div class="calendar-day muted">30</div>
-    
-    <!-- Ayın Günleri -->
-    <div class="calendar-day">1</div>
-    <div class="calendar-day">2</div>
-    <div class="calendar-day">3</div>
-    <div class="calendar-day">4</div>
-
-    <!-- Antrenman/Etkinlik İşaretli Gün Örneği -->
-    <div class="calendar-day">
-      <span>5</span>
-      <span class="calendar-dot"></span>
-    </div>
-
-    <div class="calendar-day">6</div>
-    
-    <!-- Bugün (Aktif / Seçili Durum) -->
-    <div class="calendar-day today">
-      <span>7</span>
-      <span class="calendar-dot"></span>
-    </div>
-
-    <div class="calendar-day">8</div>
-    <div class="calendar-day">9</div>
-    <div class="calendar-day">10</div>
-    <div class="calendar-day">11</div>
-  </div>
-</div>
-            </div>
-            <!-- ================================================= -->
-            <!-- AYLIK ÖDEMELER (PANEL) -->
-            <!-- ================================================= -->
-            {% if request.user.is_club_admin %}
-                <div id="monthly-payments-tab"
-                     class="dashboard-panel hidden"
-                     role="tabpanel"
-                     aria-labelledby="monthly-tab-button">
-                    {% for group in monthly_payment_groups %}
-                        <div>
-                            <div>
-                                <h3>{{ group.label }}</h3>
-                                <div>
-                                    <span>{{ group.total_paid|floatformat:0 }} / {{ group.fee_amount|floatformat:0 }} TL</span>
-                                    {% if group.is_paid_sufficient %}
-                                        <span title="Dönem aidatı karşılandı"
-                                              aria-label="Dönem aidatı karşılandı">✓</span>
-                                    {% else %}
-                                        <span title="Dönem aidatı eksik"
-                                              aria-label="Dönem aidatı eksik">⚠</span>
-                                    {% endif %}
-                                </div>
-                            </div>
+                        <div class="ui-card divide-y divide-[var(--ui-border-dark)]">
                             {% for item in group.items %}
-                                <div>{% include "athlete/partials/athlete_payment_row.html" %}</div>
+                                {% include "athlete/partials/athlete_payment_row.html" %}
+                            {% empty %}
+                                <div class="ui-empty">
+                                    <div class="ui-empty-icon">₺</div>
+                                    <p class="ui-empty-description">Henüz ödeme dönemi bulunmuyor. Aylık ödeme kayıtları burada görünecek.</p>
+                                </div>
                             {% endfor %}
                         </div>
-                    {% empty %}
-                        <div class="ui-empty">
-                            <div class="ui-empty-icon">₺</div>
-                            <p class="ui-empty-title">Henüz ödeme dönemi bulunmuyor.</p>
-                            <p class="ui-empty-description">Aylık ödeme kayıtları burada görünecek.</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <!-- ================================================= -->
-            <!-- DİĞER ÖDEMELER (PANEL) -->
-            <!-- ================================================= -->
-            {% if request.user.is_club_admin %}
-                <div id="other-payments-tab"
-                     class="dashboard-panel hidden"
-                     role="tabpanel"
-                     aria-labelledby="other-tab-button">
-                    {% for item in other_payments %}
-                        <div>{% include "athlete/partials/athlete_payment_row.html" %}</div>
-                    {% empty %}
-                        <div class="ui-empty">
-                            <div class="ui-empty-icon">₺</div>
-                            <p class="ui-empty-title">Diğer ödeme kaydı bulunmuyor.</p>
-                            <p class="ui-empty-description">Diğer ödeme kayıtları burada görünecek.</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <!-- ================================================= -->
-            <!-- MALZEME SATIŞLARI (PANEL) -->
-            <!-- ================================================= -->
-            <div id="equipment-payments-tab"
+                    </div>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <!-- MALZEME SATIŞLARI PANELİ -->
+        <section id="equipment-sales-tab"
                  class="dashboard-panel hidden"
                  role="tabpanel"
-                 aria-labelledby="equipment-tab-button">
-                <div>
-                    {% if request.user.is_coach or request.user.is_club_admin or request.user.is_finance or request.user.is_superuser %}
-                        <button type="button"
-                                class="ui-btn ui-btn-secondary"
-                                hx-get="{% url 'athlete-manage-equipment-sale-create' athlete.pk %}"
-                                hx-target="#athlete-equipment-sale-modal-container"
-                                hx-swap="innerHTML">
-                            <span>+</span>
-                            <span>Malzeme Dağıtımı Ekle</span>
-                        </button>
-                    {% endif %}
-                </div>
-                {% if equipment_sales %}
-                    <div>
-                        {% for item in equipment_sales %}
-                            <div>{% include "athlete/partials/athlete_payment_row.html" %}</div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="ui-empty">
-                        <div class="ui-empty-icon">+</div>
-                        <p class="ui-empty-title">Malzeme satışı bulunmuyor.</p>
-                        <p class="ui-empty-description">Malzeme satışları burada görünecek.</p>
-                    </div>
+                 aria-labelledby="equipment-sales-tab-button"
+                 >
+            <div class="ui-payment-header-group mb-3">
+                <h3 class="ui-section-title">Malzeme Satışları</h3>
+                {% if request.user.is_coach or request.user.is_club_admin or request.user.is_finance or request.user.is_superuser %} 
+                    <button class="ui-btn ui-btn-sm ui-btn-primary">+ Dağıtım Ekle</button>
                 {% endif %}
+            </div>
+
+            <div class="ui-card divide-y divide-[var(--ui-border-dark)]">
+                {% for item in equipment_sales %}
+                    {% include "athlete/partials/athlete_payment_row.html" %}
+                {% empty %}
+                    <div class="ui-empty">
+                        <div class="ui-empty-icon">📦</div>
+                        <p class="ui-empty-description">Malzeme satışı bulunmuyor. Malzeme satışları burada görünecek.</p>
+                    </div>
+                {% endfor %}
             </div>
         </section>
     </div>
-    <!-- ================================================= -->
-    <!-- MODAL KONTEYNERLERİ -->
-    <!-- ================================================= -->
-    <div id="athlete-payment-modal-container"></div>
-    <div id="athlete-equipment-sale-modal-container"></div>
 {% endblock %}

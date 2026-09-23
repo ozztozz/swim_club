@@ -1,173 +1,106 @@
-
 {% load static %}
 
-<header class="app-topbar">
-
+<!-- =========================================================
+   APP TOPBAR (ÜST BAR - YENİ CAM EFEKTİ & MODERLEŞTİRME)
+   ========================================================= -->
+<div class="app-topbar">
     <div class="app-topbar-inner">
-
-        <!-- =====================================================
-             BRAND
-             ===================================================== -->
-
-        <a
-            href="{% url 'dashboard-index' %}"
-            class="app-brand"
-            aria-label="ALPHA ACADEMY ana sayfa"
-        >
-
-            <div class="app-brand-mark">
-
-                <img
-                    src="/media/logos/fk1.png"
-                    alt="ALPHA ACADEMY"
-                    class="app-brand-logo"
-                >
-
+        
+        <!-- Sol Taraf: Logo ve Kulüp Markası -->
+        <a href="/" class="app-brand hover:opacity-90 transition-opacity">
+            <!-- Alpha Academy Logo Görseli (Eğer statik logo varsa src kısmına ekleyebilirsiniz) -->
+            <div class="app-brand-logo flex items-center justify-center font-black text-xs text-[var(--ui-primary-text)] bg-[var(--ui-primary)]">
+                ΑΑ
             </div>
-
-
-            <div class="app-brand-copy">
-
-                <span class="app-brand-name">
-                    ALPHA ACADEMY
-                </span>
-
-                <span class="app-brand-label">
-                    Kulüp Yönetimi
-                </span>
-
+            <div class="min-w-0">
+                <span class="app-brand-name">ALPHA ACADEMY</span>
+                <span class="app-brand-label">ALPHA ACADEMY Kulüp Yönetimi</span>
             </div>
-
         </a>
 
-
-        <!-- =====================================================
-             USER PROFILE
-             ===================================================== -->
-
+        <!-- Sağ Taraf: Kullanıcı Profil ve Açılır Menü Alanı -->
         {% if request.user.is_authenticated %}
-
-            <details class="app-profile">
-
-                <summary
-                    class="app-profile-trigger"
-                    aria-label="Kullanıcı menüsü"
-                >
-
-                    <span class="app-profile-avatar">
-
-                        {% if request.user.first_name %}
-                            {{ request.user.first_name|first|upper }}
-                        {% else %}
-                            {{ request.user.username|first|upper }}
+            <div class="app-topbar-actions relative" id="topbar-user-dropdown-wrapper">
+                
+                <!-- TETİKLEYİCİ BUTON: Masaüstü & Mobil Uyumlu Şık Avatar Grubu -->
+                <button type="button" 
+                        class="flex items-center gap-2 p-1.5 pr-3 rounded-full bg-white/60 hover:bg-white/90 border border-[var(--ui-border-dark)] backdrop-blur-md shadow-sm transition-all active:scale-[0.98]"
+                        onclick="document.getElementById('topbar-user-dropdown').classList.toggle('hidden')">
+                    
+                    <!-- Kullanıcı İsminin İlk Harfiyle Şık Yuvarlak Profil İkonu -->
+                    <div class="w-8 h-8 rounded-full bg-[var(--ui-dark)] text-white text-xs font-bold flex items-center justify-center shadow-sm shrink-0">
+                        {% if request.user.first_name %} 
+                            {{ request.user.first_name|first|upper }} 
+                        {% else %} 
+                            {{ request.user.username|first|upper }} 
                         {% endif %}
-
+                    </div>
+                    
+                    <!-- Kullanıcı Adı Metni (Mobilde kibarca gizlenir, sadece ok kalır) -->
+                    <span class="hidden sm:inline text-xs font-semibold text-[var(--ui-text-soft)]">
+                        {% if request.user.get_full_name %} 
+                            {{ request.user.get_full_name }} 
+                        {% else %} 
+                            {{ request.user.username }} 
+                        {% endif %}
                     </span>
+                    <span class="text-[10px] text-[var(--ui-muted)] ml-0.5">▼</span>
+                </button>
 
-
-                    <span class="app-profile-info">
-
-                        <span class="app-profile-name">
-
-                            {% if request.user.get_full_name %}
-                                {{ request.user.get_full_name }}
-                            {% else %}
-                                {{ request.user.username }}
+                <!-- DÜŞEN MENÜ PANELİ (Açılır Dropdown - Cam Efektli Yeni Stil) -->
+                <div class="absolute right-0 top-full mt-2 w-56 ui-card p-3 shadow-floating backdrop-blur-xl bg-white/80 hidden z-[200] animate-fade-in" id="topbar-user-dropdown">
+                    
+                    <!-- Menü Üstü: Kullanıcı Kimlik Özeti -->
+                    <div class="flex items-center gap-3 p-2 pb-3 mb-2 border-b border-[var(--ui-border-dark)]">
+                        <div class="w-9 h-9 rounded-full bg-[var(--ui-dark)] text-white text-sm font-bold flex items-center justify-center shrink-0">
+                            {% if request.user.first_name %} 
+                                {{ request.user.first_name|first|upper }} 
+                            {% else %} 
+                                {{ request.user.username|first|upper }} 
                             {% endif %}
-
-                        </span>
-
-                    </span>
-
-
-                    <span
-                        class="app-profile-chevron"
-                        aria-hidden="true"
-                    >
-                        ˅
-                    </span>
-
-                </summary>
-
-
-                <!-- =================================================
-                     PROFILE MENU
-                     ================================================= -->
-
-                <div class="app-profile-menu">
-
-                    <div class="app-profile-menu-user">
-
-                        <div class="app-profile-menu-avatar">
-
-                            {% if request.user.first_name %}
-                                {{ request.user.first_name|first|upper }}
-                            {% else %}
-                                {{ request.user.username|first|upper }}
-                            {% endif %}
-
                         </div>
-
-
-                        <div class="app-profile-menu-copy">
-
-                            <strong>
-
-                                {% if request.user.get_full_name %}
-                                    {{ request.user.get_full_name }}
-                                {% else %}
-                                    {{ request.user.username }}
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-xs font-bold text-[var(--ui-text)] truncate">
+                                {% if request.user.get_full_name %} 
+                                    {{ request.user.get_full_name }} 
+                                {% else %} 
+                                    {{ request.user.username }} 
                                 {% endif %}
-
-                            </strong>
-
-                            <span>
-                                {{ request.user.get_role_display }}
                             </span>
-
+                            <span class="text-[10px] text-[var(--ui-subtle)] truncate mt-0.5">
+                                {{ request.user.get_role_display|default:"Yetkili Kullanıcı" }}
+                            </span>
                         </div>
-
                     </div>
 
+                    <!-- Menü Linkleri (Hesap Güvenliği Ayarı) -->
+                    <a href="{% url 'password-change' %}" class="flex items-center gap-2 p-2 rounded-xl text-xs font-medium text-[var(--ui-text-soft)] hover:bg-[var(--ui-surface-3)]/50 transition-colors">
+                        <span>🔒</span> Şifre Değiştir
+                    </a>
 
-                    <div class="app-profile-divider"></div>
-
-
-                    <!-- ÇIKIŞ -->
-
-                    <form
-                        method="post"
-                        action="{% url 'user-logout' %}"
-                    >
-
+                    <!-- Menü Altı: Çıkış Yap Formu (Güvenli CSRF Yapısı Tamamen Korundu) -->
+                    <form method="post" action="{% url 'user-logout' %}" class="block mt-1 pt-1 border-t border-[var(--ui-border-dark)]">
                         {% csrf_token %}
-
-                        <button
-                            type="submit"
-                            class="app-profile-logout"
-                        >
-
-                            <span
-                                class="app-profile-menu-icon"
-                                aria-hidden="true"
-                            >
-                                ↪
-                            </span>
-
-                            <span>
-                                Çıkış yap
-                            </span>
-
+                        <button type="submit" class="w-full flex items-center gap-2 p-2 rounded-xl text-xs font-semibold ui-text-danger hover:bg-[var(--ui-bg-error)]/40 transition-colors text-left">
+                            <span>↪</span> Çıkış yap
                         </button>
-
                     </form>
 
                 </div>
 
-            </details>
-
+            </div>
         {% endif %}
 
     </div>
+</div>
 
-</header>
+<!-- Dışarı Tıklayınca Menüyü Kapatan Akıllı JS Kuralı -->
+<script>
+    window.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('topbar-user-dropdown');
+        const wrapper = document.getElementById('topbar-user-dropdown-wrapper');
+        if (dropdown && wrapper && !wrapper.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+</script>

@@ -1,69 +1,230 @@
+
 {% extends "base.html" %}
+
 {% block content %}
-    <div class="dashboard">
-        <header>
-            {% if team %}
-                <a href="{% url 'team-detail' team.pk %}" class="ui-btn ui-btn-sm ui-btn-ghost">
-                    <span>‹</span>
-                    Takım profili
-                </a>
-            {% endif %}
-        </header>
+<div class="dashboard">
+
+    <!-- =========================================================
+         SAYFA ÜSTÜ
+    ========================================================== -->
+    <header class="page-header">
 
         {% if team %}
-            <div class="ui-card">
-                <div>
-                    <h2 title="{{ team.name }}">{{ team.name }}</h2>
-                    <form method="get" aria-label="Takım seçimi">
-                        {% for schedule_team in schedule_teams %}
-                            <button type="submit"
-                                    name="team"
-                                    value="{{ schedule_team.pk }}"
-                                    class="ui-btn {% if team.pk == schedule_team.pk %}ui-btn-dark{% else %}ui-btn-secondary{% endif %}"
-                                    {% if team.pk == schedule_team.pk %}aria-current="true"{% endif %}>
-                                {{ schedule_team.name }}
-                            </button>
-                        {% empty %}
-                            <span>Takım yok</span>
-                        {% endfor %}
-                    </form>
-                </div>
-
-                <div class="ui-stat-grid">
-                    <div class="ui-stat">
-                        <p class="ui-stat-label">Yüzme</p>
-                        <p class="ui-stat-value text-primary-custom">{{ swimming_count }}</p>
-                        <p class="ui-stat-description">{{ swimming_training_hours }}s {{ swimming_training_minutes }}dk</p>
-                    </div>
-                    <div class="ui-stat">
-                        <p class="ui-stat-label">Kara</p>
-                        <p class="ui-stat-value text-primary-custom">{{ land_count }}</p>
-                        <p class="ui-stat-description">{{ land_training_hours }}s {{ land_training_minutes }}dk</p>
-                    </div>
-                    <div class="ui-stat">
-                        <p class="ui-stat-label">Toplam süre</p>
-                        <p class="ui-stat-value">{{ total_training_hours }}s {{ total_training_minutes }}dk</p>
-                        <p class="ui-stat-description">{{ scheduled_day_count }}/7 gün</p>
-                    </div>
-                </div>
-            </div>
-
-            <section class="ui-section">
-                <div class="ui-card">
-                    <div class="ui-card-header">
-                        <h2 class="ui-card-title">Haftanın akışı</h2>
-                    </div>
-                    <div>
-                        {% include "team/partials/weekly_schedule_board.html" %}
-                    </div>
-                </div>
-            </section>
-        {% else %}
-            <div class="ui-empty">
-                <p class="ui-empty-description">Görüntülenecek takım bulunmuyor.</p>
-            </div>
+            <a
+                href="{% url 'team-detail' team.pk %}"
+                class="ui-btn ui-btn-sm ui-btn-ghost"
+            >
+                <span aria-hidden="true">‹</span>
+                Takım profili
+            </a>
         {% endif %}
 
-        <div id="schedule-modal-container"></div>
-    </div>
+    </header>
+
+
+    {% if team %}
+
+        <!-- =====================================================
+             TAKIM ÖZETİ
+        ====================================================== -->
+        <section class="ui-card">
+
+            <!-- Takım başlığı -->
+            <div class="ui-card-header">
+
+                <div class="min-w-0">
+                    <p class="ui-eyebrow">
+                        Takım programı
+                    </p>
+
+                    <h1
+                        class="ui-card-title truncate"
+                        title="{{ team.name }}"
+                    >
+                        {{ team.name }}
+                    </h1>
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TAKIM SEÇİMİ
+            ================================================== -->
+            {% if schedule_teams %}
+                <div class="mt-3 border-t border-base-200 pt-3">
+
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-base-content/50">
+                        Takım seç
+                    </p>
+
+                    <form
+                        method="get"
+                        aria-label="Takım seçimi"
+                        class="flex flex-wrap gap-2"
+                    >
+
+                        {% for schedule_team in schedule_teams %}
+
+                            <button
+                                type="submit"
+                                name="team"
+                                value="{{ schedule_team.pk }}"
+                                class="
+                                    ui-btn
+                                    ui-btn-sm
+                                    {% if team.pk == schedule_team.pk %}
+                                        ui-btn-dark
+                                    {% else %}
+                                        ui-btn-secondary
+                                    {% endif %}
+                                "
+                                {% if team.pk == schedule_team.pk %}
+                                    aria-current="true"
+                                {% endif %}
+                            >
+                                {{ schedule_team.name }}
+                            </button>
+
+                        {% endfor %}
+
+                    </form>
+
+                </div>
+            {% endif %}
+
+
+            <!-- =================================================
+                 İSTATİSTİKLER
+            ================================================== -->
+            <div class="ui-stat-grid mt-4">
+
+                <!-- Yüzme -->
+                <div class="ui-stat">
+
+                    <p class="ui-stat-label">
+                        Yüzme
+                    </p>
+
+                    <p class="ui-stat-value text-primary-custom">
+                        {{ swimming_count }}
+                    </p>
+
+                    <p class="ui-stat-description">
+                        {{ swimming_training_hours }}s
+                        {{ swimming_training_minutes }}dk
+                    </p>
+
+                </div>
+
+
+                <!-- Kara -->
+                <div class="ui-stat">
+
+                    <p class="ui-stat-label">
+                        Kara
+                    </p>
+
+                    <p class="ui-stat-value text-primary-custom">
+                        {{ land_count }}
+                    </p>
+
+                    <p class="ui-stat-description">
+                        {{ land_training_hours }}s
+                        {{ land_training_minutes }}dk
+                    </p>
+
+                </div>
+
+
+                <!-- Toplam -->
+                <div class="ui-stat">
+
+                    <p class="ui-stat-label">
+                        Toplam süre
+                    </p>
+
+                    <p class="ui-stat-value">
+                        {{ total_training_hours }}s
+                        {{ total_training_minutes }}dk
+                    </p>
+
+                    <p class="ui-stat-description">
+                        {{ scheduled_day_count }}/7 gün
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             HAFTALIK AKIŞ
+        ====================================================== -->
+        <section class="ui-section">
+
+            <div class="ui-card">
+
+                <div class="ui-card-header">
+
+                    <div class="min-w-0">
+
+                        <p class="ui-eyebrow">
+                            Haftalık program
+                        </p>
+
+                        <h2 class="ui-card-title">
+                            Haftanın akışı
+                        </h2>
+
+                    </div>
+
+                    <span class="ui-badge">
+                        {{ scheduled_day_count }}/7 gün
+                    </span>
+
+                </div>
+
+
+                <div class="mt-3 overflow-hidden">
+                    {% include "team/partials/weekly_schedule_board.html" %}
+                </div>
+
+            </div>
+
+        </section>
+
+
+    {% else %}
+
+        <!-- =====================================================
+             BOŞ DURUM
+        ====================================================== -->
+        <div class="ui-empty">
+
+            <div class="ui-empty-icon" aria-hidden="true">
+                📅
+            </div>
+
+            <h2 class="ui-empty-title">
+                Takım bulunamadı
+            </h2>
+
+            <p class="ui-empty-description">
+                Görüntülenecek takım bulunmuyor.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =========================================================
+         MODAL
+    ========================================================== -->
+    <div id="schedule-modal-container"></div>
+
+</div>
 {% endblock %}

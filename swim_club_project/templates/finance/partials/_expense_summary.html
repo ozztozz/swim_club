@@ -1,83 +1,106 @@
-<!-- =========================================================
-     FİNANS ÖZETİ
-========================================================== -->
-<section id="financial-summary-strip"
-         hx-swap-oob="true"
-         class="ui-stat-grid">
-    <!-- Harcama -->
-    <div class="ui-stat">
-        <div>
-            <span class="ui-stat-label">Harcama</span>
-            <span>
-                <svg viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="2">
-                    <path d="M3 10h18" />
-                    <path d="M7 15h3" />
-                    <rect x="3" y="5" width="18" height="14" rx="2" />
-                </svg>
-            </span>
-        </div>
-        <p class="ui-stat-value">{{ expense_summary.total_expense|floatformat:0 }}</p>
-        <div>
-            <p>Dağılım</p>
-            <div class="ui-scroll-list">
-                {% for category in expense_summary.category_totals %}
-                    <div>
-                        <span>
-                            {% if category.parent_name %}
-                                {{ category.name }}
-                            {% else %}
-                                {{ category.name }}
-                            {% endif %}
-                        </span>
-                        <span>{{ category.total|floatformat:0 }}</span>
-                    </div>
-                {% empty %}
-                    <p>Kayıt yok.</p>
-                {% endfor %}
+<!-- ÜST PANEL: YENİ 3 SÜTUNLU ÖZET CAM KARTI -->
+<div class="profile-hero-card mb-6">
+    <div class="profile-hero-content py-1">
+        
+        <!-- ÜST SATIR: TOPLAM HARCAMA VURGUSU -->
+        <span class="profile-hero-subtitle m-0">Toplam Harcama</span>
+        <h2 class="profile-hero-name text-3xl my-1 ui-text-danger font-bold">
+            {{ expense_summary.total_expense|floatformat:0 }} TL
+        </h2>
+        <span class="text-[10px] text-[var(--ui-subtle)]">Giderler durumu</span>
+        
+        <!-- ORTA SATIR: INCE AYRICI ÇİZGİ -->
+        <div class="w-full h-px bg-white/40 my-3"></div>
+        
+        <!-- ALT SATIR: 3 SÜTUNLU GİDER ÖZETİ (ÖDENDİ / BEKLİYOR / DÜZENLİ ÖDEMELER) -->
+        <div class="grid grid-cols-3 gap-2 w-full text-center">
+            
+            <!-- 1. Sütun: Ödenen Giderler (Yeşil) -->
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-success-text)] opacity-80">Ödendi</span>
+                <span class="text-sm font-bold ui-text-success mt-0.5">
+                    {{ expense_summary.paid_expense_total|floatformat:0 }}
+                </span>
             </div>
-        </div>
-        <div>
-            <div>
-                <p>Ödendi</p>
-                <p>{{ expense_summary.paid_expense_total|floatformat:0 }}</p>
+            
+            <!-- 2. Sütun: Bekleyen Giderler (Kırmızı) -->
+            <div class="flex flex-col items-center border-x border-white/30 px-1">
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-danger-text)] opacity-80">Bekliyor</span>
+                <span class="text-sm font-bold ui-text-danger mt-0.5">
+                    {{ expense_summary.pending_expense_total|floatformat:0 }}
+                </span>
             </div>
-            <div>
-                <p>Bekliyor</p>
-                <p>{{ expense_summary.pending_expense_total|floatformat:0 }}</p>
+            
+            <!-- 3. Sütun: Düzenli Ödemeler Toplamı (Mavi/Primary) -->
+            <div class="flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-primary-text)] opacity-80">Düzenli</span>
+                <span class="text-sm font-bold ui-text-primary mt-0.5">
+                    {{ regular_expense_summary.regular_paid_total|floatformat:0 }}
+                </span>
             </div>
+            
         </div>
     </div>
-    <!-- Net Bakiye -->
-    <div class="ui-stat">
-        <div>
-            <div>
-                <p class="ui-stat-label">Düzenli Ödemeler</p>
-                <a href="{% url 'regular-expense-list' %}">
-                    Düzenli ödemeleri yönet
-                </a>
+</div>
+
+<!-- GİDER KATEGORİLERİ DAĞILIM LİSTESİ -->
+<section class="ui-section mt-4">
+    <div class="ui-section-header">
+        <h3 class="ui-section-title">Dağılım</h3>
+        <span class="ui-section-description">Kategori bazlı gider haritası</span>
+    </div>
+
+    <div class="ui-card divide-y divide-[var(--ui-border-dark)] mt-2">
+        {% for category in expense_summary.category_totals %}
+            <div class="ui-list-item {% if category.parent_name %}pl-8 bg-[var(--ui-surface-2)]/30{% endif %}">
+                <div class="flex items-center gap-2">
+                    <!-- Eğer alt kategoriyse başına şık bir alt kırılım ikonu yerleştiriyoruz -->
+                    {% if category.parent_name %}
+                        <span class="text-[var(--ui-subtle)] text-xs">↳</span>
+                        <span class="text-[var(--ui-text-soft)] text-xs font-medium">{{ category.name }}</span>
+                    {% else %}
+                        <span class="text-[var(--ui-text)] font-semibold">{{ category.name }}</span>
+                    {% endif %}
+                </div>
+                <span class="ui-list-value ui-text-danger">
+                    -{{ category.total|floatformat:0 }} TL
+                </span>
             </div>
-            <span>
-                <svg viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="2">
-                    <path d="M3 3v18h18" />
-                    <path d="m7 16 4-5 3 3 5-7" />
-                </svg>
-            </span>
+        {% empty %}
+            <div class="ui-empty">
+                <div class="ui-empty-icon">📦</div>
+                <p class="ui-empty-description">Kayıt yok.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- DÜZENLİ ÖDEMELERİ YÖNETME ALANI -->
+<section class="ui-section mt-6">
+    <div class="ui-card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[var(--ui-surface-2)] border border-[var(--ui-border-dark)]">
+        <div class="flex flex-col">
+            <h4 class="text-sm font-semibold text-[var(--ui-text)] m-0">Düzenli Ödemeler</h4>
+            <span class="text-xs text-[var(--ui-muted)] mt-0.5">Sabit ve periyodik giderlerin takibi</span>
         </div>
-        <div>
-            <div>
-                <p>Ödenen</p>
-                <p>{{ regular_expense_summary.regular_paid_total|floatformat:0 }}</p>
-            </div>
-            <div>
-                <p>Bekleyen</p>
-                <p>{{ regular_expense_summary.regular_pending_total|floatformat:0 }}</p>
-            </div>
+        <!-- Link Yapısı Projenin Kibar Buton Sınıfına Çevrildi -->
+        <a href="#" class="ui-btn ui-btn-sm ui-btn-secondary shadow-sm text-xs shrink-0">
+            Düzenli ödemeleri yönet
+        </a>
+    </div>
+
+    <!-- Düzenli Ödeme Detay Alt Matrisi (Ödenen / Bekleyen) -->
+    <div class="grid grid-cols-2 gap-3 mt-3">
+        <div class="ui-card p-3 flex flex-col gap-1">
+            <span class="text-[10px] text-[var(--ui-muted)] font-medium uppercase tracking-wider">Ödenen Düzenli</span>
+            <strong class="text-sm font-bold ui-text-success">
+                {{ regular_expense_summary.regular_paid_total|floatformat:0 }} TL
+            </strong>
+        </div>
+        <div class="ui-card p-3 flex flex-col gap-1">
+            <span class="text-[10px] text-[var(--ui-muted)] font-medium uppercase tracking-wider">Bekleyen Düzenli</span>
+            <strong class="text-sm font-bold ui-text-danger">
+                {{ regular_expense_summary.regular_pending_total|floatformat:0 }} TL
+            </strong>
         </div>
     </div>
 </section>

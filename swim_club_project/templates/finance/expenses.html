@@ -1,107 +1,54 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="dashboard">
-        <!-- =========================================================
-             HARCAMA ÖZETİ
-        ========================================================== -->
+        
+        <!-- ÜST ÖZET PANELİ (Gider Özeti Parçacığı Aynen Korundu) -->
         {% include "finance/partials/_expense_summary.html" %}
 
-        <!-- =========================================================
-             HARCAMALAR
-        ========================================================== -->
-        <section class="ui-section">
-            <div class="ui-card">
-                <!-- Başlık -->
-                <div class="ui-card-header">
-                    <h2 class="ui-card-title">Harcamalar</h2>
-                    <div>
-                        <button class="ui-btn ui-btn-sm ui-btn-success"
-                                hx-get="{% url 'expense-create' %}?period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
-                                hx-target="#modal-container"
-                                hx-swap="innerHTML">
-                            <span class="ui-btn-icon">
-                                <svg viewBox="0 0 24 24"
-                                     fill="none"
-                                     stroke="currentColor"
-                                     stroke-width="2.5"
-                                     stroke-linecap="round">
-                                    <path d="M12 5v14" />
-                                    <path d="M5 12h14" />
-                                </svg>
-                            </span>
-                            <span>Yeni Harcama</span>
-                        </button>
-                    </div>
-                </div>
-
-                <form method="get">
-                    <div>
-                        <svg viewBox="0 0 24 24"
-                             fill="none"
-                             stroke="currentColor"
-                             stroke-width="2"
-                             stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" />
-                            <path d="M16 2v4" />
-                            <path d="M8 2v4" />
-                            <path d="M3 10h18" />
-                        </svg>
-                        <input type="month"
-                               name="period"
-                               value="{{ period }}"
-                               onchange="this.form.submit()"
-                               class="ui-input">
-                    </div>
-                    <input type="hidden" name="q" value="{{ query }}">
-                    <input type="hidden" name="category" value="{{ selected_category }}">
-                </form>
-
-                <!-- =====================================================
-                     HARCAMA LİSTESİ
-                ====================================================== -->
+        <!-- HARCAMALAR BÖLÜMÜ BAŞLIĞI VE AKSİYON BUTONU -->
+        <section class="ui-section mt-6">
+            <div class="ui-section-header">
                 <div>
-                    <table class="ui-table">
-                        <thead>
-                            <tr class="ui-table-row">
-                                <th class="ui-table-cell">Tarih</th>
-                                <th class="ui-table-cell">Alıcı / Firma</th>
-                                <th class="ui-table-cell ui-table-cell-receipt">Belge no</th>
-                                <th class="ui-table-cell ui-table-cell-amount">Tutar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="expense-list">
-                            {% for expense in expenses %}
-                                {% include "finance/partials/_expense_row.html" %}
-                            {% empty %}
-                                <tr id="empty-expense-state" class="ui-table-row">
-                                    <td colspan="4" class="ui-table-cell">
-                                        <div class="ui-empty">
-                                            <div class="ui-empty-icon">
-                                                <svg viewBox="0 0 24 24"
-                                                     fill="none"
-                                                     stroke="currentColor"
-                                                     stroke-width="1.7"
-                                                     stroke-linecap="round"
-                                                     stroke-linejoin="round">
-                                                    <path d="M3 10h18" />
-                                                    <path d="M7 15h3" />
-                                                    <rect x="3" y="5" width="18" height="14" rx="2" />
-                                                </svg>
-                                            </div>
-                                            <p class="ui-empty-title">Bu dönemde harcama yok</p>
-                                            <p class="ui-empty-description">
-                                                İlk harcama kaydını eklemek için
-                                                yukarıdaki butonu kullanın.
-                                            </p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <h2 class="ui-section-title">Harcamalar</h2>
+                    <span class="ui-section-description">{{ period }} Dönemi</span>
                 </div>
+                <!-- "Yeni Harcama" Butonu Projenizin ui-btn-dark Kimliğine Kavuşturuldu -->
+                <a href="#" class="ui-btn ui-btn-sm ui-btn-dark shrink-0">
+                    + Yeni Harcama
+                </a>
+            </div>
+
+            <!-- HARCAMA LİSTE TABLOSU (CSS 33. Table Yapısı Giydirildi) -->
+            <div class="ui-card overflow-hidden mt-3">
+                <table class="ui-table">
+                    <thead>
+                        <tr class="bg-[var(--ui-surface-2)] border-b border-[var(--ui-border-dark)]">
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-left">Tarih</th>
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-left">Alıcı / Firma</th>
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-left ui-table-cell-receipt">Belge No</th>
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-right">Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                            <!-- Harcama satırları partial üzerinden güvenle çekilmeye devam eder -->
+                            {% include "finance/partials/_expense_row.html" %}
+                        {% empty %}
+                            <!-- Tablo Boşsa Tetiklenen Şık Empty State Tasarımı -->
+                            <tr>
+                                <td colspan="4">
+                                    <div class="ui-empty py-8">
+                                        <div class="ui-empty-icon">📦</div>
+                                        <h3 class="ui-empty-title">Bu dönemde harcama yok</h3>
+                                        <p class="ui-empty-description mb-3">İlk harcama kaydını eklemek için yukarıdaki butonu kullanın.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </section>
+
     </div>
 {% endblock %}

@@ -1,147 +1,82 @@
-<tr
-    class="
-        ui-table-row
-        {% if expense.is_regular_source %}
-            ui-table-row-scheduled
-        {% elif not expense.is_active %}
-            ui-table-row-inactive
-        {% endif %}
-    "
->
-
-    <!-- Tarih -->
+<tr class="ui-table-row {% if not expense.is_active %}ui-table-row-inactive{% endif %}">
+    
+    <!-- 1. HÜCRE: TARİH VE TÜR (Düzenli / Planlı Bilgisi) -->
     <td class="ui-table-cell ui-table-cell-date">
-
-        <div class="ui-table-date">
-            {{ expense.expense_date|date:'d.m.Y' }}
-        </div>
-
+        <div class="ui-table-date">{{ expense.expense_date|date:'d.m.Y' }}</div>
+        <!-- Düzenli/Planlı Ödeme Durum Rozetleri -->
         {% if expense.is_regular_source or expense.regular_expense %}
             <div class="ui-table-label ui-table-label-primary">
-
-                {% if expense.is_regular_source %}
-                    Planlı ödeme
-                {% else %}
-                    Düzenli ödeme
+                {% if expense.is_regular_source %} 
+                    Planlı Ödeme 
+                {% else %} 
+                    Düzenli Ödeme 
                 {% endif %}
-
             </div>
         {% endif %}
-
     </td>
 
-
-    <!-- Alıcı / Firma -->
+    <!-- 2. HÜCRE: ALICI VE KATEGORİ -->
     <td class="ui-table-cell ui-table-cell-recipient">
-
-        <div class="ui-table-recipient">
-            {{ expense.reciever }}
-        </div>
-
+        <div class="ui-table-recipient">{{ expense.reciever }}</div>
+        <!-- Kategori Ağacı Hiyerarşisi -->
         <div class="ui-table-category">
-
             {% if expense.category %}
-
                 {% if expense.category.parent %}
-                    {{ expense.category.parent.name }} - {{ expense.category.name }}
+                    {{ expense.category.parent.name }} — {{ expense.category.name }}
                 {% else %}
                     {{ expense.category.name }}
                 {% endif %}
-
             {% else %}
                 Kategorisiz
             {% endif %}
-
         </div>
-
-
-        <!-- Durum -->
+        
+        <!-- MOBİL UYUMLU DURUM VE AKSİYON ALANI (Ekran küçüldüğünde alt tarafta şıkça parlar) -->
         {% if expense.is_regular_source or expense.status or not expense.is_active %}
-
             <div class="ui-table-status">
+                <!-- Durum Etiketleri Yeni Renklerle Eşlendi -->
+                <span class="ui-badge 
+                    {% if expense.is_regular_source or expense.status == 'pending' %}ui-badge-warning
+                    {% elif expense.status == 'paid' %}ui-badge-success
+                    {% elif expense.status == 'cancelled' or not expense.is_active %}ui-badge-danger
+                    {% else %}ui-badge-neutral{% endif %} text-[10px] px-1.5 py-0.5">
+                    
+                    {% if expense.is_regular_source %} 
+                        Bekliyor 
+                    {% elif expense.status == "paid" %} 
+                        Ödendi 
+                    {% elif expense.status == "pending" %} 
+                        Bekliyor 
+                    {% elif expense.status == "cancelled" %} 
+                        İptal 
+                    {% endif %}
+                    
+                    {% if not expense.is_regular_source and not expense.is_active %} 
+                        İptal 
+                    {% endif %}
+                </span>
 
-                {% if expense.is_regular_source %}
-
-                    <span class="ui-badge ui-badge-neutral">
-                        Bekliyor
-                    </span>
-
-                {% elif expense.status == "paid" %}
-
-                    <span class="ui-badge ui-badge-success">
-                        Ödendi
-                    </span>
-
-                {% elif expense.status == "pending" %}
-
-                    <span class="ui-badge ui-badge-warning">
-                        Bekliyor
-                    </span>
-
-                {% elif expense.status == "cancelled" %}
-
-                    <span class="ui-badge ui-badge-danger">
-                        İptal
-                    </span>
-
-                {% endif %}
-
-
-                {% if not expense.is_regular_source and not expense.is_active %}
-
-                    <span class="ui-badge ui-badge-danger">
-                        İptal
-                    </span>
-
-                {% endif %}
-
+                <!-- Mobil Aksiyon Butonu -->
+                <div class="ui-table-action">
+                    <a href="#" class="ui-btn ui-btn-sm {% if expense.is_regular_source %}ui-btn-primary{% else %}ui-btn-secondary{% endif %} !min-height-[26px] !py-0.5 !px-2 text-[10px]">
+                        {% if expense.is_regular_source %} Ödeme Yap {% else %} Düzenle {% endif %}
+                    </a>
+                </div>
             </div>
-
         {% endif %}
-
     </td>
 
-
-    <!-- Belge No -->
-    <td class="ui-table-cell ui-table-cell-receipt">
-        {{ expense.receipt_no|default:'-' }}
+    <!-- 3. HÜCRE: BELGE NUMARASI (Mobilde Otomatik Gizlenen Sütun) -->
+    <td class="ui-table-cell ui-table-cell-receipt text-[var(--ui-muted)] font-medium">
+        {{ expense.receipt_no|default:'—' }}
     </td>
 
-
-    <!-- Tutar / İşlem -->
+    <!-- 4. HÜCRE: TUTAR (Sağa Yaslı) -->
     <td class="ui-table-cell ui-table-cell-amount">
-
-        <div class="ui-table-amount">
-            {{ expense.amount|floatformat:0 }}
-        </div>
-
-
-        {% if expense.is_regular_source %}
-
-            <button
-                type="button"
-                class="ui-btn ui-btn-primary ui-btn-sm ui-table-action"
-                hx-get="{% url 'regular-expense-convert' expense.pk %}?source=expenses&period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}"
-                hx-target="#modal-container"
-                hx-swap="innerHTML"
-            >
-                Ödeme yap
-            </button>
-
-        {% else %}
-
-            <button
-                type="button"
-                class="ui-btn ui-btn-ghost ui-btn-sm ui-table-action"
-                hx-get="{% url 'expense-update' expense.pk %}?period={{ expense.period }}"
-                hx-target="#modal-container"
-                hx-swap="innerHTML"
-            >
-                Düzenle
-            </button>
-
-        {% endif %}
-
+        <!-- Duruma göre tutar rengi dinamik değişir -->
+        <span class="ui-table-amount {% if expense.status == 'paid' %}ui-text-success{% elif expense.status == 'cancelled' %}ui-text-subtle line-through opacity-50{% else %}ui-text-danger{% endif %}">
+            {{ expense.amount|floatformat:0 }} TL
+        </span>
     </td>
 
 </tr>

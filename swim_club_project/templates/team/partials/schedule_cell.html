@@ -1,39 +1,89 @@
+
 {% if schedules %}
-    <div>
+
+    <div class="min-w-0">
         {% for schedule in schedules %}
-            <div>
-                <div>
-                    <span class="ui-badge {% if schedule.training_type == 'land' %}ui-badge-warning{% else %}ui-badge-primary{% endif %}"
-                          title="{{ schedule.get_training_type_display }}">
-                        {% if schedule.training_type == "land" %}K{% else %}Y{% endif %}
+
+            <div class="group flex min-w-0 items-center gap-1.5 py-1.5">
+
+                <!-- Antrenman tipi -->
+                <span
+                    class="ui-badge shrink-0 {% if schedule.training_type == 'land' %}ui-badge-warning{% else %}ui-badge-primary{% endif %}"
+                    title="{{ schedule.get_training_type_display }}"
+                >
+                    {% if schedule.training_type == "land" %}K{% else %}Y{% endif %}
+                </span>
+
+                <!-- Saat -->
+                <span class="shrink-0 whitespace-nowrap text-[10px] font-semibold tabular-nums text-base-content">
+                    {{ schedule.start_time|time:"H:i" }}
+                </span>
+
+                <span class="shrink-0 text-[9px] text-base-content/30">
+                    –
+                </span>
+
+                <span class="shrink-0 whitespace-nowrap text-[10px] tabular-nums text-base-content/60">
+                    {{ schedule.end_time|time:"H:i" }}
+                </span>
+
+                <!-- Konum -->
+                {% if schedule.location %}
+                    <span
+                        class="min-w-0 truncate text-[9px] text-base-content/40"
+                        title="{{ schedule.location }}"
+                    >
+                        · {{ schedule.location }}
                     </span>
-                    <div>
-                        <button type="button"
-                                class="ui-btn ui-btn-sm ui-btn-ghost"
-                                hx-get="{% url 'team-schedule-update' team.pk schedule.pk %}"
-                                hx-target="#schedule-modal-container"
-                                hx-swap="innerHTML"
-                                title="Düzenle"
-                                aria-label="Antrenmanı düzenle">✎</button>
-                        <form method="post"
-                              hx-post="{% url 'team-schedule-delete' team.pk schedule.pk %}"
-                              hx-target="#weekly-schedule-board"
-                              hx-swap="outerHTML">
-                            {% csrf_token %}
-                            <button type="submit"
-                                    class="ui-btn ui-btn-sm ui-btn-ghost text-danger-text"
-                                    title="Sil"
-                                    aria-label="{{ day_label }} antrenmanını sil">×</button>
-                        </form>
-                    </div>
+                {% endif %}
+
+                <!-- Aksiyonlar -->
+                <div class="ml-auto flex shrink-0 items-center">
+
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-sm ui-btn-ghost"
+                        hx-get="{% url 'team-schedule-update' team.pk schedule.pk %}"
+                        hx-target="#schedule-modal-container"
+                        hx-swap="innerHTML"
+                        title="Düzenle"
+                        aria-label="Antrenmanı düzenle"
+                    >
+                        ✎
+                    </button>
+
+                    <form
+                        method="post"
+                        hx-post="{% url 'team-schedule-delete' team.pk schedule.pk %}"
+                        hx-target="#weekly-schedule-board"
+                        hx-swap="outerHTML"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="ui-btn ui-btn-sm ui-btn-ghost text-danger-text"
+                            title="Sil"
+                            aria-label="{{ day_label }} antrenmanını sil"
+                        >
+                            ×
+                        </button>
+                    </form>
+
                 </div>
-                <div>{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</div>
-                <div>{{ schedule.location }}</div>
+
             </div>
+
         {% endfor %}
     </div>
+
 {% else %}
-    <div>
-        <span>OFF</span>
+
+    <div class="flex min-h-[2.25rem] items-center justify-center">
+        <span class="text-[10px] font-medium text-base-content/25">
+            OFF
+        </span>
     </div>
+
 {% endif %}
+
