@@ -9,7 +9,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, F, Prefetch, Q, Sum
+from django.db.models import Count, F, Q, Sum
 from django.urls import reverse
 from django.utils import timezone
 from .models import PaymentRecord

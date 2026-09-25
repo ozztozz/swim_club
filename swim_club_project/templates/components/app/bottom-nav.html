@@ -107,8 +107,8 @@
 
             <!-- ANA SAYFA -->
             <a
-                href="{% url 'dashboard-index' %}"
-                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'dashboard-index' %}active{% endif %}"
+                href="{% url 'dashboard:index' %}"
+                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}"
             >
                 <span class="app-bottom-nav-item-icon" aria-hidden="true">
                     <svg

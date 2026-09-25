@@ -1,0 +1,146 @@
+    <!-- =========================================================
+         AYLIK KATILIM TAKVİMLERİ
+    ========================================================== -->
+    {% for month in attendance_months %}
+
+        <div class="ui-card mt-4 ui-custom-calendar">
+
+            <!-- AY BAŞLIĞI -->
+            <div class="flex items-center justify-between gap-3 mb-2">
+
+                <div class="min-w-0">
+
+                    <h3 class="ui-calendar-month-title truncate">
+                        {{ month.label }}
+                    </h3>
+
+                    <div class="mt-0.5 text-[10px] font-medium text-base-content/45">
+                        {{ month.total_count }} toplam
+                        ·
+                        <span style="color: var(--ui-danger-text);">
+                            {{ month.absent_count }} gelmedi
+                        </span>
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="ui-btn ui-btn-sm ui-btn-ghost shrink-0"
+                >
+                    ← Bugün
+                </button>
+
+            </div>
+
+
+            <!-- HAFTA GÜNLERİ -->
+            <div class="ui-calendar-week-row">
+                {% for weekday in month.weekdays %}
+                    <div>
+                        {{ weekday.label|slice:":3" }}
+                    </div>
+                {% endfor %}
+            </div>
+
+
+            <!-- TAKVİM -->
+            <div class="ui-calendar-days-grid">
+
+                {% for week in month.calendar_weeks %}
+
+                    {% for day in week %}
+
+                        {% if day %}
+
+                            <div class="ui-calendar-day-cell">
+
+                                <!-- GÜN NUMARASI -->
+                                <div
+                                    class="text-[9px] font-medium leading-3"
+                                    style="color: var(--ui-text-soft);"
+                                >
+                                    {{ day.number }}
+                                </div>
+
+                                <!-- ANTRENMANLAR -->
+                                {% if day.sessions %}
+                                    <div class="mt-1 flex min-w-0 items-center justify-center gap-1">
+
+                                        {% for session in day.sessions %}
+
+                                            {% if session.status == 'absent' %}
+
+                                                <!-- KATILMADI -->
+                                                <span
+                                                    class="
+                                                        min-w-0
+                                                        truncate
+                                                        text-[11px]
+                                                        font-bold
+                                                        leading-4
+                                                    "
+                                                    style="color: var(--ui-danger-text);"
+                                                    title="{{ session.label }} · Katılmadı"
+                                                >
+                                                    {{ session.label }}
+                                                    {% if session.is_makeup %}
+                                                        <sup
+                                                            class="ml-px text-[8px] font-bold"
+                                                            style="color: var(--ui-primary-text);"
+                                                        >T</sup>
+                                                    {% endif %}
+                                                </span>
+
+                                            {% else %}
+
+                                                <!-- KATILDI -->
+                                                <span
+                                                    class="
+                                                        min-w-0
+                                                        truncate
+                                                        text-[11px]
+                                                        font-bold
+                                                        leading-4
+                                                    "
+                                                    style="color: var(--ui-success-text);"
+                                                    title="{{ session.label }} · Katıldı"
+                                                >
+                                                    {{ session.label }}
+                                                    {% if session.is_makeup %}
+                                                        <sup
+                                                            class="ml-px text-[8px] font-bold"
+                                                            style="color: var(--ui-primary-text);"
+                                                        >T</sup>
+                                                    {% endif %}
+                                                </span>
+
+                                            {% endif %}
+
+                                        {% endfor %}
+
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+                        {% else %}
+
+                            <!-- BOŞ GÜN -->
+                            <div class="ui-calendar-day-cell is-passive"></div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    {% empty %}
+        <div class="ui-calendar-no-sessions">
+            <p>Henüz katılım kaydı bulunmamaktadır.</p>
+        </div>
+    {% endfor %}

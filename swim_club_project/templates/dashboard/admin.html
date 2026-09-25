@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Kulüp Yönetimi | ALPHA ACADEMY
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard">
+
+    <!-- =====================================================
+         SAYFA BAŞLIĞI
+         ===================================================== -->
+
+    <header class="page-header">
+
+        <div class="page-header-main">
+
+            <p class="page-eyebrow">
+                Genel bakış
+            </p>
+
+            <h1 class="page-title">
+                Kulüp yönetimi
+            </h1>
+
+            <p class="page-description">
+                Kulübünüzün finansal durumunu ve son işlemlerini takip edin.
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         FİNANSAL ÖZET
+         ===================================================== -->
+
+    {% include "dashboard/partials/_financial_summary.html" %}
+
+
+    <!-- =====================================================
+         TAKİP EDİLECEKLER
+         ===================================================== -->
+
+   {% include "dashboard/partials/_payment_summary.html" %}
+
+
+    <!-- =====================================================
+         SON TAHSİLATLAR
+         ===================================================== -->
+
+    <section class="ui-section">
+
+        <div class="ui-section-header">
+
+            <div class="min-w-0">
+
+                <h2 class="ui-section-title">
+                    Son tahsilatlar
+                </h2>
+
+                <p class="ui-card-subtitle">
+                    Son gerçekleşen ödemeler
+                </p>
+
+            </div>
+
+            <div class="ui-section-actions">
+
+                <a
+                    href="{% url 'payment-status-list' 'paid' %}"
+                    class="ui-btn ui-btn-ghost ui-btn-sm"
+                >
+                    Tümünü gör
+                </a>
+
+            </div>
+
+        </div>
+
+
+        {% include "finance/partials/_payment_status_list.html" with payments=payments payment_status=payment_status status_label=status_label %}   
+
+    </section>
+
+
+    <!-- =====================================================
+         SON HARCAMALAR
+         ===================================================== -->
+
+    <section class="ui-section">
+
+        <div class="ui-section-header">
+
+            <div class="min-w-0">
+
+                <h2 class="ui-section-title">
+                    Son harcamalar
+                </h2>
+
+                <p class="ui-card-subtitle">
+                    Son gerçekleşen giderler
+                </p>
+
+            </div>
+
+            <div class="ui-section-actions">
+
+                <a
+                    href="{% url 'expense-list' %}?period={{ current_period }}"
+                    class="ui-btn ui-btn-ghost ui-btn-sm"
+                >
+                    Tümünü gör
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="ui-list">
+
+            {% for expense in recent_expenses %}
+
+                <div class="dashboard-expense-row">
+
+                    <div class="dashboard-row-main">
+
+                        <strong>
+                            {% if expense.category %}
+                                {{ expense.category.name }}
+                            {% else %}
+                                Kategorisiz harcama
+                            {% endif %}
+                        </strong>
+
+                        <span>
+                            {% if expense.reciever %}
+                                {{ expense.reciever }}
+                            {% else %}
+                                Harcama
+                            {% endif %}
+                        </span>
+
+                    </div>
+
+
+                    <div class="dashboard-row-meta">
+
+                        <strong>
+                            {{ expense.amount|floatformat:0 }} ₺
+                        </strong>
+
+                        <span>
+                            {{ expense.expense_date|date:"d.m.Y" }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            {% empty %}
+
+                <div class="ui-empty">
+
+                    <div class="ui-empty-icon">
+                        ₺
+                    </div>
+
+                    <div class="ui-empty-title">
+                        Henüz harcama yok
+                    </div>
+
+                    <div class="ui-empty-description">
+                        Gerçekleşen giderler burada görünecek.
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         HIZLI İŞLEMLER
+         ===================================================== -->
+
+    <section class="ui-section">
+
+        <div class="ui-section-header">
+
+            <div class="min-w-0">
+
+                <h2 class="ui-section-title">
+                    Hızlı işlemler
+                </h2>
+
+                <p class="ui-card-subtitle">
+                    Sık kullanılan işlemlere hızlı erişim
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-quick-actions">
+
+            <a href="{% url 'payment-status-list' 'pending' %}" class="dashboard-quick-action">
+                <span class="dashboard-quick-action-icon">
+                    ₺
+                </span>
+
+                <span>
+                    Tahsilat ekle
+                </span>
+            </a>
+
+
+            <button
+                type="button"
+                class="dashboard-quick-action"
+                hx-get="{% url 'expense-create' %}?period={{ current_period }}&dashboard=1"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+            >
+                <span class="dashboard-quick-action-icon">
+                    +
+                </span>
+
+                <span>
+                    Harcama ekle
+                </span>
+            </button>
+
+
+            <a
+                href="{% url 'athlete-manage-create' %}"
+                class="dashboard-quick-action"
+            >
+                <span class="dashboard-quick-action-icon">
+                    +
+                </span>
+
+                <span>
+                    Sporcu ekle
+                </span>
+            </a>
+
+
+            <a
+                href="{% url 'team-list' %}"
+                class="dashboard-quick-action"
+            >
+                <span class="dashboard-quick-action-icon">
+                    →
+                </span>
+
+                <span>
+                    Takımları yönet
+                </span>
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

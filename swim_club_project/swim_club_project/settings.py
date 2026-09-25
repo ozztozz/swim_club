@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "finance",
     "rest_framework",
     "sendSMS",
+    'dashboard',
 ]
 
 MIDDLEWARE = [

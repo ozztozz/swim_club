@@ -47,56 +47,6 @@
         <!-- =========================================================
              SPORCU LİSTESİ
         ========================================================== -->
-        <section class="ui-section">
-            <div class="ui-card ui-scroll-list">
-                <div>
-                    {% for athlete in payments %}
-                        <a href="{% url 'athlete-manage-detail' athlete.pk %}"
-                           class="ui-list-item">
-                            <!-- Sporcu Bilgisi -->
-                            <div class="ui-list-content">
-                                <p class="ui-list-title">{{ athlete.get_full_name }}</p>
-                                <p class="ui-list-subtitle">
-                                    {% if athlete.team %}
-                                        {{ athlete.team.name }}
-                                    {% else %}
-                                        Takımsız
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <!-- Tutar / Durum -->
-                            <div class="ui-list-end">
-                                <p class="ui-list-value">
-                                    {% if payment_status == "paid" %}
-                                        {{ athlete.paid_amount|floatformat:0 }} TL
-                                    {% else %}
-                                        {{ athlete.amount|floatformat:0 }} TL
-                                    {% endif %}
-                                </p>
-                                {% if payment_status == "paid" %}
-                                    <div>
-                                        {% if athlete.fee_type == "fee" and athlete.paid_amount < athlete.amount %}
-                                            <span class="ui-badge-danger">{{ athlete.amount|floatformat:0 }} • Kısmi</span>
-                                        {% else %}
-                                            <span class="ui-badge-success">Ödendi</span>
-                                        {% endif %}
-                                    </div>
-                                    {% if athlete.paid_at %}
-                                        <p class="ui-list-meta">{{ athlete.paid_at|date:'d.m.Y' }}</p>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="ui-list-meta">Bekliyor</span>
-                                {% endif %}
-                            </div>
-                        </a>
-                    {% empty %}
-                        <div class="ui-empty">
-                            <div class="ui-empty-icon">—</div>
-                            <p class="ui-empty-description">Bu dönem için {{ status_label|lower }} bulunmuyor.</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
+        {% include "finance/partials/_payment_status_list.html" with payments=payments payment_status=payment_status status_label=status_label %}   
     </div>
 {% endblock %}

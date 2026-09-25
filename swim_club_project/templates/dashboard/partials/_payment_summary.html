@@ -1,0 +1,31 @@
+        <!-- ÖDEME DURUMU SAYAÇLARI (LİNKLER GERİ GETİRİLDİ) -->
+        <section class="ui-section">
+            <div class="ui-section-header">
+                <h2 class="ui-section-title">Ödeme Durumu</h2>
+                <span class="ui-section-action">{{ period }} dönemindeki ödemeler</span>
+            </div>
+            
+            <div class="ui-stat-grid">
+                <!-- 2. KAYBOLAN LİNK: Ödendi Sayacı Linki (Detay sayfasına veya modal listesine gider) -->
+                <a href="{% url 'payment-status-list' 'paid' %}?period={{ period }}" class="ui-stat block hover:no-underline transition-transform hover:scale-[1.01]">
+                    <div class="ui-stat-content">
+                        <span class="ui-stat-label ui-text-success flex items-center justify-between">
+                            <span>Ödendi</span>
+                            <span class="text-[10px] opacity-60">Listele ↗</span>
+                        </span>
+                        <span class="ui-stat-value ui-text-success">{{ payment_counts.paid }} kişi</span>
+                    </div>
+                </a>
+
+                <!-- 2. KAYBOLAN LİNK: Bekliyor Sayacı Linki -->
+                <a href="{% url 'payment-status-list' 'pending' %}?period={{ period }}" class="ui-stat block hover:no-underline transition-transform hover:scale-[1.01]">
+                    <div class="ui-stat-content">
+                        <span class="ui-stat-label ui-text-danger flex items-center justify-between">
+                            <span>Bekliyor</span>
+                            <span class="text-[10px] opacity-60">Listele ↗</span>
+                        </span>
+                        <span class="ui-stat-value ui-text-danger">{{ payment_counts.pending }} kişi</span>
+                    </div>
+                </a>
+            </div>
+        </section>
