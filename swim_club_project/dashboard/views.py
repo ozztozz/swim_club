@@ -1,7 +1,7 @@
 # dashboard/views.py
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.db.models.aggregates import Count
 from django.shortcuts import render
 from django.utils import timezone
@@ -12,19 +12,28 @@ from teams.models import Team
 from users.models import User
 
 def _get_teams_subscription_price(period=None):
-
     if period:
-        year=int(period.split("-")[0])
-        month=int(period.split("-")[1])
-        date_control = timezone.localdate().replace(year=year, month=month, day=1)
+        year, month = map(int, period.split("-"))
+        date_control = timezone.localdate().replace(
+            year=year,
+            month=month,
+            day=1
+        )
     else:
         date_control = timezone.localdate().replace(day=1)
 
-    teams_subscription_price = TeamFeeHistory.objects.filter(start_date__lte=date_control, 
-                                                             end_date__gte=date_control).values("team_id", "monthly_fee")
-    teams_subscription_price = {item["team_id"]: item["monthly_fee"] for item in teams_subscription_price}
-
-    return teams_subscription_price
+    return {
+        row["team_id"]: row["monthly_fee"]
+        for row in TeamFeeHistory.objects.filter(
+            start_date__lte=date_control,
+        ).filter(
+            Q(end_date__gte=date_control) |
+            Q(end_date__isnull=True)
+        ).values(
+            "team_id",
+            "monthly_fee"
+        )
+    }
 
 
 
@@ -102,20 +111,24 @@ def _get_admin_dashboard_context():
     athlete_payments = payment_records_total.filter(
         payment_type="fee"
     ).values("athlete").annotate(total_amount=Sum("amount"))
-    active_athletes = Athlete.objects.filter(is_active=True).all()
-    for athlete in active_athletes:
-        if athlete.custom_fee and athlete.custom_fee > 0:
-            expected_amount = athlete.custom_fee
+    active_athletes = Athlete.objects.filter(is_active=True).all().values("id", "custom_fee", "team_id")
+
+    for payment in athlete_payments:
+        athlete=active_athletes.get(id=payment["athlete"])
+        if athlete["custom_fee"] and athlete["custom_fee"] > 0:
+            expected_amount = athlete["custom_fee"]
         else:
-            expected_amount = teams_subscription_price.get(athlete.team_id, 0)
-        athlete_payment = next((item for item in athlete_payments if item["athlete"] == athlete.id), None)
+            expected_amount = teams_subscription_price.get(athlete["team_id"], 0)
+        athlete_payment = next((item for item in athlete_payments if item["athlete"] == athlete["id"]), None)
         athlete_payment = athlete_payment["total_amount"] if athlete_payment else 0
 
         if athlete_payment >= expected_amount:
             payment_counts["paid"] = payment_counts.get("paid", 0) + 1
         else:
             payment_counts["pending"] = payment_counts.get("pending", 0) + 1
+    nan_paid_athletes = active_athletes.exclude(id__in=[payment["athlete"] for payment in athlete_payments])
 
+    payment_counts["pending"] = payment_counts.get("pending", 0) + nan_paid_athletes.count()
     
 
     

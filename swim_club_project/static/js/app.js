@@ -347,7 +347,49 @@ document.addEventListener(
     },
     true
 );
+/* =========================================================
+   DJANGO İÇİN GÖNDERİM ÖNCESİ PARA TEMİZLEME
+   ========================================================= */
 
+// Standart form gönderimlerinde (submit)
+document.addEventListener(
+    "submit",
+    function (event) {
+        const form = event.target;
+        const moneyInputs = form.querySelectorAll('[data-money-input="true"]');
+
+        moneyInputs.forEach(function (input) {
+            let val = input.value;
+            if (val) {
+                // "1.250,50" -> "1250.50" (Django DecimalField formatı)
+                input.value = val.replace(/\./g, "").replace(",", ".");
+            }
+        });
+    },
+    true
+);
+
+
+// HTMX isteklerinde (hx-post, hx-get vb.)
+document.body.addEventListener(
+    "htmx:configRequest",
+    function (event) {
+        const parameters = event.detail.parameters;
+        if (!parameters) {
+            return;
+        }
+
+        const moneyInputs = document.querySelectorAll('[data-money-input="true"]');
+        moneyInputs.forEach(function (input) {
+            const name = input.name;
+            if (name && parameters[name] !== undefined) {
+                let val = String(parameters[name]);
+                // Noktaları sil, virgülü noktaya çevir
+                parameters[name] = val.replace(/\./g, "").replace(",", ".");
+            }
+        });
+    }
+);
 initializeMoneyInputs();
 
     /* =========================================================
@@ -569,50 +611,33 @@ initializeMoneyInputs();
        TOAST
        ========================================================= */
 
-    function showToast(message) {
+function showToast(message) {
+    const container = qs("#toast-container");
 
-        const container =
-            qs("#toast-container");
-
-        if (!container) {
-            return;
-        }
-
-
-        const toast =
-            document.createElement("div");
-
-        toast.className =
-            "app-toast";
-
-        toast.textContent =
-            message;
-
-
-        container.appendChild(toast);
-
-
-        window.setTimeout(
-            function () {
-
-                toast.style.opacity = "0";
-
-                toast.style.transform =
-                    "translateY(-6px)";
-
-
-                window.setTimeout(
-                    function () {
-                        toast.remove();
-                    },
-                    180
-                );
-
-            },
-            2800
-        );
+    if (!container) {
+        return;
     }
 
+    const toast = document.createElement("div");
+
+    toast.className = "app-toast";
+
+    toast.innerHTML = `
+        <span class="app-toast-indicator"></span>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    window.setTimeout(function () {
+        toast.classList.add("is-hiding");
+
+        window.setTimeout(function () {
+            toast.remove();
+        }, 180);
+
+    }, 2800);
+}
 
     window.showToast = showToast;
 

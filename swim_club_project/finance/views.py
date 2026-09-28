@@ -712,6 +712,7 @@ def create_expense_htmx(request):
                     'expense': expense,
                 })
                 response['HX-Trigger'] = json.dumps({'closeExpenseModal': {}})
+                response["X-App-Toast"] = "Harcama kaydedildi"
                 return response
             expenses = get_expenses_for_period(period, category_id, query)
             response = render(request, 'finance/partials/_expense_list_response.html', {
@@ -774,6 +775,7 @@ def update_expense_htmx(request, pk):
                 'regular_expense_summary': get_regular_expense_summary(period),
             })
             response['HX-Trigger'] = json.dumps({'closeExpenseModal': {}})
+            response["X-App-Toast"] = "Harcama güncellendi"
             return response
     else:
         form = ExpenseForm(instance=expense)
@@ -841,6 +843,7 @@ def mark_payment_paid_htmx(request, pk):
                 'period': period
             })
             response['HX-Trigger'] = 'closeModal, updateFinancialSummary'
+            response["X-App-Toast"] = "Ödeme kaydedildi"
             return response
     else:
         form = ProcessPaymentForm(instance=payment)
