@@ -28,6 +28,7 @@
 
 
                 <!-- İşlem -->
+            {% if request.user.is_club_admin %}
                 <div class="ui-list-trailing">
 
                     <button
@@ -41,6 +42,7 @@
                     </button>
 
                 </div>
+            {% endif %}
 
             </div>
 

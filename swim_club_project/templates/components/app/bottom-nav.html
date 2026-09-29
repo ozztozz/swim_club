@@ -228,35 +228,40 @@
             {% endif %}
 
 
-            <!-- DİĞER -->
+        {% endif %}
+                    <!-- DİĞER -->
             <button
                 type="button"
+                hx-get="{% url 'dashboard:athlete-search' %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
                 id="more-menu-button"
                 class="app-bottom-nav-item {% if request.resolver_match.url_name == 'other-menu' or request.resolver_match.url_name == 'team-list' or request.resolver_match.url_name == 'team-detail' or request.resolver_match.url_name == 'athlete-manage-list' or request.resolver_match.url_name == 'athlete-manage-detail' or 'equipment' in request.resolver_match.url_name or 'regular-expense' in request.resolver_match.url_name or request.resolver_match.url_name == 'fee-management' %}active{% endif %}"
                 aria-label="Diğer"
-            >
+             >
                 <span class="app-bottom-nav-item-icon" aria-hidden="true">
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <rect x="4" y="4" width="6" height="6" rx="1.5"/>
-                        <rect x="14" y="4" width="6" height="6" rx="1.5"/>
-                        <rect x="4" y="14" width="6" height="6" rx="1.5"/>
-                        <rect x="14" y="14" width="6" height="6" rx="1.5"/>
-                    </svg>
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            width="20"
+                            height="20"
+                        >
+                            <circle cx="11" cy="11" r="6.5" />
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m20 20-4.35-4.35"
+                            />
+                        </svg>
+
                 </span>
 
                 <span class="app-bottom-nav-item-label">
-                    Diğer
+                    Sporcu
                 </span>
             </button>
-
-        {% endif %}
 
     </div>
 </nav>

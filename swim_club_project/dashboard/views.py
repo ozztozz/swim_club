@@ -193,3 +193,8 @@ def dashboard(request):
         context,
     )
 
+@login_required(login_url="user-login")
+def athlete_search(request):
+    # Implement the athlete search view logic here
+    return render(request, "dashboard/partials/_athlete_search.html", {})
+    

@@ -70,8 +70,8 @@
                 {% endif %}
 
                 {% if mode == "edit" %}
-                    hx-target="#payment-{{ payment.pk }}"
-                    hx-swap="outerHTML"
+                   
+                    
                 {% endif %}
 
                 class="ui-modal-form"
@@ -307,13 +307,13 @@
 
                 {% if dashboard_mode %}
 
-                    hx-target="#dashboard-payment-items"
-                    hx-swap="afterbegin"
+                    
+                    
 
                 {% else %}
 
-                    hx-target="#payment-{{ item.payment.pk|default:item.period }}"
-                    hx-swap="outerHTML"
+                    
+                    
 
                 {% endif %}
                 data-close-modal-on-success

@@ -912,3 +912,482 @@ function showToast(message) {
 
 
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const section = document.querySelector(
+        ".dashboard-search-section"
+    );
+
+    const searchForm = document.querySelector(
+        "#dashboard-athlete-search-form"
+    );
+
+    const searchInput = document.querySelector(
+        "#dashboard-athlete-search"
+    );
+
+    const backdrop = document.querySelector(
+        ".dashboard-search-backdrop"
+    );
+
+
+    if (
+        !section ||
+        !searchForm ||
+        !searchInput ||
+        !backdrop
+    ) {
+        return;
+    }
+
+
+    let isAnimating = false;
+
+    let originalPosition = null;
+
+
+    /* =====================================================
+       OPEN SEARCH
+    ====================================================== */
+
+    function openSearch() {
+
+        if (
+            isAnimating ||
+            section.classList.contains("search-focus")
+        ) {
+            return;
+        }
+
+
+        isAnimating = true;
+
+
+        /* -------------------------------------------------
+           1. Gerçek başlangıç koordinatını al
+        -------------------------------------------------- */
+
+        const rect =
+            searchForm.getBoundingClientRect();
+
+
+        originalPosition = {
+
+            centerX:
+                rect.left +
+                rect.width / 2,
+
+            centerY:
+                rect.top +
+                rect.height / 2,
+
+            width:
+                rect.width,
+
+            height:
+                rect.height
+        };
+
+
+        /* -------------------------------------------------
+           2. Hedef boyut
+        -------------------------------------------------- */
+
+        const targetWidth =
+            Math.min(
+                window.innerWidth - 24,
+                680
+            );
+
+
+        const targetHeight =
+            rect.height;
+
+
+        /* -------------------------------------------------
+           3. Ekran merkezi
+        -------------------------------------------------- */
+
+        const targetCenterX =
+            window.innerWidth / 2;
+
+
+        const targetCenterY =
+            window.innerHeight / 2;
+
+
+        /* -------------------------------------------------
+           4. Başlangıç → merkez farkı
+        -------------------------------------------------- */
+
+        const translateX =
+            originalPosition.centerX -
+            targetCenterX;
+
+
+        const translateY =
+            originalPosition.centerY -
+            targetCenterY;
+
+
+        /* -------------------------------------------------
+           5. Başlangıç → hedef ölçek
+        -------------------------------------------------- */
+
+        const scaleX =
+            originalPosition.width /
+            targetWidth;
+
+
+        const scaleY =
+            originalPosition.height /
+            targetHeight;
+
+
+        /* -------------------------------------------------
+           6. CSS değişkenleri
+        -------------------------------------------------- */
+
+        searchForm.style.setProperty(
+            "--search-flip-width",
+            `${targetWidth}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-height",
+            `${targetHeight}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-left",
+            `${targetCenterX - targetWidth / 2}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-top",
+            `${targetCenterY - targetHeight / 2}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-x",
+            `${translateX}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-y",
+            `${translateY}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-scale-x",
+            scaleX
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-scale-y",
+            scaleY
+        );
+
+
+        /* -------------------------------------------------
+           7. Focus state
+        -------------------------------------------------- */
+
+        section.classList.add(
+            "search-focus"
+        );
+
+
+        searchForm.classList.add(
+            "search-flip"
+        );
+
+
+        /* -------------------------------------------------
+           8. İlk frame
+        -------------------------------------------------- */
+
+        requestAnimationFrame(() => {
+
+            requestAnimationFrame(() => {
+
+                /*
+                 * Şimdi merkez pozisyona hareket et.
+                 */
+
+                searchForm.classList.add(
+                    "is-centered"
+                );
+
+
+                /*
+                 * Input'a focus.
+                 */
+
+                searchInput.focus({
+                    preventScroll: true
+                });
+
+            });
+
+        });
+
+
+        /* -------------------------------------------------
+           9. Animasyon bitişi
+        -------------------------------------------------- */
+
+        searchForm.addEventListener(
+            "transitionend",
+            handleOpenTransition,
+            {
+                once: true
+            }
+        );
+    }
+
+
+    function handleOpenTransition(event) {
+
+        if (
+            event.propertyName !== "transform"
+        ) {
+            return;
+        }
+
+
+        isAnimating = false;
+    }
+
+
+    /* =====================================================
+       CLOSE SEARCH
+    ====================================================== */
+
+    function closeSearch() {
+
+        if (
+            isAnimating ||
+            !section.classList.contains(
+                "search-focus"
+            )
+        ) {
+            return;
+        }
+
+
+        if (!originalPosition) {
+            return;
+        }
+
+
+        isAnimating = true;
+
+
+        /* -------------------------------------------------
+           Mevcut merkez konumu
+        -------------------------------------------------- */
+
+        const currentRect =
+            searchForm.getBoundingClientRect();
+
+
+        const currentCenterX =
+            currentRect.left +
+            currentRect.width / 2;
+
+
+        const currentCenterY =
+            currentRect.top +
+            currentRect.height / 2;
+
+
+        /* -------------------------------------------------
+           Merkez → başlangıç farkı
+        -------------------------------------------------- */
+
+        const translateX =
+            originalPosition.centerX -
+            currentCenterX;
+
+
+        const translateY =
+            originalPosition.centerY -
+            currentCenterY;
+
+
+        /* -------------------------------------------------
+           İlk olarak mevcut transform'u kaldır
+           ve başlangıç yönünü hazırla
+        -------------------------------------------------- */
+
+        searchForm.style.setProperty(
+            "--search-flip-x",
+            `${translateX}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-y",
+            `${translateY}px`
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-scale-x",
+            1
+        );
+
+
+        searchForm.style.setProperty(
+            "--search-flip-scale-y",
+            1
+        );
+
+
+        /*
+         * Merkez state'ini kaldır.
+         */
+
+        searchForm.classList.remove(
+            "is-centered"
+        );
+
+
+        /* -------------------------------------------------
+           Animasyon tamamlandığında temizle
+        -------------------------------------------------- */
+
+        searchForm.addEventListener(
+            "transitionend",
+            handleCloseTransition,
+            {
+                once: true
+            }
+        );
+    }
+
+
+    function handleCloseTransition(event) {
+
+        if (
+            event.propertyName !== "transform"
+        ) {
+            return;
+        }
+
+
+        searchForm.classList.remove(
+            "search-flip"
+        );
+
+
+        section.classList.remove(
+            "search-focus"
+        );
+
+
+        /* -------------------------------------------------
+           CSS değişkenlerini temizle
+        -------------------------------------------------- */
+
+        const variables = [
+
+            "--search-flip-width",
+
+            "--search-flip-height",
+
+            "--search-flip-left",
+
+            "--search-flip-top",
+
+            "--search-flip-x",
+
+            "--search-flip-y",
+
+            "--search-flip-scale-x",
+
+            "--search-flip-scale-y"
+        ];
+
+
+        variables.forEach(
+            (variable) => {
+
+                searchForm.style.removeProperty(
+                    variable
+                );
+
+            }
+        );
+
+
+        searchInput.blur();
+
+
+        originalPosition = null;
+
+        isAnimating = false;
+    }
+
+
+    /* =====================================================
+       INPUT FOCUS
+    ====================================================== */
+
+    searchInput.addEventListener(
+        "focus",
+        () => {
+
+            if (
+                !section.classList.contains(
+                    "search-focus"
+                )
+            ) {
+
+                openSearch();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       BACKDROP CLICK
+    ====================================================== */
+
+    backdrop.addEventListener(
+        "click",
+        closeSearch
+    );
+
+
+    /* =====================================================
+       ESC
+    ====================================================== */
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeSearch();
+
+            }
+
+        }
+    );
+
+});

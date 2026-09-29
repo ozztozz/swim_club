@@ -15,4 +15,5 @@ urlpatterns = [
     path('<int:pk>/payments/<int:payment_id>/edit/', views.athlete_edit_payment, name='athlete-manage-payment-edit'),
     path('<int:pk>/toggle-active/', views.athlete_toggle_active, name='athlete-manage-toggle-active'),
     path('<int:pk>/edit/', views.athlete_update, name='athlete-manage-update'),
+
 ]

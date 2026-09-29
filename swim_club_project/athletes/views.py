@@ -86,6 +86,8 @@ def _athlete_context(request):
     }
 
 
+
+
 @login_required
 def athlete_list(request):
     context = _athlete_context(request)
@@ -1109,3 +1111,4 @@ def parent_dashboard(request):
         athlete.is_active = False
         athlete.save()
         return Response({'status': 'Sporcu kaydı reddedildi.'})
+
