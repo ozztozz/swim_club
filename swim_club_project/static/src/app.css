@@ -2699,3 +2699,1330 @@ svg {
         padding-inline: 8px;
     }
 }
+/* =========================================================
+   TEAM GRID
+========================================================= */
+
+.ui-team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+
+/* =========================================================
+   TEAM CARD
+========================================================= */
+
+.ui-team-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    padding: 20px;
+
+    text-decoration: none;
+    color: inherit;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.08),
+            rgba(255, 255, 255, 0.03)
+        );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.ui-team-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+}
+
+.ui-team-card:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   TEAM CARD HEADER
+========================================================= */
+
+.ui-team-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ui-team-card-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.ui-team-card-icon {
+    flex: 0 0 40px;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ui-team-card-icon svg {
+    width: 20px;
+    height: 20px;
+    opacity: 0.9;
+}
+
+.ui-team-card-title {
+    margin: 0;
+
+    min-width: 0;
+
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TEAM DESCRIPTION
+========================================================= */
+
+.ui-team-card-description {
+    margin: 0 0 16px;
+
+    font-size: 0.875rem;
+    line-height: 1.4;
+
+    opacity: 0.8;
+}
+
+
+/* =========================================================
+   TEAM STATUS
+========================================================= */
+
+.ui-team-status-inactive {
+    padding: 4px 10px;
+
+    border-radius: 20px;
+
+    font-size: 0.75rem;
+    font-weight: 500;
+
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0.7;
+}
+
+
+/* =========================================================
+   TEAM CARD FOOTER
+========================================================= */
+
+.ui-team-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding-top: 12px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    font-size: 0.85rem;
+}
+
+.ui-team-card-footer-label {
+    opacity: 0.7;
+}
+
+.ui-team-card-count {
+    padding: 2px 8px;
+
+    border-radius: 6px;
+
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.ui-team-empty {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    padding: 32px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 640px) {
+
+    .ui-team-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .ui-team-card {
+        padding: 16px;
+    }
+
+    .ui-team-card-title {
+        font-size: 1.05rem;
+    }
+
+}
+
+/* =========================================================
+   TEAM PROFILE
+========================================================= */
+
+.ui-team-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    padding: 24px;
+
+    border-radius: var(--radius-24);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.92),
+            rgba(255, 255, 255, 0.68)
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.65);
+
+    box-shadow:
+        0 12px 40px rgba(13, 27, 42, 0.07);
+}
+
+
+/* =========================================================
+   PROFILE MAIN
+========================================================= */
+
+.ui-team-profile-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.ui-team-profile-heading {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 16px;
+
+    min-width: 0;
+}
+
+.ui-team-profile-icon {
+    flex: 0 0 52px;
+
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background: var(--primary);
+    color: var(--ink-black);
+
+    box-shadow:
+        0 8px 20px rgba(13, 27, 42, 0.08);
+}
+
+.ui-team-profile-icon svg {
+    width: 25px;
+    height: 25px;
+}
+
+.ui-team-profile-title {
+    min-width: 0;
+}
+
+.ui-team-profile-name-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 10px;
+}
+
+.ui-team-profile-name-row .ui-page-title {
+    margin: 0;
+}
+
+.ui-team-profile-description {
+    max-width: 600px;
+
+    margin: 8px 0 0;
+
+    font-size: 0.9rem;
+    line-height: 1.5;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   TEAM ACTIONS
+========================================================= */
+
+.ui-team-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding-top: 4px;
+}
+
+.ui-team-actions .ui-btn:first-child {
+    flex: 1;
+    justify-content: space-between;
+}
+
+
+/* =========================================================
+   TEAM STATISTICS
+========================================================= */
+
+.ui-team-stat-grid {
+    margin-top: 4px;
+}
+
+.ui-team-stat-grid .ui-stat {
+    min-height: 132px;
+}
+
+.ui-stat-meta {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 0.75rem;
+
+    color: var(--text-muted);
+}
+
+.ui-stat-value-muted {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   TEAM CONTENT
+========================================================= */
+
+.ui-team-content {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+
+    gap: 16px;
+
+    margin-top: 4px;
+}
+
+.ui-team-section {
+    padding: 20px;
+}
+
+.ui-team-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 18px;
+}
+
+.ui-section-title {
+    margin: 0;
+
+    font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.ui-section-description {
+    margin: 4px 0 0;
+
+    font-size: 0.8rem;
+
+    color: var(--text-muted);
+}
+
+.ui-section-count {
+    flex-shrink: 0;
+
+    padding: 5px 9px;
+
+    border-radius: 8px;
+
+    background: var(--ui-bg);
+
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   COACHES
+========================================================= */
+
+.ui-team-coaches {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.ui-team-coach {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    border-radius: 12px;
+
+    background: var(--ui-bg);
+}
+
+.ui-team-coach-avatar,
+.ui-team-athlete-avatar {
+    flex: 0 0 38px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: var(--primary);
+
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.ui-team-coach-info {
+    min-width: 0;
+}
+
+.ui-team-coach-name {
+    margin: 0;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.ui-team-coach-email {
+    margin: 2px 0 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 0.72rem;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   ATHLETES
+========================================================= */
+
+.ui-team-athletes {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.ui-team-athlete {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 9px 10px;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+    color: inherit;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.ui-team-athlete:hover {
+    background: var(--ui-bg);
+}
+
+.ui-team-athlete:active {
+    transform: scale(0.99);
+}
+
+.ui-team-athlete-avatar {
+    width: 36px;
+    height: 36px;
+
+    flex-basis: 36px;
+
+    border-radius: 11px;
+
+    background: var(--alabaster-grey);
+    color: var(--ink-black);
+}
+
+.ui-team-athlete-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ui-team-athlete-name {
+    margin: 0;
+
+    font-size: 0.86rem;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ui-team-athlete-arrow {
+    flex: 0 0 auto;
+
+    font-size: 1rem;
+
+    color: var(--text-muted);
+
+    transition: transform 0.2s ease;
+}
+
+.ui-team-athlete:hover .ui-team-athlete-arrow {
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   PAGE BACK
+========================================================= */
+
+.ui-page-back {
+    margin-bottom: 8px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 760px) {
+
+    .ui-team-profile {
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .ui-team-profile-main {
+        flex-direction: column;
+    }
+
+    .ui-team-profile-main > .ui-btn {
+        width: 100%;
+    }
+
+    .ui-team-actions {
+        flex-direction: column;
+    }
+
+    .ui-team-actions .ui-btn {
+        width: 100%;
+    }
+
+    .ui-team-content {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .ui-team-profile-heading {
+        gap: 12px;
+    }
+
+    .ui-team-profile-icon {
+        flex-basis: 44px;
+
+        width: 44px;
+        height: 44px;
+
+        border-radius: 13px;
+    }
+
+    .ui-team-profile-icon svg {
+        width: 21px;
+        height: 21px;
+    }
+
+    .ui-team-profile-name-row {
+        gap: 7px;
+    }
+
+    .ui-team-profile-description {
+        font-size: 0.84rem;
+    }
+
+    .ui-team-section {
+        padding: 16px;
+    }
+
+}
+/* =========================================================
+   TEAM MODAL
+========================================================= */
+
+.ui-team-modal-panel {
+    max-width: 620px;
+}
+
+
+/* =========================================================
+   FORM HEADER
+========================================================= */
+
+.ui-modal-heading {
+    min-width: 0;
+}
+
+.ui-modal-description {
+    margin: 5px 0 0;
+
+    font-size: 0.82rem;
+    line-height: 1.45;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   FORM SECTION
+========================================================= */
+
+.ui-team-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-team-form-section {
+    padding: 18px 0;
+
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ui-team-form-section:first-of-type {
+    padding-top: 4px;
+}
+
+.ui-team-form-section-heading {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    margin-bottom: 18px;
+}
+
+.ui-team-form-section-icon {
+    flex: 0 0 36px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: var(--ui-bg);
+
+    color: var(--dusk-blue);
+}
+
+.ui-team-form-section-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ui-team-form-section-heading h4 {
+    margin: 0;
+
+    font-size: 0.9rem;
+    font-weight: 650;
+}
+
+.ui-team-form-section-heading p {
+    margin: 3px 0 0;
+
+    font-size: 0.75rem;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   FORM FIELDS
+========================================================= */
+
+.ui-team-form-fields {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+.ui-team-form-error {
+    margin-bottom: 4px;
+}
+
+
+/* =========================================================
+   STATUS SETTING
+========================================================= */
+
+.ui-team-status-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 16px 0;
+
+    cursor: pointer;
+}
+
+.ui-team-status-info {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    min-width: 0;
+}
+
+.ui-team-status-icon {
+    flex: 0 0 36px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: var(--ui-bg);
+
+    color: var(--dusk-blue);
+}
+
+.ui-team-status-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+.ui-team-status-info strong {
+    display: block;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.ui-team-status-info small {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 0.73rem;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   SWITCH
+========================================================= */
+
+.ui-team-switch {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+}
+
+
+/* =========================================================
+   MODAL ACTIONS
+========================================================= */
+
+.ui-team-modal-form .ui-modal-actions {
+    margin-top: 4px;
+    padding-top: 18px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+    .ui-team-modal-panel {
+        width: calc(100% - 24px);
+    }
+
+    .ui-modal-header {
+        gap: 12px;
+    }
+
+    .ui-team-form-section {
+        padding: 16px 0;
+    }
+
+    .ui-team-status-setting {
+        align-items: flex-start;
+    }
+
+    .ui-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .ui-modal-actions .ui-btn {
+        width: 100%;
+    }
+
+}
+
+/* =========================================================
+   FORM CONTROLS
+========================================================= */
+
+.ui-input,
+.ui-textarea,
+.ui-select {
+    width: 100%;
+
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-control);
+
+    background: var(--surface);
+
+    color: var(--ink-black);
+
+    font-family: inherit;
+    font-size: 0.875rem;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.ui-input,
+.ui-select {
+    min-height: 44px;
+    padding: 0 13px;
+}
+
+.ui-textarea {
+    min-height: 96px;
+    padding: 11px 13px;
+
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.ui-input::placeholder,
+.ui-textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.75;
+}
+
+.ui-input:focus,
+.ui-textarea:focus,
+.ui-select:focus {
+    outline: none;
+
+    border-color: var(--dusk-blue);
+
+    box-shadow:
+        0 0 0 3px rgba(65, 90, 119, 0.12);
+}
+
+
+/* =========================================================
+   MULTI SELECT
+========================================================= */
+
+.ui-team-coach-select {
+    min-height: 120px;
+
+    padding: 8px;
+}
+
+.ui-team-coach-select option {
+    padding: 8px 10px;
+
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   RADIO GROUP
+========================================================= */
+
+.ui-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+}
+
+
+/* =========================================================
+   SWITCH
+========================================================= */
+
+.ui-switch-input {
+    position: relative;
+
+    width: 44px;
+    height: 25px;
+
+    margin: 0;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    border: 0;
+    border-radius: 999px;
+
+    background: var(--alabaster-grey);
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.ui-switch-input::after {
+    content: "";
+
+    position: absolute;
+
+    top: 3px;
+    left: 3px;
+
+    width: 19px;
+    height: 19px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+
+    transition:
+        transform 0.2s ease;
+}
+
+.ui-switch-input:checked {
+    background: var(--teal);
+}
+
+.ui-switch-input:checked::after {
+    transform: translateX(19px);
+}
+
+.ui-switch-input:focus-visible {
+    outline: none;
+
+    box-shadow:
+        0 0 0 3px rgba(72, 130, 134, 0.18);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+    .ui-team-coach-select {
+        min-height: 110px;
+    }
+
+}
+
+/* =========================================================
+   TEAM CARD
+========================================================= */
+
+.ui-team-card {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 205px;
+
+    padding: 20px;
+
+    text-decoration: none;
+    color: inherit;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.92),
+            rgba(255, 255, 255, 0.72)
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: var(--radius-20);
+
+    box-shadow:
+        0 8px 28px rgba(13, 27, 42, 0.06);
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+}
+
+.ui-team-card:hover {
+    transform: translateY(-3px);
+
+    border-color: rgba(65, 90, 119, 0.18);
+
+    box-shadow:
+        0 14px 36px rgba(13, 27, 42, 0.10);
+}
+
+.ui-team-card:active {
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.ui-team-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 14px;
+}
+
+.ui-team-card-identity {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+}
+
+.ui-team-card-icon {
+    flex: 0 0 44px;
+
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: var(--primary);
+    color: var(--ink-black);
+
+    border: 1px solid rgba(13, 27, 42, 0.05);
+}
+
+.ui-team-card-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.ui-team-card-heading {
+    min-width: 0;
+}
+
+.ui-team-card-eyebrow {
+    margin: 0 0 2px;
+
+    font-size: 0.68rem;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+
+    color: var(--text-muted);
+}
+
+.ui-team-card-title {
+    margin: 0;
+
+    font-size: 1.05rem;
+    font-weight: 650;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.ui-team-card-body {
+    flex: 1;
+
+    padding: 16px 0 18px;
+}
+
+.ui-team-card-description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    overflow: hidden;
+
+    margin: 0;
+
+    font-size: 0.84rem;
+    line-height: 1.5;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   META
+========================================================= */
+
+.ui-team-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-top: 13px;
+
+    border-top: 1px solid rgba(13, 27, 42, 0.07);
+}
+
+.ui-team-card-meta-item {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.ui-team-card-meta-icon {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: var(--ui-bg);
+}
+
+.ui-team-card-meta-icon svg {
+    width: 16px;
+    height: 16px;
+
+    color: var(--dusk-blue);
+}
+
+.ui-team-card-meta-label {
+    display: block;
+
+    font-size: 0.68rem;
+    line-height: 1.2;
+
+    color: var(--text-muted);
+}
+
+.ui-team-card-meta-value {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 0.85rem;
+    line-height: 1.2;
+
+    font-weight: 650;
+}
+
+.ui-team-card-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 9px;
+
+    background: var(--ui-bg);
+
+    color: var(--text-muted);
+
+    font-size: 1rem;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.ui-team-card:hover .ui-team-card-arrow {
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   INACTIVE
+========================================================= */
+
+.ui-team-status-inactive {
+    padding: 4px 9px;
+
+    border-radius: 8px;
+
+    background: var(--ui-bg);
+
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    color: var(--text-muted);
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.ui-team-empty {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 640px) {
+
+    .ui-team-card {
+        min-height: 190px;
+
+        padding: 17px;
+    }
+
+    .ui-team-card-icon {
+        width: 40px;
+        height: 40px;
+
+        flex-basis: 40px;
+    }
+
+    .ui-team-card-title {
+        font-size: 1rem;
+    }
+
+}

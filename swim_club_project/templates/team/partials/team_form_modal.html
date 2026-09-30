@@ -1,78 +1,236 @@
 <dialog id="team_modal" class="ui-modal">
-    <div class="ui-modal-panel">
-        <!-- Başlık -->
-        <div class="ui-modal-header">
-            <div>
-                <p class="ui-modal-eyebrow text-primary-custom">Takım yönetimi</p>
-                <h3 class="ui-modal-title">{{ modal_title }}</h3>
-                <p>Takım bilgilerini ve sorumlu antrenörleri düzenleyin.</p>
-            </div>
-            <button type="button"
-                    class="ui-modal-close"
-                    onclick="document.getElementById('team_modal').remove()"
-                    aria-label="Kapat">✕</button>
+
+<div class="ui-modal-panel ui-team-modal-panel">
+
+    <!-- =====================================================
+         BAŞLIK
+    ====================================================== -->
+    <div class="ui-modal-header">
+
+        <div class="ui-modal-heading">
+
+            <p class="ui-modal-eyebrow text-primary-custom">
+                Takım yönetimi
+            </p>
+
+            <h3 class="ui-modal-title">
+                {{ modal_title }}
+            </h3>
+
+            <p class="ui-modal-description">
+                Takım bilgilerini ve sorumlu antrenörleri düzenleyin.
+            </p>
+
         </div>
-        <!-- Form -->
-        <form method="post"
-              hx-post="{% if team %}{% url 'team-update' team.pk %}{% else %}{% url 'team-create' %}{% endif %}"
-              hx-target="{% if return_to_detail %}#team-modal-container{% else %}#team-table{% endif %}"
-              hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}"
-              class="ui-modal-form">
-            {% csrf_token %}
-            {% if return_to_detail %}
-                <input type="hidden" name="return_to_detail" value="1">
-            {% endif %}
-            {% if form.non_field_errors %}
-                <div class="ui-error">{{ form.non_field_errors }}</div>
-            {% endif %}
-            <div>
-                <!-- Temel bilgiler -->
-                <div class="ui-card">
-                    <p>Takım bilgileri</p>
-                    <div>
-                        <div class="ui-field">
-                            <label class="ui-label">Takım adı</label>
-                            {{ form.name }}
-                            {% if form.name.errors %}
-                                <span class="ui-error">{{ form.name.errors|striptags }}</span>
-                            {% endif %}
-                        </div>
-                        <div class="ui-field">
-                            <label class="ui-label">Açıklama</label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                                <span class="ui-error">{{ form.description.errors|striptags }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <!-- Antrenörler -->
-                <div class="ui-card">
-                    <p>Sorumlu kişiler</p>
-                    <div class="ui-field">
-                        <label class="ui-label">Antrenörler</label>
-                        {{ form.coaches }}
-                        {% if form.coaches.errors %}
-                            <span class="ui-error">{{ form.coaches.errors|striptags }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-                <!-- Durum -->
-                <label>
-                    <div>
-                        <p>Aktif takım</p>
-                        <p>Takım aktif olarak kullanılmaya devam eder.</p>
-                    </div>
-                    <div>{{ form.is_active }}</div>
-                </label>
-            </div>
-            <!-- Aksiyonlar -->
-            <div class="ui-modal-actions">
-                <button type="button"
-                        class="ui-btn ui-btn-secondary"
-                        onclick="document.getElementById('team_modal').remove()">İptal</button>
-                <button type="submit" class="ui-btn ui-btn-primary">{{ submit_label }}</button>
-            </div>
-        </form>
+
+        <button type="button"
+                class="ui-modal-close"
+                onclick="document.getElementById('team_modal').remove()"
+                aria-label="Kapat">
+            ✕
+        </button>
+
     </div>
+
+
+    <!-- =====================================================
+         FORM
+    ====================================================== -->
+    <form method="post"
+          hx-post="{% if team %}{% url 'team-update' team.pk %}{% else %}{% url 'team-create' %}{% endif %}"
+          hx-target="{% if return_to_detail %}#team-modal-container{% else %}#team-table{% endif %}"
+          hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}"
+          class="ui-modal-form ui-team-modal-form">
+
+        {% csrf_token %}
+
+        {% if return_to_detail %}
+            <input type="hidden"
+                   name="return_to_detail"
+                   value="1">
+        {% endif %}
+
+
+        <!-- GENEL FORM HATASI -->
+        {% if form.non_field_errors %}
+            <div class="ui-error ui-team-form-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+
+        <!-- =================================================
+             TEMEL BİLGİLER
+        ================================================== -->
+        <section class="ui-team-form-section">
+
+            <div class="ui-team-form-section-heading">
+
+                <div class="ui-team-form-section-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         aria-hidden="true">
+                        <path d="M20 21a8 8 0 0 0-16 0" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </div>
+
+                <div>
+                    <h4>Takım bilgileri</h4>
+                    <p>
+                        Takımın temel bilgilerini tanımlayın.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="ui-team-form-fields">
+
+                <div class="ui-field">
+
+                    <label class="ui-label">
+                        Takım adı
+                    </label>
+
+                    {{ form.name }}
+
+                    {% if form.name.errors %}
+                        <span class="ui-error">
+                            {{ form.name.errors|striptags }}
+                        </span>
+                    {% endif %}
+
+                </div>
+
+
+                <div class="ui-field">
+
+                    <label class="ui-label">
+                        Açıklama
+                    </label>
+
+                    {{ form.description }}
+
+                    {% if form.description.errors %}
+                        <span class="ui-error">
+                            {{ form.description.errors|striptags }}
+                        </span>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ANTRENÖRLER
+        ================================================== -->
+        <section class="ui-team-form-section">
+
+            <div class="ui-team-form-section-heading">
+
+                <div class="ui-team-form-section-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+
+                <div>
+                    <h4>Sorumlu kişiler</h4>
+                    <p>
+                        Takımdan sorumlu antrenörleri seçin.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="ui-field">
+
+                <label class="ui-label">
+                    Antrenörler
+                </label>
+
+                {{ form.coaches }}
+
+                {% if form.coaches.errors %}
+                    <span class="ui-error">
+                        {{ form.coaches.errors|striptags }}
+                    </span>
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DURUM
+        ================================================== -->
+        <label class="ui-team-status-setting">
+
+            <div class="ui-team-status-info">
+
+                <span class="ui-team-status-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         aria-hidden="true">
+                        <path d="M12 3v18" />
+                        <path d="M3 12h18" />
+                    </svg>
+                </span>
+
+                <span>
+                    <strong>Aktif takım</strong>
+
+                    <small>
+                        Takım aktif olarak kullanılmaya devam eder.
+                    </small>
+                </span>
+
+            </div>
+
+            <span class="ui-team-switch">
+                {{ form.is_active }}
+            </span>
+
+        </label>
+
+
+        <!-- =================================================
+             AKSİYONLAR
+        ================================================== -->
+        <div class="ui-modal-actions">
+
+            <button type="button"
+                    class="ui-btn ui-btn-secondary"
+                    onclick="document.getElementById('team_modal').remove()">
+                İptal
+            </button>
+
+            <button type="submit"
+                    class="ui-btn ui-btn-primary">
+                {{ submit_label }}
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
 </dialog>

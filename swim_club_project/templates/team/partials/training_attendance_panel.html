@@ -56,7 +56,7 @@
                 <div class="ui-list" id="makeup-athlete-search-results"></div>
             </div>
 
-            <div class="ui-scroll-list " id="attendance-athlete-list">
+            <div class="ui-list " id="attendance-athlete-list">
                 {% for row in athlete_rows %}
                     {% with athlete=row.athlete record=row.record %}
                         <div class="ui-list-item {% if record and record.status == 'attended' %} bg-ui-bg-success {% else %} bg-ui-bg-error {% endif %}  ">
@@ -96,9 +96,9 @@
                 {% endfor %}
             </div>
             <div class="ui-modal-actions">
-                <button type="button"
-                        class="ui-btn ui-btn-secondary"
-                        onclick="closeAttendanceModal()">Vazgeç</button>
+                <button type="button" class="ui-btn ui-btn-secondary" data-modal-close="">
+                        Vazgeç
+                    </button>
                 <button type="submit"
                         class="ui-btn ui-btn-primary">
                     Katılımı kaydet

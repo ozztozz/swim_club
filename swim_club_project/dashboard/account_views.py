@@ -7,6 +7,7 @@ from finance.models import PaymentRecord
 
 
 
+
 @login_required
 
 def payment_status_list(request, payment_status):
@@ -28,15 +29,16 @@ def payment_status_list(request, payment_status):
         athlete_payments['total_payment'] = athlete_total['athlete_total_amount']
         athlete_payments['last_payment_date'] = monthly_payments.filter(athlete=athlete_total['athlete']).order_by('-paid_at').first().paid_at if monthly_payments.filter(athlete=athlete_total['athlete']).exists() else None
         
-        for payment in monthly_payments.filter(athlete=athlete_total['athlete']):
+        for payment in monthly_payments.filter(athlete=athlete_total['athlete']).order_by('-paid_at'):
             athlete_payments['name']= payment.athlete.get_full_name()
+            athlete_payments['team'] = payment.athlete.team.name if payment.athlete.team else 'Takımsız'
             athlete_payments.setdefault('details', []).append({
                 'amount': payment.amount,
                 'date': payment.paid_at,
                 
             })
         athlete_payments_list.append(athlete_payments)
-
+    athlete_payments_list.sort(key=lambda x: x['last_payment_date'] , reverse=True)
     payments = monthly_payments
     total_amount = athletes_monthly_total.aggregate(total=Sum('athlete_total_amount'))['total'] or 0
     athlete_count = athletes_monthly_total.aggregate(count=Count('athlete', distinct=True))['count'] or 0

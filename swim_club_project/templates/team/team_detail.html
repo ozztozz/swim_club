@@ -1,141 +1,334 @@
 {% extends "base.html" %}
+
 {% block content %}
-    <div class="dashboard">
-        <!-- Üst navigasyon -->
-        <div>
-            <a href="{% url 'team-list' %}"
-               class="ui-btn ui-btn-sm ui-btn-ghost">
-                ← Takımlar
-            </a>
-        </div>
-        <!-- Takım profili -->
-        <section class="ui-section">
-            <!-- Başlık -->
-            <div class="ui-card">
-                <div>
-                    <div>
-                        <p class="text-primary-custom">Takım profili</p>
-                        <div>
-                            <h1>{{ team.name }}</h1>
-                            {% if team.is_active %}
-                                <span class="ui-badge ui-badge-success">Aktif</span>
-                            {% else %}
-                                <span class="ui-badge">Pasif</span>
-                            {% endif %}
-                        </div>
-                        <p>
-                            {{ team.description|default:'Takım açıklaması bulunmuyor.' }}
-                        </p>
+
+<div class="dashboard">
+
+
+<!-- =========================================================
+     GERİ
+========================================================== -->
+<div class="ui-page-back">
+    <a href="{% url 'team-list' %}" class="ui-btn ui-btn-sm ui-btn-ghost">
+        ← Takımlar
+    </a>
+</div>
+
+
+<!-- =========================================================
+     TAKIM PROFİLİ
+========================================================== -->
+<section class="ui-section">
+
+    <div class="ui-team-profile">
+
+        <!-- PROFİL BAŞLIĞI -->
+        <div class="ui-team-profile-main">
+
+            <div class="ui-team-profile-heading">
+
+                <div class="ui-team-profile-icon">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+
+                <div class="ui-team-profile-title">
+
+                    <p class="ui-eyebrow text-primary-custom">
+                        Takım profili
+                    </p>
+
+                    <div class="ui-team-profile-name-row">
+
+                        <h1 class="ui-page-title">
+                            {{ team.name }}
+                        </h1>
+
+                        {% if team.is_active %}
+                            <span class="ui-badge ui-badge-success">
+                                Aktif
+                            </span>
+                        {% else %}
+                            <span class="ui-badge">
+                                Pasif
+                            </span>
+                        {% endif %}
+
                     </div>
-                    <!-- Düzenle -->
-                    <button type="button"
-                            class="ui-btn ui-btn-sm ui-btn-ghost"
-                            hx-get="{% url 'team-update' team.pk %}?return_to_detail=1"
-                            hx-target="#team-modal-container"
-                            hx-swap="innerHTML">Düzenle</button>
+
+                    <p class="ui-team-profile-description">
+                        {{ team.description|default:'Takım açıklaması bulunmuyor.' }}
+                    </p>
+
                 </div>
-                <!-- Hızlı işlem -->
-                <div>
-                    <a href="{% url 'team-schedule' team.pk %}"
-                       class="ui-btn ui-btn-primary">
-                        Haftalık antrenman programı
-                    </a>
-                    <a href="{% url 'fee-management' %}"
-                       class="ui-btn ui-btn-secondary">
-                        Ücret yönetimine git
-                    </a>
-                </div>
+
             </div>
-            <!-- İstatistikler -->
-            <div class="ui-stat-grid">
-                <!-- Antrenör -->
-                <div class="ui-stat">
-                    <p class="ui-stat-label">Antrenör</p>
-                    <p class="ui-stat-value">{{ team.coaches.count|floatformat:0 }}</p>
-                </div>
-                <!-- Sporcu -->
-                <div class="ui-stat">
-                    <p class="ui-stat-label">Sporcu</p>
-                    <p class="ui-stat-value">{{ team.athletes.count|floatformat:0 }}</p>
-                </div>
-                <!-- Aidat -->
-                <div class="ui-stat">
-                    <p class="ui-stat-label">Aylık aidat</p>
-                    <p class="ui-stat-value">
-                        {% with active_fee=team.fee_histories.first %}
-                            {% if active_fee %}
-                                {{ active_fee.monthly_fee|floatformat:0 }}
-                            {% else %}
-                                <span>Tanımlanmadı</span>
-                            {% endif %}
-                        {% endwith %}
+
+
+            <!-- DÜZENLE -->
+            <button type="button"
+                    class="ui-btn ui-btn-sm ui-btn-ghost"
+                    hx-get="{% url 'team-update' team.pk %}?return_to_detail=1"
+                    hx-target="#team-modal-container"
+                    hx-swap="innerHTML">
+                Düzenle
+            </button>
+
+        </div>
+
+
+        <!-- HIZLI İŞLEMLER -->
+        <div class="ui-team-actions">
+
+            <a href="{% url 'team-schedule' team.pk %}"
+               class="ui-btn ui-btn-primary">
+                <span>Haftalık antrenman programı</span>
+                <span aria-hidden="true">→</span>
+            </a>
+
+            <a href="{% url 'fee-management' %}"
+               class="ui-btn ui-btn-secondary">
+                Ücret yönetimi
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         İSTATİSTİKLER
+    ====================================================== -->
+    <div class="ui-stat-grid ui-team-stat-grid">
+
+        <div class="ui-stat">
+            <p class="ui-stat-label">
+                Antrenör
+            </p>
+
+            <p class="ui-stat-value">
+                {{ team.coaches.count|floatformat:0 }}
+            </p>
+
+            <span class="ui-stat-meta">
+                Sorumlu kişi
+            </span>
+        </div>
+
+
+        <div class="ui-stat">
+            <p class="ui-stat-label">
+                Sporcu
+            </p>
+
+            <p class="ui-stat-value">
+                {{ team.athletes.count|floatformat:0 }}
+            </p>
+
+            <span class="ui-stat-meta">
+                Kayıtlı sporcu
+            </span>
+        </div>
+
+
+        <div class="ui-stat">
+            <p class="ui-stat-label">
+                Aylık aidat
+            </p>
+
+            <p class="ui-stat-value">
+
+                {% with active_fee=team.fee_histories.first %}
+
+                    {% if active_fee %}
+                        {{ active_fee.monthly_fee|floatformat:0 }}
+                    {% else %}
+                        <span class="ui-stat-value-muted">
+                            Tanımlanmadı
+                        </span>
+                    {% endif %}
+
+                {% endwith %}
+
+            </p>
+
+            <span class="ui-stat-meta">
+                Güncel ücret
+            </span>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         İÇERİK
+    ====================================================== -->
+    <div class="ui-team-content">
+
+
+        <!-- =================================================
+             ANTRENÖRLER
+        ================================================== -->
+        <section class="ui-card ui-team-section">
+
+            <div class="ui-team-section-header">
+
+                <div>
+                    <h2 class="ui-section-title">
+                        Sorumlu antrenörler
+                    </h2>
+
+                    <p class="ui-section-description">
+                        Takımdan sorumlu kişiler
                     </p>
                 </div>
-            </div>
-            <!-- İçerik -->
-            <div>
-                <!-- Antrenörler -->
-                <div>
-                    <div>
-                        <div>
-                            <h2>Sorumlu antrenörler</h2>
-                            <p>Takımdan sorumlu kişiler</p>
-                        </div>
-                        <span>{{ team.coaches.count }} kişi</span>
-                    </div>
-                    <div>
-                        {% for coach in team.coaches.all %}
-                            <span class="ui-badge">
-                                {{ coach.get_full_name|default:coach.email }}
-                            </span>
-                        {% empty %}
-                            <div class="ui-empty">
-                                <p class="ui-empty-description">Antrenör atanmadı.</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <!-- Sporcular -->
-                <div>
-                    <div>
-                        <div>
-                            <h2>Takımdaki sporcular</h2>
-                            <p>Takıma kayıtlı sporcular</p>
-                        </div>
-                        <span>{{ team.athletes.count }} sporcu</span>
-                    </div>
-                    <div>
-                        {% for athlete in team.athletes.all %}
-                            <a href="{% url 'athlete-manage-detail' athlete.pk %}"
-                               class="ui-card">
-                                <div>
-                                    <p>{{ athlete.get_full_name }}</p>
-                                </div>
-                                <span>›</span>
-                            </a>
-                        {% empty %}
-                            <div class="ui-empty">
-                                <p class="ui-empty-description">Bu takımda sporcu bulunmuyor.</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-    <!-- Modal -->
-    <div id="team-modal-container"></div>
-    <script>
-        document.body.addEventListener('closeTeamModal', function() {
-            const modal = document.getElementById('team_modal');
-            if (modal) {
-                modal.remove();
-            }
 
-            const container = document.getElementById('team-modal-container');
-            if (container) {
-                container.innerHTML = '';
-            }
-        });
-    </script>
+                <span class="ui-section-count">
+                    {{ team.coaches.count }} kişi
+                </span>
+
+            </div>
+
+
+            <div class="ui-team-coaches">
+
+                {% for coach in team.coaches.all %}
+
+                    <div class="ui-team-coach">
+
+                        <span class="ui-team-coach-avatar">
+                            {{ coach.first_name|default:coach.email|first|upper }}
+                        </span>
+
+                        <div class="ui-team-coach-info">
+                            <p class="ui-team-coach-name">
+                                {{ coach.get_full_name|default:coach.email }}
+                            </p>
+
+                            {% if coach.email %}
+                                <p class="ui-team-coach-email">
+                                    {{ coach.email }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="ui-empty">
+                        <p class="ui-empty-description">
+                            Antrenör atanmadı.
+                        </p>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SPORCULAR
+        ================================================== -->
+        <section class="ui-card ui-team-section">
+
+            <div class="ui-team-section-header">
+
+                <div>
+                    <h2 class="ui-section-title">
+                        Takımdaki sporcular
+                    </h2>
+
+                    <p class="ui-section-description">
+                        Takıma kayıtlı sporcular
+                    </p>
+                </div>
+
+                <span class="ui-section-count">
+                    {{ team.athletes.count }} sporcu
+                </span>
+
+            </div>
+
+
+            <div class="ui-team-athletes">
+
+                {% for athlete in team.athletes.all %}
+
+                    <a href="{% url 'athlete-manage-detail' athlete.pk %}"
+                       class="ui-team-athlete">
+
+                        <div class="ui-team-athlete-avatar">
+                            {{ athlete.first_name|first|upper }}
+                        </div>
+
+                        <div class="ui-team-athlete-info">
+
+                            <p class="ui-team-athlete-name">
+                                {{ athlete.get_full_name }}
+                            </p>
+
+                        </div>
+
+                        <span class="ui-team-athlete-arrow"
+                              aria-hidden="true">
+                            →
+                        </span>
+
+                    </a>
+
+                {% empty %}
+
+                    <div class="ui-empty">
+                        <p class="ui-empty-description">
+                            Bu takımda sporcu bulunmuyor.
+                        </p>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+
+</div>
+
+<!-- =========================================================
+     MODAL
+========================================================== -->
+
+<div id="team-modal-container"></div>
+
+<script>
+    document.body.addEventListener('closeTeamModal', function () {
+
+        const modal = document.getElementById('team_modal');
+
+        if (modal) {
+            modal.remove();
+        }
+
+        const container = document.getElementById('team-modal-container');
+
+        if (container) {
+            container.innerHTML = '';
+        }
+
+    });
+</script>
+
 {% endblock %}

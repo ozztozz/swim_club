@@ -1,6 +1,6 @@
 <div class="ui-training-item cursor-pointer"
      hx-get="{% url 'training-attendance-schedule' schedule.team.pk schedule.pk %}?training_date={{ selected_date|date:'Y-m-d' }}"
-     hx-target="#attendance-modal-container"
+     hx-target="#modal-container"
      hx-swap="innerHTML">
     
     <!-- Sol Bölüm: Saat ve Bilgiler -->

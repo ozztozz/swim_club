@@ -2,6 +2,7 @@
             <div class="ui-card ui-scroll-list">
                 
                 <div>
+                    
                     {% for athlete in payments %}
                         <a href="{% url 'athlete-manage-detail' athlete.pk %}"
                            class="ui-list-item">

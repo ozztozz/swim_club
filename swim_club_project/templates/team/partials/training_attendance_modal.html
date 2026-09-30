@@ -3,10 +3,14 @@
         onclick="if (event.target === this) closeAttendanceModal()">
     <div class="attendance-modal-box ui-modal-panel">
         <div>
-            <button type="button"
-                    class="ui-modal-close"
-                    onclick="closeAttendanceModal()"
-                    aria-label="Kapat">✕</button>
+            <button
+                type="button"
+                class="ui-modal-close"
+                data-modal-close
+                aria-label="Kapat"
+            >
+                <span aria-hidden="true">×</span>
+            </button>
         </div>
         {% include "team/partials/training_attendance_panel.html" %}
     </div>

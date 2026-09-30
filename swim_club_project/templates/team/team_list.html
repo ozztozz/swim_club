@@ -1,39 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="dashboard">
-        <!-- SAYFA BAŞLIĞI -->
-        <header>
-            <div>
+        <!-- YENİ CAM EFEKTİ (GLASSMORPHISM) BAŞLIK KARTI -->
+        <header class="profile-hero-card mb-6" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.23);">
+            <div class="page-header-main" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                 <div>
-                    <p class="text-primary-custom">Kulüp yönetimi</p>
-                    <h1>Takımlar</h1>
-                    <p>Takımları, antrenörleri ve aylık aidatlarını yönetin.</p>
+                    <p class="page-eyebrow ui-text-primary" style="margin: 0 0 4px 0; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Kulüp yönetimi</p>
+                    <h1 class="page-title" style="margin: 0 0 4px 0; font-size: 1.75rem; font-weight: 700;">Takımlar</h1>
+                    <p class="page-description" style="margin: 0; opacity: 0.8; font-size: 0.95rem;">Takımları, antrenörleri ve aylık aidatlarını yönetin.</p>
+                </div>
+
+                <!-- AKSİYONLAR -->
+                <div class="ui-section-actions" style="display: flex; gap: 10px; align-items: center;">
+                    <a href="{% url 'fee-management' %}"
+                       class="ui-btn ui-btn-sm ui-btn-secondary">
+                        Ücret Yönetimi
+                    </a>
+                    <button type="button"
+                            class="ui-btn ui-btn-sm ui-btn-primary"
+                            hx-get="{% url 'team-create' %}"
+                            hx-target="#team-modal-container"
+                            hx-swap="innerHTML">
+                        <span style="font-size: 1.1rem; line-height: 1; margin-right: 4px;">+</span>
+                        Yeni Takım
+                    </button>
                 </div>
             </div>
-            <!-- AKSİYONLAR -->
-            <div>
-                <a href="{% url 'fee-management' %}"
-                   class="ui-btn ui-btn-sm ui-btn-secondary">
-                    Ücret Yönetimi
-                </a>
-                <button type="button"
-                        class="ui-btn ui-btn-sm ui-btn-primary"
-                        hx-get="{% url 'team-create' %}"
-                        hx-target="#team-modal-container"
-                        hx-swap="innerHTML">
-                    <span>+</span>
-                    Yeni Takım
-                </button>
-            </div>
         </header>
-        <!-- FİLTRE + TAKIMLAR -->
-        <section class="ui-section">
-            <!-- FİLTRE -->
+
+        <!-- FİLTRE + TAKIMLAR BÖLÜMÜ -->
+        <section class="ui-section profile-hero-card" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);">
+            <!-- FİLTRE FORMU -->
             <form method="get">
-                <div>
+                <div class="ui-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; align-items: flex-end;">
                     <!-- Takım ara -->
-                    <label class="ui-field">
-                        <span>Takım ara</span>
+                    <label class="ui-field" style="display: flex; flex-direction: column; gap: 6px;">
+                        <span class="ui-label" style="font-size: 0.875rem; font-weight: 500;">Takım ara</span>
                         <input type="search"
                                name="q"
                                value="{{ query }}"
@@ -41,8 +43,8 @@
                                class="ui-input">
                     </label>
                     <!-- Durum -->
-                    <label class="ui-field">
-                        <span>Durum</span>
+                    <label class="ui-field" style="display: flex; flex-direction: column; gap: 6px;">
+                        <span class="ui-label" style="font-size: 0.875rem; font-weight: 500;">Durum</span>
                         <select name="status"
                                 class="ui-select">
                             <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
@@ -51,15 +53,19 @@
                         </select>
                     </label>
                 </div>
-                <button type="submit"
-                        class="ui-btn ui-btn-sm ui-btn-neutral">
-                    Filtrele
-                </button>
+                <div style="margin-top: 16px;">
+                    <button type="submit"
+                            class="ui-btn ui-btn-sm ui-btn-neutral">
+                        Filtrele
+                    </button>
+                </div>
             </form>
+
             <!-- TAKIM LİSTESİ -->
-            <div>{% include "team/partials/team_table.html" %}</div>
+            <div style="margin-top: 24px;">{% include "team/partials/team_table.html" %}</div>
         </section>
     </div>
+
     <!-- MODAL -->
     <div id="team-modal-container"></div>
     <script>
