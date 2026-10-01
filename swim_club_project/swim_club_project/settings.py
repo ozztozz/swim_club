@@ -73,7 +73,6 @@ INSTALLED_APPS = [
     "athletes",
     "teams",
     "finance",
-    "rest_framework",
     "sendSMS",
     'dashboard',
 ]

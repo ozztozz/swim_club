@@ -1,6 +1,6 @@
 # athletes/urls.py
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+
 
 from athletes.views import parent_dashboard, approve_athlete_htmx, edit_athlete_team_htmx, reject_athlete_htmx, search_approved_athletes_htmx, dashboard_recent_payments_htmx
 

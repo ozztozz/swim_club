@@ -17,15 +17,12 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
 
 from django.db.models import Sum
 from .forms import AthleteForm, AthletePaymentCreateForm, AthletePaymentEditForm, EquipmentSaleForm
 from .models import Athlete
 from teams.models import TeamTrainingAttendance, TeamTrainingSchedule
-from .serializers import AthleteSerializer
+
 from finance.models import Equipment, EquipmentSaleItem, EquipmentStockMovement, PaymentRecord
 from finance.services import get_equipment_central_stock, get_equipment_coach_stock
 from django.shortcuts import render, get_object_or_404, redirect
