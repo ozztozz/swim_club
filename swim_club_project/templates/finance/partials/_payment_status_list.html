@@ -7,7 +7,7 @@
                            class="ui-list-item">
                             <!-- Sporcu Bilgisi -->
                             <div class="ui-list-content">
-                                <p class="ui-list-title">{{ athlete.name }}</p>
+                                <p class="ui-list-title">{{ athlete.name }} </p>
                                 <p class="ui-list-subtitle">
                                     {% if athlete.team %}
                                         {{ athlete.team }}
@@ -21,7 +21,7 @@
                                 {% for payment in athlete.details  %}
                                 
                                 <p class="ui-list-subtitle flex justify-between">
-                                   <span class="text-left">{{ payment.date|date:'d.m.Y' }}</span> - <span class="text-right">{{ payment.amount|floatformat:0 }}</span> TL
+                                   <span class="text-left">{{ payment.date|date:'d.m.Y' }} - {{ payment.payment_type|slice:":7" }}</span> - <span class="text-right">{{ payment.amount|floatformat:0 }}</span> TL
                                 </p>
                                 {% endfor %}
                             </div>
@@ -29,21 +29,17 @@
                             <!-- Tutar / Durum -->
                             <div class="ui-list-end">
                                 <p class="ui-list-value">
-                                    {% if payment_status == "paid" %}
-                                        {{ athlete.total_payment|floatformat:0 }} TL
-                                    {% else %}
-                                        {{ athlete.total_payment|floatformat:0 }} TL
-                                    {% endif %}
+                                    {{ athlete.team_subscription_price|floatformat:0 }} TL
                                 </p>
-                                {% if payment_status == "paid" %}
+                                {% if athlete %}
                                     <div>
-                                        {% if athlete.fee_type == "fee" and athlete.total_payment < athlete.amount %}
-                                            <span class="ui-badge-danger">{{ athlete.total_payment }} • Kısmi</span>
+                                        {% if athlete.amount_due > 0 %}
+                                            <span class="ui-text-warning">Kısmi • {{ athlete.total_payment|floatformat:0 }} </span>
                                         {% else %}
-                                            <span class="ui-badge-success">• Ödendi</span>
+                                            <span class="ui-text-success">&#x2714;</span>
                                         {% endif %}
                                     </div>
-                                    {% if athlete.paid_at %}
+                                    {% if athlete.last_payment_date %}
                                         <p class="ui-list-meta">{{ athlete.last_payment_date|date:'d.m.Y' }}</p>
                                     {% endif %}
                                 {% else %}

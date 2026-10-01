@@ -3,7 +3,7 @@
 from django.urls import path
 
 from .views import dashboard,athlete_search
-from .account_views import payment_status_list
+from .views_accounts import payment_list, _get_admin_dashboard_context
 
 
 app_name = "dashboard"
@@ -12,7 +12,7 @@ app_name = "dashboard"
 urlpatterns = [
     path("",dashboard,name="index",),
     path("athlete-search/", athlete_search, name="athlete-search"),
-    path("payment-status/<str:payment_status>/", payment_status_list, name="payment-status-list"),
+    path("payment-list/<str:payment_status>/", payment_list, name="payment-list"),
 
 
 ]

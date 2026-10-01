@@ -7,7 +7,7 @@
         <div class="page-header">
             <div>
                 <div>
-                    <a href="{% url 'finance-dashboard' %}?period={{ period }}{% if selected_team %}&team={{ selected_team }}{% endif %}"
+                    <a href="{% url 'finance-dashboard' %}?period={{ period }}{% if team_id %}&team={{ team_id }}{% endif %}"
                        class="page-eyebrow">
                         ← Finans
                     </a>
@@ -43,6 +43,9 @@
                 </form>
             </div>
         </div>
+       
+            <p>Seçili Takım: {% if team %}{{ team.name }}{% else %}Tüm takımlar{% endif %}</p>
+     
 
         <!-- =========================================================
              SPORCU LİSTESİ
