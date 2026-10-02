@@ -19,7 +19,7 @@
                     <button type="button"
                             class="ui-btn ui-btn-sm ui-btn-primary"
                             hx-get="{% url 'team-create' %}"
-                            hx-target="#team-modal-container"
+                            hx-target="#modal-container"
                             hx-swap="innerHTML">
                         <span style="font-size: 1.1rem; line-height: 1; margin-right: 4px;">+</span>
                         Yeni Takım
@@ -30,55 +30,12 @@
 
         <!-- FİLTRE + TAKIMLAR BÖLÜMÜ -->
         <section class="ui-section profile-hero-card" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);">
-            <!-- FİLTRE FORMU -->
-            <form method="get">
-                <div class="ui-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; align-items: flex-end;">
-                    <!-- Takım ara -->
-                    <label class="ui-field" style="display: flex; flex-direction: column; gap: 6px;">
-                        <span class="ui-label" style="font-size: 0.875rem; font-weight: 500;">Takım ara</span>
-                        <input type="search"
-                               name="q"
-                               value="{{ query }}"
-                               placeholder="Takım adı"
-                               class="ui-input">
-                    </label>
-                    <!-- Durum -->
-                    <label class="ui-field" style="display: flex; flex-direction: column; gap: 6px;">
-                        <span class="ui-label" style="font-size: 0.875rem; font-weight: 500;">Durum</span>
-                        <select name="status"
-                                class="ui-select">
-                            <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
-                            <option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option>
-                            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Pasif</option>
-                        </select>
-                    </label>
-                </div>
-                <div style="margin-top: 16px;">
-                    <button type="submit"
-                            class="ui-btn ui-btn-sm ui-btn-neutral">
-                        Filtrele
-                    </button>
-                </div>
-            </form>
+
 
             <!-- TAKIM LİSTESİ -->
             <div style="margin-top: 24px;">{% include "team/partials/team_table.html" %}</div>
         </section>
     </div>
 
-    <!-- MODAL -->
-    <div id="team-modal-container"></div>
-    <script>
-        document.body.addEventListener('closeTeamModal', function() {
-            const modal = document.getElementById('team_modal');
-            if (modal) {
-                modal.remove();
-            }
 
-            const container = document.getElementById('team-modal-container');
-            if (container) {
-                container.innerHTML = '';
-            }
-        });
-    </script>
 {% endblock %}

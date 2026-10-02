@@ -33,8 +33,10 @@
                                 </p>
                                 {% if athlete %}
                                     <div>
-                                        {% if athlete.amount_due > 0 %}
-                                            <span class="ui-text-warning">Kısmi • {{ athlete.total_payment|floatformat:0 }} </span>
+                                        {% if athlete.total_payment == 0 %}
+                                        <span class="ui-text-danger">&#10006;  </span>
+                                        {% elif athlete.amount_due > 0 %}
+                                            <span class="ui-text-warning">&#10140; {{ athlete.amount_due|floatformat:0 }} </span>
                                         {% else %}
                                             <span class="ui-text-success">&#x2714;</span>
                                         {% endif %}

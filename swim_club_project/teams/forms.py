@@ -34,7 +34,7 @@ class TeamForm(forms.ModelForm):
 
             'coaches': forms.SelectMultiple(
                 attrs={
-                    'class': 'ui-select ui-team-coach-select',
+                    'class': '',
                 }
             ),
 

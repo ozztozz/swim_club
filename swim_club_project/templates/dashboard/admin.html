@@ -75,15 +75,6 @@
 
         <div class="dashboard-quick-actions">
 
-            <a href="{% url 'dashboard:payment-list' 'paid' %}" class="dashboard-quick-action">
-                <span class="dashboard-quick-action-icon">
-                    ₺
-                </span>
-
-                <span>
-                    Tahsilat ekle
-                </span>
-            </a>
 
 
             <button
@@ -92,7 +83,7 @@
                 hx-get="{% url 'expense-create' %}?period={{ current_period }}&dashboard=1"
                 hx-target="#modal-container"
                 hx-swap="innerHTML"
-            >
+             >
                 <span class="dashboard-quick-action-icon">
                     +
                 </span>
@@ -106,7 +97,7 @@
             <a
                 href="{% url 'athlete-manage-create' %}"
                 class="dashboard-quick-action"
-            >
+             >
                 <span class="dashboard-quick-action-icon">
                     +
                 </span>
@@ -120,7 +111,7 @@
             <a
                 href="{% url 'team-list' %}"
                 class="dashboard-quick-action"
-            >
+             >
                 <span class="dashboard-quick-action-icon">
                     →
                 </span>
