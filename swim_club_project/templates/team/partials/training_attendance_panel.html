@@ -12,9 +12,12 @@
             {% for schedule in schedules %}
                 <a href="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
                    hx-get="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
-                   hx-target="#attendance-modal-container"
-                   hx-swap="innerHTML"
-                   class="ui-btn {% if schedule.pk == selected_schedule.pk %}ui-btn-primary{% else %}ui-btn-ghost{% endif %}">
+                   
+                hx-swap="innerHTML"
+                data-close-modal-on-success
+
+                class="ui-modal-form"
+                   >
                     <span>{{ schedule.get_training_type_display }}</span>
                     <span>{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
                 </a>
@@ -24,7 +27,7 @@
     {% if selected_schedule %}
         <form method="post"
               hx-post="{% url 'training-attendance-save' team.pk selected_schedule.pk %}"
-              hx-target="#attendance-modal-container"
+              
               hx-swap="innerHTML">
             {% csrf_token %}
             <input type="hidden" name="training_date" value="{{ today|date:'Y-m-d' }}">
@@ -95,15 +98,24 @@
                     <p>Bu takımda aktif sporcu yok.</p>
                 {% endfor %}
             </div>
-            <div class="ui-modal-actions">
-                <button type="button" class="ui-btn ui-btn-secondary" data-modal-close="">
-                        Vazgeç
+
+                <div class="ui-modal-actions">
+
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-sm ui-btn-secondary"
+                        data-modal-close
+                    >
+                        İptal
                     </button>
-                <button type="submit"
-                        class="ui-btn ui-btn-primary">
-                    Katılımı kaydet
-                </button>
-            </div>
+                    <button
+                        type="submit"
+                        class="ui-btn ui-btn-sm ui-btn-primary"
+                    >
+                        Katılımı Kaydet
+                    </button>
+
+                </div>
         </form>
     {% else %}
         <p>Bu takım için bugün antrenman bulunmuyor.</p>
