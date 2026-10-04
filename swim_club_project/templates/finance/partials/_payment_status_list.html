@@ -29,7 +29,7 @@
                             <!-- Tutar / Durum -->
                             <div class="ui-list-end">
                                 <p class="ui-list-value">
-                                    {{ athlete.team_subscription_price|floatformat:0 }} TL
+                                    {{ athlete.total_payment|floatformat:0 }} TL
                                 </p>
                                 {% if athlete %}
                                     <div>
@@ -41,8 +41,8 @@
                                             <span class="ui-text-success">&#x2714;</span>
                                         {% endif %}
                                     </div>
-                                    {% if athlete.last_payment_date %}
-                                        <p class="ui-list-meta">{{ athlete.last_payment_date|date:'d.m.Y' }}</p>
+                                    {% if athlete.team_subscription_price %}
+                                        <p class="ui-list-meta">{{ athlete.team_subscription_price|floatformat:0 }} TL</p>
                                     {% endif %}
                                 {% else %}
                                     <span class="ui-list-meta">Bekliyor</span>
