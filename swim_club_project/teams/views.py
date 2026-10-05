@@ -21,7 +21,7 @@ def _team_context(request):
 	status = request.GET.get('status', 'active')
 	teams = Team.objects.prefetch_related('coaches').annotate(
 		athlete_count=Count('athletes', filter=Q(athletes__is_active=True), distinct=True),
-	).order_by('name')
+	).order_by('-athlete_count')
 	if request.user.is_coach:
 		teams = teams.filter(coaches=request.user)
 

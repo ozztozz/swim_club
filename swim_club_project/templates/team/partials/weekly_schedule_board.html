@@ -1,89 +1,32 @@
-
-<div id="weekly-schedule-board" class="w-full">
-
-    <!-- Başlık -->
-    <div class="grid grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)] border-b border-base-200">
-
-        <div class="px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-base-content/40">
-            Gün
-        </div>
-
-        <div class="border-l border-base-200 px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-base-content/40">
-            Sabah
-        </div>
-
-        <div class="border-l border-base-200 px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-base-content/40">
-            Akşam
-        </div>
-
-    </div>
-
-
-    <!-- Günler -->
-    <div>
-
-        {% for day in weekly_days %}
-
-            <div
-                data-weekday="{{ day.value }}"
-                class="grid grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)] border-b border-base-200 last:border-b-0"
-            >
-
-                <!-- Gün -->
-                <div class="min-w-0 px-2 py-2">
-
-                    <div class="flex items-center gap-1">
-
-                        <div class="min-w-0 flex-1">
-
-                            <h3 class="truncate text-xs font-semibold text-base-content">
-                                {{ day.label }}
-                            </h3>
-
-                            <p class="mt-0.5 text-[9px] text-base-content/40">
-                                {{ day.schedules|length }} antre.
-                            </p>
-
-                        </div>
-
-                        <!-- Antrenman ekle -->
-                        <button
-                            type="button"
-                            class="ui-btn ui-btn-sm ui-btn-primary shrink-0"
-                            hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}"
-                            hx-target="#modal-container"
-                            hx-swap="innerHTML"
-                            title="Antrenman ekle"
-                            aria-label="{{ day.label }} gününe antrenman ekle"
-                        >
-                            +
-                        </button>
-
-                    </div>
-
+<div id="weekly-schedule-board" class="ui-week">
+    {% for day in weekly_days %}
+        {% with count=day.schedules|length %}
+        <section data-weekday="{{ day.value }}" class="ui-card ui-week-day {% if not count %}is-off{% endif %}">
+            <div class="ui-week-day-head">
+                <div class="min-w-0">
+                    <h3 class="ui-week-day-name">{{ day.label }}</h3>
+                    <p class="ui-week-day-count">{% if count %}{{ count }} antrenman{% else %}Antrenman yok{% endif %}</p>
                 </div>
-
-
-                <!-- Sabah -->
-                <div class="min-w-0 border-l border-base-200 px-2">
-
-                    {% include "team/partials/schedule_cell.html" with schedules=day.morning_schedules day_label=day.label align_right=False %}
-
-                </div>
-
-
-                <!-- Akşam -->
-                <div class="min-w-0 border-l border-base-200 px-2">
-
-                    {% include "team/partials/schedule_cell.html" with schedules=day.evening_schedules day_label=day.label align_right=True %}
-
-                </div>
-
+                <button type="button"
+                        class="ui-week-add"
+                        hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        title="Antrenman ekle"
+                        aria-label="{{ day.label }} gününe antrenman ekle">+</button>
             </div>
 
-        {% endfor %}
-
-    </div>
-
+            {% if count %}
+                <div class="ui-week-sessions">
+                    {% for schedule in day.morning_schedules %}
+                        {% include "team/partials/schedule_cell.html" with day_label=day.label period="Sabah" %}
+                    {% endfor %}
+                    {% for schedule in day.evening_schedules %}
+                        {% include "team/partials/schedule_cell.html" with day_label=day.label period="Akşam" %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+        {% endwith %}
+    {% endfor %}
 </div>
-

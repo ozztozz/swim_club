@@ -12,6 +12,129 @@
                 <span aria-hidden="true">×</span>
             </button>
         </div>
-        {% include "team/partials/training_attendance_panel.html" %}
+        <div class="ui-section">
+    <div class="ui-card">
+        <div class="ui-card-header">
+            <h2 class="ui-card-title">{{ team.name }}</h2>
+            <span class="ui-badge ui-badge-primary">{{ athletes|length }} aktif</span>
+        </div>
+        <div class="ui-card-body">
+            {% for schedule in schedules %}
+                <a href="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
+                hx-get="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
+                hx-swap="innerHTML"
+                data-close-modal-on-success
+                class="ui-modal-form ui-list-item"
+                   >
+                    <span class="ui-list-title">{{ schedule.get_training_type_display }}</span>
+                    <span class="ui-badge {% if schedule.pk == selected_schedule.pk %}ui-badge-primary{% else %}ui-badge-neutral{% endif %}">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% if selected_schedule %}
+        <form method="post"
+              hx-post="{% url 'training-attendance-save' team.pk selected_schedule.pk %}"
+              hx-swap="none"
+              data-close-modal-on-success>
+            {% csrf_token %}
+            <input type="hidden" name="training_date" value="{{ today|date:'Y-m-d' }}">
+            {% for row in athlete_rows %}
+                {% if row.is_extra %}
+                    {% with athlete=row.athlete record=row.record %}
+                        <input type="hidden"
+                               name="{% if record.notes == 'Telafi' %}makeup_athlete{% else %}extra_athlete{% endif %}"
+                               value="{{ athlete.pk }}">
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+            <div class="ui-card ui-card-body">
+                <span class="ui-label">Takım harici / telafi sporcu ekle</span>
+                <label class="ui-search-field">
+                    <span class="ui-search-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m20 20-3.5-3.5" />
+                        </svg>
+                    </span>
+                    <input
+                    type="search"
+                           name="q"
+                           value=""
+                           placeholder="Sporcu ara (en az 3 harf)"
+                           minlength="3"
+                           class="ui-input ui-search-input"
+                           autocomplete="off"
+                           hx-get="{% url 'training-attendance-athlete-search' team.pk selected_schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
+                           hx-trigger="keyup[this.value.length >= 3] changed[this.value.length >= 3] delay:300ms"
+                           hx-target="#makeup-athlete-search-results"
+                           hx-swap="innerHTML">
+                </label>
+                <div class="ui-list" id="makeup-athlete-search-results"></div>
+            </div>
+
+            <div class="ui-list " id="attendance-athlete-list">
+                {% for row in athlete_rows %}
+                    {% with athlete=row.athlete record=row.record %}
+                        <div class="ui-list-item"
+                             {% if row.is_extra %}data-extra-athlete-id="{{ athlete.pk }}"{% endif %}>
+                            <span class="ui-list-title">{{ athlete.get_full_name }}</span>
+                            {% if row.is_extra %}
+                                {% if record.notes == "Telafi" %}
+                                    <span class="ui-badge ui-badge-neutral">Telafi</span>
+                                {% endif %}
+                                <span class="ui-badge ui-badge-neutral">Katıldı</span>
+                                <button type="button"
+                                        class="ui-btn ui-btn-sm ui-btn-ghost"
+                                        data-athlete-id="{{ athlete.pk }}">Sil</button>
+                            {% else %}
+                            <div class="ui-list-end">
+                                <label class="ui-badge ui-badge-neutral ui-attendance-choice ui-attendance-present">
+                                    <input type="radio"
+                                           name="attendance_{{ athlete.pk }}"
+                                           value="attended"
+                                           required
+                                           {% if record and record.status == 'attended' %}checked{% endif %}>
+                                    Katıldı
+                                </label>
+                                <label class="ui-badge ui-badge-neutral ui-attendance-choice ui-attendance-absent">
+                                    <input type="radio"
+                                           name="attendance_{{ athlete.pk }}"
+                                           value="absent"
+                                           {% if record and record.status == 'absent' %}checked{% endif %}>
+                                    Katılmadı
+                                </label>
+                            </div>
+                            {% endif %}
+                            
+                        </div>
+                    {% endwith %}
+                {% empty %}
+                    <p>Bu takımda aktif sporcu yok.</p>
+                {% endfor %}
+            </div>
+
+                <div class="ui-modal-actions">
+
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-sm ui-btn-secondary"
+                        data-modal-close
+                    >
+                        İptal
+                    </button>
+                    <button
+                        type="submit"
+                        class="ui-btn ui-btn-sm ui-btn-primary"
+                    >
+                        Katılımı Kaydet
+                    </button>
+
+                </div>
+        </form>
+    {% else %}
+        <p>Bu takım için bugün antrenman bulunmuyor.</p>
+    {% endif %}
+</div>
     </div>
 </dialog>
