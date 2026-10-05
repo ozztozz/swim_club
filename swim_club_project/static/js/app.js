@@ -1593,3 +1593,18 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
 });
+document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-tab-button]");
+    if (!button) return;
+
+    const tabs = button.closest("[data-tabs]");
+    if (!tabs) return;
+
+    const name = button.dataset.tabButton;
+    tabs.querySelectorAll("[data-tab-button]").forEach((item) => {
+        item.classList.toggle("is-active", item === button);
+    });
+    document.querySelectorAll("[data-tab-panel]").forEach((panel) => {
+        panel.hidden = panel.dataset.tabPanel !== name;
+    });
+});

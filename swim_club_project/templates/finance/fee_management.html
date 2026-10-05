@@ -1,149 +1,92 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="w-full space-y-4">
-        <!-- SAYFA BAŞLIĞI -->
-        <header class="px-1">
-            <p class="text-[10px] font-black uppercase tracking-widest text-primary">Finans</p>
-            <h1 class="mt-0.5 text-xl font-black tracking-tight text-base-content">Aidat & Tarife</h1>
-            <p class="mt-1 text-xs text-base-content/50">Takım tarifelerini ve sporcuların özel ücretlerini yönetin.</p>
-        </header>
-        <!-- SEKME ALANI -->
-        <div>
-            <div class="flex w-full rounded-xl bg-base-200 p-1">
-                <button type="button"
-                        data-tab-button="teams"
-                        onclick="switchFeeTab('teams')"
-                        class="flex h-9 flex-1 items-center justify-center rounded-lg bg-base-100 px-2 text-[10px] font-bold text-base-content shadow-sm transition-all">
-                    Takım Tarifeleri
-                </button>
-                <button type="button"
-                        data-tab-button="athletes"
-                        onclick="switchFeeTab('athletes')"
-                        class="flex h-9 flex-1 items-center justify-center rounded-lg px-2 text-[10px] font-bold text-base-content/50 transition-all">
-                    Özel Fiyatlar
-                </button>
+    <div class="dashboard">
+        <div class="page-header">
+            <div class="page-header-main">
+                <p class="page-eyebrow">Finans</p>
+                <h1 class="page-title">Aidat &amp; Tarife</h1>
             </div>
-            <!-- ====================================================== -->
-            <!-- TAKIM TARİFELERİ -->
-            <!-- ====================================================== -->
-            <div id="fee-tab-teams" class="mt-3 space-y-3">
-                {% for team in teams %}
-                    <section class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                        <!-- TAKIM BAŞLIĞI -->
-                        <div class="flex items-center justify-between gap-3 border-b border-base-200 p-3">
-                            <div class="min-w-0">
-                                <h2 class="truncate text-sm font-black text-base-content">{{ team.name }}</h2>
-                                <p class="mt-0.5 text-[10px] text-base-content/50">{{ team.athlete_count }} sporcu</p>
+        </div>
+
+        <nav class="ui-teams-tabs" aria-label="Tarife bölümleri" data-tabs>
+            <button type="button" class="ui-teams-tab is-active" data-tab-button="teams">Takım Tarifeleri</button>
+            <button type="button" class="ui-teams-tab" data-tab-button="athletes">Özel Fiyatlar</button>
+        </nav>
+
+        <div id="fee-tab-teams" data-tab-panel="teams">
+            {% for team in teams %}
+                {% with active_fee=team.fee_histories.first %}
+                    <section class="ui-section">
+                        <div class="profile-hero-card">
+                            <div class="profile-hero-content py-1">
+                                <span class="profile-hero-subtitle m-0">{{ team.name }} · {{ team.athlete_count }} sporcu</span>
+                                <h2 class="profile-hero-name text-3xl my-1 ui-text-primary font-bold">
+                                    {% if active_fee %}{{ active_fee.monthly_fee|floatformat:0 }} TL{% else %}Tanımlanmadı{% endif %}
+                                </h2>
+                                <span class="text-[10px] text-[var(--ui-subtle)]">
+                                    {% if active_fee %}{{ active_fee.start_date|date:"d.m.Y" }} tarihinden itibaren{% else %}Tarife tanımlanmamış{% endif %}
+                                </span>
+                                <div class="profile-hero-actions mt-3">
+                                    <button type="button"
+                                            class="ui-btn ui-btn-sm ui-btn-primary"
+                                            hx-get="{% url 'team-fee-modal' team.id %}"
+                                            hx-target="#modal-container"
+                                            hx-swap="innerHTML">Tarifeyi Güncelle</button>
+                                </div>
                             </div>
-                            <span class="shrink-0 rounded-lg bg-base-200 px-2 py-1 text-[9px] font-bold text-base-content/60">
-                                {{ team.athlete_count }} Sporcu
-                            </span>
                         </div>
-                        <div class="p-3">
-                            <!-- AKTİF TARİFE -->
-                            {% with team.fee_histories.first as active_fee %}
-                                <div class="rounded-xl border border-base-200 bg-base-200/40 p-3">
-                                    <div class="flex items-center justify-between gap-3">
-                                        <div class="min-w-0">
-                                            <p class="text-[9px] font-bold uppercase tracking-wider text-base-content/50">Aktif Aidat</p>
-                                            {% if active_fee %}
-                                                <p class="mt-1 text-[10px] text-base-content/50">{{ active_fee.start_date|date:"d.m.Y" }} tarihinden itibaren</p>
-                                            {% else %}
-                                                <p class="mt-1 text-[10px] text-error/70">Tarife tanımlanmamış</p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="shrink-0 text-right">
-                                            {% if active_fee %}
-                                                <span class="text-lg font-black text-success">{{ active_fee.monthly_fee|floatformat:0 }}</span>
-                                                <span class="text-[10px] font-bold text-success"></span>
-                                            {% else %}
-                                                <span class="text-xs font-bold text-base-content/40">Tanımlanmadı</span>
-                                            {% endif %}
-                                        </div>
+
+                        <h3 class="ui-team-group-title">Tarife geçmişi <span>{{ team.fee_histories.all|length }} kayıt</span></h3>
+                        <div class="ui-card ui-scroll-list">
+                            {% for history in team.fee_histories.all %}
+                                <div class="ui-list-item">
+                                    <div class="ui-list-content">
+                                        <p class="ui-list-title">{{ history.monthly_fee|floatformat:0 }} TL</p>
+                                        <p class="ui-list-subtitle">
+                                            {{ history.start_date|date:"d.m.Y" }} →
+                                            {% if history.end_date %}{{ history.end_date|date:"d.m.Y" }}{% else %}Aktif{% endif %}
+                                        </p>
                                     </div>
+                                    {% if not history.end_date %}
+                                        <div class="ui-list-end"><span class="ui-badge ui-badge-success">Aktif</span></div>
+                                    {% endif %}
                                 </div>
-                            {% endwith %}
-                            <!-- TARİFE GEÇMİŞİ -->
-                            <div class="mt-3">
-                                <div class="mb-1.5 flex items-center justify-between">
-                                    <p class="text-[9px] font-black uppercase tracking-wider text-base-content/40">Tarife Geçmişi</p>
-                                    <span class="text-[9px] text-base-content/30">{{ team.fee_histories.all|length }} kayıt</span>
+                            {% empty %}
+                                <div class="ui-empty">
+                                    <p class="ui-empty-description">Geçmiş tarife bulunmuyor.</p>
                                 </div>
-                                <div class="overflow-hidden rounded-xl border border-base-200">
-                                    {% for history in team.fee_histories.all %}
-                                        <div class="flex items-center justify-between gap-2 border-b border-base-200 px-3 py-2 last:border-0">
-                                            <div class="min-w-0">
-                                                <p class="text-[10px] font-medium text-base-content/70">
-                                                    {{ history.start_date|date:"d.m.Y" }}
-                                                    <span class="text-base-content/30">→</span>
-                                                    {% if history.end_date %}
-                                                        {{ history.end_date|date:"d.m.Y" }}
-                                                    {% else %}
-                                                        <span class="font-bold text-success">Aktif</span>
-                                                    {% endif %}
-                                                </p>
-                                            </div>
-                                            <span class="shrink-0 text-[10px] font-bold text-base-content">{{ history.monthly_fee|floatformat:0 }}</span>
-                                        </div>
-                                    {% empty %}
-                                        <div class="px-3 py-3 text-center">
-                                            <p class="text-[10px] text-base-content/40">Geçmiş tarife bulunmuyor.</p>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <!-- GÜNCELLE -->
-                            <button type="button"
-                                    hx-get="{% url 'team-fee-modal' team.id %}"
-                                    hx-target="#modal-container"
-                                    hx-swap="innerHTML"
-                                    class="btn btn-primary mt-3 h-9 min-h-0 w-full rounded-xl text-[10px] font-bold">
-                                Tarifeyi Güncelle
-                            </button>
+                            {% endfor %}
                         </div>
                     </section>
+                {% endwith %}
+            {% empty %}
+                <div class="ui-empty">
+                    <div class="ui-empty-icon">₺</div>
+                    <p class="ui-empty-description">Kayıtlı takım bulunmuyor.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <section class="ui-section" id="fee-tab-athletes" data-tab-panel="athletes" hidden>
+            <h2 class="ui-team-group-title">İndirimli / burslu sporcular <span>{{ athletes|length }}</span></h2>
+            <div class="ui-card ui-scroll-list">
+                {% for athlete in athletes %}
+                    <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="ui-list-item">
+                        <div class="ui-list-content">
+                            <p class="ui-list-title">{{ athlete.get_full_name }}</p>
+                            <p class="ui-list-subtitle">{{ athlete.team.name|default:"Takımsız" }}</p>
+                        </div>
+                        <div class="ui-list-end">
+                            <p class="ui-list-value">{{ athlete.custom_fee|floatformat:0 }} TL</p>
+                        </div>
+                    </a>
                 {% empty %}
-                    <!-- TAKIM YOK -->
-                    <div class="rounded-2xl border border-base-300 bg-base-100 p-8 text-center shadow-sm">
-                        <div class="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-xl bg-base-200 text-base-content/40">₺</div>
-                        <p class="text-xs font-bold text-base-content">Kayıtlı takım bulunmuyor.</p>
+                    <div class="ui-empty">
+                        <div class="ui-empty-icon">₺</div>
+                        <p class="ui-empty-description">Özel fiyatlı sporcu bulunmuyor.</p>
                     </div>
                 {% endfor %}
             </div>
-            <!-- ====================================================== -->
-            <!-- ÖZEL SPORCU FİYATLARI -->
-            <!-- ====================================================== -->
-            <div id="fee-tab-athletes"
-                 class="mt-3 hidden overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-                <div class="border-b border-base-200 p-3">
-                    <p class="text-[9px] font-black uppercase tracking-wider text-primary">Özel Ücretler</p>
-                    <h2 class="mt-0.5 text-sm font-black text-base-content">İndirimli / Burslu Sporcular</h2>
-                </div>
-                <div class="divide-y divide-base-200">
-                    {% for athlete in athletes %}
-                        <div class="flex items-center justify-between gap-3 px-3 py-3 transition-colors active:bg-base-200/40">
-                            <div class="min-w-0 flex-1">
-                                <a href="{% url 'athlete-manage-detail' athlete.pk %}"
-                                   class="block truncate text-xs font-bold text-base-content hover:text-primary">
-                                    {{ athlete.get_full_name }}
-                                </a>
-                                <span class="mt-0.5 block truncate text-[10px] text-base-content/50">{{ athlete.team.name|default:"Takımsız" }}</span>
-                            </div>
-                            <div class="shrink-0">
-                                <span class="rounded-lg border border-primary/10 bg-primary/5 px-2.5 py-1.5 text-xs font-black text-primary">
-                                    {{ athlete.custom_fee|floatformat:0 }}
-                                </span>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <div class="px-4 py-10 text-center">
-                            <div class="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-base-200 text-base-content/40">₺</div>
-                            <p class="text-xs font-bold text-base-content">Özel fiyatlı sporcu bulunmuyor.</p>
-                            <p class="mt-1 text-[10px] text-base-content/40">İndirimli veya burslu sporcular burada görünür.</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+        </section>
     </div>
 {% endblock %}
