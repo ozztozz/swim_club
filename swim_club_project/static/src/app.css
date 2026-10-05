@@ -4300,26 +4300,9 @@ button,
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Sayfalar arasi gecis (destekleyen tarayicilarda yumusak cross-fade) */
-@view-transition {
-  navigation: auto;
-}
-::view-transition-old(root) {
-  animation: 160ms var(--ease-out) both page-out;
-}
-::view-transition-new(root) {
-  animation: 280ms var(--ease-out) both page-in;
-}
-/* Ust bar ve alt menu gecis sirasinda sabit kalsin */
-.app-topbar {
-  view-transition-name: app-topbar;
-}
-.app-bottom-nav {
-  view-transition-name: app-bottom-nav;
-}
-::view-transition-group(app-topbar),
-::view-transition-group(app-bottom-nav) {
-  animation-duration: 0s;
+/* Sayfa girisi: yalnizca CSS animasyonu (cross-document view transition PWA acilisinda splash'ta takiliyor) */
+.app-main {
+  animation: page-in 320ms var(--ease-out) both;
 }
 
 @keyframes page-in {
@@ -5916,4 +5899,61 @@ select.select,
 .ui-switch-row-text small {
   font-size: 12px;
   color: var(--ui-text-muted, #6b7280);
+}
+/* 114. Kompakt modal formlari: radyo grupları tek satırlık segment */
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 2px !important;
+  padding: 3px !important;
+  overflow-x: auto;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: rgba(120, 120, 128, 0.12) !important;
+  box-shadow: none !important;
+}
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) > label {
+  position: relative;
+  display: flex !important;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: max-content;
+  min-height: 32px !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ui-text-muted, #6b7280);
+  font-size: 12.5px !important;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) > label > input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) > label:has(input:checked) {
+  background: var(--ui-white, #fff) !important;
+  color: var(--ui-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12) !important;
+}
+.ui-modal-form {
+  gap: 12px;
+}
+.ui-modal-panel .ui-input,
+.ui-modal-panel .ui-select {
+  min-height: 40px;
+}
+.ui-modal-panel .ui-textarea {
+  min-height: 72px;
+}
+.ui-modal-panel .ui-label {
+  margin-bottom: 4px;
 }

@@ -1,10 +1,10 @@
 
 {
   "id": "/",
-  "name": "Alpha Academy KulÃ¼p YÃ¶netim Paneli",
+  "name": "Alpha Academy Kul\u00fcp Y\u00f6netim Paneli",
   "short_name": "Alpha",
-  "description": "Alpha Academy spor kulÃ¼bÃ¼ yÃ¶netim paneli",
-  "start_url": "/dashboard",
+  "description": "Alpha Academy spor kul\u00fcb\u00fc y\u00f6netim paneli",
+  "start_url": "/dashboard/",
   "scope": "/",
   "display": "standalone",
   "display_override": [
