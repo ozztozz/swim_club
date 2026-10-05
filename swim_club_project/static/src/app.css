@@ -1611,11 +1611,8 @@ svg {
 }
 .ui-scroll-list {
   min-height: 0;
-  max-height: calc(100dvh - 340px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  max-height: none;
+  overflow: hidden;
 }
 .ui-scroll-list::-webkit-scrollbar {
   width: 4px;
