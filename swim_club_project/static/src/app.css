@@ -6214,3 +6214,78 @@ select.select,
   justify-content: flex-end;
   gap: 8px;
 }
+/* 120. PWA uyarısı: cam efekti */
+.pwa-install {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow: var(--glass-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.pwa-install .ui-btn-secondary {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-soft);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+/* 121. PWA uyarısı: ortada kart, arkada cam perde */
+.pwa-install {
+  inset: 0;
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  max-width: none;
+  margin: 0;
+  padding: 24px;
+  border: 0;
+  border-radius: 0;
+  background: rgba(241, 241, 239, 0.35);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: none;
+  animation: overlay-in 220ms ease-out both;
+}
+.pwa-install-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow: var(--glass-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.pwa-install-card .pwa-install-text {
+  font-size: 14px;
+  text-align: center;
+}
+.pwa-install-card .pwa-install-actions {
+  justify-content: center;
+}
+@media (prefers-color-scheme: dark) {
+  .pwa-install {
+    background: rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* 122. Ödeme günü geçmiş satırlar (renkler buradan yönetilir) */
+:root {
+  --ui-overdue-bg: rgba(245, 158, 11, 0.1);
+  --ui-overdue-accent: rgba(217, 119, 6, 0.4);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ui-overdue-bg: rgba(251, 191, 36, 0.12);
+    --ui-overdue-accent: rgba(251, 191, 36, 0.4);
+  }
+}
+.ui-list-item.ui-list-item-overdue {
+  background: var(--ui-overdue-bg);
+  box-shadow: inset 3px 0 0 var(--ui-overdue-accent);
+}

@@ -46,8 +46,7 @@
                 enctype="multipart/form-data"
 
                 hx-post="{% if athlete %}{% url 'athlete-manage-update' athlete.pk %}{% if return_to_detail %}?return_to_detail=1{% endif %}{% else %}{% url 'athlete-manage-create' %}{% endif %}"
-                hx-target="{% if return_to_detail %}#athlete-detail{% else %}#athlete-table{% endif %}"
-                hx-swap="{% if return_to_detail %}outerHTML{% else %}outerHTML{% endif %}"
+                hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}"
                 hx-encoding="multipart/form-data"
 
                 data-close-modal-on-success

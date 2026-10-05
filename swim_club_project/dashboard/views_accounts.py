@@ -225,6 +225,9 @@ def payment_list(request, payment_status):
             )
             athlete_payments["athlete_id"] = athlete.id
             athlete_payments["regular_payment_day"] = date.today().replace(day=athlete.regular_payment_day if athlete.regular_payment_day is not None else 1)
+            athlete_payments["is_overdue"] = (
+                athlete_payments["regular_payment_day"] < date.today()
+            )
             athlete_payments["team"] = athlete.team if athlete.team is not None else None
             if athlete.team is None:
                 athlete_payments["team"] = None

@@ -962,7 +962,7 @@ def athlete_update(request, pk):
     if request.method == 'POST' and form.is_valid():
         form.save()
         if request.POST.get('return_to_detail'):
-            response = render(request, 'athlete/athlete_detail.html', {'athlete': athlete})
+            response = HttpResponse(status=204)
             response['HX-Redirect'] = request.build_absolute_uri(
                 reverse('athlete-manage-detail', args=[athlete.pk])
             )
