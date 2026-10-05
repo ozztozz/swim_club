@@ -42,7 +42,7 @@
                                         {% endif %}
                                     </div>
                                     {% if athlete.team_subscription_price %}
-                                       Aidat- <p class="ui-list-meta">{{ athlete.team_subscription_price|floatformat:0 }} TL</p>
+                                         <p class="ui-list-meta {% if athlete.regular_payment_day < date.today %}ui-text-danger{% endif %}">{{ athlete.regular_payment_day | date:'d.M' }}-{{ athlete.team_subscription_price|floatformat:0 }} TL</p>
                                     {% endif %}
                                 {% else %}
                                     <span class="ui-list-meta">Bekliyor</span>

@@ -12,7 +12,30 @@
             {% endif %}
         "
     >
+            <!-- ANA SAYFA -->
+            <a
+                href="{% url 'dashboard:index' %}"
+                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}"
+            >
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="m3 10 9-7 9 7"/>
+                        <path d="M5 9.5V20h14V9.5"/>
+                        <path d="M9 20v-6h6v6"/>
+                    </svg>
+                </span>
 
+                <span class="app-bottom-nav-item-label">
+                    Ana Sayfa
+                </span>
+            </a>
         {% if request.user.is_coach %}
 
             <!-- SPORCULAR -->
@@ -105,30 +128,7 @@
 
         {% else %}
 
-            <!-- ANA SAYFA -->
-            <a
-                href="{% url 'dashboard:index' %}"
-                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}"
-            >
-                <span class="app-bottom-nav-item-icon" aria-hidden="true">
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="m3 10 9-7 9 7"/>
-                        <path d="M5 9.5V20h14V9.5"/>
-                        <path d="M9 20v-6h6v6"/>
-                    </svg>
-                </span>
 
-                <span class="app-bottom-nav-item-label">
-                    Ana Sayfa
-                </span>
-            </a>
 
 
             <!-- FİNANS -->

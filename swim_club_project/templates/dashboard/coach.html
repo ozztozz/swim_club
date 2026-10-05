@@ -1,18 +1,159 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<div class="page-header">
-    <div>
-        <div class="page-header-main">
-            <p class="page-eyebrow">Antrenör</p>
-            <h1 class="page-title">Antrenör Paneli</h1>
+<div class="dashboard">
+    <div class="profile-hero-card">
+        <div class="profile-hero-content">
+            <span class="profile-hero-subtitle">{{ coach_today|date:"l, d F Y" }}</span>
+            <h1 class="profile-hero-name">Merhaba, {{ request.user.first_name|default:request.user.email }}</h1>
+    <div class="ui-stat-grid">
+        <div class="ui-stat">
+            <p class="ui-stat-label">Takım</p>
+            <span class="ui-stat-value">{{ coach_team_count }}</span>
+        </div>
+        <div class="ui-stat">
+            <p class="ui-stat-label">Aktif sporcu</p>
+            <span class="ui-stat-value">{{ coach_athlete_count }}</span>
+        </div>
+        <div class="ui-stat">
+            <p class="ui-stat-label">Haftalık antrenman</p>
+            <span class="ui-stat-value">{{ coach_week_session_count }}</span>
+        </div>
+        <div class="ui-stat">
+            <p class="ui-stat-label">Katılım</p>
+            <span class="ui-stat-value">{% if coach_attendance_rate is not None %}%{{ coach_attendance_rate }}{% else %}—{% endif %}</span>
+            <p class="ui-stat-description">Son 1 hafta</p>
         </div>
     </div>
-</div>
+        </div>
+    </div>
 
-<div class="ui-card">
-    Antrenör dashboard
-</div>
+    <section class="ui-section">
+        <h2 class="ui-team-group-title">Bugünkü antrenmanlar
+            {% if coach_pending_count %}<span>{{ coach_pending_count }} yoklama bekliyor</span>{% endif %}
+        </h2>
+        <div class="ui-card ui-scroll-list">
+            {% for item in coach_today_sessions %}
+                <div class="ui-list-item"
+                     hx-get="{% url 'training-attendance-schedule' item.schedule.team.pk item.schedule.pk %}?training_date={{ coach_today|date:'Y-m-d' }}"
+                     hx-target="#modal-container"
+                     hx-swap="innerHTML">
+                    <div class="ui-list-content">
+                        <p class="ui-list-title">{{ item.schedule.start_time|time:"H:i" }} – {{ item.schedule.end_time|time:"H:i" }} · {{ item.schedule.team.name }}</p>
+                        <p class="ui-list-subtitle">{{ item.schedule.get_training_type_display }}{% if item.schedule.location %} · {{ item.schedule.location }}{% endif %}</p>
+                    </div>
+                    <div class="ui-list-end">
+                        {% if item.is_taken %}
+                            <span class="ui-badge ui-badge-success">👤 <span class="ui-text-success">{{ item.present }}</span> / <span class="ui-text-danger">{{ item.absent }}</span></span>
+                        {% elif item.is_now %}
+                            <span class="ui-badge ui-badge-primary">Şimdi</span>
+                        {% elif item.is_past %}
+                            <span class="ui-badge ui-badge-warning">Yoklama al</span>
+                        {% else %}
+                            <span class="ui-badge ui-badge-neutral">Bekliyor</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="ui-empty">
+                    <div class="ui-empty-icon">🏊</div>
+                    <p class="ui-empty-description">Bugün antrenman yok.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 
+    <section class="ui-section">
+        <h2 class="ui-team-group-title">Yarınki antrenmanlar <span>{{ coach_tomorrow|date:"l" }}</span></h2>
+        <div class="ui-card ui-scroll-list">
+            {% for schedule in coach_tomorrow_sessions %}
+                <div class="ui-list-item">
+                    <div class="ui-list-content">
+                        <p class="ui-list-title">{{ schedule.start_time|time:"H:i" }} – {{ schedule.end_time|time:"H:i" }} · {{ schedule.team.name }}</p>
+                        <p class="ui-list-subtitle">{{ schedule.get_training_type_display }}{% if schedule.location %} · {{ schedule.location }}{% endif %}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="ui-empty">
+                    <div class="ui-empty-icon">🏊</div>
+                    <p class="ui-empty-description">Yarın antrenman yok.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    
+<section class="ui-section">
+        <h2 class="ui-team-group-title">Takım bazlı katılım <span>Son 1 hafta</span></h2>
+        <div class="ui-card ui-scroll-list">
+            {% for team in coach_teams %}
+                <div class="ui-list-item">
+                    <div class="ui-list-content">
+                        <p class="ui-list-title">{{ team.name }}</p>
+                        <p class="ui-list-subtitle">{{ team.athlete_count }} aktif sporcu</p>
+                    </div>
+                    <div class="ui-list-end">
+                        {% if team.attendance_rate is None %}
+                            <span class="ui-badge ui-badge-neutral">Kayıt yok</span>
+                        {% elif team.attendance_rate >= 75 %}
+                            <span class="ui-badge ui-badge-success">%{{ team.attendance_rate }}</span>
+                        {% elif team.attendance_rate >= 50 %}
+                            <span class="ui-badge ui-badge-warning">%{{ team.attendance_rate }}</span>
+                        {% else %}
+                            <span class="ui-badge ui-badge-danger">%{{ team.attendance_rate }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="ui-empty">
+                    <p class="ui-empty-description">Size atanmış takım yok.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="ui-section">
+        <h2 class="ui-team-group-title">En yüksek katılım <span>Son 1 hafta · İlk 5</span></h2>
+        <div class="ui-card ui-scroll-list">
+            {% for athlete in coach_top_athletes %}
+                <div class="ui-list-item">
+                    <div class="ui-list-content">
+                        <p class="ui-list-title">{{ forloop.counter }}. {{ athlete.name }}</p>
+                        <p class="ui-list-subtitle">{{ athlete.team|default:"Takımsız" }} · {{ athlete.present }}/{{ athlete.total }} antrenman</p>
+                    </div>
+                    <div class="ui-list-end">
+                        <span class="ui-badge ui-badge-success">%{{ athlete.rate }}</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="ui-empty">
+                    <p class="ui-empty-description">Son bir haftada yoklama kaydı yok.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+<section class="ui-section">
+        <h2 class="ui-team-group-title">En az katılım <span>Son 1 hafta · 5 sporcu</span></h2>
+        <div class="ui-card ui-scroll-list">
+            {% for athlete in coach_bottom_athletes %}
+                <div class="ui-list-item">
+                    <div class="ui-list-content">
+                        <p class="ui-list-title">{{ forloop.counter }}. {{ athlete.name }}</p>
+                        <p class="ui-list-subtitle">{{ athlete.team|default:"Takımsız" }} · {{ athlete.present }}/{{ athlete.total }} antrenman</p>
+                    </div>
+                    <div class="ui-list-end">
+                        <span class="ui-badge ui-badge-danger">%{{ athlete.rate }}</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="ui-empty">
+                    <p class="ui-empty-description">Son bir haftada yoklama kaydı yok.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <a href="{{ coach_attendance_url }}" class="ui-btn ui-btn-primary">Yoklama sayfası</a>
+</div>
 {% endblock %}

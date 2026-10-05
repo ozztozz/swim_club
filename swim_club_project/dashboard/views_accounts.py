@@ -224,6 +224,7 @@ def payment_list(request, payment_status):
                 .first()
             )
             athlete_payments["athlete_id"] = athlete.id
+            athlete_payments["regular_payment_day"] = date.today().replace(day=athlete.regular_payment_day if athlete.regular_payment_day is not None else 1)
             athlete_payments["team"] = athlete.team if athlete.team is not None else None
             if athlete.team is None:
                 athlete_payments["team"] = None
@@ -257,7 +258,7 @@ def payment_list(request, payment_status):
                 )
             if amount_due > 0:
                 athlete_payments_list.append(athlete_payments)
-
+        athlete_payments_list.sort(key=lambda x: (x["regular_payment_day"] is None, x["regular_payment_day"] or 0))
         total_amount = sum(
             [
                 athlete_payments["amount_due"]
@@ -280,17 +281,4 @@ def payment_list(request, payment_status):
     }
     return render(request, "dashboard/payment_status_list.html", context)
 
-    return render(
-        request,
-        "dashboard/payment_status_list.html",
-        {
-            "athlete_payments_list": athlete_payments_list,
-            "period": period,
-            "team_id": team_id,
-            "team": team,
-            "total_amount": total_amount,
-            "athlete_count": athlete_count,
-            "status_label": "Ödeyen sporcular",
-            "teams": teams,
-        },
-    )
+

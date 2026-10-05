@@ -1,6 +1,6 @@
 # athletes/views.py
 from calendar import monthrange
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 import json
 import re
@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -62,23 +62,52 @@ def _athlete_queryset(request):
 
 def _athlete_context(request):
     query = request.GET.get('q', '').strip()
-    has_search = len(query) >= 3
-    show_coach_roster = request.user.is_coach and not query
-    athletes = _athlete_queryset(request).none()
-    if show_coach_roster:
-        athletes = _athlete_queryset(request)
-        has_search = True
+    team_id = request.GET.get('team', '').strip()
+    if not team_id.isdigit():
+        team_id = ''
+    base = _athlete_queryset(request)
+    has_search = len(query) >= 3 or bool(team_id) or (request.user.is_coach and not query)
+    athletes = base.none()
     if has_search:
-        athletes = _athlete_queryset(request).filter(
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query) |
-            Q(parent__icontains=query) |
-            Q(parent_email__icontains=query) |
-            Q(parent_phone__icontains=query)
+        athletes = base
+        if team_id:
+            athletes = athletes.filter(team_id=team_id)
+        if query:
+            athletes = athletes.filter(
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query) |
+                Q(parent__icontains=query) |
+                Q(parent_email__icontains=query) |
+                Q(parent_phone__icontains=query)
+            )
+    teams = Team.objects.filter(is_active=True).order_by('name')
+    if request.user.is_coach:
+        teams = teams.filter(coaches=request.user)
+    since = timezone.localdate() - timedelta(days=6)
+    athletes = athletes.annotate(
+        att_present=Count(
+            'training_attendance_records',
+            filter=Q(
+                training_attendance_records__training_date__gte=since,
+                training_attendance_records__status=TeamTrainingAttendance.Status.ATTENDED,
+            ),
+        ),
+        att_total=Count(
+            'training_attendance_records',
+            filter=Q(training_attendance_records__training_date__gte=since),
+        ),
+    )
+    athletes = list(athletes)
+    for athlete in athletes:
+        athlete.attendance_rate = (
+            round(athlete.att_present * 100 / athlete.att_total) if athlete.att_total else None
         )
+    athletes.sort(key=lambda a: (a.attendance_rate is None, -(a.attendance_rate or 0)))
     return {
         'athletes': athletes,
         'query': query,
+        'teams': teams,
+        'selected_team': team_id,
         'athlete_list_loaded': has_search,
     }
 

@@ -6165,3 +6165,23 @@ select.select,
   color: #dc2626;
   font-size: 18px;
 }
+/* 118. Hero kart içindeki özet: düz, kompakt metrikler */
+.profile-hero-card .ui-stat-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.45);
+  text-align: center;
+}
+.profile-hero-card .ui-stat {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.profile-hero-card .ui-stat-value {
+  margin-top: 3px;
+  font-size: 18px;
+}

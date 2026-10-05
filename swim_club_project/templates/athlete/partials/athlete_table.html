@@ -1,42 +1,32 @@
-<div id="athlete-table">
+<div id="athlete-table" class="ui-card ui-scroll-list">
     {% for athlete in athletes %}
-        <a href="{% url 'athlete-manage-detail' athlete.pk %}">
-            <!-- Bilgiler -->
-            <div>
-                <div>
-                    <h3>{{ athlete.get_full_name }}</h3>
-                </div>
-                <div>
-                    <span>
-                        {% if athlete.team %}
-                            {{ athlete.team.name }}
-                        {% else %}
-                            Takımsız
-                        {% endif %}
-                    </span>
-                </div>
+        <a href="{% url 'athlete-manage-detail' athlete.pk %}" class="ui-list-item">
+            <div class="ui-list-content">
+                <p class="ui-list-title">{{ athlete.get_full_name }}</p>
+                <p class="ui-list-subtitle">
+                    {% if athlete.team %}{{ athlete.team.name }}{% else %}Takımsız{% endif %}
+                    {% if athlete.attendance_rate is not None %} · {{ athlete.att_present }}/{{ athlete.att_total }} antrenman · son 1 hafta{% endif %}
+                    {% if not athlete.is_active %} · Pasif{% endif %}
+                </p>
             </div>
-            <!-- Durum + yön -->
-            <div>
-                {% if athlete.is_active %}
-                    <span>Aktif</span>
+            <div class="ui-list-end">
+                {% if athlete.attendance_rate is None %}
+                    <span class="ui-badge ui-badge-neutral">Kayıt yok</span>
+                {% elif athlete.attendance_rate >= 75 %}
+                    <span class="ui-badge ui-badge-success">%{{ athlete.attendance_rate }}</span>
+                {% elif athlete.attendance_rate >= 50 %}
+                    <span class="ui-badge ui-badge-warning">%{{ athlete.attendance_rate }}</span>
                 {% else %}
-                    <span>Pasif</span>
+                    <span class="ui-badge ui-badge-danger">%{{ athlete.attendance_rate }}</span>
                 {% endif %}
-                <span>›</span>
+                <span class="ui-list-meta">›</span>
             </div>
         </a>
     {% empty %}
-        <div>
-            <div>
-                <span>⌕</span>
-            </div>
-            <p>
-                {% if athlete_list_loaded %}
-                    Kayıt bulunamadı.
-                {% else %}
-                    En az 3 harf yazarak sporcu arayın.
-                {% endif %}
+        <div class="ui-empty">
+            <div class="ui-empty-icon">⌕</div>
+            <p class="ui-empty-description">
+                {% if athlete_list_loaded %}Kayıt bulunamadı.{% else %}En az 3 harf yazarak sporcu arayın veya bir takım seçin.{% endif %}
             </p>
         </div>
     {% endfor %}

@@ -1,63 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="dashboard">
-        <!-- SAYFA BAŞLIĞI -->
-        <header>
-            <div>
-                <div>
-                    <p class="text-primary-custom">Kulüp yönetimi</p>
-                    <h1>Takımlar</h1>
-                    <p>Takımları, antrenörleri ve aylık aidatlarını yönetin.</p>
-                </div>
+        <div class="page-header">
+            <div class="page-header-main">
+                <p class="page-eyebrow">{% if request.user.is_coach %}Antrenör{% else %}Kulüp yönetimi{% endif %}</p>
+                <h1 class="page-title">Sporcular</h1>
             </div>
-            <!-- AKSİYONLAR -->
-            <div>
-                <a href="{% url 'fee-management' %}"
-                   class="ui-btn ui-btn-sm ui-btn-secondary">
-                    Ücret Yönetimi
-                </a>
-                <button type="button"
-                        class="ui-btn ui-btn-sm ui-btn-primary"
-                        hx-get="{% url 'team-create' %}"
-                        hx-target="#modal-container"
-                        hx-swap="innerHTML">
-                    <span>+</span>
-                    Yeni Takım
-                </button>
-            </div>
-        </header>
-        <!-- FİLTRE + TAKIMLAR -->
+        </div>
+
         <section class="ui-section">
-            <!-- FİLTRE -->
-            <form method="get">
-                <div>
-                    <!-- Takım ara -->
-                    <label class="ui-field">
-                        <span>Takım ara</span>
-                        <input type="search"
-                               name="q"
-                               value="{{ query }}"
-                               placeholder="Takım adı"
-                               class="ui-input">
-                    </label>
-                    <!-- Durum -->
-                    <label class="ui-field">
-                        <span>Durum</span>
-                        <select name="status"
-                                class="ui-select">
-                            <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
-                            <option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option>
-                            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Pasif</option>
-                        </select>
-                    </label>
-                </div>
-                <button type="submit"
-                        class="ui-btn ui-btn-sm ui-btn-neutral">
-                    Filtrele
-                </button>
+            <form hx-get="{% url 'athlete-manage-list' %}"
+                  hx-trigger="input changed delay:300ms from:find input, change from:find select, search from:find input"
+                  hx-target="#athlete-table"
+                  hx-swap="outerHTML"
+                  class="ui-modal-form">
+                <label class="ui-search-field">
+                    <span class="ui-search-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m20 20-3.5-3.5" />
+                        </svg>
+                    </span>
+                    <input type="search"
+                           name="q"
+                           value="{{ query }}"
+                           placeholder="Sporcu ara (en az 3 harf)"
+                           class="ui-input ui-search-input"
+                           autocomplete="off">
+                </label>
+                <select name="team" class="ui-select" aria-label="Takım filtresi">
+                    <option value="">Tüm takımlar</option>
+                    {% for team in teams %}
+                        <option value="{{ team.pk }}" {% if selected_team == team.pk|stringformat:"s" %}selected{% endif %}>{{ team.name }}</option>
+                    {% endfor %}
+                </select>
             </form>
-            <!-- TAKIM LİSTESİ -->
-            <div>{% include "team/partials/team_table.html" %}</div>
+            {% include "athlete/partials/athlete_table.html" %}
         </section>
     </div>
 {% endblock %}

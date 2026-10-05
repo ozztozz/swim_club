@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from users.models import User
 from .views_accounts import _get_admin_dashboard_context
+from .views_coach import _get_coach_dashboard_context
 @login_required(login_url="user-login")
 def dashboard(request):
     """
@@ -27,6 +28,7 @@ def dashboard(request):
 
     elif role == User.Role.COACH:
         template = "dashboard/coach.html"
+        context.update(_get_coach_dashboard_context(request.user))
 
     elif role == User.Role.FINANCE:
         template = "dashboard/finance.html"
