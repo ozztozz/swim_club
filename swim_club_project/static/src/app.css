@@ -6182,3 +6182,35 @@ select.select,
   margin-top: 3px;
   font-size: 18px;
 }
+/* 119. PWA yükleme uyarısı */
+.pwa-install {
+  position: fixed;
+  right: 12px;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  left: 12px;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow-lg);
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.pwa-install[hidden] {
+  display: none;
+}
+.pwa-install-text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pwa-install-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

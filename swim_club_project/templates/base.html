@@ -108,6 +108,14 @@
     </div>
 
 
+    <div id="pwa-install" class="pwa-install ui-card" hidden>
+        <p class="pwa-install-text" data-pwa-text>Uygulamayı ana ekrana yükleyerek daha hızlı açın.</p>
+        <div class="pwa-install-actions">
+            <button type="button" class="ui-btn ui-btn-sm ui-btn-secondary" data-pwa-dismiss>Sonra</button>
+            <button type="button" class="ui-btn ui-btn-sm ui-btn-primary" data-pwa-install>Yükle</button>
+        </div>
+    </div>
+
     <script
         src="{% static 'js/htmx.min.js' %}"
         defer
@@ -117,6 +125,8 @@
         src="{% static 'js/app.js' %}"
         defer
     ></script>
+
+    <script src="{% static 'js/pwa-install.js' %}" defer></script>
 
     {% block extra_js %}{% endblock %}
 
