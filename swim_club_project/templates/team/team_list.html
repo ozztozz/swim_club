@@ -1,41 +1,42 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="dashboard">
-        <!-- YENİ CAM EFEKTİ (GLASSMORPHISM) BAŞLIK KARTI -->
-        <header class="profile-hero-card mb-6" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.23);">
-            <div class="page-header-main" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                <div>
-                    <p class="page-eyebrow ui-text-primary" style="margin: 0 0 4px 0; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Kulüp yönetimi</p>
-                    <h1 class="page-title" style="margin: 0 0 4px 0; font-size: 1.75rem; font-weight: 700;">Takımlar</h1>
-                    <p class="page-description" style="margin: 0; opacity: 0.8; font-size: 0.95rem;">Takımları, antrenörleri ve aylık aidatlarını yönetin.</p>
-                </div>
-
-                <!-- AKSİYONLAR -->
-                <div class="ui-section-actions" style="display: flex; gap: 10px; align-items: center;">
-                    <a href="{% url 'fee-management' %}"
-                       class="ui-btn ui-btn-sm ui-btn-secondary">
-                        Ücret Yönetimi
-                    </a>
-                    <button type="button"
-                            class="ui-btn ui-btn-sm ui-btn-primary"
-                            hx-get="{% url 'team-create' %}"
-                            hx-target="#modal-container"
-                            hx-swap="innerHTML">
-                        <span style="font-size: 1.1rem; line-height: 1; margin-right: 4px;">+</span>
-                        Yeni Takım
-                    </button>
-                </div>
+        <header class="ui-teams-head">
+            <div>
+                <p class="ui-teams-eyebrow">Kulüp yönetimi</p>
+                <h1 class="ui-teams-title">Takımlar</h1>
+            </div>
+            <div class="ui-teams-actions">
+                <a href="{% url 'fee-management' %}" class="ui-btn ui-btn-sm ui-btn-secondary">Ücret Yönetimi</a>
+                <button type="button"
+                        class="ui-btn ui-btn-sm ui-btn-primary"
+                        hx-get="{% url 'team-create' %}"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML">
+                    <span class="ui-btn-plus">+</span>
+                    Yeni Takım
+                </button>
             </div>
         </header>
 
-        <!-- FİLTRE + TAKIMLAR BÖLÜMÜ -->
-        <section class="ui-section profile-hero-card" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);">
+        <form method="get" class="ui-teams-toolbar">
+            <label class="ui-search-field ui-teams-search">
+                <span class="ui-search-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-3.5-3.5" />
+                    </svg>
+                </span>
+                <input type="search" name="q" value="{{ query }}" placeholder="Takım ara" class="ui-input ui-search-input" autocomplete="off">
+            </label>
+            <input type="hidden" name="status" value="{{ status }}">
+            <nav class="ui-teams-tabs" aria-label="Durum filtresi">
+                <a href="?status=active{% if query %}&q={{ query|urlencode }}{% endif %}" class="ui-teams-tab{% if status == 'active' %} is-active{% endif %}">Aktif</a>
+                <a href="?status=inactive{% if query %}&q={{ query|urlencode }}{% endif %}" class="ui-teams-tab{% if status == 'inactive' %} is-active{% endif %}">Pasif</a>
+                <a href="?status=all{% if query %}&q={{ query|urlencode }}{% endif %}" class="ui-teams-tab{% if status == 'all' %} is-active{% endif %}">Tümü</a>
+            </nav>
+        </form>
 
-
-            <!-- TAKIM LİSTESİ -->
-            <div style="margin-top: 24px;">{% include "team/partials/team_table.html" %}</div>
-        </section>
+        {% include "team/partials/team_table.html" %}
     </div>
-
-
 {% endblock %}

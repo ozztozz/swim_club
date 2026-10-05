@@ -1,13 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, time, timedelta
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Exists, OuterRef, Q
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
+from urllib.parse import quote
 
 from athletes.models import Athlete
 
@@ -18,7 +19,9 @@ from .models import Team, TeamTrainingAttendance, TeamTrainingSchedule
 def _team_context(request):
 	query = request.GET.get('q', '').strip()
 	status = request.GET.get('status', 'active')
-	teams = Team.objects.prefetch_related('coaches').order_by('name')
+	teams = Team.objects.prefetch_related('coaches').annotate(
+		athlete_count=Count('athletes', filter=Q(athletes__is_active=True), distinct=True),
+	).order_by('name')
 	if request.user.is_coach:
 		teams = teams.filter(coaches=request.user)
 
@@ -273,6 +276,13 @@ def training_attendance(request):
 		weekday=today.weekday(),
 		team__is_active=True,
 	).select_related('team').annotate(
+		is_attendance_taken=Exists(
+			TeamTrainingAttendance.objects.filter(
+				schedule_id=OuterRef('pk'),
+				training_date=today,
+			)
+		),
+	).annotate(
 		attended_count=Count(
 			'attendance_records',
 			distinct=True,
@@ -416,15 +426,25 @@ def training_attendance_save(request, team_pk, schedule_pk):
 					},
 				)
 		attended_count, absent_count = _attendance_summary(schedule, today)
+		schedule.is_attendance_taken = TeamTrainingAttendance.objects.filter(
+			schedule=schedule,
+			training_date=today,
+		).exists()
 		response_body = render_to_string('team/partials/training_attendance_count.html', {
 			'schedule': schedule,
 			'attended_count': attended_count,
 			'absent_count': absent_count,
 		})
-		return HttpResponse(
+		response = HttpResponse(
 			response_body,
-			headers={'HX-Trigger': 'closeAttendanceModal'},
+			headers={'HX-Trigger': 'closeModal'},
 		)
+		from urllib.parse import quote
+
+		message = f"Yoklama kaydedildi {team.name} (Katılan: {attended_count}, Katılmayan: {absent_count})"
+		response["X-App-Toast"] = quote(message, safe="")
+		# response["X-App-Toast"] = f"Yoklama kaydedildi (attended: {attended_count}, absent: {absent_count})"
+		return response
 	response = render(request, 'team/partials/training_attendance_modal.html',
 		_today_training_context(team, schedule, today))
 	return response
@@ -469,6 +489,3 @@ def team_update(request, pk):
 		'form_url': 'team-update',
 		'return_to_detail': return_to_detail,
 	})
-
-
-

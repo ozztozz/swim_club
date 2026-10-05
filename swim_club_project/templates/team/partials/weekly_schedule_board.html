@@ -51,7 +51,7 @@
                             type="button"
                             class="ui-btn ui-btn-sm ui-btn-primary shrink-0"
                             hx-get="{% url 'team-schedule-create' team.pk %}?weekday={{ day.value }}"
-                            hx-target="#schedule-modal-container"
+                            hx-target="#modal-container"
                             hx-swap="innerHTML"
                             title="Antrenman ekle"
                             aria-label="{{ day.label }} gününe antrenman ekle"

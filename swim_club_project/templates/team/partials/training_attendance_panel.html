@@ -1,25 +1,19 @@
-<div>
-    <div>
-        <div>
-            <div>
-                
-                <h2>{{ team.name }} <span>{{ athletes|length }} aktif</span></h2>
-                
-            </div>
-            
+<div class="ui-section">
+    <div class="ui-card">
+        <div class="ui-card-header">
+            <h2 class="ui-card-title">{{ team.name }}</h2>
+            <span class="ui-badge ui-badge-primary">{{ athletes|length }} aktif</span>
         </div>
-        <div>
+        <div class="ui-card-body">
             {% for schedule in schedules %}
                 <a href="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
-                   hx-get="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
-                   
+                hx-get="{% url 'training-attendance-schedule' team.pk schedule.pk %}?training_date={{ today|date:'Y-m-d' }}"
                 hx-swap="innerHTML"
                 data-close-modal-on-success
-
-                class="ui-modal-form"
+                class="ui-modal-form ui-list-item"
                    >
-                    <span>{{ schedule.get_training_type_display }}</span>
-                    <span>{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
+                    <span class="ui-list-title">{{ schedule.get_training_type_display }}</span>
+                    <span class="ui-badge {% if schedule.pk == selected_schedule.pk %}ui-badge-primary{% else %}ui-badge-neutral{% endif %}">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
                 </a>
             {% endfor %}
         </div>
@@ -27,8 +21,8 @@
     {% if selected_schedule %}
         <form method="post"
               hx-post="{% url 'training-attendance-save' team.pk selected_schedule.pk %}"
-              
-              hx-swap="innerHTML">
+              hx-swap="none"
+              data-close-modal-on-success>
             {% csrf_token %}
             <input type="hidden" name="training_date" value="{{ today|date:'Y-m-d' }}">
             {% for row in athlete_rows %}
@@ -40,14 +34,20 @@
                     {% endwith %}
                 {% endif %}
             {% endfor %}
-            <div class="ui-devider">
-                <label class="ui-label">
-                    <span>Takım harici sporcu ara</span>
-                    <input 
+            <div class="ui-card ui-card-body">
+                <span class="ui-label">Takım harici / telafi sporcu ekle</span>
+                <label class="ui-search-field">
+                    <span class="ui-search-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7" />
+                            <path d="m20 20-3.5-3.5" />
+                        </svg>
+                    </span>
+                    <input
                     type="search"
                            name="q"
                            value=""
-                           placeholder="Ad veya soyad"
+                           placeholder="Sporcu ara (en az 3 harf)"
                            minlength="3"
                            class="ui-input ui-search-input"
                            autocomplete="off"
@@ -62,19 +62,20 @@
             <div class="ui-list " id="attendance-athlete-list">
                 {% for row in athlete_rows %}
                     {% with athlete=row.athlete record=row.record %}
-                        <div class="ui-list-item {% if record and record.status == 'attended' %} bg-ui-bg-success {% else %} bg-ui-bg-error {% endif %}  ">
+                        <div class="ui-list-item"
+                             {% if row.is_extra %}data-extra-athlete-id="{{ athlete.pk }}"{% endif %}>
                             <span class="ui-list-title">{{ athlete.get_full_name }}</span>
                             {% if row.is_extra %}
                                 {% if record.notes == "Telafi" %}
-                                    <span class="text-primary-custom">Telafi</span>
+                                    <span class="ui-badge ui-badge-neutral">Telafi</span>
                                 {% endif %}
-                                <span class="text-success-custom">Katıldı</span>
+                                <span class="ui-badge ui-badge-neutral">Katıldı</span>
                                 <button type="button"
-                                        class=""
+                                        class="ui-btn ui-btn-sm ui-btn-ghost"
                                         data-athlete-id="{{ athlete.pk }}">Sil</button>
                             {% else %}
-                            <div>
-                                <label>
+                            <div class="ui-list-end">
+                                <label class="ui-badge ui-badge-neutral ui-attendance-choice ui-attendance-present">
                                     <input type="radio"
                                            name="attendance_{{ athlete.pk }}"
                                            value="attended"
@@ -82,7 +83,7 @@
                                            {% if record and record.status == 'attended' %}checked{% endif %}>
                                     Katıldı
                                 </label>
-                                <label>
+                                <label class="ui-badge ui-badge-neutral ui-attendance-choice ui-attendance-absent">
                                     <input type="radio"
                                            name="attendance_{{ athlete.pk }}"
                                            value="absent"

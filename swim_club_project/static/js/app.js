@@ -67,6 +67,12 @@
             return;
         }
 
+        if (modalCloseTimer) {
+            clearTimeout(modalCloseTimer);
+            modalCloseTimer = null;
+            container.classList.remove("is-closing");
+        }
+
         /*
          * Native dialog için open durumunu
          * manuel yönetiyoruz.
@@ -90,14 +96,39 @@
     }
 
 
+    let modalCloseTimer = null;
+
     function closeModal() {
 
         const container =
             getModalContainer();
 
-        if (!container) {
+        if (
+            !container ||
+            modalCloseTimer ||
+            !container.classList.contains("is-open")
+        ) {
             return;
         }
+
+        const reduceMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        container.classList.add("is-closing");
+
+        modalCloseTimer = setTimeout(
+            () => {
+                modalCloseTimer = null;
+                container.classList.remove("is-closing");
+                finishCloseModal(container);
+            },
+            reduceMotion ? 0 : 220
+        );
+    }
+
+
+    function finishCloseModal(container) {
 
         const modal =
             qs(
@@ -126,6 +157,21 @@
         );
     }
 
+    document.body.addEventListener("closeModal", closeModal);
+
+    // Eski modüle özel kapatma olayları da ortak modalı kapatır.
+    [
+        "closeTeamModal",
+        "closeScheduleModal",
+        "closeAthleteModal",
+        "closeAthletePaymentModal",
+        "closeAthleteStatusModal",
+        "closeRegularExpenseModal",
+        "closeExpenseModal",
+        "closeEquipmentStockModal"
+    ].forEach(function (name) {
+        document.body.addEventListener(name, closeModal);
+    });
 
     window.openModal = openModal;
     window.closeModal = closeModal;
@@ -195,10 +241,166 @@
         }
     );
 
+    document.addEventListener(
+        "click",
+        function (event) {
+            const addButton = event.target.closest(
+                ".add-makeup-athlete"
+            );
+
+            if (addButton) {
+                event.preventDefault();
+
+                const form = addButton.closest("form");
+                const list = form && qs("#attendance-athlete-list", form);
+                const athleteId = addButton.dataset.athleteId;
+                const athleteName = addButton.dataset.athleteName;
+
+                if (!form || !list || !athleteId || !athleteName) {
+                    return;
+                }
+
+                const alreadyAdded = qsa(
+                    "[data-extra-athlete-id]",
+                    list
+                ).some(function (row) {
+                    return row.dataset.extraAthleteId === athleteId;
+                });
+
+                if (alreadyAdded) {
+                    addButton.closest(".ui-list-item").remove();
+                    return;
+                }
+
+                const resultItem = addButton.closest(".ui-list-item");
+                const isMakeup = Boolean(
+                    resultItem && qs('input[type="radio"]', resultItem)?.checked
+                );
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = isMakeup ? "makeup_athlete" : "extra_athlete";
+                hiddenInput.value = athleteId;
+                form.appendChild(hiddenInput);
+
+                const row = document.createElement("div");
+                row.className = "ui-list-item bg-ui-bg-success";
+                row.dataset.extraAthleteId = athleteId;
+
+                const name = document.createElement("span");
+                name.className = "ui-list-title";
+                name.textContent = athleteName;
+                row.appendChild(name);
+
+                if (isMakeup) {
+                    const makeupLabel = document.createElement("span");
+                    makeupLabel.className = "text-primary-custom";
+                    makeupLabel.textContent = "Telafi";
+                    row.appendChild(makeupLabel);
+                }
+
+                const attendedLabel = document.createElement("span");
+                attendedLabel.className = "text-success-custom";
+
+                row.appendChild(attendedLabel);
+
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.className = "ui-btn ui-btn-sm ui-btn-ghost";
+                removeButton.dataset.athleteId = athleteId;
+                removeButton.textContent = "Sil";
+                row.appendChild(removeButton);
+
+                list.prepend(row);
+                resultItem.remove();
+                return;
+            }
+
+            const removeButton = event.target.closest(
+                "#attendance-athlete-list [data-athlete-id]"
+            );
+
+            if (!removeButton) {
+                return;
+            }
+
+            const row = removeButton.closest("[data-extra-athlete-id]");
+            const form = removeButton.closest("form");
+
+            if (!row || !form) {
+                return;
+            }
+
+            const athleteId = row.dataset.extraAthleteId;
+            qsa('input[type="hidden"]', form).forEach(function (input) {
+                if (
+                    input.value === athleteId &&
+                    (input.name === "makeup_athlete" ||
+                        input.name === "extra_athlete")
+                ) {
+                    input.remove();
+                }
+            });
+            row.remove();
+        }
+    );
+
+    document.addEventListener(
+        "change",
+        function (event) {
+            const attendanceInput = event.target.closest(
+                '#attendance-athlete-list input[type="radio"][name^="attendance_"]'
+            );
+
+            if (!attendanceInput) {
+                return;
+            }
+
+            const athleteRow = attendanceInput.closest(".ui-list-item");
+
+            if (!athleteRow) {
+                return;
+            }
+
+            const attended = attendanceInput.value === "attended";
+            athleteRow.classList.toggle("bg-ui-bg-success", attended);
+            athleteRow.classList.toggle("bg-ui-bg-error", !attended);
+        }
+    );
+
 
     /* =========================================================
        HTMX → MODAL
        ========================================================= */
+
+    /*
+     * Modal formu hatalı gönderildiğinde sunucu yeniden modal döner.
+     * Yanıt bir modalsa hedef ne olursa olsun ortak modal alanına yazılır.
+     */
+    document.body.addEventListener(
+        "htmx:beforeSwap",
+        function (event) {
+
+            const detail = event.detail;
+            const container = getModalContainer();
+
+            if (
+                !container ||
+                !detail.target ||
+                detail.target.id === "modal-container" ||
+                typeof detail.serverResponse !== "string"
+            ) {
+                return;
+            }
+
+            if (!/^\s*(<!--[\s\S]*?-->\s*)*<dialog[\s>]/i.test(detail.serverResponse)) {
+                return;
+            }
+
+            detail.target = container;
+            detail.swapOverride = "innerHTML";
+            detail.shouldSwap = true;
+        }
+    );
 
     document.body.addEventListener(
         "htmx:afterSwap",
@@ -581,7 +783,7 @@ initializeMoneyInputs();
 
             if (
                 trigger &&
-                trigger.closest(
+                trigger.matches(
                     "[data-close-modal-on-success]"
                 ) &&
                 xhr.status >= 200 &&
@@ -601,7 +803,7 @@ initializeMoneyInputs();
                 );
 
             if (toast) {
-                showToast(toast);
+                showToast(decodeURIComponent(toast));
             }
         }
     );

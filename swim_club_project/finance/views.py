@@ -594,7 +594,7 @@ def create_regular_expense_htmx(request):
         'submit_label': 'Düzenli harcamayı kaydet',
     })
     if request.method == 'POST':
-        response['HX-Retarget'] = '#regular-expense-modal-container'
+        response['HX-Retarget'] = '#modal-container'
         response['HX-Reswap'] = 'innerHTML'
     return response
 
@@ -627,7 +627,7 @@ def update_regular_expense_htmx(request, pk):
         'submit_label': 'Değişiklikleri kaydet',
     })
     if request.method == 'POST':
-        response['HX-Retarget'] = '#regular-expense-modal-container'
+        response['HX-Retarget'] = '#modal-container'
         response['HX-Reswap'] = 'innerHTML'
     return response
 
@@ -689,7 +689,7 @@ def convert_regular_expense_htmx(request, pk):
         'conversion_target': conversion_target,
     })
     if request.method == 'POST':
-        response['HX-Retarget'] = '#regular-expense-modal-container'
+        response['HX-Retarget'] = '#modal-container'
         response['HX-Reswap'] = 'innerHTML'
     return response
 
@@ -880,6 +880,15 @@ def fee_management(request):
     }
     return render(request, 'finance/fee_management.html', context)
 
+
+@login_required
+def team_fee_modal(request, team_id):
+    """Takım tarife güncelleme modalı"""
+    team = get_object_or_404(Team, id=team_id)
+    return render(request, 'finance/modals/_team_fee_modal.html', {
+        'team': team,
+        'today': date.today(),
+    })
 
 @login_required
 def update_team_fee(request, team_id):

@@ -191,6 +191,9 @@ class TeamTrainingScheduleTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, f'1 katıldı')
 		self.assertContains(response, f'1 katılmadı')
+		self.assertContains(response, f'id="attendance-summary-{schedule.pk}"')
+		self.assertContains(response, 'hx-swap-oob="outerHTML"')
+		self.assertContains(response, 'ui-badge-success')
 		self.assertTrue(
 			TeamTrainingAttendance.objects.get(
 				schedule=schedule, athlete=athlete_one, training_date=today

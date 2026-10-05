@@ -32,9 +32,9 @@ class TeamForm(forms.ModelForm):
                 }
             ),
 
-            'coaches': forms.SelectMultiple(
+            'coaches':             forms.CheckboxSelectMultiple(
                 attrs={
-                    'class': '',
+                                'class': 'ui-checklist',
                 }
             ),
 

@@ -1,0 +1,42 @@
+<dialog id="team_fee_modal" class="ui-modal" data-modal-backdrop-close="true">
+    <div class="ui-modal-panel">
+        <header class="ui-modal-header">
+            <div class="ui-modal-heading">
+                <p class="ui-modal-eyebrow">Yeni tarife</p>
+                <h3 class="ui-modal-title">{{ team.name }}</h3>
+            </div>
+            <button type="button" class="ui-modal-close" data-modal-close aria-label="Kapat">✕</button>
+        </header>
+        <form action="{% url 'update-team-fee' team.id %}"
+              method="post"
+              class="ui-modal-form">
+            {% csrf_token %}
+            <label class="ui-field">
+                <span class="ui-label">Yeni aylık aidat</span>
+                <input type="text"
+                       name="monthly_fee"
+                       required
+                       inputmode="decimal"
+                       data-money-input="true"
+                       placeholder="Örn: 1.500,00"
+                       class="ui-input">
+            </label>
+            <label class="ui-field">
+                <span class="ui-label">Geçerlilik başlangıcı</span>
+                <input type="date"
+                       name="start_date"
+                       value="{{ today|date:'Y-m-d' }}"
+                       required
+                       class="ui-input">
+            </label>
+            <p class="ui-modal-description">
+                Yeni tarife başladığında mevcut tarife,
+                başlangıç tarihinden bir gün önce otomatik olarak sonlandırılır.
+            </p>
+            <div class="ui-modal-actions">
+                <button type="button" class="ui-btn ui-btn-secondary" data-modal-close>İptal</button>
+                <button type="submit" class="ui-btn ui-btn-primary">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</dialog>

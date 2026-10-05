@@ -1,12 +1,18 @@
 {% load l10n %}
-<dialog id="athlete_equipment_sale_modal">
-    <div>
-        <p>Malzeme dağıtımı</p>
-        <h3>{{ athlete.get_full_name }}</h3>
+<dialog id="athlete_equipment_sale_modal" class="ui-modal" data-modal-backdrop-close="true">
+    <div class="ui-modal-panel">
+        <header class="ui-modal-header">
+            <div class="ui-modal-heading">
+                <p class="ui-modal-eyebrow">Malzeme dağıtımı</p>
+                <h3 class="ui-modal-title">{{ athlete.get_full_name }}</h3>
+            </div>
+            <button type="button" class="ui-modal-close" data-modal-close aria-label="Kapat">✕</button>
+        </header>
         <form method="post"
               hx-post="{{ sale_url }}"
               hx-target="#modal-container"
-              hx-swap="innerHTML">
+              hx-swap="innerHTML"
+              class="ui-modal-form">
             {% csrf_token %}
             {% if distribution_mode %}
                 <input type="hidden" name="distribution_mode" value="1">
@@ -84,10 +90,10 @@
                 <span>Not</span>
                 {{ form.notes }}{{ form.notes.errors }}
             </label>
-            <div>
+            <div class="ui-modal-actions">
                 <button type="button"
                         class="ui-btn ui-btn-secondary"
-                        onclick="document.getElementById('athlete_equipment_sale_modal').remove()">Vazgeç</button>
+                        data-modal-close>Vazgeç</button>
                 <button type="submit" class="ui-btn ui-btn-primary">{% if distribution_mode %}Dağıtımı kaydet{% elif payment %}Satışı güncelle{% else %}Satışı kaydet{% endif %}</button>
             </div>
         </form>

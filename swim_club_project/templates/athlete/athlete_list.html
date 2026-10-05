@@ -60,19 +60,4 @@
             <div>{% include "team/partials/team_table.html" %}</div>
         </section>
     </div>
-    <!-- MODAL -->
-    <div id="team-modal-container"></div>
-    <script>
-        document.body.addEventListener('closeTeamModal', function() {
-            const modal = document.getElementById('team_modal');
-            if (modal) {
-                modal.remove();
-            }
-
-            const container = document.getElementById('team-modal-container');
-            if (container) {
-                container.innerHTML = '';
-            }
-        });
-    </script>
 {% endblock %}

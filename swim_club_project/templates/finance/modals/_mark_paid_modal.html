@@ -1,52 +1,49 @@
 <!-- finance/templates/finance/modals/_mark_paid_modal.html -->
-<dialog id="payment_modal" class="modal modal-open">
-    <div class="modal-box w-[calc(100%-1rem)] max-w-md rounded-2xl p-4 sm:p-5">
-        <!-- Başlık -->
-        <div>
-            <p class="text-[10px] font-black uppercase tracking-widest text-primary">Ödeme tahsilatı</p>
-            <h3 class="mt-1 text-xl font-black text-base-content">Ödemeyi tamamla</h3>
-        </div>
-        <!-- Ödeme Özeti -->
-        <div class="mt-4 overflow-hidden rounded-2xl border border-base-200 bg-base-200/50">
-            <div class="px-4 py-3">
-                <p class="text-[10px] text-base-content/40">Sporcu</p>
-                <p class="mt-0.5 truncate text-sm font-bold">{{ payment.athlete.get_full_name|default:"Genel Gelir" }}</p>
+<dialog id="payment_modal" class="ui-modal" data-modal-backdrop-close="true">
+    <div class="ui-modal-panel">
+        <header class="ui-modal-header">
+            <div class="ui-modal-heading">
+                <p class="ui-modal-eyebrow">Ödeme tahsilatı</p>
+                <h3 class="ui-modal-title">Ödemeyi tamamla</h3>
             </div>
-            <div class="flex items-center justify-between border-t border-base-300 px-4 py-3">
-                <span class="text-xs text-base-content/50">Dönem</span>
-                <span class="text-xs font-bold">{{ payment.period }}</span>
-            </div>
-            <div class="flex items-center justify-between border-t border-base-300 px-4 py-3">
-                <span class="text-xs text-base-content/50">Tahsil edilecek</span>
-                <strong class="text-lg font-black text-primary">{{ payable_amount|floatformat:0 }}</strong>
-            </div>
-        </div>
-        <!-- Form -->
+            <button type="button" class="ui-modal-close" data-modal-close aria-label="Kapat">✕</button>
+        </header>
         <form hx-post="{% url 'finance-mark-paid' payment.id %}"
               hx-target="#payment-row-{{ payment.id }}"
               hx-swap="outerHTML"
-              class="mt-4 space-y-3">
+              class="ui-modal-form">
             {% csrf_token %}
-            <!-- Ödeme yöntemi -->
-            <label class="form-control">
-                <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Ödeme yöntemi</span>
+            <div class="ui-payment-summary">
+                <div class="px-4 py-3">
+                    <p class="ui-text-muted text-[10px]">Sporcu</p>
+                    <p class="mt-0.5 truncate text-sm font-bold">{{ payment.athlete.get_full_name|default:"Genel Gelir" }}</p>
+                </div>
+                <div class="flex items-center justify-between px-4 py-3">
+                    <span class="ui-text-muted text-xs">Dönem</span>
+                    <span class="text-xs font-bold">{{ payment.period }}</span>
+                </div>
+                <div class="flex items-center justify-between px-4 py-3">
+                    <span class="ui-text-muted text-xs">Tahsil edilecek</span>
+                    <strong class="ui-payment-total-value">{{ payable_amount|floatformat:0 }}</strong>
+                </div>
+            </div>
+            <label class="ui-field">
+                <span class="ui-label">Ödeme yöntemi</span>
                 {{ form.payment_method }}
                 {% if form.payment_method.errors %}
-                    <span class="mt-1 text-[10px] text-error">{{ form.payment_method.errors }}</span>
+                    <span class="ui-error">{{ form.payment_method.errors|striptags }}</span>
                 {% endif %}
             </label>
-            <!-- Açıklama -->
-            <label class="form-control">
-                <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Dekont no / açıklama</span>
+            <label class="ui-field">
+                <span class="ui-label">Dekont no / açıklama</span>
                 {{ form.notes }}
                 {% if form.notes.errors %}
-                    <span class="mt-1 text-[10px] text-error">{{ form.notes.errors }}</span>
+                    <span class="ui-error">{{ form.notes.errors|striptags }}</span>
                 {% endif %}
             </label>
-            <!-- Aksiyonlar -->
-            <div class="modal-action mt-4 grid grid-cols-2 gap-2">
-                <button type="button" class="app-btn-secondary" onclick="closePaymentModal()">İptal</button>
-                <button type="submit" class="app-btn-primary">Ödendi</button>
+            <div class="ui-modal-actions">
+                <button type="button" class="ui-btn ui-btn-secondary" data-modal-close>İptal</button>
+                <button type="submit" class="ui-btn ui-btn-primary">Ödendi</button>
             </div>
         </form>
     </div>

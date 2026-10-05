@@ -1,3 +1,39 @@
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/Manrope-400.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/Manrope-500.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/Manrope-600.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/Manrope-700.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../fonts/Manrope-800.ttf") format("truetype");
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -122,7 +158,7 @@ body {
     ),
     var(--ui-bg);
   color: var(--ui-text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+  font-family: Manrope, ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
@@ -392,6 +428,12 @@ svg {
 }
 .ui-list-item:hover {
   background: rgba(255, 255, 255, 0.58);
+}
+.ui-list-item.bg-ui-bg-success:hover {
+  background: var(--ui-bg-success, #dcfce7);
+}
+.ui-list-item.bg-ui-bg-error:hover {
+  background: var(--ui-bg-error, #fee2e2);
 }
 .ui-list-item:active {
   background: rgba(0, 0, 0, 0.025);
@@ -914,7 +956,9 @@ svg {
   box-sizing: border-box;
 }
 .ui-modal::backdrop {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 } /* Panel */
 .ui-modal-panel {
   position: relative;
@@ -926,11 +970,14 @@ svg {
   overflow-x: hidden;
   overflow-y: auto;
   box-sizing: border-box;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: var(--radius-xl);
-  background: var(--ui-surface);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
   color: var(--ui-text);
-  box-shadow: 0 24px 70px rgba(28, 30, 34, 0.2);
+  box-shadow: 0 24px 70px rgba(28, 30, 34, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   animation: ui-modal-in 180ms var(--ease);
@@ -965,19 +1012,23 @@ svg {
   flex: 0 0 38px;
   margin: -2px -2px 0 0;
   padding: 0;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%;
-  background: var(--ui-surface-3);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: 0 4px 14px rgba(28, 30, 34, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   color: var(--ui-muted);
   font-family: inherit;
   font-size: 23px;
   line-height: 1;
   cursor: pointer;
   transition: background-color var(--transition), color var(--transition),
-    transform var(--transition);
+    transform var(--transition), box-shadow var(--transition);
 }
 .ui-modal-close:hover {
-  background: var(--ui-white);
+  background: rgba(255, 255, 255, 0.75);
   color: var(--ui-text);
 }
 .ui-modal-close:active {
@@ -1384,25 +1435,41 @@ svg {
 .app-toast-container {
   position: fixed;
   z-index: 800;
-  top: calc(var(--topbar-height) + env(safe-area-inset-top) + 10px);
+  top: 50%;
   left: 50%;
   width: min(calc(100% - 28px), 430px);
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
 }
 .app-toast {
-  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
   border-radius: 17px;
+  border: 1px solid var(--ui-dark);
   background: var(--ui-dark);
   color: #ffffff;
   box-shadow: var(--shadow-dark);
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: 13px;
+  line-height: 1.5;
   font-weight: var(--font-weight-medium);
   animation: toast-in 220ms var(--ease);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.app-toast-indicator {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--ui-success-text);
+}
+.app-toast.is-hiding {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 @keyframes toast-in {
   from {
@@ -2319,7 +2386,7 @@ svg {
 
 .ui-calendar-day-cell.is-today {
     background-color: var(--ui-dark);
-    color: var(--ui-white);
+    color: #ffffff;
     font-weight: var(--font-weight-bold);
 }
 
@@ -4028,4 +4095,1825 @@ svg {
         font-size: 1rem;
     }
 
+}
+
+/* =========================================================
+   99. GLASS + PWA LAYER
+   Mevcut bilesenlerin ustune cam (glassmorphism) ve
+   mobil uygulama hissi katan son katman.
+   ========================================================= */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-bg-soft: rgba(255, 255, 255, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-blur: blur(20px) saturate(160%);
+  --glass-shadow: 0 8px 30px rgba(35, 38, 43, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --glass-shadow-lg: 0 18px 50px rgba(35, 38, 43, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Arka plan: cam yuzeylerin bulaniklastiracagi pastel isik lekeleri */
+html {
+  background: #f1f1ef;
+  overscroll-behavior-y: none;
+}
+body {
+  background: radial-gradient(
+      60% 40% at 15% 0%,
+      rgba(255, 255, 255, 0.9),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 40% at 100% 30%,
+      rgba(224, 225, 221, 0.75),
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 45% at 0% 100%,
+      rgba(232, 230, 224, 0.7),
+      transparent 70%
+    ),
+    #f1f1ef;
+  background-attachment: fixed;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.app {
+  background: transparent;
+}
+
+/* Cam yuzeyler */
+.ui-card,
+.ui-list,
+.ui-stat,
+.ui-payment-summary {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.ui-list-item {
+  border-bottom-color: rgba(255, 255, 255, 0.55);
+}
+.ui-list-item:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* Ust bar: ekran ust cizgisine kadar uzanan cam */
+.app-topbar {
+  background: rgba(255, 255, 255, 0.55);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 24px rgba(35, 38, 43, 0.04);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+/* Alt navigasyon: yuzen cam kapsul */
+.app-bottom-nav {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.app-bottom-nav-item.active {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 14px rgba(35, 38, 43, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Modal: bottom-sheet hissi */
+.ui-modal-panel {
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+@media (max-width: 640px) {
+  .ui-modal {
+    align-items: flex-end;
+    padding: 12px 10px calc(12px + env(safe-area-inset-bottom));
+  }
+  .ui-modal-panel {
+    border-radius: var(--radius-xl) var(--radius-xl) var(--radius-lg)
+      var(--radius-lg);
+  }
+}
+
+/* Form alanlari */
+.ui-input,
+.ui-select,
+.ui-textarea {
+  background: var(--glass-bg-soft);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 2px rgba(35, 38, 43, 0.04);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.ui-input:focus,
+.ui-select:focus,
+.ui-textarea:focus {
+  background: var(--glass-bg-strong);
+}
+/* iOS odaklanirken yakinlastirmasin */
+.ui-input,
+.ui-select,
+.ui-textarea {
+  font-size: 16px;
+}
+
+/* Butonlar */
+.ui-btn {
+  min-height: 46px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.ui-btn-secondary,
+.ui-btn-ghost {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+/* Rozetler */
+.ui-badge {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Tarayici destegi olmayan ortamlarda okunabilir kalsin */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ui-card,
+  .ui-list,
+  .ui-stat,
+  .ui-payment-summary,
+  .app-topbar,
+  .app-bottom-nav,
+  .ui-modal-panel {
+    background: rgba(250, 251, 253, 0.96);
+  }
+}
+
+/* PWA: yuklu uygulama (standalone) hissi */
+@media (display-mode: standalone), (display-mode: window-controls-overlay) {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  input,
+  textarea,
+  [contenteditable] {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+}
+a,
+button,
+.ui-list-item {
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-list-item,
+.ui-btn,
+.app-bottom-nav-item {
+  touch-action: manipulation;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* =========================================================
+   100. MOTION - sayfa gecisleri ve modal acilislari
+   ========================================================= */
+:root {
+  --ease-spring: cubic-bezier(0.32, 1.2, 0.4, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Sayfalar arasi gecis (destekleyen tarayicilarda yumusak cross-fade) */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: 160ms var(--ease-out) both page-out;
+}
+::view-transition-new(root) {
+  animation: 280ms var(--ease-out) both page-in;
+}
+/* Ust bar ve alt menu gecis sirasinda sabit kalsin */
+.app-topbar {
+  view-transition-name: app-topbar;
+}
+.app-bottom-nav {
+  view-transition-name: app-bottom-nav;
+}
+::view-transition-group(app-topbar),
+::view-transition-group(app-bottom-nav) {
+  animation-duration: 0s;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes page-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Gecis API'si olmayan tarayicilar icin sayfa giris animasyonu */
+@supports not (view-transition-name: none) {
+  .app-main {
+    animation: page-in 320ms var(--ease-out) both;
+  }
+}
+
+/* HTMX ile gelen icerikler yumusakca belirsin */
+.htmx-added {
+  opacity: 0;
+}
+.htmx-settling .ui-card,
+.htmx-settling .ui-list-item,
+.app-main > .htmx-settling {
+  animation: page-in 260ms var(--ease-out) both;
+}
+
+/* Modal: arka plan solar, panel alttan yaylanarak gelir */
+.app-overlay.is-open {
+  animation: overlay-in 220ms ease-out both;
+}
+.ui-modal-panel {
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.ui-modal::backdrop {
+  animation: overlay-in 220ms ease-out both;
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(36px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Dokunma geri bildirimi */
+.ui-list-item,
+.ui-card,
+.app-bottom-nav-item {
+  transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+a.ui-list-item:active,
+.ui-list-item[hx-get]:active,
+.ui-modal-form.ui-list-item:active {
+  transform: scale(0.985);
+}
+.app-bottom-nav-item.active .app-bottom-nav-item-icon {
+  animation: nav-pop 320ms var(--ease-spring);
+}
+@keyframes nav-pop {
+  0% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Modal kapanis animasyonu */
+.app-overlay.is-closing {
+  animation: overlay-out 220ms ease-in both;
+  pointer-events: none;
+}
+.app-overlay.is-closing .ui-modal-panel {
+  animation: sheet-out 220ms ease-in both;
+}
+@keyframes overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes sheet-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+}
+
+/* =========================================================
+   101. FORM BILESENLERI (secim kartlari, detay panelleri, uyari)
+   ========================================================= */
+.ui-field {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.ui-field .ui-label {
+  padding: 0 2px;
+  letter-spacing: 0.01em;
+}
+.ui-input-money {
+  font-size: 18px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Segment / secim kartlari */
+.ui-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+  box-shadow: inset 0 1px 2px rgba(35, 38, 43, 0.05);
+}
+.ui-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: calc(var(--radius-md) - 4px);
+  color: var(--ui-muted);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition),
+    box-shadow var(--transition), transform var(--transition);
+}
+.ui-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ui-choice:active {
+  transform: scale(0.97);
+}
+.ui-choice:has(input:checked) {
+  background: var(--glass-bg-strong);
+  color: var(--ui-text);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 3px 10px rgba(35, 38, 43, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* Acilir detay panelleri */
+.ui-form-details,
+.ui-danger-details {
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+}
+.ui-form-details-summary,
+.ui-danger-details-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 16px;
+  color: var(--ui-text-soft);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-form-details-summary::-webkit-details-marker,
+.ui-danger-details-summary::-webkit-details-marker {
+  display: none;
+}
+.ui-form-details-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  color: var(--ui-muted);
+  font-size: 16px;
+  line-height: 1;
+  transition: transform var(--transition);
+}
+details[open] > summary .ui-form-details-icon {
+  transform: rotate(45deg);
+}
+.ui-form-details-body,
+.ui-danger-details-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 4px 16px 16px;
+  animation: page-in 220ms var(--ease-out) both;
+}
+.ui-danger-details {
+  border-color: rgba(199, 81, 70, 0.22);
+  background: rgba(251, 226, 227, 0.35);
+}
+.ui-danger-details-summary {
+  color: var(--ui-danger-text);
+}
+.ui-danger-details-body {
+  grid-template-columns: 1fr;
+}
+
+/* Onay satiri */
+.ui-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  cursor: pointer;
+}
+.ui-checkbox {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: var(--ui-dark);
+}
+.ui-checkbox-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ui-checkbox-content strong {
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-checkbox-content small {
+  color: var(--ui-muted);
+  font-size: 11px;
+}
+
+/* Form uyarisi */
+.ui-form-alert {
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ui-form-alert-error {
+  background: rgba(251, 226, 227, 0.7);
+  color: var(--ui-danger-text);
+  border-color: rgba(199, 81, 70, 0.25);
+}
+.ui-form-alert ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-error {
+  margin-top: 4px;
+  padding: 0 2px;
+  color: var(--ui-danger-text);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Modal govdesi: uzun formlarda eylem cubugu sabit kalsin */
+.ui-modal-actions {
+  position: sticky;
+  bottom: -20px;
+  z-index: 2;
+  margin: 22px -20px -20px;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.ui-modal-actions .ui-btn {
+  flex: 1 1 0;
+}
+@media (max-width: 640px) {
+  .ui-form-grid,
+  .ui-form-details-body {
+    grid-template-columns: 1fr;
+  }
+  .ui-modal-actions {
+    bottom: -18px;
+    margin: 20px -18px -18px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+/* Kategori secici */
+.ui-category-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.ui-category-head .ui-btn {
+  min-height: 34px;
+  padding: 0 12px;
+}
+.ui-category-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ui-category-picker .ui-help {
+  margin-bottom: 6px;
+  padding: 0 2px;
+}
+.ui-choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ui-choice-pill {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--glass-bg-soft);
+  font-size: 12px;
+}
+.ui-choice-pill:has(input:checked) {
+  border-color: rgba(35, 38, 43, 0.18);
+}
+.ui-category-children {
+  padding: 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+  animation: page-in 220ms var(--ease-out) both;
+}
+
+/* =========================================================
+   102. MODAL: beyaz yuzey (uygulama grisinden ayrisir)
+   ========================================================= */
+.ui-modal-panel {
+  background: rgba(255, 255, 255, 0.96);
+}
+.ui-modal-panel .ui-input,
+.ui-modal-panel .ui-select,
+.ui-modal-panel .ui-textarea,
+.ui-modal-panel .ui-choice-grid,
+.ui-modal-panel .ui-choice-pill,
+.ui-modal-panel .ui-form-details,
+.ui-modal-panel .ui-category-children {
+  background: var(--ui-surface-2);
+  border-color: var(--ui-border-dark);
+}
+.ui-modal-panel .ui-input:focus,
+.ui-modal-panel .ui-select:focus,
+.ui-modal-panel .ui-textarea:focus {
+  background: var(--ui-white);
+}
+.ui-modal-panel .ui-choice:has(input:checked) {
+  background: var(--ui-white);
+}
+.ui-modal-panel .ui-modal-actions {
+  background: rgba(255, 255, 255, 0.96);
+  border-top-color: var(--ui-border-dark);
+}
+.ui-modal-panel .ui-payment-summary,
+.ui-modal-panel .ui-checkbox-row {
+  background: var(--ui-surface-2);
+  border-color: var(--ui-border-dark);
+}
+
+/* =========================================================
+   103. EKSIK SINIFLAR (sablonlarda kullanilan, daha once tanimsiz)
+   ========================================================= */
+
+/* Alt navigasyon */
+.app-bottom-nav-item-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+.app-bottom-nav-inner-coach,
+.app-bottom-nav-inner-admin {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+.app-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Eski app-btn-* butonlari -> ui-btn gorunumu */
+.app-btn-primary,
+.app-btn-secondary {
+  min-height: 46px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform var(--transition), background-color var(--transition),
+    box-shadow var(--transition);
+}
+.app-btn-primary {
+  background: var(--ui-dark);
+  border-color: var(--ui-dark);
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-button);
+}
+.app-btn-primary:hover {
+  background: var(--ui-dark-2);
+}
+.app-btn-secondary {
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-weight: var(--font-weight-medium);
+}
+.app-btn-secondary:hover {
+  background: var(--glass-bg-strong);
+}
+.app-btn-primary:active,
+.app-btn-secondary:active {
+  transform: scale(0.97);
+}
+.ui-btn-neutral {
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  border-color: var(--glass-border);
+}
+.ui-btn-neutral:hover {
+  background: var(--glass-bg-strong);
+}
+
+/* Genel modal bileseni (components/overlay/modal.html) */
+.app-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 32px);
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ui-text);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  overscroll-behavior: contain;
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.app-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.app-modal-title {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+}
+.app-modal-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--glass-bg);
+  color: var(--ui-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: background-color var(--transition), transform var(--transition);
+}
+.app-modal-close:hover {
+  background: var(--glass-bg-strong);
+}
+.app-modal-close:active {
+  transform: scale(0.94);
+}
+.app-modal-body {
+  min-width: 0;
+}
+.app-overlay.is-closing .app-modal {
+  animation: sheet-out 220ms ease-in both;
+}
+
+/* Basliklar ve bolum eylemleri */
+.ui-eyebrow {
+  margin: 0 0 4px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ui-section-action {
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+}
+.ui-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+.ui-required {
+  margin-left: 2px;
+  color: var(--ui-danger-text);
+  font-weight: var(--font-weight-semibold);
+}
+.ui-list-leading {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+}
+
+/* Takvimde seans yok */
+.ui-calendar-no-sessions {
+  padding: 18px 14px;
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Odeme modali */
+.ui-payment-summary-highlight {
+  color: var(--ui-text);
+  font-weight: var(--font-weight-bold);
+}
+.ui-payment-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--ui-surface-2);
+}
+.ui-payment-total-value {
+  color: var(--ui-text);
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.ui-payment-error {
+  padding: 12px 14px;
+  border: 1px solid rgba(199, 81, 70, 0.25);
+  border-radius: var(--radius-sm);
+  background: rgba(251, 226, 227, 0.7);
+  color: var(--ui-danger-text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Spinner bileseni */
+.ui-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(35, 38, 43, 0.15);
+  border-top-color: var(--ui-dark);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+.ui-spinner-sm {
+  width: 14px;
+  height: 14px;
+}
+.ui-spinner-md {
+  width: 20px;
+  height: 20px;
+}
+.ui-spinner-lg {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+/* =========================================================
+   104. HERO PANEL / METIN YARDIMCILARI (inline stillerin yerine)
+   ========================================================= */
+.ui-hero-panel {
+  padding: 20px;
+  text-align: left;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.ui-hero-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ui-hero-eyebrow {
+  margin: 0 0 4px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ui-hero-title {
+  margin: 0 0 4px;
+  color: var(--ui-text);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+}
+.ui-hero-description {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.ui-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.ui-hero-body {
+  margin-top: 20px;
+}
+.ui-btn-plus {
+  margin-right: 4px;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.ui-text-soft {
+  color: var(--ui-text-soft);
+}
+.ui-text-primary-strong {
+  color: var(--ui-text);
+  font-weight: var(--font-weight-bold);
+}
+
+/* =========================================================
+   105. DAISYUI SINIFLARI -> UYGULAMA STILI
+   daisyUI eklentisi Tailwind'de etkin degil; sablonlarda kalan
+   siniflar cam/beyaz tasarima uyarlandi.
+   ========================================================= */
+
+/* Modal */
+dialog.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 501;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ui-text);
+  overflow: hidden;
+}
+dialog.modal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+dialog.modal::backdrop {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.modal-box {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 40px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ui-text);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  overscroll-behavior: contain;
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.app-overlay.is-closing .modal-box {
+  animation: sheet-out 220ms ease-in both;
+}
+.modal-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+@media (max-width: 640px) {
+  dialog.modal[open] {
+    align-items: flex-end;
+  }
+  dialog.modal.modal-bottom[open] {
+    align-items: flex-end;
+  }
+}
+
+/* Form kontrolleri */
+.form-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+.label-text {
+  color: var(--ui-text-soft);
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+}
+input.input,
+select.select,
+.input,
+.select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--ui-border-dark);
+  border-radius: var(--radius-md);
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+  transition: border-color var(--transition), background-color var(--transition),
+    box-shadow var(--transition);
+}
+.input:focus,
+.select:focus {
+  outline: none;
+  background: var(--ui-white);
+  border-color: rgba(35, 38, 43, 0.22);
+  box-shadow: 0 0 0 3px rgba(35, 38, 43, 0.06);
+}
+.input-sm {
+  min-height: 38px;
+  font-size: 14px;
+}
+.input-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--ui-dark);
+}
+.checkbox-xs {
+  width: 14px;
+  height: 14px;
+}
+.checkbox-error {
+  accent-color: var(--ui-danger-text);
+}
+.radio {
+  accent-color: var(--ui-dark);
+}
+
+/* Butonlar */
+.btn {
+  min-height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform var(--transition), background-color var(--transition);
+}
+.btn:hover {
+  background: var(--glass-bg-strong);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-sm {
+  min-height: 36px;
+  padding: 0 12px;
+}
+.btn-xs {
+  min-height: 28px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+.btn-circle {
+  width: 38px;
+  min-height: 38px;
+  padding: 0;
+  border-radius: 50%;
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.btn-ghost:hover {
+  background: var(--glass-bg);
+}
+.btn-primary {
+  background: var(--ui-dark);
+  border-color: var(--ui-dark);
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold);
+}
+.btn-primary:hover {
+  background: var(--ui-dark-2);
+}
+.btn-success {
+  background: var(--ui-success);
+  border-color: transparent;
+  color: var(--ui-success-text);
+}
+.btn-error {
+  background: var(--ui-danger);
+  border-color: transparent;
+  color: var(--ui-danger-text);
+}
+
+/* Rozet, uyari, tablo */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: var(--font-weight-medium);
+}
+.badge-ghost {
+  background: var(--ui-surface-2);
+}
+.badge-outline {
+  background: transparent;
+  border-color: var(--ui-border-dark);
+}
+.badge-success {
+  background: var(--ui-success);
+  color: var(--ui-success-text);
+}
+.badge-error {
+  background: var(--ui-danger);
+  color: var(--ui-danger-text);
+}
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.alert-error {
+  background: rgba(251, 226, 227, 0.7);
+  border-color: rgba(199, 81, 70, 0.25);
+  color: var(--ui-danger-text);
+}
+.alert-success {
+  background: rgba(216, 235, 220, 0.7);
+  border-color: rgba(81, 207, 123, 0.3);
+  color: var(--ui-warning-text);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th,
+.table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--ui-border-dark);
+}
+.table th {
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* =========================================================
+   106. DARK MODE (sistem ayarini takip eder)
+   Nötr/sıcak koyu gri palet, mavi ton yok.
+   ========================================================= */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --ui-bg: #18181a;
+    --ui-bg-soft: #1e1e20;
+    --ui-bg-success: #3ddc8a24;
+    --ui-bg-error: #ff6b6b24;
+    --ui-surface: #232326;
+    --ui-surface-2: #2a2a2e;
+    --ui-surface-3: #323237;
+    --ui-white: #2f2f34;
+    --ui-dark: #3a3a3f;
+    --ui-dark-2: #46464c;
+    --ui-dark-3: #52525a;
+    --ui-text: #f0efec;
+    --ui-text-soft: #d2d1cd;
+    --ui-muted: #a09fa5;
+    --ui-subtle: #7d7c83;
+    --ui-border: rgba(255, 255, 255, 0.08);
+    --ui-border-dark: rgba(255, 255, 255, 0.09);
+
+    --ui-primary: #34343a;
+    --ui-primary-strong: #3f3f46;
+    --ui-primary-text: #f0efec;
+
+    --ui-success: #1f3a2a;
+    --ui-success-text: #6fdc96;
+    --ui-warning: #403618;
+    --ui-warning-text: #f0cf85;
+    --ui-danger: #482325;
+    --ui-danger-text: #ff9a98;
+
+    --glass-bg: rgba(44, 44, 48, 0.62);
+    --glass-bg-strong: rgba(54, 54, 59, 0.8);
+    --glass-bg-soft: rgba(40, 40, 44, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.09);
+    --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --glass-shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    --shadow-soft: 0 5px 22px rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 10px 32px rgba(0, 0, 0, 0.35);
+    --shadow-card-hover: 0 14px 38px rgba(0, 0, 0, 0.42);
+    --shadow-floating: 0 16px 42px rgba(0, 0, 0, 0.5);
+    --shadow-button: 0 6px 18px rgba(0, 0, 0, 0.4);
+  }
+
+  html {
+    background: #18181a;
+  }
+  body {
+    background: radial-gradient(
+        60% 40% at 15% 0%,
+        rgba(70, 70, 76, 0.55),
+        transparent 70%
+      ),
+      radial-gradient(
+        55% 40% at 100% 30%,
+        rgba(50, 50, 55, 0.6),
+        transparent 70%
+      ),
+      radial-gradient(
+        60% 45% at 0% 100%,
+        rgba(46, 44, 42, 0.6),
+        transparent 70%
+      ),
+      #18181a;
+    background-attachment: fixed;
+    color: var(--ui-text);
+  }
+
+  /* Sabit beyaz yuzeyler */
+  .ui-modal-panel,
+  .ui-modal-panel .ui-modal-actions,
+  .app-modal,
+  .modal-box {
+    background: rgba(36, 36, 40, 0.97);
+    border-color: rgba(255, 255, 255, 0.09);
+  }
+  .ui-modal-close {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .ui-modal-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+  dialog.modal::backdrop,
+  .ui-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .ui-list-item:hover,
+  .ui-list-item:hover:not(.bg-ui-bg-success):not(.bg-ui-bg-error) {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .app-topbar {
+    background: rgba(28, 28, 31, 0.7);
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+  }
+  .app-bottom-nav {
+    border-top-color: rgba(255, 255, 255, 0.07);
+  }
+  .app-bottom-nav-item.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--ui-text);
+  }
+  .profile-hero-card,
+  .ui-team-profile,
+  .ui-team-card {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+  }
+  .profile-hero-badge {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ui-text-soft);
+  }
+  .profile-hero-back-btn {
+    background: var(--ui-surface-3);
+    color: var(--ui-text);
+  }
+  .ui-badge {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .ui-btn-dark,
+  .ui-badge-dark {
+    color: #ffffff;
+  }
+  .ui-text-primary,
+  .ui-text-primary-strong {
+    color: var(--ui-text) !important;
+  }
+  .ui-text-success { color: var(--ui-success-text) !important; }
+  .ui-text-danger { color: var(--ui-danger-text) !important; }
+  .ui-text-warning { color: var(--ui-warning-text) !important; }
+
+  .calendar-day.today {
+    background: var(--ui-text);
+    color: #18181a;
+  }
+  .calendar-day.today .calendar-dot {
+    background-color: #18181a;
+  }
+
+  .ui-input,
+  .ui-select,
+  .ui-textarea,
+  .input,
+  .select,
+  input,
+  select,
+  textarea {
+    color: var(--ui-text);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ui-subtle);
+  }
+  .ui-input:focus,
+  .ui-select:focus,
+  .ui-textarea:focus,
+  .input:focus,
+  .select:focus {
+    background: var(--ui-surface-3);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07);
+  }
+  .ui-btn,
+  .btn {
+    color: var(--ui-text-soft);
+  }
+  .btn-primary {
+    color: #ffffff;
+  }
+  .alert-error {
+    background: rgba(72, 35, 37, 0.7);
+  }
+  .alert-success {
+    background: rgba(31, 58, 42, 0.7);
+    color: var(--ui-success-text);
+  }
+}
+
+/* 107. DARK MODE - EK DUZELTMELER (butonlar, profil, durum renkleri) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ui-bg-success: #3ddc8a2e;
+    --ui-bg-error: #ff6b6b2e;
+  }
+  .app-brand-logo {
+    background: #ffffff;
+  }
+  .ui-btn-primary,
+  .app-bottom-nav-item.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--ui-text);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+  .ui-btn-primary:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .ui-btn-primary:active {
+    background: rgba(255, 255, 255, 0.24);
+  }
+  .ui-btn-dark {
+    background: #4a4a50;
+    border-color: #4a4a50;
+    color: #ffffff;
+  }
+  .ui-btn-dark:hover {
+    background: #57575e;
+    border-color: #57575e;
+  }
+  .ui-btn-dark:active {
+    background: #3e3e44;
+  }
+  .ui-btn-success {
+    background: #1f3a2a;
+    color: var(--ui-success-text);
+    border-color: rgba(111, 220, 150, 0.25);
+  }
+  .ui-btn-success:hover { background: #26462f; }
+  .ui-btn-success:active { background: #2c5237; }
+  .ui-btn-danger {
+    background: #482325;
+    color: var(--ui-danger-text);
+    border-color: rgba(255, 154, 152, 0.25);
+  }
+  .ui-btn-danger:hover { background: #562a2c; }
+  .ui-btn-danger:active { background: #643032; }
+  .ui-error {
+    color: var(--ui-danger-text);
+  }
+  .profile-hero-back-btn {
+    background: var(--ui-surface-3);
+    color: var(--ui-text);
+  }
+  .profile-hero-avatar {
+    border-color: var(--ui-surface-3);
+  }
+  .profile-hero-subtitle {
+    color: var(--ui-muted);
+  }
+  .profile-hero-badge {
+    color: var(--ui-text-soft);
+  }
+  .profile-hero-badge span {
+    color: var(--ui-text);
+  }
+  .dashboard-tab.active,
+  .dashboard-action-card:hover,
+  .dashboard-quick-action:hover {
+    background: var(--ui-surface-3);
+    color: var(--ui-text);
+  }
+  .ui-switch-input::after {
+    background: #f0efec;
+  }
+  .app-toast {
+    background: #f0efec;
+    color: #18181a;
+  }
+}
+
+/* 108. DARK MODE - PALET DEGISKENLERI (koyu yazi tonlari acik tonlara) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink-black: #f0efec;
+    --prussian-blue: #e6e5e1;
+    --dusk-blue: #d2d1cd;
+    --dusty-denim: #a09fa5;
+    --slate-grey: #a09fa5;
+    --dark-slate-grey: #d2d1cd;
+    --gunmetal: #d2d1cd;
+    --teal: #9bc4c0;
+  }
+  .dashboard-quick-action,
+  .dashboard-action-card {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .dashboard-quick-action-icon,
+  .dashboard-action-icon {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ui-text);
+  }
+}
+/* 109. Yoklama seçimleri: radyo gizli, sade metin; yalnızca seçili olan vurgulu */
+.ui-attendance-choice {
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: var(--ui-text-muted, #6b7280);
+  box-shadow: none;
+}
+.ui-attendance-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ui-attendance-choice:has(input:checked).ui-attendance-present {
+  background: rgba(22, 163, 74, 0.14);
+  color: #15803d;
+  font-weight: 700;
+}
+.ui-attendance-choice:has(input:checked).ui-attendance-absent {
+  background: rgba(220, 38, 38, 0.14);
+  color: #b91c1c;
+  font-weight: 700;
+}
+/* 110. Modal kapatma düğmesi: sade */
+.ui-modal-close {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  margin: 0;
+  border: 0;
+  background: rgba(120, 120, 128, 0.12);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: var(--ui-text-muted, #6b7280);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+}
+.ui-modal-close:hover {
+  background: rgba(120, 120, 128, 0.2);
+  color: var(--ui-text);
+}
+/* 111. Takım listesi */
+.ui-teams-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ui-teams-eyebrow {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-teams-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ui-text);
+}
+.ui-teams-actions {
+  display: flex;
+  gap: 8px;
+}
+.ui-teams-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.ui-teams-tabs {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.12);
+}
+.ui-teams-tab {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ui-text-muted, #6b7280);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.ui-teams-tab.is-active {
+  background: var(--ui-white, #fff);
+  color: var(--ui-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.ui-teams-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--ui-white, #fff);
+  box-shadow: 0 2px 14px rgba(28, 30, 34, 0.06);
+}
+.ui-teams-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.ui-teams-row + .ui-teams-row {
+  border-top: 1px solid rgba(120, 120, 128, 0.14);
+}
+.ui-teams-row:hover {
+  background: rgba(120, 120, 128, 0.08);
+}
+.ui-teams-row:active {
+  background: rgba(120, 120, 128, 0.14);
+}
+.ui-teams-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(120, 120, 128, 0.14);
+  color: var(--ui-text);
+  font-size: 17px;
+  font-weight: 800;
+}
+.ui-teams-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.ui-teams-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ui-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-teams-meta {
+  font-size: 13px;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-teams-arrow {
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ui-text-muted, #9ca3af);
+}
+@media (min-width: 640px) {
+  .ui-teams-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ui-teams-search {
+    max-width: 320px;
+    flex: 1;
+  }
+}
+/* 112. Takım detay */
+.ui-teams-back {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-text-muted, #6b7280);
+  text-decoration: none;
+}
+.ui-team-hero {
+  align-items: center;
+}
+.ui-team-hero-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.ui-team-hero-avatar {
+  flex-basis: 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  font-size: 22px;
+}
+.ui-team-hero .ui-teams-title {
+  font-size: 24px;
+}
+.ui-team-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+  border-radius: 20px;
+  background: var(--ui-white, #fff);
+  box-shadow: 0 2px 14px rgba(28, 30, 34, 0.06);
+}
+.ui-team-summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 16px 8px;
+}
+.ui-team-summary-item + .ui-team-summary-item {
+  border-left: 1px solid rgba(120, 120, 128, 0.14);
+}
+.ui-team-summary-item strong {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ui-text);
+}
+.ui-team-summary-item span {
+  font-size: 12px;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-team-links {
+  margin-bottom: 4px;
+}
+.ui-team-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 4px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-team-group-title span {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.14);
+  font-size: 12px;
+}
+/* 113. Takım formu */
+.ui-checklist {
+  display: flex;
+  flex-direction: column;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: rgba(120, 120, 128, 0.08);
+}
+.ui-checklist > div + div {
+  border-top: 1px solid rgba(120, 120, 128, 0.14);
+}
+.ui-checklist label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--ui-text);
+  cursor: pointer;
+}
+.ui-checklist input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin: 0;
+  accent-color: var(--ui-dark, #1c1e22);
+}
+.ui-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(120, 120, 128, 0.08);
+  cursor: pointer;
+}
+.ui-switch-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ui-switch-row-text strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-text);
+}
+.ui-switch-row-text small {
+  font-size: 12px;
+  color: var(--ui-text-muted, #6b7280);
 }

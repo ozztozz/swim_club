@@ -34,7 +34,9 @@
         </span>
         
         <!-- Yoklama durumuna göre dinamik badge rengi değişimi -->
-        <span class="ui-badge {% if schedule.is_attendance_taken %}ui-badge-success{% else %}ui-badge-neutral{% endif %} text-[11px] px-2.5 py-0.5">
+        <span id="attendance-summary-{{ schedule.pk }}"
+              aria-label="{{ schedule.attended_count|default:'0' }} katıldı, {{ schedule.absent_count|default:'0' }} katılmadı"
+              class="ui-badge {% if schedule.is_attendance_taken %}ui-badge-success{% else %}ui-badge-neutral{% endif %} text-[11px] px-2.5 py-0.5">
             👤 <span class="ui-text-success">{{ schedule.attended_count|default:"0" }}</span> / <span class="ui-text-danger">{{ schedule.absent_count|default:"0" }}</span>
         </span>
     </div>

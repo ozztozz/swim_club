@@ -23,4 +23,5 @@ urlpatterns = [
     path('payment/<int:pk>/mark-paid/', views.mark_payment_paid_htmx, name='finance-mark-paid'),
     path('fee-management/', views.fee_management, name='fee-management'),
     path('fee-management/team/<int:team_id>/update/', views.update_team_fee, name='update-team-fee'),
+    path('fee-management/team/<int:team_id>/modal/', views.team_fee_modal, name='team-fee-modal'),
 ]

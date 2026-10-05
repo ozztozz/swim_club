@@ -1,4 +1,4 @@
-<dialog id="team_modal" class="ui-modal">
+<dialog id="team_modal" class="ui-modal" data-modal-backdrop-close="true">
 
     <div class="ui-modal-panel">
 
@@ -9,7 +9,7 @@
 
             <div class="ui-modal-heading">
 
-                <p class="ui-modal-eyebrow text-primary-custom">
+                <p class="ui-modal-eyebrow">
                     Takım yönetimi
                 </p>
 
@@ -41,7 +41,7 @@
         <form
             method="post"
             hx-post="{% if team %}{% url 'team-update' team.pk %}{% else %}{% url 'team-create' %}{% endif %}"
-            hx-target="{% if return_to_detail %}#team-modal-container{% else %}#team-table{% endif %}"
+            hx-target="{% if return_to_detail %}#modal-container{% else %}#team-table{% endif %}"
             hx-swap="{% if return_to_detail %}innerHTML{% else %}outerHTML{% endif %}"
             class="ui-modal-form"
         >
@@ -131,24 +131,12 @@
             <!-- =================================================
                  DURUM
             ================================================== -->
-            <label class="ui-team-status-setting">
-
-                <div class="ui-team-status-info">
-
-                    <span>
-                        <strong>Aktif takım</strong>
-
-                        <small>
-                            Takım aktif olarak kullanılabilir.
-                        </small>
-                    </span>
-
-                </div>
-
-                <span class="ui-team-switch">
-                    {{ form.is_active }}
+            <label class="ui-switch-row">
+                <span class="ui-switch-row-text">
+                    <strong>Aktif takım</strong>
+                    <small>Takım aktif olarak kullanılabilir.</small>
                 </span>
-
+                {{ form.is_active }}
             </label>
 
 

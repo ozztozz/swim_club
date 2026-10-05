@@ -17,7 +17,7 @@
                     <div class="mt-0.5 text-[10px] font-medium text-base-content/45">
                         {{ month.total_count }} toplam
                         ·
-                        <span style="color: var(--ui-danger-text);">
+                        <span class="ui-text-danger">
                             {{ month.absent_count }} gelmedi
                         </span>
                     </div>
@@ -57,8 +57,7 @@
 
                                 <!-- GÜN NUMARASI -->
                                 <div
-                                    class="text-[9px] font-medium leading-3"
-                                    style="color: var(--ui-text-soft);"
+                                    class="text-[9px] font-medium leading-3 ui-text-soft"
                                 >
                                     {{ day.number }}
                                 </div>
@@ -78,16 +77,13 @@
                                                         truncate
                                                         text-[11px]
                                                         font-bold
-                                                        leading-4
-                                                    "
-                                                    style="color: var(--ui-danger-text);"
+                                                        leading-4 ui-text-danger"
                                                     title="{{ session.label }} · Katılmadı"
                                                 >
                                                     {{ session.label }}
                                                     {% if session.is_makeup %}
                                                         <sup
-                                                            class="ml-px text-[8px] font-bold"
-                                                            style="color: var(--ui-primary-text);"
+                                                            class="ml-px text-[8px] font-bold ui-text-primary-strong"
                                                         >T</sup>
                                                     {% endif %}
                                                 </span>
@@ -101,16 +97,13 @@
                                                         truncate
                                                         text-[11px]
                                                         font-bold
-                                                        leading-4
-                                                    "
-                                                    style="color: var(--ui-success-text);"
+                                                        leading-4 ui-text-success"
                                                     title="{{ session.label }} · Katıldı"
                                                 >
                                                     {{ session.label }}
                                                     {% if session.is_makeup %}
                                                         <sup
-                                                            class="ml-px text-[8px] font-bold"
-                                                            style="color: var(--ui-primary-text);"
+                                                            class="ml-px text-[8px] font-bold ui-text-primary-strong"
                                                         >T</sup>
                                                     {% endif %}
                                                 </span>

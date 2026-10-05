@@ -94,73 +94,14 @@
                             </div>
                             <!-- GÜNCELLE -->
                             <button type="button"
-                                    onclick="document.getElementById('modal-team-{{ team.id }}').showModal()"
+                                    hx-get="{% url 'team-fee-modal' team.id %}"
+                                    hx-target="#modal-container"
+                                    hx-swap="innerHTML"
                                     class="btn btn-primary mt-3 h-9 min-h-0 w-full rounded-xl text-[10px] font-bold">
                                 Tarifeyi Güncelle
                             </button>
                         </div>
                     </section>
-                    <!-- ================================================== -->
-                    <!-- TARİFE MODALI -->
-                    <!-- ================================================== -->
-                    <dialog id="modal-team-{{ team.id }}"
-                            class="modal modal-bottom sm:modal-middle">
-                        <div class="modal-box w-full max-w-md rounded-t-3xl p-5 sm:rounded-2xl">
-                            <div class="flex items-start justify-between gap-3 border-b border-base-200 pb-3">
-                                <div class="min-w-0">
-                                    <p class="text-[9px] font-bold uppercase tracking-wider text-primary">Yeni Tarife</p>
-                                    <h3 class="mt-0.5 truncate text-base font-black text-base-content">{{ team.name }}</h3>
-                                </div>
-                                <button type="button"
-                                        onclick="document.getElementById('modal-team-{{ team.id }}').close()"
-                                        class="btn btn-ghost btn-sm h-8 min-h-0 w-8 rounded-lg p-0 text-base-content/50">
-                                    ×
-                                </button>
-                            </div>
-                            <form action="{% url 'update-team-fee' team.id %}"
-                                  method="post"
-                                  class="mt-4 space-y-3">
-                                {% csrf_token %}
-                                <!-- AİDAT -->
-                                <label class="form-control">
-                                    <span class="mb-1 px-0.5 text-[9px] font-bold uppercase tracking-wider text-base-content/50">Yeni aylık aidat</span>
-                                    <input type="text"
-                                           name="monthly_fee"
-                                           required
-                                           inputmode="decimal"
-                                           data-money-input="true"
-                                           placeholder="Örn: 1.500,00"
-                                           class="input input-bordered h-10 min-h-0 rounded-xl text-xs">
-                                </label>
-                                <!-- TARİH -->
-                                <label class="form-control">
-                                    <span class="mb-1 px-0.5 text-[9px] font-bold uppercase tracking-wider text-base-content/50">
-                                        Geçerlilik başlangıcı
-                                    </span>
-                                    <input type="date"
-                                           name="start_date"
-                                           value="{{ today|date:'Y-m-d' }}"
-                                           required
-                                           class="input input-bordered h-10 min-h-0 rounded-xl text-xs">
-                                </label>
-                                <!-- BİLGİ -->
-                                <div class="rounded-xl border border-info/10 bg-info/5 p-3">
-                                    <p class="text-[10px] leading-relaxed text-base-content/60">
-                                        Yeni tarife başladığında mevcut tarife,
-                                        başlangıç tarihinden bir gün önce otomatik olarak sonlandırılır.
-                                    </p>
-                                </div>
-                                <!-- AKSİYONLAR -->
-                                <div class="grid grid-cols-2 gap-2 pt-1">
-                                    <button type="button"
-                                            onclick="document.getElementById('modal-team-{{ team.id }}').close()"
-                                            class="btn btn-ghost h-10 min-h-0 rounded-xl text-xs">İptal</button>
-                                    <button type="submit"
-                                            class="btn btn-primary h-10 min-h-0 rounded-xl text-xs">Kaydet</button>
-                                </div>
-                            </form>
-                        </div>
-                    </dialog>
                 {% empty %}
                     <!-- TAKIM YOK -->
                     <div class="rounded-2xl border border-base-300 bg-base-100 p-8 text-center shadow-sm">

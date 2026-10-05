@@ -1,118 +1,18 @@
-<div id="team-table" class="ui-team-grid">
-
-{% for team in teams %}
-
-    <a href="{% url 'team-detail' team.pk %}"
-       class="ui-card ui-team-card">
-
-        <!-- =================================================
-             BAŞLIK
-        ================================================== -->
-        <div class="ui-team-card-header">
-
-            <div class="ui-team-card-identity">
-
-                <span class="ui-team-card-icon">
-                    <svg viewBox="0 0 24 24"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.8"
-                         aria-hidden="true">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                </span>
-
-                <div class="ui-team-card-heading">
-
-                    <p class="ui-team-card-eyebrow">
-                        Takım
-                    </p>
-
-                    <h2 class="ui-team-card-title">
-                        {{ team.name }}
-                    </h2>
-
-                </div>
-
+<div id="team-table" class="ui-card ui-scroll-list">
+    {% for team in teams %}
+        <a href="{% url 'team-detail' team.pk %}" class="ui-list-item">
+            <div class="ui-list-content">
+                <p class="ui-list-title">{{ team.name }}</p>
+                <p class="ui-list-subtitle">{{ team.athlete_count }} sporcu · {{ team.coaches.all|length }} antrenör</p>
             </div>
-
-
-            {% if team.is_active %}
-
-                <span class="ui-badge ui-badge-success">
-                    Aktif
-                </span>
-
-            {% else %}
-
-                <span class="ui-badge ui-team-status-inactive">
-                    Pasif
-                </span>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- =================================================
-             AÇIKLAMA
-        ================================================== -->
-
-
-
-        <!-- =================================================
-             ÖZET BİLGİLER
-        ================================================== -->
-        <div class="ui-team-card-meta">
-
-            <div class="ui-team-card-meta-item">
-
-                <span class="ui-team-card-meta-icon">
-                    <svg viewBox="0 0 24 24"
-                         fill="none"
-                         stroke="currentColor"
-                         stroke-width="1.8"
-                         aria-hidden="true">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                </span>
-
-                <div>
-                    <span class="ui-team-card-meta-label">
-                        Antrenör
-                    </span>
-
-                    <strong class="ui-team-card-meta-value">
-                        {{ team.coaches.count }}
-                    </strong>
-                </div>
-
+            <div class="ui-list-end">
+                <span class="ui-list-meta">{% if team.is_active %}Aktif{% else %}Pasif{% endif %}</span>
             </div>
-
-
-            <span class="ui-team-card-arrow" aria-hidden="true">
-                →
-            </span>
-
+        </a>
+    {% empty %}
+        <div class="ui-empty">
+            <div class="ui-empty-icon">—</div>
+            <p class="ui-empty-description">Kayıt bulunamadı.</p>
         </div>
-
-    </a>
-
-{% empty %}
-
-    <div class="ui-empty ui-team-empty">
-
-        <p class="ui-empty-description">
-            Kayıt bulunamadı.
-        </p>
-
-    </div>
-
-{% endfor %}
-
-
+    {% endfor %}
 </div>

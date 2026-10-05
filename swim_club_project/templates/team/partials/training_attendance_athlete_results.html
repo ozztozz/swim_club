@@ -1,12 +1,11 @@
 {% if search_query %}
     {% for athlete in search_results %}
         <div class="ui-list-item">
-            <span>{{ athlete.get_full_name }}</span>
-            <div>
-                    <label>
+            <span class="ui-list-title">{{ athlete.get_full_name }}</span>
+            <div class="ui-list-end">
+                    <label class="ui-badge ui-badge-primary">
                         <input type="radio"
                             value="yes"
-                            class=""
                             name="makeup_athlete_{{ athlete.pk }}">
                         Telafi
                     </label>
@@ -17,6 +16,6 @@
             </div>
         </div>
     {% empty %}
-        <p>Sporcu bulunamadı.</p>
+        <p class="ui-help">Sporcu bulunamadı.</p>
     {% endfor %}
 {% endif %}

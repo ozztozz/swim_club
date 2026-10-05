@@ -1,9 +1,9 @@
 
 {
   "id": "/",
-  "name": "Alpha Academy Kulüp Yönetim Paneli",
+  "name": "Alpha Academy KulÃ¼p YÃ¶netim Paneli",
   "short_name": "Alpha",
-  "description": "Alpha Academy spor kulübü yönetim paneli",
+  "description": "Alpha Academy spor kulÃ¼bÃ¼ yÃ¶netim paneli",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
@@ -13,8 +13,8 @@
   ],
   "orientation": "portrait-primary",
 
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#F1F1EF",
+  "theme_color": "#F1F1EF",
 
   "lang": "tr-TR",
   "dir": "ltr",
@@ -41,4 +41,3 @@
     }
   ]
 }
-

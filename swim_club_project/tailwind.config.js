@@ -9,7 +9,7 @@ module.exports = {
         extend: {
             fontFamily: {
                 sans: [
-                    "Inter", "ui-sans-serif", "system-ui", "-apple-system",
+                    "Manrope", "ui-sans-serif", "system-ui", "-apple-system",
                     "BlinkMacSystemFont", "Segoe UI", "sans-serif"
                 ]
             },
