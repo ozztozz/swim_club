@@ -6380,4 +6380,26 @@ select.select,
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+
+  .app-topbar,
+  .app-topbar .app-topbar-actions > button,
+  .app-bottom-nav {
+    background-color: #f1f1ef;
+  }
+}
+
+@media (prefers-color-scheme: dark) and (max-width: 768px),
+  (prefers-color-scheme: dark) and (hover: none) and (pointer: coarse),
+  (prefers-color-scheme: dark) and (prefers-reduced-transparency: reduce) {
+  .app-topbar,
+  .app-topbar .app-topbar-actions > button,
+  .app-bottom-nav {
+    background-color: #242427;
+  }
+}
+/* Modal arka plan blur'u mobilde de korunur (tek katman, yalnýzca açýkken) */
+.app-overlay,
+.ui-modal::backdrop {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
