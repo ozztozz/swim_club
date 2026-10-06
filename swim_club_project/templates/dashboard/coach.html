@@ -112,48 +112,4 @@
         </div>
     </section>
 
-    <section class="ui-section">
-        <h2 class="ui-team-group-title">En yüksek katılım <span>Son 1 hafta · İlk 5</span></h2>
-        <div class="ui-card ui-scroll-list">
-            {% for athlete in coach_top_athletes %}
-                <div class="ui-list-item">
-                    <div class="ui-list-content">
-                        <p class="ui-list-title">{{ forloop.counter }}. {{ athlete.name }}</p>
-                        <p class="ui-list-subtitle">{{ athlete.team|default:"Takımsız" }} · {{ athlete.present }}/{{ athlete.total }} antrenman</p>
-                    </div>
-                    <div class="ui-list-end">
-                        <span class="ui-badge ui-badge-success">%{{ athlete.rate }}</span>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="ui-empty">
-                    <p class="ui-empty-description">Son bir haftada yoklama kaydı yok.</p>
-                </div>
-            {% endfor %}
-        </div>
-    </section>
-
-<section class="ui-section">
-        <h2 class="ui-team-group-title">En az katılım <span>Son 1 hafta · 5 sporcu</span></h2>
-        <div class="ui-card ui-scroll-list">
-            {% for athlete in coach_bottom_athletes %}
-                <div class="ui-list-item">
-                    <div class="ui-list-content">
-                        <p class="ui-list-title">{{ forloop.counter }}. {{ athlete.name }}</p>
-                        <p class="ui-list-subtitle">{{ athlete.team|default:"Takımsız" }} · {{ athlete.present }}/{{ athlete.total }} antrenman</p>
-                    </div>
-                    <div class="ui-list-end">
-                        <span class="ui-badge ui-badge-danger">%{{ athlete.rate }}</span>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="ui-empty">
-                    <p class="ui-empty-description">Son bir haftada yoklama kaydı yok.</p>
-                </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <a href="{{ coach_attendance_url }}" class="ui-btn ui-btn-primary">Yoklama sayfası</a>
-</div>
 {% endblock %}

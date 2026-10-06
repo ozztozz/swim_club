@@ -30,7 +30,7 @@
                     </span>
                 </div>
 
-                {% if request.user.is_club_admin %}
+                
                     <div class="profile-hero-actions mt-4">
                             <button
                         type="button"
@@ -39,10 +39,11 @@
                         hx-target="#modal-container"
                         hx-swap="innerHTML"
                     >✎ Düzenle</button>
-                       
-                        <a href="#" class="ui-btn ui-btn-sm ui-btn-primary">+ Ödeme Ekle</a>
+                        {% if request.user.is_club_admin %}
+                            <a href="#" class="ui-btn ui-btn-sm ui-btn-primary">+ Ödeme Ekle</a>
+                        {% endif %}
                     </div>
-                {% endif %}
+             
             </div>
         </div>
 
@@ -62,7 +63,7 @@
                     </span>
 
                     <span>
-                        Tahsilat
+                        Antrenman 
                     </span>
 
                 </button>
@@ -75,7 +76,7 @@
                 role="tab"
                 aria-selected="false"
                 aria-controls="expenses-tab"
-            >
+             >
 
                 <span
                     class="dashboard-tab-icon"
@@ -98,7 +99,7 @@
                 role="tab"
                 aria-selected="false"
                 aria-controls="equipment-sales-tab"
-            >
+             >
 
                 <span
                     class="dashboard-tab-icon"
@@ -236,8 +237,11 @@
                     {% for day in week %}
 
                         {% if day %}
+                        {% now 'd' as today_day %}
+                        
 
-                            <div class="ui-calendar-day-cell">
+                            <div class="ui-calendar-day-cell  {% if day.number == today_day|add:"0" %} is-today {% endif %} ">
+
 
                                 <!-- GÜN NUMARASI -->
                                 <div

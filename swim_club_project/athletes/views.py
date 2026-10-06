@@ -951,6 +951,7 @@ def athlete_create(request):
 
 
 @login_required
+@role_required(allowed_roles=['admin', 'club_admin', 'coach'])
 def athlete_update(request, pk):
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     form = AthleteForm(request.POST or None, request.FILES or None, instance=athlete)

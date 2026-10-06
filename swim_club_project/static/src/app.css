@@ -2383,7 +2383,7 @@ svg {
 }
 
 .ui-calendar-day-cell.is-today {
-    background-color: var(--ui-dark);
+    background-color: var(--ui-primary);
     color: #ffffff;
     font-weight: var(--font-weight-bold);
 }

@@ -15,7 +15,7 @@ def _get_coach_dashboard_context(user):
         .annotate(
             athlete_count=Count("athletes", filter=Q(athletes__is_active=True), distinct=True)
         )
-        .order_by("name")
+        .order_by("-athlete_count")
     )
     team_ids = [team.pk for team in teams]
 
@@ -85,34 +85,7 @@ def _get_coach_dashboard_context(user):
         team.attendance_rate = (
             round(row["present"] * 100 / row["total"]) if row and row["total"] else None
         )
-    top_athletes = []
-    for row in (
-        TeamTrainingAttendance.objects.filter(
-            schedule__team_id__in=team_ids,
-            training_date__gte=today - timedelta(days=6),
-            training_date__lte=today,
-        )
-        .values(
-            "athlete_id",
-            "athlete__first_name",
-            "athlete__last_name",
-            "athlete__team__name",
-        )
-        .annotate(
-            present=Count("id", filter=Q(status=TeamTrainingAttendance.Status.ATTENDED)),
-            total=Count("id"),
-        )
-    ):
-        top_athletes.append(
-            {
-                "name": f'{row["athlete__first_name"]} {row["athlete__last_name"]}'.strip(),
-                "team": row["athlete__team__name"],
-                "present": row["present"],
-                "total": row["total"],
-                "rate": round(row["present"] * 100 / row["total"]),
-            }
-        )
-    top_athletes.sort(key=lambda a: (-a["rate"], -a["present"], a["name"]))
+
     total = week_attendance["total"]
 
     rate = round(week_attendance["present"] * 100 / total) if total else None
@@ -130,9 +103,5 @@ def _get_coach_dashboard_context(user):
         "coach_athlete_count": sum(t.athlete_count for t in teams),
         "coach_week_session_count": len(schedules),
         "coach_attendance_rate": rate,
-        "coach_top_athletes": top_athletes[:5],
-        "coach_bottom_athletes": sorted(
-            top_athletes, key=lambda a: (a["rate"], a["present"], a["name"])
-        )[:5],
         "coach_attendance_url": reverse("training-attendance"),
     }
