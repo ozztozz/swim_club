@@ -6,7 +6,7 @@ Kulüp Yönetimi | ALPHA ACADEMY
 
 {% block content %}
 
-<div class="dashboard">
+<div class="dashboard" data-tab-group="dashboard">
 
 <!-- =========================================================
      SAYFA BAŞLIĞI
@@ -98,6 +98,7 @@ Kulüp Yönetimi | ALPHA ACADEMY
      ========================================================= -->
 <section
     id="collections-tab"
+    data-tab-panel="collections"
     class="dashboard-panel"
     role="tabpanel"
     aria-labelledby="collections-tab-button"
@@ -235,6 +236,7 @@ Kulüp Yönetimi | ALPHA ACADEMY
      ========================================================= -->
 <section
     id="expenses-tab"
+    data-tab-panel="expenses"
     class="dashboard-panel hidden"
     role="tabpanel"
     aria-labelledby="expenses-tab-button"

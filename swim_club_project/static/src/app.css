@@ -1,37 +1,9 @@
 @font-face {
   font-family: "Manrope";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 800;
   font-display: swap;
-  src: url("../fonts/Manrope-400.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("../fonts/Manrope-500.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("../fonts/Manrope-600.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../fonts/Manrope-700.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url("../fonts/Manrope-800.ttf") format("truetype");
+  src: url("../fonts/Manrope-Variable.woff2") format("woff2");
 }
 
 @tailwind base;
@@ -1429,9 +1401,9 @@ svg {
 }
 .ui-payment-action .ui-btn,
 .ui-payment-sale-actions .ui-btn {
-  min-height: 30px;
+  min-height: 44px;
   padding-inline: 11px;
-  font-size: 10px;
+  font-size: 12px;
 } /* =========================================================24. TOAST========================================================= */
 .app-toast-container {
   position: fixed;
@@ -4258,20 +4230,6 @@ body {
   }
 }
 
-/* PWA: yuklu uygulama (standalone) hissi */
-@media (display-mode: standalone), (display-mode: window-controls-overlay) {
-  body {
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-  }
-  input,
-  textarea,
-  [contenteditable] {
-    user-select: text;
-    -webkit-user-select: text;
-  }
-}
 a,
 button,
 .ui-list-item {
@@ -4288,7 +4246,6 @@ button,
     transition-duration: 0.01ms !important;
   }
 }
-
 
 /* =========================================================
    100. MOTION - sayfa gecisleri ve modal acilislari
@@ -5290,7 +5247,7 @@ select.select,
 .alert-success {
   background: rgba(216, 235, 220, 0.7);
   border-color: rgba(81, 207, 123, 0.3);
-  color: var(--ui-warning-text);
+  color: var(--ui-success-text);
 }
 .table {
   width: 100%;
@@ -6288,4 +6245,139 @@ select.select,
 .ui-list-item.ui-list-item-overdue {
   background: var(--ui-overdue-bg);
   box-shadow: inset 3px 0 0 var(--ui-overdue-accent);
+}
+
+/* 123. Mobil erişilebilirlik: güvenli alanlar ve dokunma hedefleri */
+.app-bottom-nav {
+  right: max(12px, env(safe-area-inset-right));
+  left: max(12px, env(safe-area-inset-left));
+  width: auto;
+  max-width: 430px;
+  margin-inline: auto;
+  transform: none;
+}
+.app-bottom-nav-item,
+.dashboard-tab,
+.ui-btn-sm,
+.ui-table-action.ui-btn-sm {
+  min-height: 44px;
+}
+.ui-teams-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+/* 124. PWA bağlantı ve güncelleme durumu */
+.pwa-status {
+  position: fixed;
+  top: calc(var(--topbar-height) + env(safe-area-inset-top) + 8px);
+  right: max(12px, env(safe-area-inset-right));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 450;
+  width: min(calc(100% - 24px), 430px);
+  margin-inline: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg-strong);
+  color: var(--ui-text);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  font-size: 12px;
+  font-weight: 600;
+}
+.pwa-status[hidden],
+.pwa-status [hidden] {
+  display: none;
+}
+.pwa-status p {
+  margin: 0;
+}
+.pwa-update,
+.pwa-status-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pwa-status-actions {
+  flex: none;
+}
+.pwa-offline-page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px;
+}
+.pwa-offline-card {
+  display: flex;
+  width: min(100%, 380px);
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 22px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-shadow-lg);
+  text-align: center;
+}
+.pwa-offline-card h1,
+.pwa-offline-card p {
+  margin: 0;
+}
+.pwa-offline-card h1 {
+  font-size: 20px;
+}
+.pwa-offline-card p {
+  color: var(--ui-text-soft);
+  line-height: 1.6;
+}
+.pwa-offline-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-size: 24px;
+}
+.athlete-calendar-nav {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+.athlete-calendar-nav .ui-btn {
+  min-width: 44px;
+}
+
+@media (max-width: 768px), (hover: none) and (pointer: coarse), (prefers-reduced-transparency: reduce) {
+  body {
+    background-attachment: scroll;
+  }
+
+  .ui-card,
+  .ui-list,
+  .ui-stat,
+  .ui-payment-summary,
+  .app-topbar,
+  .app-bottom-nav,
+  .ui-modal-panel,
+  .ui-input,
+  .ui-select,
+  .ui-textarea,
+  .ui-btn,
+  .ui-badge,
+  .pwa-status,
+  .pwa-install,
+  .pwa-install-card,
+  .pwa-offline-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }

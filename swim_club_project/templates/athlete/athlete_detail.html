@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="dashboard">
+    <div class="dashboard" data-tab-group="athlete-detail">
 
         <!-- YENİ CAM EFEKTİ (GLASSMORPHISM) PROFİL KARTI -->
         <div class="profile-hero-card mb-6">
             <div class="profile-hero-top">
-                <a href="javascript:history.back()" class="profile-hero-back-btn" title="Geri" aria-label="Geri">‹</a>
+                <a href="{% url 'athlete-manage-list' %}" class="profile-hero-back-btn" title="Sporcu listesine dön" aria-label="Sporcu listesine dön">‹</a>
                 <h1 class="profile-hero-title">Sporcu Profili</h1>
                 <div class="w-9"></div> <!-- Simetri Dengesi İçin Boşluk -->
             </div>
@@ -40,7 +40,11 @@
                         hx-swap="innerHTML"
                     >✎ Düzenle</button>
                         {% if request.user.is_club_admin %}
-                            <a href="#" class="ui-btn ui-btn-sm ui-btn-primary">+ Ödeme Ekle</a>
+                            <button type="button"
+                                    class="ui-btn ui-btn-sm ui-btn-primary"
+                                    hx-get="{% url 'athlete-manage-payment-create' athlete.pk %}"
+                                    hx-target="#modal-container"
+                                    hx-swap="innerHTML">+ Ödeme Ekle</button>
                         {% endif %}
                     </div>
              
@@ -49,18 +53,15 @@
 
 
         <!-- PANEL SEKMELERİ -->
-        <div class="dashboard-tabs mt-6">
+        <div class="dashboard-tabs mt-6" role="tablist" aria-label="Sporcu detay bölümleri">
             <button type="button" 
                     id="collections-tab-button" 
                     data-dashboard-tab="collections" 
                     class="dashboard-tab active" role="tab" 
                     aria-selected="true" 
-                    aria-controls="collections-tab" 
-                    data-dashboard-tab-bound="true">
+                    aria-controls="collections-tab">
 
-                    <span class="dashboard-tab-icon" aria-hidden="true">
-                        ₺
-                    </span>
+                    <span class="dashboard-tab-icon" aria-hidden="true">✓</span>
 
                     <span>
                         Antrenman 
@@ -78,12 +79,7 @@
                 aria-controls="expenses-tab"
              >
 
-                <span
-                    class="dashboard-tab-icon"
-                    aria-hidden="true"
-                >
-                    ↗
-                </span>
+                <span class="dashboard-tab-icon" aria-hidden="true">₺</span>
 
                 <span>
                     Ödemeler
@@ -101,12 +97,7 @@
                 aria-controls="equipment-sales-tab"
              >
 
-                <span
-                    class="dashboard-tab-icon"
-                    aria-hidden="true"
-                >
-                    ↗
-                </span>
+                <span class="dashboard-tab-icon" aria-hidden="true">▣</span>
 
                 <span>
                     Malzeme
@@ -119,6 +110,7 @@
                  <!-- ANTRENMAN İSTATİSTİKLERİ PANELİ -->
 
 <section id="collections-tab"
+         data-tab-panel="collections"
          class="dashboard-panel"
          role="tabpanel"
          aria-labelledby="collections-tab-button">
@@ -209,12 +201,22 @@
 
                 </div>
 
-                <button
-                    type="button"
-                    class="ui-btn ui-btn-sm ui-btn-ghost shrink-0"
-                >
-                    ← Bugün
-                </button>
+                <div class="athlete-calendar-nav">
+                    {% if attendance_previous_period %}
+                        <a href="{% url 'athlete-manage-detail' athlete.pk %}?attendance_month={{ attendance_previous_period }}"
+                           class="ui-btn ui-btn-sm ui-btn-ghost"
+                           aria-label="Önceki ay">‹</a>
+                    {% endif %}
+                    {% if attendance_period != attendance_current_period %}
+                        <a href="{% url 'athlete-manage-detail' athlete.pk %}?attendance_month={{ attendance_current_period }}"
+                           class="ui-btn ui-btn-sm ui-btn-ghost">Bugün</a>
+                    {% endif %}
+                    {% if attendance_next_period %}
+                        <a href="{% url 'athlete-manage-detail' athlete.pk %}?attendance_month={{ attendance_next_period }}"
+                           class="ui-btn ui-btn-sm ui-btn-ghost"
+                           aria-label="Sonraki ay">›</a>
+                    {% endif %}
+                </div>
 
             </div>
 
@@ -237,10 +239,7 @@
                     {% for day in week %}
 
                         {% if day %}
-                        {% now 'd' as today_day %}
-                        
-
-                            <div class="ui-calendar-day-cell  {% if day.number == today_day|add:"0" %} is-today {% endif %} ">
+                            <div class="ui-calendar-day-cell {% if day.is_today %}is-today{% endif %}">
 
 
                                 <!-- GÜN NUMARASI -->
@@ -367,6 +366,7 @@
         <!-- AYLIK ÖDEMELER GRUBU -->
         {% if request.user.is_club_admin %}
             <section     id="expenses-tab"
+                        data-tab-panel="expenses"
                         class="dashboard-panel hidden"
                         role="tabpanel"
                         aria-labelledby="expenses-tab-button">
@@ -397,6 +397,7 @@
 
         <!-- MALZEME SATIŞLARI PANELİ -->
         <section id="equipment-sales-tab"
+                 data-tab-panel="equipment-sales"
                  class="dashboard-panel hidden"
                  role="tabpanel"
                  aria-labelledby="equipment-sales-tab-button"
@@ -404,7 +405,11 @@
             <div class="ui-payment-header-group mb-3">
                 <h3 class="ui-section-title">Malzeme Satışları</h3>
                 {% if request.user.is_coach or request.user.is_club_admin or request.user.is_finance or request.user.is_superuser %} 
-                    <button class="ui-btn ui-btn-sm ui-btn-primary">+ Dağıtım Ekle</button>
+                    <button type="button"
+                            class="ui-btn ui-btn-sm ui-btn-primary"
+                            hx-get="{% url 'athlete-manage-equipment-sale-create' athlete.pk %}"
+                            hx-target="#modal-container"
+                            hx-swap="innerHTML">+ Dağıtım Ekle</button>
                 {% endif %}
             </div>
 

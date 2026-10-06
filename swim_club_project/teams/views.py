@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, time, timedelta
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, Q
 from django.utils.dateparse import parse_date
@@ -474,6 +475,7 @@ def team_update(request, pk):
 	if request.method == 'POST' and form.is_valid():
 		form.save()
 		if return_to_detail:
+			messages.success(request, 'Takım bilgileri güncellendi.')
 			response = render(request, 'team/team_detail.html', {'team': team})
 			response['HX-Redirect'] = request.build_absolute_uri(reverse('team-detail', args=[team.pk]))
 			return response

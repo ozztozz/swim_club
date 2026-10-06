@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db import models
@@ -128,7 +129,8 @@ def athlete_detail(request, pk):
 
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
     first_month = athlete.joined_date.replace(day=1)
-    current_month = date.today().replace(day=1)
+    today = date.today()
+    current_month = today.replace(day=1)
     attendance_first_month = current_month.replace(month=1)
     payments_records = PaymentRecord.objects.filter(
         athlete=athlete,
@@ -332,6 +334,7 @@ def athlete_detail(request, pk):
             calendar_days.append(
                 {
                     'number': day_number,
+                    'is_today': date(year, month_number, day_number) == today,
                     'sessions': [
                         {
                             'label': session,
@@ -399,6 +402,7 @@ def athlete_detail(request, pk):
         'other_payments': other_payment_items,
         'attendance_months': selected_months,
         'attendance_period': selected_period,
+        'attendance_current_period': current_month.strftime('%Y-%m'),
         'attendance_previous_period': (
             attendance_periods[selected_index + 1]
             if selected_index >= 0 and selected_index < len(attendance_periods) - 1 else None
@@ -559,6 +563,7 @@ def athlete_create_payment(request, pk):
                 payment.paid_at = None
                 payment.collected_by = None
             payment.save()
+            messages.success(request, 'Ödeme kaydedildi.')
             response = HttpResponse(status=204)
             response['HX-Redirect'] = request.build_absolute_uri(
                 reverse('athlete-manage-detail', args=[athlete.pk])
@@ -662,6 +667,7 @@ def athlete_create_equipment_sale(request, pk):
                                 notes='Sporcuya dağıtım',
                             )
                 response = HttpResponse(status=204)
+                messages.success(request, 'Malzeme satışı kaydedildi.')
                 response['HX-Redirect'] = request.build_absolute_uri(
                     reverse('athlete-manage-detail', args=[athlete.pk])
                 )
@@ -750,6 +756,7 @@ def athlete_edit_equipment_sale(request, pk, payment_id):
                 for equipment, quantity, unit_price, color, size in sale_data['items']
             ])
             response = HttpResponse(status=204)
+            messages.success(request, 'Malzeme satışı güncellendi.')
             response['HX-Redirect'] = request.build_absolute_uri(
                 reverse('athlete-manage-detail', args=[athlete.pk])
             )
@@ -963,6 +970,7 @@ def athlete_update(request, pk):
     if request.method == 'POST' and form.is_valid():
         form.save()
         if request.POST.get('return_to_detail'):
+            messages.success(request, 'Sporcu bilgileri güncellendi.')
             response = HttpResponse(status=204)
             response['HX-Redirect'] = request.build_absolute_uri(
                 reverse('athlete-manage-detail', args=[athlete.pk])
@@ -1138,4 +1146,3 @@ def parent_dashboard(request):
         athlete.is_active = False
         athlete.save()
         return Response({'status': 'Sporcu kaydı reddedildi.'})
-

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="dashboard">
+    <div class="dashboard" data-tab-group="fee-management">
         <div class="page-header">
             <div class="page-header-main">
                 <p class="page-eyebrow">Finans</p>
@@ -8,12 +8,12 @@
             </div>
         </div>
 
-        <nav class="ui-teams-tabs" aria-label="Tarife bölümleri" data-tabs>
-            <button type="button" class="ui-teams-tab is-active" data-tab-button="teams">Takım Tarifeleri</button>
-            <button type="button" class="ui-teams-tab" data-tab-button="athletes">Özel Fiyatlar</button>
+        <nav class="ui-teams-tabs" aria-label="Tarife bölümleri" role="tablist">
+            <button type="button" id="fee-tab-teams-button" class="ui-teams-tab is-active" role="tab" aria-selected="true" aria-controls="fee-tab-teams" data-tab-button="teams">Takım Tarifeleri</button>
+            <button type="button" id="fee-tab-athletes-button" class="ui-teams-tab" role="tab" aria-selected="false" aria-controls="fee-tab-athletes" data-tab-button="athletes">Özel Fiyatlar</button>
         </nav>
 
-        <div id="fee-tab-teams" data-tab-panel="teams">
+        <div id="fee-tab-teams" data-tab-panel="teams" role="tabpanel" aria-labelledby="fee-tab-teams-button">
             {% for team in teams %}
                 {% with active_fee=team.fee_histories.first %}
                     <section class="ui-section">
@@ -67,7 +67,7 @@
             {% endfor %}
         </div>
 
-        <section class="ui-section" id="fee-tab-athletes" data-tab-panel="athletes" hidden>
+        <section class="ui-section" id="fee-tab-athletes" data-tab-panel="athletes" role="tabpanel" aria-labelledby="fee-tab-athletes-button" hidden>
             <h2 class="ui-team-group-title">İndirimli / burslu sporcular <span>{{ athletes|length }}</span></h2>
             <div class="ui-card ui-scroll-list">
                 {% for athlete in athletes %}
