@@ -11,6 +11,18 @@ from django import forms
 from .models import Athlete, Team
 
 
+FINANCIAL_FIELDS = ('custom_fee', 'private_lesson_fee', 'regular_payment_day')
+
+# Rolün formda hiç görmemesi (dolayısıyla değiştirememesi) gereken alanlar.
+# Listede olmayan roller de finansal alanları göremez.
+ROLE_HIDDEN_FIELDS = {
+    'admin': (),
+    'coach': FINANCIAL_FIELDS,
+    'finance': FINANCIAL_FIELDS,
+    'parent': FINANCIAL_FIELDS + ('user',),
+}
+
+
 class AthleteForm(forms.ModelForm):
     class Meta:
         model = Athlete
@@ -197,8 +209,13 @@ class AthleteForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, request_user=None, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if request_user is not None:
+            hidden = ROLE_HIDDEN_FIELDS.get(request_user.role, FINANCIAL_FIELDS)
+            for field_name in hidden:
+                self.fields.pop(field_name, None)
 
         # =========================================================
         # AKTİF TAKIMLAR
@@ -215,17 +232,19 @@ class AthleteForm(forms.ModelForm):
         # HTML tarafındaki sınırları garanti et
         # =========================================================
 
-        self.fields['user'].queryset = self.fields['user'].queryset.order_by('first_name', 'last_name', 'email')
-        self.fields['user'].label_from_instance = lambda u: f"{u.get_full_name() or u.username} ({u.email})"
-        self.fields['user'].empty_label = "-- E-posta ile eşleştir --"
-        self.fields['user'].widget.attrs.update({'class': 'ui-select'})
+        if 'user' in self.fields:
+            self.fields['user'].queryset = self.fields['user'].queryset.order_by('first_name', 'last_name', 'email')
+            self.fields['user'].label_from_instance = lambda u: f"{u.get_full_name() or u.username} ({u.email})"
+            self.fields['user'].empty_label = "-- E-posta ile eşleştir --"
+            self.fields['user'].widget.attrs.update({'class': 'ui-select'})
 
-        self.fields['regular_payment_day'].widget.attrs.update({
-            'min': '1',
-            'max': '31',
-            'step': '1',
-            'inputmode': 'numeric',
-        })
+        if 'regular_payment_day' in self.fields:
+            self.fields['regular_payment_day'].widget.attrs.update({
+                'min': '1',
+                'max': '31',
+                'step': '1',
+                'inputmode': 'numeric',
+            })
 
 
 

@@ -935,12 +935,11 @@ def athlete_toggle_active(request, pk):
 
 @login_required
 def athlete_create(request):
-    form = AthleteForm(request.POST or None, request.FILES or None)
+    form = AthleteForm(request.POST or None, request.FILES or None, request_user=request.user)
     if request.user.is_parent:
         form.fields['parent'].initial = request.user.get_full_name()
         form.fields['parent_phone'].initial = request.user.phone_number
         form.fields['parent_email'].initial = request.user.email
-        del form.fields['user']
         form.fields['is_active'].disabled = True
     if request.method == 'POST' and form.is_valid():
         athlete = form.save(commit=False)
@@ -963,15 +962,20 @@ def athlete_create(request):
 @role_required(allowed_roles=['admin', 'club_admin', 'coach'])
 def athlete_update(request, pk):
     athlete = get_object_or_404(_athlete_queryset(request), pk=pk)
-    form = AthleteForm(request.POST or None, request.FILES or None, instance=athlete)
+    form = AthleteForm(request.POST or None, request.FILES or None, instance=athlete, request_user=request.user)
     if request.user.is_parent:
         form.fields['parent'].disabled = True
         form.fields['parent_phone'].disabled = True
         form.fields['parent_email'].disabled = True
-        del form.fields['user']
         form.fields['is_active'].disabled = True
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        athlete_instance = form.save(commit=False)
+        update_fields = list(form.changed_data)
+        athlete_instance.save(update_fields=update_fields)
+
+        messages.success(request, 'Sporcu bilgileri güncellendi.')
+
+
         if request.POST.get('return_to_detail'):
             messages.success(request, 'Sporcu bilgileri güncellendi.')
             response = HttpResponse(status=204)

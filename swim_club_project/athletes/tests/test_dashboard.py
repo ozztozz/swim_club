@@ -1,4 +1,4 @@
-# athletes/tests/test_dashboard.py
+﻿# athletes/tests/test_dashboard.py
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -153,3 +153,61 @@ class DashboardViewsTests(TestCase):
         self.assertEqual(self.athlete.team, team)
         self.assertEqual(self.athlete.custom_fee, 2000.00)
         self.assertEqual(self.athlete.current_monthly_fee, 2000.00)
+
+
+class AthleteUpdateRoleFieldsTests(TestCase):
+    def setUp(self):
+        self.team = Team.objects.create(name='Antrenör Takımı')
+        self.athlete = Athlete.objects.create(
+            parent='Veli Yılmaz',
+            first_name='Ege',
+            last_name='Yılmaz',
+            birth_date=datetime.date(2012, 5, 10),
+            gender='M',
+            joined_date=datetime.date.today(),
+            is_active=True,
+            team=self.team,
+            custom_fee=1800,
+            private_lesson_fee=900,
+            regular_payment_day=10,
+        )
+        self.url = reverse('athlete-manage-update', kwargs={'pk': self.athlete.pk})
+
+    def _post_as(self, role, **extra):
+        user = User.objects.create_user(
+            username=f'{role}_user', email=f'{role}@test.com',
+            password='Password123!', role=role, is_active=True,
+        )
+        self.team.coaches.add(user)
+        self.client.force_login(user)
+        data = {
+            'parent': self.athlete.parent,
+            'first_name': 'Ege Güncellendi',
+            'last_name': self.athlete.last_name,
+            'birth_date': self.athlete.birth_date.isoformat(),
+            'gender': self.athlete.gender,
+            'joined_date': self.athlete.joined_date.isoformat(),
+            'team': self.team.pk,
+            'is_active': 'on',
+            **extra,
+        }
+        response = self.client.post(self.url, data)
+        self.athlete.refresh_from_db()
+        return response
+
+    def test_coach_update_preserves_financial_fields(self):
+        for role in ('coach',):
+            with self.subTest(role=role):
+                response = self._post_as(role, custom_fee='0', private_lesson_fee='1')
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(self.athlete.first_name, 'Ege Güncellendi')
+                self.assertEqual(self.athlete.custom_fee, 1800)
+                self.assertEqual(self.athlete.private_lesson_fee, 900)
+                self.assertEqual(self.athlete.regular_payment_day, 10)
+
+    def test_admin_can_update_financial_fields(self):
+        response = self._post_as('admin', custom_fee='2500', private_lesson_fee='', regular_payment_day='5')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.athlete.custom_fee, 2500)
+        self.assertIsNone(self.athlete.private_lesson_fee)
+        self.assertEqual(self.athlete.regular_payment_day, 5)
