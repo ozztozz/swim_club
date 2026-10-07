@@ -23,10 +23,13 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name', 'phone_number', 'role')
+                extra_kwargs = {'username': {'required': False}}
 
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
+            def create(self, validated_data):
+                first_name = validated_data.get('first_name', '')
+                last_name = validated_data.get('last_name', '')
+                user = User.objects.create_user(
+                    username=validated_data.get('username') or User.generate_username(first_name, last_name),
             email=validated_data['email'],
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),

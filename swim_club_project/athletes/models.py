@@ -1,13 +1,34 @@
 # athletes/models.py
+from django.conf import settings
 from django.db import models
 from teams.models import Team
+
+
+class AthleteQuerySet(models.QuerySet):
+    def for_parent(self, user):
+        """Velinin sporcuları: bağlı kullanıcı; bağlanmamış kayıtlarda e-posta eşleşmesi."""
+        email = (user.email or '').strip()
+        condition = models.Q(user=user)
+        if email:
+            condition |= models.Q(user__isnull=True, parent_email__iexact=email)
+        return self.filter(condition)
+
 
 class Athlete(models.Model):
     GENDER_CHOICES = (
         ('M', 'Erkek'),
         ('F', 'Kadın'),
     )
-
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='children',
+        verbose_name="Veli hesabı",
+        null=True,
+        blank=True,
+        limit_choices_to={'role': 'parent'},
+    )
+    objects = AthleteQuerySet.as_manager()
     parent = models.CharField(max_length=150, verbose_name="Veli")
     parent_phone = models.CharField(max_length=20, blank=True, default='', verbose_name="Veli Telefonu")
     parent_email = models.EmailField(blank=True, default='', verbose_name="Veli E-postası")
@@ -82,6 +103,12 @@ class Athlete(models.Model):
             self.parent = full_name or parent_user.email
             self.parent_email = self.parent_email or parent_user.email
             self.parent_phone = self.parent_phone or parent_user.phone_number or ''
+        if self.user_id is None and self.parent_email:
+            from django.contrib.auth import get_user_model
+
+            self.user = get_user_model().objects.filter(
+                role='parent', email__iexact=self.parent_email.strip()
+            ).first()
         super().save(*args, **kwargs)
 
 

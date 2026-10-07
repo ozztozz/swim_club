@@ -6,6 +6,7 @@ from django.shortcuts import render
 from users.models import User
 from .views_accounts import _get_admin_dashboard_context
 from .views_coach import _get_coach_dashboard_context
+from .views_parent import _get_parent_dashboard_context
 @login_required(login_url="user-login")
 def dashboard(request):
     """
@@ -35,6 +36,7 @@ def dashboard(request):
 
     elif role == User.Role.PARENT:
         template = "dashboard/parent.html"
+        context.update(_get_parent_dashboard_context(request.user))
 
     else:
         template = "dashboard/unknown.html"

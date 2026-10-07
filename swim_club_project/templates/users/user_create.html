@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-header-main">
+            <p class="page-eyebrow">Yönetim</p>
+            <h1 class="page-title">Yeni kullanıcı</h1>
+        </div>
+    </div>
+    <a href="{% url 'user-list' %}" class="ui-btn ui-btn-sm ui-btn-secondary">Kullanıcılar</a>
+</div>
+<div class="dashboard">
+    <form method="post" class="ui-card ui-modal-form" style="padding:18px" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="ui-field">
+                <label class="ui-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<p class="ui-error">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+        <p class="ui-help">Kullanıcı adı ad ve soyaddan otomatik üretilir. Şifreyi kullanıcı, paylaşacağınız bağlantıdan kendisi belirler.</p>
+        <div class="mt-4">
+            <button type="submit" class="ui-btn ui-btn-dark w-full justify-center">Kullanıcıyı oluştur</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

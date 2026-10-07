@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-header-main">
+            <p class="page-eyebrow">Yönetim</p>
+            <h1 class="page-title">Kullanıcılar</h1>
+        </div>
+    </div>
+    <a href="{% url 'user-create' %}" class="ui-btn ui-btn-sm ui-btn-dark">Yeni kullanıcı</a>
+</div>
+<div class="dashboard">
+    {% for message in messages %}
+        <div class="ui-badge {% if message.tags == 'error' %}ui-badge-danger{% else %}ui-badge-success{% endif %} w-full py-2.5 px-4 rounded-xl text-xs font-medium justify-start">{{ message }}</div>
+    {% endfor %}
+
+    <div class="ui-card" style="padding:12px 16px;display:flex;justify-content:space-around;text-align:center">
+        <div><p class="ui-list-title">{{ total }}</p><p class="ui-list-subtitle">Toplam</p></div>
+        <div><p class="ui-list-title">{{ pending_count }}</p><p class="ui-list-subtitle">Şifre bekleyen</p></div>
+        {% for value, label, count in role_tabs %}
+            <div><p class="ui-list-title">{{ count }}</p><p class="ui-list-subtitle">{{ label }}</p></div>
+        {% endfor %}
+    </div>
+
+    <form method="get" class="ui-card ui-modal-form" style="padding:12px 16px;display:grid;gap:8px">
+        <input type="search" name="q" value="{{ query }}" class="ui-input" placeholder="Ad, kullanıcı adı, e-posta veya telefon ara" autocomplete="off">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <select name="role" class="ui-select" onchange="this.form.submit()">
+                <option value="">Tüm roller</option>
+                {% for value, label, count in role_tabs %}
+                    <option value="{{ value }}" {% if role == value %}selected{% endif %}>{{ label }} ({{ count }})</option>
+                {% endfor %}
+            </select>
+            <select name="state" class="ui-select" onchange="this.form.submit()">
+                <option value="">Tüm durumlar</option>
+                <option value="active" {% if state == 'active' %}selected{% endif %}>Aktif</option>
+                <option value="pending" {% if state == 'pending' %}selected{% endif %}>Şifre bekliyor</option>
+                <option value="inactive" {% if state == 'inactive' %}selected{% endif %}>Pasif</option>
+            </select>
+        </div>
+        <div style="display:flex;gap:8px">
+            <button type="submit" class="ui-btn ui-btn-sm ui-btn-dark">Ara</button>
+            {% if query or role or state %}<a href="{% url 'user-list' %}" class="ui-btn ui-btn-sm ui-btn-secondary">Temizle</a>{% endif %}
+        </div>
+    </form>
+
+    <div class="ui-card ui-scroll-list">
+        {% for item in users %}
+            <div class="ui-list-item" style="flex-wrap:wrap;gap:8px{% if not item.is_active %};opacity:.6{% endif %}">
+                <div class="ui-list-content" style="min-width:0">
+                    <p class="ui-list-title">{{ item.get_full_name|default:item.username }}</p>
+                    <p class="ui-list-subtitle">{{ item.username }} · {{ item.email }}{% if item.phone_number %} · {{ item.phone_number }}{% endif %}</p>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+                        <span class="ui-badge ui-badge-neutral">{{ item.get_role_display }}</span>
+                        {% if not item.is_active %}
+                            <span class="ui-badge ui-badge-danger">Pasif</span>
+                        {% elif not item.has_usable_password %}
+                            <span class="ui-badge ui-badge-warning">Şifre bekliyor</span>
+                        {% else %}
+                            <span class="ui-badge ui-badge-success">Aktif</span>
+                        {% endif %}
+                        {% if item.role == 'parent' %}<span class="ui-badge ui-badge-neutral">{{ item.child_count }} sporcu</span>{% endif %}
+                    </div>
+                </div>
+                <div class="ui-list-end" style="display:flex;gap:6px">
+                    <a href="{% url 'user-invite' item.pk %}" class="ui-btn ui-btn-sm ui-btn-secondary">Bağlantı</a>
+                    {% if item.pk != request.user.pk %}
+                    <form method="post" action="{% url 'user-toggle-active' item.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="ui-btn ui-btn-sm ui-btn-secondary">{% if item.is_active %}Pasifleştir{% else %}Aktifleştir{% endif %}</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="ui-empty"><p class="ui-empty-description">Aramanıza uyan kullanıcı yok.</p></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

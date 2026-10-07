@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-header-main">
+            <p class="page-eyebrow">Yönetim</p>
+            <h1 class="page-title">Şifre bağlantısı</h1>
+        </div>
+    </div>
+    <a href="{% url 'user-list' %}" class="ui-btn ui-btn-sm ui-btn-secondary">Kullanıcılar</a>
+</div>
+<div class="dashboard">
+    {% for message in messages %}
+        <div class="ui-badge ui-badge-success w-full py-2.5 px-4 rounded-xl text-xs font-medium justify-start">{{ message }}</div>
+    {% endfor %}
+    <div class="ui-card ui-scroll-list">
+        <div class="ui-list-item">
+            <div class="ui-list-content">
+                <p class="ui-list-title">{{ target.get_full_name }}</p>
+                <p class="ui-list-subtitle">{{ target.get_role_display }} · {{ target.email }}</p>
+            </div>
+            <div class="ui-list-end">
+                {% if has_password %}<span class="ui-badge ui-badge-success">Şifre belirlendi</span>{% else %}<span class="ui-badge ui-badge-warning">Şifre bekliyor</span>{% endif %}
+            </div>
+        </div>
+        <div class="ui-list-item">
+            <div class="ui-list-content">
+                <p class="ui-list-subtitle">Kullanıcı adı</p>
+                <p class="ui-list-title">{{ target.username }}</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="ui-section">
+        <h2 class="ui-team-group-title">Şifre belirleme bağlantısı <span>{{ valid_days }} gün geçerli</span></h2>
+        <div class="ui-card" style="padding:16px">
+            <input id="setup-link" class="ui-input" type="text" readonly value="{{ setup_link }}" onfocus="this.select()">
+            <div class="mt-3" style="display:grid;gap:8px">
+                <button type="button" id="share-link" class="ui-btn ui-btn-dark w-full justify-center"
+                        data-title="Alpha Academy - Şifre belirleme"
+                        data-text="Merhaba {{ target.first_name }}, Alpha Academy hesabınız hazır. Kullanıcı adınız: {{ target.username }}. Şifrenizi bu bağlantıdan belirleyin:">
+                    Paylaş
+                </button>
+                <button type="button" id="copy-link" class="ui-btn ui-btn-secondary w-full justify-center">Bağlantıyı kopyala</button>
+            </div>
+            <p class="ui-help mt-3">Şifre belirlendiğinde veya süre dolduğunda bağlantı geçersiz olur; bu sayfadan yenisi alınabilir.</p>
+        </div>
+    </section>
+</div>
+<script>
+(function () {
+    var input = document.getElementById('setup-link');
+    var shareBtn = document.getElementById('share-link');
+    var copyBtn = document.getElementById('copy-link');
+    function notify(msg) {
+        if (window.showToast) { window.showToast(msg); } else { alert(msg); }
+    }
+    function copy() {
+        var done = function () { notify('Bağlantı kopyalandı'); };
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(input.value).then(done);
+        } else {
+            input.select(); document.execCommand('copy'); done();
+        }
+    }
+    copyBtn.addEventListener('click', copy);
+    shareBtn.addEventListener('click', function () {
+        if (navigator.share) {
+            navigator.share({ title: shareBtn.dataset.title, text: shareBtn.dataset.text, url: input.value }).catch(function () {});
+        } else {
+            window.open('https://wa.me/?text=' + encodeURIComponent(shareBtn.dataset.text + ' ' + input.value), '_blank', 'noopener');
+        }
+    });
+})();
+</script>
+{% endblock %}

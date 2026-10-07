@@ -1,12 +1,12 @@
-from django.http import HttpResponse
+﻿from django.http import HttpResponse
 
 
 MANIFEST = """
 {
     "id": "/",
-    "name": "Alpha Academy Kulüp Yönetim Paneli",
+    "name": "Alpha Academy KulÃ¼p YÃ¶netim Paneli",
     "short_name": "Alpha",
-    "description": "Alpha Academy spor kulübü yönetim paneli",
+    "description": "Alpha Academy spor kulÃ¼bÃ¼ yÃ¶netim paneli",
     "start_url": "/dashboard/",
     "scope": "/",
     "display": "standalone",
@@ -48,7 +48,7 @@ MANIFEST = """
 """.strip()
 
 SERVICE_WORKER = """
-const CACHE_NAME = "alphaacademy-static-v11";
+const CACHE_NAME = "alphaacademy-static-v13";
 const CACHE_PREFIX = "alphaacademy-static-";
 const STATIC_ASSETS = [
     "/manifest.webmanifest",

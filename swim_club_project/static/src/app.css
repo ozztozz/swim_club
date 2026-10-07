@@ -6403,3 +6403,26 @@ select.select,
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
+
+/* Klavye açýkken modal, görünür alanýn üstünde kalýr */
+.app-overlay {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom) + var(--keyboard-inset, 0px));
+  height: 100dvh;
+}
+.app-overlay .app-modal,
+.app-overlay .ui-modal-panel,
+.app-overlay .modal-box {
+  max-height: calc(100dvh - var(--keyboard-inset, 0px) - 32px);
+}
+
+/* Kullanýcý menüsü: .ui-card width:100% tetikleyici geniþliðine daralýyordu */
+#topbar-user-dropdown {
+  width: 240px;
+  max-width: calc(100vw - 32px);
+  background-color: rgba(255, 255, 255, 0.97);
+}
+@media (prefers-color-scheme: dark) {
+  #topbar-user-dropdown {
+    background-color: rgba(36, 36, 39, 0.97);
+  }
+}

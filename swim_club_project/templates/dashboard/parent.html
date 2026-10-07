@@ -1,18 +1,126 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<div class="page-header">
-    <div>
-        <div class="page-header-main">
-            <p class="page-eyebrow">Veli</p>
-            <h1 class="page-title">Veli Paneli</h1>
+<div class="dashboard">
+    <div class="profile-hero-card">
+        <div class="profile-hero-content">
+            <span class="profile-hero-subtitle">{{ parent_today|date:"l, d F Y" }}</span>
+            <h1 class="profile-hero-name">Merhaba, {{ request.user.first_name|default:request.user.email }}</h1>
+            <div class="ui-stat-grid">
+                <div class="ui-stat">
+                    <p class="ui-stat-label">Sporcu</p>
+                    <span class="ui-stat-value">{{ parent_child_count }}</span>
+                </div>
+                <div class="ui-stat">
+                    <p class="ui-stat-label">Bekleyen ödeme</p>
+                    <span class="ui-stat-value">{{ parent_total_due }} ₺</span>
+                    {% if parent_overdue_count %}
+                        <p class="ui-stat-description ui-text-danger">{{ parent_overdue_count }} gecikmiş</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="ui-card">
-    Veli dashboard
-</div>
+    {% for item in parent_children %}
+        <section class="ui-section">
+            <h2 class="ui-team-group-title">{{ item.athlete.get_full_name }}
+                <span>{{ item.athlete.team.name|default:"Takım yok" }}</span>
+            </h2>
+            <div class="ui-card">
+                {% if not item.athlete.is_active %}
+                    <div class="ui-list-item">
+                        <div class="ui-list-content">
+                            <p class="ui-list-title">Kayıt onayı bekleniyor</p>
+                            <p class="ui-list-subtitle">Kulüp yönetimi onayladığında bilgiler burada görünür.</p>
+                        </div>
+                        <div class="ui-list-end"><span class="ui-badge ui-badge-warning">Beklemede</span></div>
+                    </div>
+                {% else %}
+                    <div class="ui-list-item">
+                        <div class="ui-list-content">
+                            <p class="ui-list-title">Sonraki antrenman</p>
+                            {% if item.next_session %}
+                                <p class="ui-list-subtitle">
+                                    {% if item.next_session.is_today %}Bugün{% else %}{{ item.next_session.date|date:"d F, l" }}{% endif %}
+                                    · {{ item.next_session.schedule.start_time|time:"H:i" }} – {{ item.next_session.schedule.end_time|time:"H:i" }}
+                                    {% if item.next_session.schedule.location %}· {{ item.next_session.schedule.location }}{% endif %}
+                                </p>
+                            {% else %}
+                                <p class="ui-list-subtitle">Planlanmış antrenman yok.</p>
+                            {% endif %}
+                        </div>
+                        <div class="ui-list-end">
+                            {% if item.next_session.is_today %}<span class="ui-badge ui-badge-primary">Bugün</span>{% endif %}
+                        </div>
+                    </div>
 
+                    <div class="ui-list-item">
+                        <div class="ui-list-content">
+                            <p class="ui-list-title">Katılım</p>
+                            <p class="ui-list-subtitle">Son 30 gün{% if item.attendance_total %} · {{ item.attendance_total }} antrenman{% endif %}</p>
+                        </div>
+                        <div class="ui-list-end">
+                            {% if item.attendance_rate is None %}
+                                <span class="ui-badge ui-badge-neutral">Kayıt yok</span>
+                            {% elif item.attendance_rate >= 75 %}
+                                <span class="ui-badge ui-badge-success">%{{ item.attendance_rate }}</span>
+                            {% elif item.attendance_rate >= 50 %}
+                                <span class="ui-badge ui-badge-warning">%{{ item.attendance_rate }}</span>
+                            {% else %}
+                                <span class="ui-badge ui-badge-danger">%{{ item.attendance_rate }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="ui-list-item">
+                        <div class="ui-list-content">
+                            <p class="ui-list-title">Ödemeler</p>
+                            <p class="ui-list-subtitle">
+                                {% if item.pending_count %}{{ item.pending_count }} bekleyen · {{ item.due_amount }} ₺{% else %}Bekleyen ödeme yok{% endif %}
+                            </p>
+                        </div>
+                        <div class="ui-list-end">
+                            {% if item.overdue_count %}
+                                <span class="ui-badge ui-badge-danger">{{ item.overdue_count }} gecikmiş</span>
+                            {% elif item.pending_count %}
+                                <span class="ui-badge ui-badge-warning">Bekliyor</span>
+                            {% else %}
+                                <span class="ui-badge ui-badge-success">Güncel</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% for payment in item.pending_payments %}
+                        <div class="ui-list-item">
+                            <div class="ui-list-content">
+                                <p class="ui-list-title">{{ payment.get_payment_type_display }} · {{ payment.period }}</p>
+                                <p class="ui-list-subtitle">Son ödeme: {{ payment.due_date|date:"d.m.Y" }}</p>
+                            </div>
+                            <div class="ui-list-end">
+                                <span class="ui-badge {% if payment.is_overdue %}ui-badge-danger{% else %}ui-badge-neutral{% endif %}">{{ payment.amount }} ₺</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <a class="ui-list-item" href="{% url 'athlete-manage-detail' item.athlete.pk %}">
+                    <div class="ui-list-content">
+                        <p class="ui-list-title">Sporcu detayı</p>
+                    </div>
+                    <div class="ui-list-end">›</div>
+                </a>
+            </div>
+        </section>
+    {% empty %}
+        <section class="ui-section">
+            <div class="ui-card">
+                <div class="ui-empty">
+                    <div class="ui-empty-icon">🏊</div>
+                    <p class="ui-empty-description">Hesabınızla eşleşen sporcu bulunamadı.</p>
+                </div>
+            </div>
+        </section>
+    {% endfor %}
+</div>
 {% endblock %}

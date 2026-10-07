@@ -1,7 +1,10 @@
 
 # apps/users/models.py
+import re
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+TR_MAP = str.maketrans('çğıöşüÇĞİÖŞÜ', 'cgiosuCGIOSU')
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -31,6 +34,23 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.get_full_name()} ({self.get_role_display()})"
 
+    @classmethod
+    def generate_username(cls, first_name, last_name, exclude_pk=None):
+        """Ad ve soyaddan ascii, küçük harfli ve benzersiz kullanıcı adı üretir (ali.yilmaz, ali.yilmaz2)."""
+        parts = f'{first_name or ""} {last_name or ""}'.translate(TR_MAP).lower().split()
+        base = '.'.join(re.sub(r'[^a-z0-9]', '', part) for part in parts)
+        base = re.sub(r'\.+', '.', base).strip('.')[:140] or 'kullanici'
+        existing = cls.objects.exclude(pk=exclude_pk)
+        candidate, counter = base, 1
+        while existing.filter(username__iexact=candidate).exists():
+            counter += 1
+            candidate = f'{base}{counter}'
+        return candidate
+
+    def save(self, *args, **kwargs):
+        if not self.username:
+            self.username = self.generate_username(self.first_name, self.last_name, self.pk)
+        super().save(*args, **kwargs)
     @property
     def is_parent(self):
         return self.role == self.Role.PARENT
@@ -50,4 +70,4 @@ class User(AbstractUser):
     @property
     def athletes(self):
         from athletes.models import Athlete
-        return Athlete.objects.filter(parent_email=self.email)
+        return Athlete.objects.for_parent(self)

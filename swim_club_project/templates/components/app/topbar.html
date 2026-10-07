@@ -78,6 +78,11 @@
                         <span>🔒</span> Şifre Değiştir
                     </a>
 
+                    {% if request.user.is_club_admin or request.user.is_superuser %}
+                    <a href="{% url 'user-list' %}" class="flex items-center gap-2 p-2 rounded-xl text-xs font-medium text-[var(--ui-text-soft)] hover:bg-[var(--ui-surface-3)]/50 transition-colors">
+                        <span>👥</span> Kullanıcı Yönetimi
+                    </a>
+                    {% endif %}
                     <!-- Menü Altı: Çıkış Yap Formu (Güvenli CSRF Yapısı Tamamen Korundu) -->
                     <form method="post" action="{% url 'user-logout' %}" class="block mt-1 pt-1 border-t border-[var(--ui-border-dark)]">
                         {% csrf_token %}

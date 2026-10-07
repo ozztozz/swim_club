@@ -322,6 +322,19 @@
 
                                 </div>
 
+                                {% if form.user %}
+                                <div class="ui-field ui-field-full">
+                                    <label for="{{ form.user.id_for_label }}" class="ui-label">
+                                        Veli hesabı
+                                    </label>
+                                    {{ form.user }}
+                                    <p class="ui-help">Seçilirse veli, sporcuyu kendi panelinde görür. Boşsa e-posta eşleşmesi kullanılır.</p>
+                                    {% if form.user.errors %}
+                                        <p class="ui-error">{{ form.user.errors }}</p>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
                             </div>
 
                         </div>

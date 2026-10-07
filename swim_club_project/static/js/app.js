@@ -612,6 +612,8 @@ function showToast(message) {
         }, 180);
     }, 2800);
 }
+window.showToast = showToast;
+
 
     window.showToast = showToast;
 
@@ -816,5 +818,28 @@ function showToast(message) {
         }
     );
 
+    // Mobil klavye açıkken modalın klavyenin altında kalmaması için
+    (function () {
+        var vv = window.visualViewport;
+        if (!vv) return;
+        var root = document.documentElement;
+
+        function update() {
+            var inset = Math.max(
+                0,
+                window.innerHeight - vv.height - vv.offsetTop
+            );
+            root.style.setProperty("--keyboard-inset", inset + "px");
+            if (inset > 0) {
+                var el = document.activeElement;
+                if (el && el.closest && el.closest(".app-overlay")) {
+                    el.scrollIntoView({ block: "center" });
+                }
+            }
+        }
+
+        vv.addEventListener("resize", update);
+        vv.addEventListener("scroll", update);
+    })();
 
 })();

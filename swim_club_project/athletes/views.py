@@ -57,7 +57,7 @@ def _athlete_queryset(request):
     if request.user.is_coach:
         return queryset.filter(team__coaches=request.user)
     if request.user.is_parent:
-        return queryset.filter(parent_email=request.user.email)
+        return queryset.for_parent(request.user)
     return queryset
 
 
@@ -940,6 +940,7 @@ def athlete_create(request):
         form.fields['parent'].initial = request.user.get_full_name()
         form.fields['parent_phone'].initial = request.user.phone_number
         form.fields['parent_email'].initial = request.user.email
+        del form.fields['user']
         form.fields['is_active'].disabled = True
     if request.method == 'POST' and form.is_valid():
         athlete = form.save(commit=False)
@@ -947,6 +948,7 @@ def athlete_create(request):
             athlete.parent = request.user.get_full_name()
             athlete.parent_phone = request.user.phone_number
             athlete.parent_email = request.user.email
+            athlete.user = request.user
             athlete.is_active = False
         athlete.save()
         response = render(request, 'athlete/partials/athlete_table.html', _athlete_context(request))
@@ -966,6 +968,7 @@ def athlete_update(request, pk):
         form.fields['parent'].disabled = True
         form.fields['parent_phone'].disabled = True
         form.fields['parent_email'].disabled = True
+        del form.fields['user']
         form.fields['is_active'].disabled = True
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -1073,7 +1076,7 @@ def edit_athlete_team_htmx(request, pk):
 @login_required
 def parent_dashboard(request):
     # Giriş yapan velinin onaylı/onaysız çocukları
-    children = list(Athlete.objects.filter(parent_email=request.user.email).select_related('team'))
+    children = list(Athlete.objects.for_parent(request.user).select_related('team'))
     
     # Çocukların tüm ödeme kayıtları
     payments = list(PaymentRecord.objects.filter(
@@ -1101,7 +1104,7 @@ def parent_dashboard(request):
         if user.is_club_admin or user.is_coach or user.is_finance:
             return Athlete.objects.all()
         if user.is_parent:
-            return Athlete.objects.filter(parent_email=user.email)
+            return Athlete.objects.for_parent(user)
         return Athlete.objects.none()
 
     def perform_create(self, serializer):
@@ -1111,6 +1114,7 @@ def parent_dashboard(request):
                 parent=self.request.user.get_full_name(),
                 parent_phone=self.request.user.phone_number or '',
                 parent_email=self.request.user.email or '',
+                user=self.request.user,
                 is_active=False,
             )
         else:

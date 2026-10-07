@@ -19,6 +19,7 @@ class AthleteForm(forms.ModelForm):
             'parent',
             'parent_phone',
             'parent_email',
+            'user',
             'first_name',
             'last_name',
             'phone_number',
@@ -213,6 +214,11 @@ class AthleteForm(forms.ModelForm):
         # ÖDEME GÜNÜ
         # HTML tarafındaki sınırları garanti et
         # =========================================================
+
+        self.fields['user'].queryset = self.fields['user'].queryset.order_by('first_name', 'last_name', 'email')
+        self.fields['user'].label_from_instance = lambda u: f"{u.get_full_name() or u.username} ({u.email})"
+        self.fields['user'].empty_label = "-- E-posta ile eşleştir --"
+        self.fields['user'].widget.attrs.update({'class': 'ui-select'})
 
         self.fields['regular_payment_day'].widget.attrs.update({
             'min': '1',
