@@ -73,9 +73,17 @@
         if (updateAccepted) window.location.reload();
     });
 
-    navigator.serviceWorker.register("/sw.js", { scope: "/" })
+    navigator.serviceWorker.register("/sw.js", {
+        scope: "/",
+        updateViaCache: "none"
+    })
         .then(function (currentRegistration) {
             registration = currentRegistration;
+
+            return registration.update();
+        })
+        .then(function () {
+            if (!registration) return;
 
             if (registration.waiting) showUpdate();
 
