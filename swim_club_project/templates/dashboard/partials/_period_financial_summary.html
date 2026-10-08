@@ -38,26 +38,26 @@
         <div class="flex flex-col gap-2">
             {% for row in period_financial_rows %}
                 <a class="ui-stat block hover:no-underline transition-transform hover:scale-[1.005]" href="{% url 'dashboard:admin-finance' %}?period={{ row.period }}">
-                    <div class="grid grid-cols-2 items-center gap-3 md:grid-cols-5">
-                        <div class="ui-stat-content">
-                            <span class="ui-stat-label">{{ row.label }}</span>
-                            <span class="ui-stat-description">{{ row.period }} dönemi</span>
+                    <div class="grid grid-cols-5 items-center gap-1.5">
+                        <div class="ui-stat-content min-w-0">
+                            <span class="ui-stat-label block truncate">{{ row.label }}</span>
+                            <span class="ui-stat-description block truncate">{{ row.period }}</span>
                         </div>
-                        <div>
-                            <span class="ui-stat-label {{ row.net_class }}">Net</span>
-                            <strong class="block text-base {{ row.net_class }}">{{ row.net_prefix }}{{ row.net|floatformat:0 }} TL</strong>
+                        <div class="min-w-0">
+                            <span class="ui-stat-label {{ row.net_class }} block whitespace-nowrap text-[9px]">Net</span>
+                            <strong class="block truncate text-sm {{ row.net_class }}">{{ row.net_prefix }}{{ row.net|floatformat:0 }}</strong>
                         </div>
-                        <div>
-                            <span class="ui-stat-label ui-text-success">Tahsilat</span>
-                            <strong class="block text-sm ui-text-success">{{ row.collected|floatformat:0 }} TL</strong>
+                        <div class="min-w-0">
+                            <span class="ui-stat-label ui-text-success block whitespace-nowrap text-[9px]">Tahsilat</span>
+                            <strong class="block truncate text-xs ui-text-success">{{ row.collected|floatformat:0 }}</strong>
                         </div>
-                        <div>
-                            <span class="ui-stat-label ui-text-danger">Ödeme</span>
-                            <strong class="block text-sm ui-text-danger">{{ row.paid|floatformat:0 }} TL</strong>
+                        <div class="min-w-0">
+                            <span class="ui-stat-label ui-text-danger block whitespace-nowrap text-[9px]">Ödeme</span>
+                            <strong class="block truncate text-xs ui-text-danger">{{ row.paid|floatformat:0 }}</strong>
                         </div>
-                        <div>
-                            <span class="ui-stat-label ui-text-warning">Bekleyen</span>
-                            <strong class="block text-sm ui-text-warning">{{ row.pending|floatformat:0 }} TL</strong>
+                        <div class="min-w-0">
+                            <span class="ui-stat-label ui-text-warning block whitespace-nowrap text-[9px]">Bekleyen</span>
+                            <strong class="block truncate text-xs ui-text-warning">{{ row.pending|floatformat:0 }}</strong>
                         </div>
                     </div>
                 </a>
