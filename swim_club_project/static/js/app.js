@@ -20,6 +20,37 @@
 
 
     /* =========================================================
+       CATEGORY PICKER
+       ========================================================= */
+
+    document.addEventListener("change", function (event) {
+        const input = event.target;
+
+        if (
+            !(input instanceof HTMLInputElement) ||
+            input.name !== "category" ||
+            input.type !== "radio"
+        ) {
+            return;
+        }
+
+        const picker = input.closest("[data-category-picker]");
+        if (!picker) return;
+
+        const selectedGroup = input.closest("[data-category-children]");
+        const selectedParent = selectedGroup
+            ? selectedGroup.dataset.categoryChildren
+            : input.value;
+
+        qsa("[data-category-children]", picker).forEach(function (group) {
+            const isVisible = group.dataset.categoryChildren === selectedParent;
+            group.hidden = !isVisible;
+            group.classList.toggle("hidden", !isVisible);
+        });
+    });
+
+
+    /* =========================================================
        MODAL
        ========================================================= */
 

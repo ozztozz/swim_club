@@ -47,24 +47,4 @@
     {% if form.category.errors %}
         <p class="ui-error">{{ form.category.errors|striptags }}</p>
     {% endif %}
-</fieldset><script>
-    (function() {
-        const script = document.currentScript;
-        const field = script && script.previousElementSibling;
-        const picker = field && field.querySelector('[data-category-picker]');
-        if (!picker) return;
-
-        const children = picker.querySelectorAll('[data-category-children]');
-        const updateChildren = () => {
-            const selected = picker.querySelector('input[name="category"]:checked');
-            const selectedGroup = selected?.closest('[data-category-children]');
-            const selectedParent = selectedGroup?.dataset.categoryChildren || selected?.value || '';
-            children.forEach((group) => {
-                group.hidden = group.dataset.categoryChildren !== selectedParent;
-            });
-        };
-
-        picker.addEventListener('change', updateChildren);
-        updateChildren();
-    })();
-</script>
+</fieldset>
