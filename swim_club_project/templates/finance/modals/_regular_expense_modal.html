@@ -1,6 +1,5 @@
 <dialog id="regular_expense_modal" class="ui-modal" data-modal-backdrop-close="true">
     <div class="ui-modal-panel">
-        <!-- Başlık -->
         <div class="ui-modal-header">
             <div class="min-w-0">
                 <p class="ui-modal-eyebrow">Tekrarlayan gider planı</p>
@@ -13,91 +12,85 @@
                     class="ui-modal-close" data-modal-close
                     aria-label="Kapat">✕</button>
         </div>
-        <!-- Form -->
         <form {% if form_action == 'regular-expense-update' %} hx-post="{% url 'regular-expense-update' regular_expense_id %}" {% else %} hx-post="{% url 'regular-expense-create' %}" {% endif %}
               hx-target="#regular-expense-list"
               hx-swap="outerHTML"
               class="ui-modal-form">
             {% csrf_token %}
+            <input type="hidden" name="period" value="{{ period }}">
             <input type="hidden" name="category_filter" value="{{ category_filter }}">
             <input type="hidden" name="query_filter" value="{{ query_filter }}">
             <input type="hidden" name="status_filter" value="{{ status_filter }}">
             {% if form.non_field_errors %}
-                <div class="alert alert-error mb-3 text-xs">{{ form.non_field_errors }}</div>
+                <div class="ui-form-alert ui-form-alert-error">{{ form.non_field_errors }}</div>
             {% endif %}
-            <div class="space-y-3">
-                <!-- Kategori -->
-                <fieldset class="form-control min-w-0">
-                    <legend class="mb-1.5 text-[10px] font-bold text-base-content/60">Harcama kategorisi</legend>
-                    <div class="flex min-w-0 flex-wrap gap-1.5">
-                        {% for choice in form.category %}
-                            <label class="flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 py-1.5 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
+            <div class="ui-form-grid">
+                {% include "finance/partials/_expense_category_field.html" %}
+
+                <div class="ui-field">
+                    <label for="{{ form.amount.id_for_label }}" class="ui-label">Tutar (TL)</label>
+                    {{ form.amount }}
+                    {% if form.amount.errors %}
+                        <span class="ui-error">{{ form.amount.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="ui-field">
+                    <label for="{{ form.reciever.id_for_label }}" class="ui-label">Alıcı / firma</label>
+                    {{ form.reciever }}
+                    {% if form.reciever.errors %}
+                        <span class="ui-error">{{ form.reciever.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="ui-field">
+                    <label for="{{ form.start_date.id_for_label }}" class="ui-label">Başlangıç tarihi</label>
+                    {{ form.start_date }}
+                    {% if form.start_date.errors %}
+                        <span class="ui-error">{{ form.start_date.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="ui-field">
+                    <label for="{{ form.end_date.id_for_label }}" class="ui-label">Bitiş tarihi</label>
+                    {{ form.end_date }}
+                    <span class="ui-help">Boş bırakılırsa devam eder.</span>
+                    {% if form.end_date.errors %}
+                        <span class="ui-error">{{ form.end_date.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+
+                <fieldset class="ui-field">
+                    <legend class="ui-label">Tekrarlama sıklığı</legend>
+                    <div class="ui-choice-group">
+                        {% for choice in form.frequency %}
+                            <label class="ui-choice ui-choice-pill">
                                 {{ choice.tag }}
-                                <span class="truncate text-[10px] font-medium">{{ choice.choice_label }}</span>
+                                <span>{{ choice.choice_label }}</span>
                             </label>
                         {% endfor %}
                     </div>
-                    {% if form.category.errors %}
-                        <span class="mt-1 text-[10px] text-error">{{ form.category.errors|striptags }}</span>
+                    {% if form.frequency.errors %}
+                        <span class="ui-error">{{ form.frequency.errors|striptags }}</span>
                     {% endif %}
                 </fieldset>
-                <!-- Tutar + Alıcı -->
-                <div class="grid grid-cols-2 gap-2">
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Tutar (TL)</span>
-                        {{ form.amount }}
-                        {% if form.amount.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.amount.errors|striptags }}</span>
-                        {% endif %}
-                    </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Alıcı / firma</span>
-                        {{ form.reciever }}
-                    </label>
+
+                <div class="ui-field">
+                    <label for="{{ form.paymentDay.id_for_label }}" class="ui-label">Ödeme günü</label>
+                    {{ form.paymentDay }}
+                    {% if form.paymentDay.errors %}
+                        <span class="ui-error">{{ form.paymentDay.errors|striptags }}</span>
+                    {% endif %}
                 </div>
-                <!-- Tarihler -->
-                <div class="rounded-2xl border border-base-200 bg-base-200/40 p-3">
-                    <p class="mb-2 text-[10px] font-black uppercase tracking-wide text-base-content/40">Geçerlilik</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="form-control">
-                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Başlangıç</span>
-                            {{ form.start_date }}
-                        </label>
-                        <label class="form-control">
-                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Bitiş</span>
-                            {{ form.end_date }}
-                            <span class="mt-1 text-[9px] leading-relaxed text-base-content/40">Boş bırakılırsa devam eder.</span>
-                        </label>
-                    </div>
-                </div>
-                <!-- Tekrarlama -->
-                <div class="rounded-2xl border border-base-200 bg-base-200/40 p-3">
-                    <p class="mb-2 text-[10px] font-black uppercase tracking-wide text-base-content/40">Ödeme planı</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <fieldset class="form-control min-w-0">
-                            <legend class="mb-1.5 text-[10px] font-bold text-base-content/60">Tekrarlama sıklığı</legend>
-                            <div class="flex min-w-0 flex-wrap gap-1.5">
-                                {% for choice in form.frequency %}
-                                    <label class="flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 py-1.5 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
-                                        {{ choice.tag }}
-                                        <span class="text-[10px] font-medium">{{ choice.choice_label }}</span>
-                                    </label>
-                                {% endfor %}
-                            </div>
-                        </fieldset>
-                        <label class="form-control">
-                            <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Ödeme günü</span>
-                            {{ form.paymentDay }}
-                        </label>
-                    </div>
-                </div>
-                <!-- Açıklama -->
-                <label class="form-control">
-                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Açıklama</span>
+
+                <div class="ui-field ui-field-full">
+                    <label for="{{ form.notes.id_for_label }}" class="ui-label">Açıklama</label>
                     {{ form.notes }}
-                </label>
+                    {% if form.notes.errors %}
+                        <span class="ui-error">{{ form.notes.errors|striptags }}</span>
+                    {% endif %}
+                </div>
             </div>
-            <!-- Aksiyonlar -->
             <div class="ui-modal-actions">
                 <button type="button"
                         class="ui-btn ui-btn-secondary" data-modal-close>İptal</button>

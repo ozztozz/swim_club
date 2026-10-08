@@ -1,5 +1,5 @@
 <!-- ÜST PANEL: YENİ 3 SÜTUNLU ÖZET CAM KARTI -->
-<div class="profile-hero-card mb-6">
+<div id="expense-summary"{% if oob %} hx-swap-oob="outerHTML"{% endif %} class="profile-hero-card mb-6">
     <div class="profile-hero-content py-1">
         
         <!-- ÜST SATIR: TOPLAM HARCAMA VURGUSU -->
@@ -82,8 +82,8 @@
             <h4 class="text-sm font-semibold text-[var(--ui-text)] m-0">Düzenli Ödemeler</h4>
             <span class="text-xs text-[var(--ui-muted)] mt-0.5">Sabit ve periyodik giderlerin takibi</span>
         </div>
-        <!-- Link Yapısı Projenin Kibar Buton Sınıfına Çevrildi -->
-        <a href="#" class="ui-btn ui-btn-sm ui-btn-secondary shadow-sm text-xs shrink-0">
+        <a href="{% url 'regular-expense-list' %}?period={{ period|urlencode }}"
+           class="ui-btn ui-btn-sm ui-btn-secondary shadow-sm text-xs shrink-0">
             Düzenli ödemeleri yönet
         </a>
     </div>

@@ -1,4 +1,4 @@
-<tr class="ui-table-row {% if not expense.is_active %}ui-table-row-inactive{% endif %}">
+<tr id="expense-row-{{ expense.pk }}" class="ui-table-row {% if not expense.is_active %}ui-table-row-inactive{% endif %}">
     
     <!-- 1. HÜCRE: TARİH VE TÜR (Düzenli / Planlı Bilgisi) -->
     <td class="ui-table-cell ui-table-cell-date">
@@ -58,9 +58,19 @@
 
                 <!-- Mobil Aksiyon Butonu -->
                 <div class="ui-table-action">
-                    <a href="#" class="ui-btn ui-btn-sm {% if expense.is_regular_source %}ui-btn-primary{% else %}ui-btn-secondary{% endif %} !min-height-[26px] !py-0.5 !px-2 text-[10px]">
-                        {% if expense.is_regular_source %} Ödeme Yap {% else %} Düzenle {% endif %}
-                    </a>
+                    {% if expense.is_regular_source %}
+                        <a href="#"
+                           class="ui-btn ui-btn-sm ui-btn-primary !min-height-[26px] !py-0.5 !px-2 text-[10px]"
+                           hx-get="{% url 'regular-expense-convert' expense.pk %}?source=expenses&period={{ period }}&category={{ selected_category|default:'' }}&q={{ query|default:''|urlencode }}&status={{ status|default:'active' }}"
+                           hx-target="#modal-container"
+                           hx-swap="innerHTML">Ödeme Yap</a>
+                    {% else %}
+                        <a href="#"
+                           class="ui-btn ui-btn-sm ui-btn-secondary !min-height-[26px] !py-0.5 !px-2 text-[10px]"
+                           hx-get="{% url 'expense-update' expense.pk %}?period={{ period }}&dashboard=1"
+                           hx-target="#modal-container"
+                           hx-swap="innerHTML">Düzenle</a>
+                    {% endif %}
                 </div>
             </div>
         {% endif %}

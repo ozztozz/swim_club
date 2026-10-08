@@ -1,0 +1,69 @@
+<section class="ui-section">
+    <div class="ui-section-header">
+        <div>
+            <h2 class="ui-section-title">Dönem finans özeti</h2>
+            <p class="ui-section-description">Tahsilat, ödeme ve bekleyen tutarların dönem karşılaştırması.</p>
+        </div>
+        <span class="ui-section-count">{{ period_financial_rows|length }} dönem</span>
+    </div>
+
+    <div class="profile-hero-card mb-6">
+        <div class="profile-hero-content py-1">
+            <span class="profile-hero-subtitle m-0">Tüm dönemler</span>
+            <h2 class="profile-hero-name text-3xl my-1 {{ period_financial_totals.net_class }} font-bold">
+                {{ period_financial_totals.net_prefix }}{{ period_financial_totals.net|floatformat:0 }} TL
+            </h2>
+            <span class="text-[10px] text-[var(--ui-subtle)]">Toplam net bakiye</span>
+
+            <div class="w-full h-px bg-white/40 my-3"></div>
+
+            <div class="grid grid-cols-3 gap-2 w-full text-center">
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-success-text)] opacity-80">Tahsilat</span>
+                    <span class="text-sm font-bold ui-text-success mt-0.5">{{ period_financial_totals.collected|floatformat:0 }}</span>
+                </div>
+                <div class="flex flex-col items-center border-x border-white/30 px-1">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-danger-text)] opacity-80">Ödeme</span>
+                    <span class="text-sm font-bold ui-text-danger mt-0.5">{{ period_financial_totals.paid|floatformat:0 }}</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-warning-text)] opacity-80">Bekleyen</span>
+                    <span class="text-sm font-bold ui-text-warning mt-0.5">{{ period_financial_totals.pending|floatformat:0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if period_financial_rows %}
+        <div class="flex flex-col gap-2">
+            {% for row in period_financial_rows %}
+                <a class="ui-stat block hover:no-underline transition-transform hover:scale-[1.005]" href="{% url 'dashboard:admin-finance' %}?period={{ row.period }}">
+                    <div class="grid grid-cols-2 items-center gap-3 md:grid-cols-5">
+                        <div class="ui-stat-content">
+                            <span class="ui-stat-label">{{ row.label }}</span>
+                            <span class="ui-stat-description">{{ row.period }} dönemi</span>
+                        </div>
+                        <div>
+                            <span class="ui-stat-label {{ row.net_class }}">Net</span>
+                            <strong class="block text-base {{ row.net_class }}">{{ row.net_prefix }}{{ row.net|floatformat:0 }} TL</strong>
+                        </div>
+                        <div>
+                            <span class="ui-stat-label ui-text-success">Tahsilat</span>
+                            <strong class="block text-sm ui-text-success">{{ row.collected|floatformat:0 }} TL</strong>
+                        </div>
+                        <div>
+                            <span class="ui-stat-label ui-text-danger">Ödeme</span>
+                            <strong class="block text-sm ui-text-danger">{{ row.paid|floatformat:0 }} TL</strong>
+                        </div>
+                        <div>
+                            <span class="ui-stat-label ui-text-warning">Bekleyen</span>
+                            <strong class="block text-sm ui-text-warning">{{ row.pending|floatformat:0 }} TL</strong>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="ui-empty-state">Henüz dönem bazında finans hareketi bulunmuyor.</div>
+    {% endif %}
+</section>

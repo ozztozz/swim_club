@@ -387,7 +387,7 @@ Kulüp Yönetimi | ALPHA ACADEMY
 
                 {% for expense in expenses %}
 
-                    {% include "finance/partials/_expense_row.html" %}
+                    {% include "finance/partials/_expense_row.html" with period=expense_period %}
 
                 {% empty %}
 

@@ -11,7 +11,11 @@
             <p class="page-description">Gelir, harcama ve tahsilat durumunu dönem bazında takip edin.</p>
         </div>
 
-        <form method="get" class="flex items-center gap-2">
+        <div class="flex items-center gap-2">
+            <a href="{% url 'dashboard:dashboard-finance' %}?period={{ current_period }}" class="ui-btn ui-btn-secondary ui-btn-sm">
+                Harcamalar
+            </a>
+            <form method="get" class="flex items-center gap-2">
             <label for="finance-period" class="sr-only">Dönem</label>
             <input id="finance-period"
                    type="month"
@@ -19,11 +23,11 @@
                    value="{{ current_period }}"
                    onchange="this.form.submit()"
                    class="ui-input w-36">
-        </form>
+            </form>
+        </div>
     </header>
 
     {% include "dashboard/partials/_financial_summary.html" %}
-    
 
     <section class="ui-section">
         <div class="ui-section-header">
@@ -45,6 +49,8 @@
             </a>
         </div>
     </section>
+
+    {% include "dashboard/partials/_period_financial_summary.html" %}
 
 </div>
 {% endblock %}

@@ -1,18 +1,68 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="dashboard">
+        {% include "finance/partials/_expense_summary.html" %}
 
-<div class="page-header">
-    <div>
-        <div class="page-header-main">
-            <p class="page-eyebrow">Finans</p>
-            <h1 class="page-title">Mali İşler</h1>
-        </div>
+        <section class="ui-section mt-6">
+            <div class="ui-section-header">
+                <div>
+                    <h2 class="ui-section-title">Harcamalar</h2>
+                    <span class="ui-section-description">{{ period }} Dönemi</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <form method="get" class="flex items-center">
+                        <label for="expense-period" class="sr-only">Dönem</label>
+                        <input id="expense-period"
+                               type="month"
+                               name="period"
+                               value="{{ period }}"
+                               onchange="this.form.submit()"
+                               class="ui-input h-9 w-36">
+                        {% if selected_category %}
+                            <input type="hidden" name="category" value="{{ selected_category }}">
+                        {% endif %}
+                        {% if query %}
+                            <input type="hidden" name="q" value="{{ query }}">
+                        {% endif %}
+                    </form>
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-primary ui-btn-sm"
+                        hx-get="{% url 'expense-create' %}?period={{ period }}&dashboard=1"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                    >Yeni Harcama</button>
+                </div>
+            </div>
+
+            <div class="ui-card overflow-hidden mt-3">
+                <table class="ui-table" id="expense-list">
+                    <thead>
+                        <tr class="bg-[var(--ui-surface-2)] border-b border-[var(--ui-border-dark)]">
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-left">Tarih</th>
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-left">Alıcı / Firma</th>
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-left ui-table-cell-receipt">Belge No</th>
+                            <th class="ui-table-cell font-semibold text-[var(--ui-muted)] text-right">Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                            {% include "finance/partials/_expense_row.html" %}
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">
+                                    <div class="ui-empty py-8">
+                                        <div class="ui-empty-icon">📦</div>
+                                        <h3 class="ui-empty-title">Bu dönemde harcama yok</h3>
+                                        <p class="ui-empty-description mb-3">İlk harcama kaydını eklemek için yukarıdaki butonu kullanın.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
-</div>
-
-<div class="ui-card">
-    Mali işler dashboard
-</div>
-
 {% endblock %}

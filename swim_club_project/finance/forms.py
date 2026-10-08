@@ -606,3 +606,36 @@ class RegularExpenseForm(forms.ModelForm):
                 }
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        category_queryset = (
+            ExpenseCategory.objects
+            .select_related("parent")
+            .order_by("parent__name", "name")
+        )
+        categories = list(category_queryset)
+        self.fields["category"].queryset = category_queryset
+
+        self.category_roots = [
+            category for category in categories if not category.parent_id
+        ]
+        selected_category_id = self["category"].value()
+        self.category_groups = [
+            {
+                "parent": parent,
+                "children": [
+                    child for child in categories
+                    if child.parent_id == parent.pk
+                ],
+                "is_selected": str(selected_category_id) in {
+                    str(parent.pk),
+                    *[
+                        str(child.pk) for child in categories
+                        if child.parent_id == parent.pk
+                    ],
+                },
+            }
+            for parent in self.category_roots
+        ]

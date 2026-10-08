@@ -46,7 +46,7 @@
 
             {% if form_action == "expense-update" %}
 
-                hx-post="{% url 'expense-update' expense_id %}?period={{ period }}"
+                hx-post="{% url 'expense-update' expense_id %}?period={{ period }}{% if dashboard_mode %}&dashboard=1{% endif %}"
 
             {% else %}
 
@@ -57,7 +57,13 @@
             
 
             {% if dashboard_mode %}
-                hx-swap="afterbegin"
+                {% if form_action == "expense-update" %}
+                    hx-target="#expense-row-{{ expense_id }}"
+                    hx-swap="outerHTML"
+                {% else %}
+                    hx-target="#expense-list tbody"
+                    hx-swap="afterbegin"
+                {% endif %}
             {% else %}
                 hx-swap="outerHTML"
             {% endif %}

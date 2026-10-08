@@ -1,13 +1,19 @@
-from datetime import datetime
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from datetime import date
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Q
 from teams.models import Team
-from finance.models import PaymentRecord, TeamFeeHistory, Expense
+from finance.models import PaymentRecord, TeamFeeHistory, Expense, ExpenseCategory
+from finance.views import (
+    get_expense_summary,
+    get_expenses_for_period,
+    get_regular_expense_summary,
+)
 from django.utils import timezone
 from athletes.models import Athlete
+from datetime import datetime
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from datetime import date
 
 
 def _normalize_period(period):
@@ -19,9 +25,6 @@ def _normalize_period(period):
         return datetime.strptime(period, "%Y-%m").strftime("%Y-%m")
     except (TypeError, ValueError):
         return fallback_period
-
-
-
 
 def _get_active_athletes(period):
     period = _normalize_period(period)
@@ -38,13 +41,13 @@ def _get_teams_subscription_price(period=None):
     date_control = timezone.localdate().replace(year=year, month=month, day=1)
 
     return {
-        row["team_id"]: row["monthly_fee"]
-        for row in TeamFeeHistory.objects.filter(
-            start_date__lte=date_control,
-        )
-        .filter(Q(end_date__gte=date_control) | Q(end_date__isnull=True))
-        .values("team_id", "monthly_fee")
-    }
+                row["team_id"]: row["monthly_fee"]
+                for row in TeamFeeHistory.objects.filter(
+                    start_date__lte=date_control,
+                )
+                .filter(Q(end_date__gte=date_control) | Q(end_date__isnull=True))
+                .values("team_id", "monthly_fee")
+            }
 
 
 def _get_financial_context(current_period, payment_records_total):
@@ -75,6 +78,75 @@ def _get_financial_context(current_period, payment_records_total):
             "pending_expense": pending_expense,
             "net_balance": net_balance,
         },
+    }
+
+
+def _period_label(period):
+    month_names = (
+        "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+        "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+    )
+    year, month = period.split("-")
+    return f"{month_names[int(month) - 1]} {year}"
+
+
+def _get_period_financial_summary():
+    collected_by_period = {
+        row["period"]: row["total"] or 0
+        for row in PaymentRecord.objects.filter(status="paid")
+        .values("period")
+        .annotate(total=Sum("amount"))
+    }
+    expense_by_period = {
+        row["period"]: row
+        for row in Expense.objects.filter(
+            is_active=True,
+            status__in=("paid", "pending"),
+        )
+        .values("period")
+        .annotate(
+            paid=Sum("amount", filter=Q(status="paid")),
+            pending=Sum("amount", filter=Q(status="pending")),
+        )
+    }
+
+    periods = sorted(
+        set(collected_by_period) | set(expense_by_period),
+        reverse=True,
+    )
+    rows = []
+    totals = {
+        "collected": 0,
+        "paid": 0,
+        "pending": 0,
+    }
+
+    for period in periods:
+        expenses = expense_by_period.get(period, {})
+        collected = collected_by_period.get(period, 0)
+        paid = expenses.get("paid") or 0
+        pending = expenses.get("pending") or 0
+        net = collected - paid
+        totals["collected"] += collected
+        totals["paid"] += paid
+        totals["pending"] += pending
+        rows.append({
+            "period": period,
+            "label": _period_label(period),
+            "collected": collected,
+            "paid": paid,
+            "pending": pending,
+            "net": net,
+            "net_class": "ui-text-success" if net >= 0 else "ui-text-danger",
+            "net_prefix": "+" if net >= 0 else "",
+        })
+
+    totals["net"] = totals["collected"] - totals["paid"]
+    totals["net_class"] = "ui-text-success" if totals["net"] >= 0 else "ui-text-danger"
+    totals["net_prefix"] = "+" if totals["net"] >= 0 else ""
+    return {
+        "period_financial_rows": rows,
+        "period_financial_totals": totals,
     }
 
 
@@ -137,6 +209,7 @@ def _get_admin_dashboard_context(period=None):
     }
     context.update(_get_financial_context(current_period, payment_records_total))
     context.update(_get_payment_counts(current_period, payment_records_total))
+    context.update(_get_period_financial_summary())
     return context
 
 
@@ -285,9 +358,6 @@ def payment_list(request, payment_status):
     return render(request, "dashboard/payment_status_list.html", context)
 
 
-
-
-
 @login_required(login_url="user-login")
 def admin_finance(request):
     period = _normalize_period(request.GET.get("period"))
@@ -296,3 +366,22 @@ def admin_finance(request):
         "dashboard/admin_finance.html",
         _get_admin_dashboard_context(period=period),
     )
+
+
+@login_required(login_url="user-login")
+def finance_dashboard(request):
+    period = _normalize_period(request.GET.get("period"))
+    category_id = request.GET.get("category", "")
+    query = request.GET.get("q", "").strip()
+    expenses = get_expenses_for_period(period, category_id, query)
+
+    return render(request, "dashboard/finance.html", {
+        "period": period,
+        "expenses": expenses,
+        "categories": ExpenseCategory.objects.all().order_by("name"),
+        "selected_category": category_id,
+        "query": query,
+        "expense_summary": get_expense_summary(period),
+        "regular_expense_summary": get_regular_expense_summary(period),
+        "today": date.today(),
+    })

@@ -11,18 +11,17 @@
                     class="ui-modal-close" data-modal-close
                     aria-label="Kapat">✕</button>
         </div>
-        <!-- Kaynak Gider Özeti -->
         <div class="ui-payment-summary">
-            <div class="px-4 py-3">
-                <p class="text-[10px] text-base-content/40">Kaynak düzenli gider</p>
-                <p class="mt-0.5 truncate text-sm font-black text-base-content">{{ regular_expense.reciever }}</p>
+            <div class="ui-payment-summary-row">
+                <span class="ui-payment-summary-label">Kaynak düzenli gider</span>
+                <strong class="ui-payment-summary-value">{{ regular_expense.reciever }}</strong>
             </div>
-            <div class="flex items-center justify-between border-t border-base-300 px-4 py-3">
-                <span class="text-xs text-base-content/50">Planlanan tutar</span>
-                <strong class="text-sm font-black text-error">{{ regular_expense.amount|floatformat:0 }}</strong>
+            <div class="ui-payment-summary-row">
+                <span class="ui-payment-summary-label">Planlanan tutar</span>
+                <strong class="ui-payment-summary-value ui-text-danger">{{ regular_expense.amount|floatformat:0 }} TL</strong>
             </div>
         </div>
-        <!-- Form -->
+
         <form hx-post="{% url 'regular-expense-convert' regular_expense.pk %}"
               hx-target="{{ conversion_target|default:'#regular-expense-list' }}"
               hx-swap="outerHTML"
@@ -36,59 +35,44 @@
             <input type="hidden" name="query_filter" value="{{ query_filter }}">
             <input type="hidden" name="status_filter" value="{{ status_filter }}">
             {% if form.non_field_errors %}
-                <div class="alert alert-error mb-3 text-xs">{{ form.non_field_errors }}</div>
+                <div class="ui-form-alert ui-form-alert-error">{{ form.non_field_errors }}</div>
             {% endif %}
-            <div class="space-y-3">
-                <!-- Kategori -->
-                <fieldset class="form-control min-w-0">
-                    <legend class="mb-1.5 text-[10px] font-bold text-base-content/60">Kategori</legend>
-                    <div class="flex min-w-0 flex-wrap gap-1.5">
-                        {% for radio in form.category %}
-                            <label class="flex min-h-8 cursor-pointer items-center gap-1.5 rounded-xl border border-base-300/80 bg-base-100 px-2.5 py-1.5 transition-all has-[:checked]:border-primary/40 has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
-                                {{ radio.tag }}
-                                <span class="truncate text-[10px] font-medium">{{ radio.choice_label }}</span>
-                            </label>
-                        {% endfor %}
-                    </div>
-                    {% if form.category.errors %}
-                        <span class="mt-1 text-[10px] text-error">{{ form.category.errors|striptags }}</span>
-                    {% endif %}
-                </fieldset>
-                <!-- Tutar + Tarih -->
-                <div class="grid grid-cols-2 gap-2">
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Gerçekleşen tutar</span>
+            <div class="ui-form-grid">
+                {% include "finance/partials/_expense_category_field.html" %}
+
+                <div class="ui-field">
+                    <label for="{{ form.amount.id_for_label }}" class="ui-label">Gerçekleşen tutar (TL)</label>
                         {{ form.amount }}
                         {% if form.amount.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.amount.errors }}</span>
+                            <span class="ui-error">{{ form.amount.errors|striptags }}</span>
                         {% endif %}
-                    </label>
-                    <label class="form-control">
-                        <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Harcama tarihi</span>
+                </div>
+
+                <div class="ui-field">
+                    <label for="{{ form.expense_date.id_for_label }}" class="ui-label">Harcama tarihi</label>
                         {{ form.expense_date }}
                         {% if form.expense_date.errors %}
-                            <span class="mt-1 text-[10px] text-error">{{ form.expense_date.errors }}</span>
+                            <span class="ui-error">{{ form.expense_date.errors|striptags }}</span>
                         {% endif %}
-                    </label>
                 </div>
-                <!-- Alıcı -->
-                <label class="form-control">
-                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Alıcı / firma</span>
+
+                <div class="ui-field ui-field-full">
+                    <label for="{{ form.reciever.id_for_label }}" class="ui-label">Alıcı / firma</label>
                     {{ form.reciever }}
                     {% if form.reciever.errors %}
-                        <span class="mt-1 text-[10px] text-error">{{ form.reciever.errors }}</span>
+                        <span class="ui-error">{{ form.reciever.errors|striptags }}</span>
                     {% endif %}
-                </label>
-                <!-- Açıklama -->
-                <label class="form-control">
-                    <span class="mb-1.5 text-[10px] font-bold text-base-content/60">Açıklama</span>
+                </div>
+
+                <div class="ui-field ui-field-full">
+                    <label for="{{ form.notes.id_for_label }}" class="ui-label">Açıklama</label>
                     {{ form.notes }}
                     {% if form.notes.errors %}
-                        <span class="mt-1 text-[10px] text-error">{{ form.notes.errors }}</span>
+                        <span class="ui-error">{{ form.notes.errors|striptags }}</span>
                     {% endif %}
-                </label>
+                </div>
             </div>
-            <!-- Aksiyonlar -->
+
             <div class="ui-modal-actions">
                 <button type="button"
                         class="ui-btn ui-btn-secondary" data-modal-close>İptal</button>

@@ -476,6 +476,9 @@ def get_regular_expense_summary(period=None):
 
     return {
         'regular_total': regular_total,
+        'regular_expense_total': regular_total,
+        'regular_expense_count': active_expenses.count(),
+        'regular_category_count': active_expenses.values('category_id').distinct().count(),
         'regular_paid_total': paid_total,
         'regular_pending_total': regular_total - paid_total,
 
@@ -484,6 +487,8 @@ def get_regular_expense_summary(period=None):
 
 @login_required
 def regular_expense_list(request):
+    period_start, _ = get_period_bounds(request.GET.get('period'))
+    period = period_start.strftime('%Y-%m')
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '')
     status = request.GET.get('status', 'active')
@@ -506,12 +511,15 @@ def regular_expense_list(request):
         'query': query,
         'selected_category': category_id,
         'status': status,
+        'period': period,
         'today': date.today(),
-        **get_regular_expense_summary(),
+        **get_regular_expense_summary(period),
     })
 
 
 def _regular_expense_response(request, query='', category_id='', status='active', period=None):
+    period_start, _ = get_period_bounds(period)
+    period = period_start.strftime('%Y-%m')
     expenses = RegularExpense.objects.select_related('category', 'created_by').order_by(
         F('paymentDay').asc(nulls_last=True), '-start_date'
     )
@@ -529,13 +537,15 @@ def _regular_expense_response(request, query='', category_id='', status='active'
         'selected_category': category_id,
         'query': query,
         'status': status,
+        'period': period,
         'include_summary': True,
-        **get_regular_expense_summary(),
+        **get_regular_expense_summary(period),
     })
 
 
 @login_required
 def create_regular_expense_htmx(request):
+    period = request.GET.get('period') or request.POST.get('period')
     query = request.GET.get('q', '') or request.POST.get('query_filter', '')
     category_id = request.GET.get('category', '') or request.POST.get('category_filter', '')
     status = request.GET.get('status', 'active') or request.POST.get('status_filter', 'active')
@@ -545,7 +555,7 @@ def create_regular_expense_htmx(request):
             regular_expense = form.save(commit=False)
             regular_expense.created_by = request.user
             regular_expense.save()
-            response = _regular_expense_response(request, query, category_id, status)
+            response = _regular_expense_response(request, query, category_id, status, period)
             response['HX-Trigger'] = json.dumps({'closeRegularExpenseModal': {}})
             return response
     else:
@@ -556,6 +566,7 @@ def create_regular_expense_htmx(request):
         'query_filter': query,
         'category_filter': category_id,
         'status_filter': status,
+        'period': period,
         'form_action': 'regular-expense-create',
         'modal_title': 'Yeni düzenli harcama',
         'submit_label': 'Düzenli harcamayı kaydet',
@@ -569,6 +580,7 @@ def create_regular_expense_htmx(request):
 @login_required
 def update_regular_expense_htmx(request, pk):
     regular_expense = get_object_or_404(RegularExpense, pk=pk)
+    period = request.GET.get('period') or request.POST.get('period')
     query = request.GET.get('q', '') or request.POST.get('query_filter', '')
     category_id = request.GET.get('category', '') or request.POST.get('category_filter', '')
     status = request.GET.get('status', 'active') or request.POST.get('status_filter', 'active')
@@ -577,7 +589,7 @@ def update_regular_expense_htmx(request, pk):
         if form.is_valid():
             updated_expense = form.save(commit=False)
             updated_expense.save()
-            response = _regular_expense_response(request, query, category_id, status)
+            response = _regular_expense_response(request, query, category_id, status, period)
             response['HX-Trigger'] = json.dumps({'closeRegularExpenseModal': {}})
             return response
     else:
@@ -588,6 +600,7 @@ def update_regular_expense_htmx(request, pk):
         'query_filter': query,
         'category_filter': category_id,
         'status_filter': status,
+        'period': period,
         'form_action': 'regular-expense-update',
         'regular_expense_id': regular_expense.pk,
         'modal_title': 'Düzenli harcamayı güncelle',
@@ -606,7 +619,7 @@ def convert_regular_expense_htmx(request, pk):
     category_id = request.GET.get('category', '') or request.POST.get('category_filter', '')
     status = request.GET.get('status', 'active') or request.POST.get('status_filter', 'active')
     source = request.GET.get('source', '') or request.POST.get('conversion_source', '')
-    conversion_target = '#expense-list' if source == 'expenses' else '#regular-expense-list'
+    conversion_target = '#expense-list tbody' if source == 'expenses' else '#regular-expense-list'
 
     if request.method == 'POST':
         form_data = request.POST.copy()
@@ -675,8 +688,11 @@ def create_expense_htmx(request):
             expense.save()
             summary = get_expense_summary(period)
             if dashboard_mode:
-                response = render(request, 'finance/partials/_expense_row.html', {
+                response = render(request, 'finance/partials/_expense_dashboard_response.html', {
                     'expense': expense,
+                    'period': period,
+                    'expense_summary': summary,
+                    'regular_expense_summary': get_regular_expense_summary(period),
                 })
                 response['HX-Trigger'] = json.dumps({'closeExpenseModal': {}})
                 response["X-App-Toast"] = "Harcama kaydedildi"
@@ -722,6 +738,7 @@ def update_expense_htmx(request, pk):
     period = request.GET.get('period') or request.POST.get('period') or expense.period
     category_id = request.GET.get('category', '') or request.POST.get('category_filter', '')
     query = request.GET.get('q', '') or request.POST.get('query_filter', '')
+    dashboard_mode = request.GET.get('dashboard') == '1' or request.POST.get('dashboard') == '1'
 
     if request.method == 'POST':
         form = ExpenseForm(request.POST, instance=expense)
@@ -731,6 +748,16 @@ def update_expense_htmx(request, pk):
                 updated_expense.is_active = False
                 updated_expense.status = 'cancelled'
             updated_expense.save()
+            if dashboard_mode:
+                response = render(request, 'finance/partials/_expense_dashboard_response.html', {
+                    'expense': updated_expense,
+                    'period': period,
+                    'expense_summary': get_expense_summary(period),
+                    'regular_expense_summary': get_regular_expense_summary(period),
+                })
+                response['HX-Trigger'] = json.dumps({'closeExpenseModal': {}})
+                response["X-App-Toast"] = "Harcama güncellendi"
+                return response
             expense_summary = get_expense_summary(period)
             expenses = get_expenses_for_period(period, category_id, query)
             response = render(request, 'finance/partials/_expense_list_response.html', {
@@ -758,6 +785,7 @@ def update_expense_htmx(request, pk):
         'submit_label': 'Değişiklikleri kaydet',
         'show_cancel': expense.is_active,
         'record_user': expense.created_by,
+        'dashboard_mode': dashboard_mode,
     })
     if request.method == 'POST':
         response['HX-Retarget'] = '#modal-container'

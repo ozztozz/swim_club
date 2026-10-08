@@ -1,47 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="w-full space-y-3">
-        <!-- Başlık -->
-        <header class="flex items-center justify-between gap-3 px-1 py-1">
-            <div class="min-w-0">
-                <div class="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-primary">
-                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-primary/10 text-sm">↻</span>
-                    Düzenli ödemeler
-                </div>
-                <p class="mt-0.5 text-xs text-base-content/50">Tekrarlayan kulüp giderlerini yönetin.</p>
+    <div class="dashboard">
+        <header class="page-header">
+            <div class="page-header-main">
+                <p class="page-eyebrow">Finans yönetimi</p>
+                <h1 class="page-title">Düzenli ödemeler</h1>
+                <p class="page-description">Sabit ve periyodik kulüp giderlerini dönem bazında yönetin.</p>
             </div>
-            <button type="button"
-                    class="btn btn-primary h-11 min-h-0 shrink-0 gap-1.5 rounded-xl px-4 text-xs font-bold shadow-sm active:scale-[.97] transition-transform"
-                    hx-get="{% url 'regular-expense-create' %}?category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
-                    hx-target="#modal-container"
-                    hx-swap="innerHTML">
-                <span class="text-lg leading-none">+</span>
-                <span class="hidden sm:inline">Yeni düzenli gider</span>
-                <span class="sm:hidden">Ekle</span>
-            </button>
+            <div class="ui-section-actions mt-4 sm:mt-0">
+                <form method="get" class="flex items-center">
+                    <label class="sr-only" for="regular-expense-period">Dönem</label>
+                    <input id="regular-expense-period"
+                           type="month"
+                           name="period"
+                           value="{{ period }}"
+                           onchange="this.form.submit()"
+                           class="ui-input h-10 w-36">
+                </form>
+                <button type="button"
+                        class="ui-btn ui-btn-primary ui-btn-sm"
+                        hx-get="{% url 'regular-expense-create' %}?period={{ period }}&category={{ selected_category }}&q={{ query|urlencode }}&status={{ status }}"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML">
+                    <span aria-hidden="true">+</span>
+                    Yeni düzenli gider
+                </button>
+            </div>
         </header>
+
         {% include "finance/partials/_regular_expense_summary.html" %}
-        <form method="get"
-              class="flex flex-wrap items-center gap-2 rounded-xl border border-base-200 bg-base-100 p-2 shadow-sm">
-            <div class="flex h-9 min-w-[9rem] flex-1 items-center gap-2 rounded-lg border border-base-300 bg-base-200/40 px-2.5">
-                <svg class="h-4 w-4 shrink-0 text-base-content/40"
-                     viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="2"
-                     stroke-linecap="round"
-                     stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="m20 20-4-4" />
-                </svg>
+        <form method="get" class="ui-card p-3 flex flex-wrap items-center gap-2">
+            <input type="hidden" name="period" value="{{ period }}">
+            <div class="ui-search-field flex-1 min-w-[12rem]">
+                <span class="ui-search-icon" aria-hidden="true">⌕</span>
                 <input type="search"
                        name="q"
                        value="{{ query }}"
-                       placeholder="Alıcı ara..."
-                       class="min-w-0 w-full border-0 bg-transparent p-0 text-xs outline-none focus:ring-0">
+                       placeholder="Alıcı veya firma ara..."
+                       class="ui-input ui-search-input h-10">
             </div>
             <select name="category"
-                    class="select select-bordered h-9 min-h-0 w-auto max-w-[8rem] rounded-lg px-2 text-xs"
+                    class="ui-select h-10 w-auto min-w-36"
                     onchange="this.form.submit()">
                 <option value="">Tüm kategoriler</option>
                 {% for category in categories %}
@@ -50,27 +49,35 @@
                 {% endfor %}
             </select>
             <select name="status"
-                    class="select select-bordered h-9 min-h-0 w-auto rounded-lg px-2 text-xs"
+                    class="ui-select h-10 w-auto min-w-28"
                     onchange="this.form.submit()">
                 <option value="active" {% if status == 'active' %}selected{% endif %}>Aktif</option>
                 <option value="expired" {% if status == 'expired' %}selected{% endif %}>Süresi dolan</option>
                 <option value="all" {% if status == 'all' %}selected{% endif %}>Tümü</option>
             </select>
         </form>
-        <!-- Liste -->
-        <section class="overflow-hidden rounded-2xl border border-base-200 bg-base-100 shadow-sm">
-            <!-- Liste -->
+
+        <section class="ui-section">
+            <div class="ui-section-header">
+                <div>
+                    <h2 class="ui-section-title">Ödeme planları</h2>
+                    <p class="ui-section-description">{{ period }} dönemi için tanımlı düzenli giderler</p>
+                </div>
+                <span class="ui-section-action">{{ regular_expense_count }} kayıt</span>
+            </div>
+            <div class="ui-card overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="table w-full min-w-[420px]">
-                    <thead>
-                        <tr class="border-b border-base-200 text-[9px] uppercase tracking-wider text-base-content/40">
-                            <th class="p-3 font-bold">Düzenli gider</th>
-                            <th class="p-3 font-bold">Tutar / tekrar</th>
-                            <th class="p-3 text-right font-bold">İşlem</th>
+                <table class="ui-table min-w-[520px]">
+                    <thead class="bg-[var(--ui-surface-2)]">
+                        <tr class="border-b border-[var(--ui-border-dark)]">
+                            <th class="ui-table-cell text-left font-semibold text-[var(--ui-muted)]">Düzenli gider</th>
+                            <th class="ui-table-cell text-left font-semibold text-[var(--ui-muted)]">Tutar / tekrar</th>
+                            <th class="ui-table-cell text-right font-semibold text-[var(--ui-muted)]">İşlem</th>
                         </tr>
                     </thead>
                     {% include "finance/partials/_regular_expense_list_response.html" %}
                 </table>
+            </div>
             </div>
         </section>
     </div>

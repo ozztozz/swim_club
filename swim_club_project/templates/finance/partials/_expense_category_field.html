@@ -49,16 +49,18 @@
     {% endif %}
 </fieldset><script>
     (function() {
-        const picker = document.querySelector('[data-category-picker]');
+        const script = document.currentScript;
+        const field = script && script.previousElementSibling;
+        const picker = field && field.querySelector('[data-category-picker]');
         if (!picker) return;
 
         const children = picker.querySelectorAll('[data-category-children]');
         const updateChildren = () => {
             const selected = picker.querySelector('input[name="category"]:checked');
             const selectedGroup = selected?.closest('[data-category-children]');
-            const selectedParent = selectedGroup?.dataset.categoryChildren || selected?.value;
+            const selectedParent = selectedGroup?.dataset.categoryChildren || selected?.value || '';
             children.forEach((group) => {
-                group.classList.toggle('hidden', group.dataset.categoryChildren !== selectedParent);
+                group.hidden = group.dataset.categoryChildren !== selectedParent;
             });
         };
 

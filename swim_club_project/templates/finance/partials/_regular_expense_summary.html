@@ -1,32 +1,19 @@
 <section id="regular-expense-summary"
          {% if oob %} hx-swap-oob="outerHTML"{% endif %}
-         class="grid grid-cols-2 gap-2">
-    <div class="rounded-xl border border-base-200 bg-base-100 p-3 shadow-sm">
-        <p class="truncate text-xs font-medium text-base-content/60">Düzenli ödeme özeti</p>
-        <div class="mt-2 grid grid-cols-2 gap-2">
-            <div>
-                <p class="text-[11px] text-success">Ödenen</p>
-                <p class="text-lg font-black text-success">{{ regular_paid_total|floatformat:0 }}</p>
-            </div>
-            <div>
-                <p class="text-[11px] text-warning">Bekleyen</p>
-                <p class="text-lg font-black text-warning">{{ regular_pending_total|floatformat:0 }}</p>
-            </div>
-        </div>
-        <p class="mt-2 truncate text-[11px] text-base-content/50">{{ regular_expense_count }} aktif düzenli gider</p>
+         class="ui-stat-grid mb-6">
+    <div class="ui-stat">
+        <span class="ui-stat-label ui-text-success">Ödenen</span>
+        <strong class="ui-stat-value ui-text-success">{{ regular_paid_total|floatformat:0 }} TL</strong>
+        <span class="ui-stat-description">Seçilen dönem</span>
     </div>
-    <div class="rounded-xl border border-base-200 bg-base-100 p-3 shadow-sm">
-        <div class="flex items-center justify-between gap-2">
-            <p class="truncate text-xs font-medium text-base-content/60">Tanımlı toplam</p>
-            <p class="whitespace-nowrap text-xl font-black">{{ regular_expense_total|floatformat:0 }}</p>
-        </div>
-        <p class="mt-2 truncate text-[11px] text-base-content/50">Düzenli gider tutarları</p>
+    <div class="ui-stat">
+        <span class="ui-stat-label ui-text-warning">Bekleyen</span>
+        <strong class="ui-stat-value ui-text-warning">{{ regular_pending_total|floatformat:0 }} TL</strong>
+        <span class="ui-stat-description">Seçilen dönem</span>
     </div>
-    <div class="rounded-xl border border-base-200 bg-base-100 p-3 shadow-sm">
-        <div class="flex items-center justify-between gap-2">
-            <p class="truncate text-xs font-medium text-base-content/60">Kullanılan kategori</p>
-            <p class="whitespace-nowrap text-xl font-black">{{ regular_category_count }}</p>
-        </div>
-        <p class="mt-2 truncate text-[11px] text-base-content/50">Aktif kayıtlar içinde</p>
+    <div class="ui-stat">
+        <span class="ui-stat-label">Tanımlı toplam</span>
+        <strong class="ui-stat-value">{{ regular_expense_total|floatformat:0 }} TL</strong>
+        <span class="ui-stat-description">{{ regular_expense_count }} aktif plan</span>
     </div>
 </section>
