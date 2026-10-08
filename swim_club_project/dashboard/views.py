@@ -25,7 +25,9 @@ def dashboard(request):
 
         context.update(
             _get_admin_dashboard_context()
+
         )
+        context.update(_get_coach_dashboard_context(request.user))
 
     elif role == User.Role.COACH:
         template = "dashboard/coach.html"

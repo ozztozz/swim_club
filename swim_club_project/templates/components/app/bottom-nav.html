@@ -133,8 +133,8 @@
 
             <!-- FİNANS -->
             <a
-                href="{% url 'finance-dashboard' %}"
-                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'finance-dashboard' or request.resolver_match.url_name == 'expense-list' or request.resolver_match.url_name == 'expense-summary' or request.resolver_match.url_name == 'expense-create' or request.resolver_match.url_name == 'expense-update' or request.resolver_match.url_name == 'expense-category-create' or request.resolver_match.url_name == 'finance-mark-paid' %}active{% endif %}"
+                href="{% url 'dashboard:admin-finance' %}"
+                class="app-bottom-nav-item {% if request.resolver_match.url_name == 'admin-finance' or request.resolver_match.url_name == 'expense-list' or request.resolver_match.url_name == 'expense-summary' or request.resolver_match.url_name == 'expense-create' or request.resolver_match.url_name == 'expense-update' or request.resolver_match.url_name == 'expense-category-create' or request.resolver_match.url_name == 'finance-mark-paid' %}active{% endif %}"
             >
                 <span class="app-bottom-nav-item-icon" aria-hidden="true">
                     <svg

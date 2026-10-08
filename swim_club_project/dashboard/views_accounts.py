@@ -10,7 +10,21 @@ from django.utils import timezone
 from athletes.models import Athlete
 
 
+def _normalize_period(period):
+    fallback_period = timezone.localdate().strftime("%Y-%m")
+    if not period:
+        return fallback_period
+
+    try:
+        return datetime.strptime(period, "%Y-%m").strftime("%Y-%m")
+    except (TypeError, ValueError):
+        return fallback_period
+
+
+
+
 def _get_active_athletes(period):
+    period = _normalize_period(period)
     period_start = datetime.strptime(period + "-01", "%Y-%m-%d").date()
     active_athletes = Athlete.objects.filter(
         is_active=True, joined_date__lte=period_start
@@ -19,11 +33,9 @@ def _get_active_athletes(period):
 
 
 def _get_teams_subscription_price(period=None):
-    if period:
-        year, month = map(int, period.split("-"))
-        date_control = timezone.localdate().replace(year=year, month=month, day=1)
-    else:
-        date_control = timezone.localdate().replace(day=1)
+    period = _normalize_period(period)
+    year, month = map(int, period.split("-"))
+    date_control = timezone.localdate().replace(year=year, month=month, day=1)
 
     return {
         row["team_id"]: row["monthly_fee"]
@@ -35,31 +47,7 @@ def _get_teams_subscription_price(period=None):
     }
 
 
-def _get_admin_dashboard_context():
-    """
-    Admin dashboard için gerekli finansal ve operasyonel verileri hazırlar.
-    financial_summary.total_income
-    financial_summary.total_expense
-    financial_summary.pending_income
-    financial_summary.net_balance
-    payment_counts.paid
-    payment_counts.pending
-    """
-
-    today = timezone.localdate()
-    current_period = today.strftime("%Y-%m")
-    financial_summary = {}
-    payment_counts = {}
-
-    # =========================================================
-    # TAHSİLATLAR
-    # =========================================================
-
-    payment_records_total = PaymentRecord.objects.filter(
-        period=current_period,
-        status="paid",
-    )
-
+def _get_financial_context(current_period, payment_records_total):
     total_income = (
         payment_records_total.filter().aggregate(total=Sum("amount"))["total"] or 0
     )
@@ -67,28 +55,31 @@ def _get_admin_dashboard_context():
     # =========================================================
     # HARCAMALAR
     # =========================================================
-
-    total_expense = (
-        Expense.objects.filter(
-            period=current_period,
-            is_active=True,
-            status="paid",
-        ).aggregate(total=Sum("amount"))["total"]
-        or 0
+    expense_totals = Expense.objects.filter(
+    period=current_period,
+    is_active=True,
+    ).aggregate(
+        paid=Sum("amount", filter=Q(status="paid")),
+        pending=Sum("amount", filter=Q(status="pending")),
     )
 
-    # =========================================================
-    # NET DURUM
-    # =========================================================
+    total_expense = expense_totals["paid"] or 0
+    pending_expense = expense_totals["pending"] or 0
 
     net_balance = total_income - total_expense
-    # =========================================================
-    # SON HARCAMALAR
-    # =========================================================
 
-    # =========================================================
-    # BEKLEYEN TAHSİLAT SAYISI
-    # =========================================================
+    return {
+        "financial_summary": {
+            "total_income": total_income,
+            "total_expense": total_expense,
+            "pending_expense": pending_expense,
+            "net_balance": net_balance,
+        },
+    }
+
+
+def _get_payment_counts(current_period, payment_records_total):
+    payment_counts = {}
 
     teams_subscription_price = _get_teams_subscription_price(period=current_period)
     athlete_payments = (
@@ -96,11 +87,17 @@ def _get_admin_dashboard_context():
         .values("athlete")
         .annotate(total_amount=Sum("amount"))
     )
-    active_athletes = _get_active_athletes(period=current_period)
-    active_athletes =active_athletes.values("id", "custom_fee", "team_id")
+    active_athletes = {
+        athlete["id"]: athlete
+        for athlete in _get_active_athletes(
+            period=current_period
+        ).values("id", "custom_fee", "team_id")
+    }
 
     for payment in athlete_payments:
-        athlete = active_athletes.get(id=payment["athlete"])
+        athlete = active_athletes.get(payment["athlete"])
+        if athlete is None:
+            continue
         if athlete["custom_fee"] and athlete["custom_fee"] > 0:
             expected_amount = athlete["custom_fee"]
         else:
@@ -116,28 +113,31 @@ def _get_admin_dashboard_context():
 
         else:
             payment_counts["pending"] = payment_counts.get("pending", 0) + 1
-    nan_paid_athletes = active_athletes.exclude(
-        id__in=[payment["athlete"] for payment in athlete_payments]
-    )
+    paid_athlete_ids = {payment["athlete"] for payment in athlete_payments}
+    unpaid_athlete_count = len(set(active_athletes) - paid_athlete_ids)
 
     payment_counts["pending"] = (
-        payment_counts.get("pending", 0) + nan_paid_athletes.count()
+        payment_counts.get("pending", 0) + unpaid_athlete_count
     )
 
-    # =========================================================
-    # GECİKMİŞ TAHSİLAT SAYISI
-    # =========================================================
+    return {"payment_counts": payment_counts}
 
-    return {
+
+def _get_admin_dashboard_context(period=None):
+    """Admin dashboard için finans ve ödeme context'ini birleştirir."""
+
+    current_period = _normalize_period(period)
+    payment_records_total = PaymentRecord.objects.filter(
+        period=current_period,
+        status="paid",
+    )
+
+    context = {
         "current_period": current_period,
-        # Finansal özet
-        "financial_summary": {
-            "total_income": total_income,
-            "total_expense": total_expense,
-            "net_balance": net_balance,
-        },
-        "payment_counts": payment_counts,
     }
+    context.update(_get_financial_context(current_period, payment_records_total))
+    context.update(_get_payment_counts(current_period, payment_records_total))
+    return context
 
 
 @login_required
@@ -145,7 +145,7 @@ def payment_list(request, payment_status):
 
     teams_subscription_price = _get_teams_subscription_price()
 
-    period = request.GET.get("period", date.today().strftime("%Y-%m"))
+    period = _normalize_period(request.GET.get("period"))
     team_id = request.GET.get("team", "")
     payment_status = payment_status
     monthly_payments = PaymentRecord.objects.filter(period=period, status="paid")
@@ -285,3 +285,14 @@ def payment_list(request, payment_status):
     return render(request, "dashboard/payment_status_list.html", context)
 
 
+
+
+
+@login_required(login_url="user-login")
+def admin_finance(request):
+    period = _normalize_period(request.GET.get("period"))
+    return render(
+        request,
+        "dashboard/admin_finance.html",
+        _get_admin_dashboard_context(period=period),
+    )

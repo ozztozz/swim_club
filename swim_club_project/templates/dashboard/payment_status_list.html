@@ -7,7 +7,7 @@
         <div class="page-header">
             <div>
                 <div>
-                    <a href="{% url 'finance-dashboard' %}?period={{ period }}{% if team_id %}&team={{ team_id }}{% endif %}"
+                    <a href="{% url 'dashboard:admin-finance' %}?period={{ period }}{% if team_id %}&team={{ team_id }}{% endif %}"
                        class="page-eyebrow">
                         ← Finans
                     </a>

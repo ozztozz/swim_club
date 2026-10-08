@@ -1,0 +1,41 @@
+<div class="ui-training-item{% if clickable %} cursor-pointer{% endif %}"
+     {% if clickable %}hx-get="{% url 'training-attendance-schedule' schedule.team.pk schedule.pk %}?training_date={{ training_date|date:'Y-m-d' }}"
+     hx-target="#modal-container"
+     hx-swap="innerHTML"{% endif %}>
+    <div class="ui-training-meta-left">
+        <div class="ui-training-info-block">
+            <div class="ui-training-team-row">
+                <span class="ui-team-dot {% if 'Turuncu' in schedule.team.name %}dot-orange{% if clickable %} is-active{% endif %}{% elif 'Kırmızı' in schedule.team.name %}dot-red{% elif 'Mavi' in schedule.team.name %}dot-blue{% else %}bg-gray-400{% endif %}"></span>
+                <span class="ui-training-team-name">{{ schedule.team.name }}</span>
+            </div>
+            <span class="ui-training-branch-name">
+                {% if attendance_mode %}
+                    {{ schedule.team.branch.name|default:"Yüzme" }} • {{ schedule.location.name|default:"Fenerbahçe" }}
+                {% else %}
+                    {{ schedule.get_training_type_display }}{% if schedule.location %} · {{ schedule.location }}{% endif %}
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div class="ui-training-meta-right">
+        <span class="ui-training-duration">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
+        {% if dashboard_item %}
+            {% if dashboard_item.is_taken %}
+                <span id="attendance-summary-{{ schedule.pk }}" class="ui-badge ui-badge-success">👤 <span class="ui-text-success">{{ dashboard_item.present }}</span> / <span class="ui-text-danger">{{ dashboard_item.absent }}</span></span>
+            {% elif dashboard_item.is_now %}
+                <span class="ui-badge ui-badge-primary">Şimdi</span>
+            {% elif dashboard_item.is_past %}
+                <span class="ui-badge ui-badge-warning">Yoklama al</span>
+            {% else %}
+                <span class="ui-badge ui-badge-neutral">Bekliyor</span>
+            {% endif %}
+        {% else %}
+            <span id="attendance-summary-{{ schedule.pk }}"
+                  aria-label="{{ schedule.attended_count|default:'0' }} katıldı, {{ schedule.absent_count|default:'0' }} katılmadı"
+                  class="ui-badge {% if schedule.is_attendance_taken %}ui-badge-success{% else %}ui-badge-neutral{% endif %} text-[11px] px-2.5 py-0.5">
+                👤 <span class="ui-text-success">{{ schedule.attended_count|default:"0" }}</span> / <span class="ui-text-danger">{{ schedule.absent_count|default:"0" }}</span>
+            </span>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,35 @@
+    <section class="ui-section">
+        <h2 class="ui-team-group-title">Bugünkü antrenmanlar
+            {% if coach_pending_count %}<span>{{ coach_pending_count }} yoklama bekliyor</span>{% endif %}
+        </h2>
+        <div class="ui-card ui-training-list">
+            {% for item in coach_today_sessions %}
+                {% ifchanged item.schedule.start_time %}
+                    <div class="ui-training-time-badge ui-training-time-group-badge">{{ item.schedule.start_time|time:"H:i" }}</div>
+                {% endifchanged %}
+                {% include "team/partials/training_schedule_row.html" with schedule=item.schedule dashboard_item=item clickable=True training_date=coach_today %}
+            {% empty %}
+                <div class="ui-empty">
+                    <div class="ui-empty-icon">🏊</div>
+                    <p class="ui-empty-description">Bugün antrenman yok.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="ui-section">
+        <h2 class="ui-team-group-title">Yarınki antrenmanlar <span>{{ coach_tomorrow|date:"l" }}</span></h2>
+        <div class="ui-card ui-training-list">
+            {% for schedule in coach_tomorrow_sessions %}
+                {% ifchanged schedule.start_time %}
+                    <div class="ui-training-time-badge ui-training-time-group-badge">{{ schedule.start_time|time:"H:i" }}</div>
+                {% endifchanged %}
+                {% include "team/partials/training_schedule_row.html" with schedule=schedule training_date=coach_tomorrow %}
+            {% empty %}
+                <div class="ui-empty">
+                    <div class="ui-empty-icon">🏊</div>
+                    <p class="ui-empty-description">Yarın antrenman yok.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>

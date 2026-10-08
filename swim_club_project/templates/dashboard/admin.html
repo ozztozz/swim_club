@@ -30,6 +30,10 @@
 
         </div>
 
+        <a href="{% url 'dashboard:admin-finance' %}" class="ui-btn ui-btn-primary ui-btn-sm">
+            Finans detayları
+        </a>
+
     </header>
 
 
@@ -45,6 +49,7 @@
          ===================================================== -->
 
    {% include "dashboard/partials/_payment_summary.html" %}
+   {% include "dashboard/partials/_current_training.html" %}
 
 
 

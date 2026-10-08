@@ -46,7 +46,12 @@
                     <!-- Ortak ui-card yapısı ile liste sınıfları birleştirildi -->
                     <div class="ui-card ui-training-list">
                         {% for schedule in period_schedules %}
-                            {% include "team/partials/training_attendance_schedule_card.html" %}
+                            {% ifchanged schedule.start_time %}
+                                <div class="ui-training-time-badge ui-training-time-group-badge">
+                                    {{ schedule.start_time|time:"H:i" }}
+                                </div>
+                            {% endifchanged %}
+                            {% include "team/partials/training_schedule_row.html" with schedule=schedule attendance_mode=True clickable=True training_date=selected_date %}
                         {% empty %}
                             <!-- Dosyanızdaki 18.bölüm Tasarımına Uygun Şık Empty State -->
                             <div class="ui-empty">

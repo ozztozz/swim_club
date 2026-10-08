@@ -213,42 +213,9 @@ def equipment_stock_modal(request):
     })
 
 @login_required
-def finance_dashboard(request):
-    # Seçilen veya varsayılan dönem (YYYY-MM)
-    period = request.GET.get('period', date.today().strftime('%Y-%m'))
-    
-    # 1. Dönem ödeme durumlarını kişi bazında özetle
-    monthly_payments = get_or_create_monthly_payments(period)
-    paid_payment_count = PaymentRecord.objects.filter(
-        period=period,
-        payment_type='fee',
-        status='paid',
-        athlete__is_active=True,
-    ).values('athlete_id').distinct().count()
-    payment_counts = {
-        'paid': paid_payment_count,
-        'pending': sum(payment.payment_status == 'pending' for payment in monthly_payments),
-    }
-    
-    # 2. Özet veriler (Gelir, Bekleyen, Harcama, Net)
-    financial_summary = get_financial_summary(period, monthly_payments=monthly_payments)
-    expense_summary = get_expense_summary(period)
-    collection_summary = get_collection_summary(period)
-    
-    context = {
-        'period': period,
-        'payment_counts': payment_counts,
-        'expense_summary': expense_summary,
-        'collection_summary': collection_summary,
-        'financial_summary': financial_summary,
-    }
-    return render(request, 'finance/dashboard.html', context)
-
-
-@login_required
 def payment_status_list(request, payment_status):
     if payment_status not in {'paid', 'pending'}:
-        return redirect('finance-dashboard')
+        return redirect('dashboard:admin-finance')
 
     period = request.GET.get('period', date.today().strftime('%Y-%m'))
     team_id = request.GET.get('team', '')

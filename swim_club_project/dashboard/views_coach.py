@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.conf.locale import te
 from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils import timezone
@@ -7,16 +8,21 @@ from django.utils import timezone
 from teams.models import Team, TeamTrainingAttendance, TeamTrainingSchedule
 
 
+
 def _get_coach_dashboard_context(user):
     now = timezone.localtime()
     today = now.date()
+
     teams = list(
-        Team.objects.filter(coaches=user, is_active=True)
+        Team.objects.filter( is_active=True)
         .annotate(
             athlete_count=Count("athletes", filter=Q(athletes__is_active=True), distinct=True)
         )
         .order_by("-athlete_count")
     )
+    if not user.Role.ADMIN:
+        teams = [team for team in teams if user in team.coaches.all()]
+
     team_ids = [team.pk for team in teams]
 
     schedules = list(

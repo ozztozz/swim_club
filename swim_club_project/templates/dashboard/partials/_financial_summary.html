@@ -2,7 +2,7 @@
         <div class="profile-hero-card mb-6">
             <div class="profile-hero-content py-1">
                 <!-- ÜST SATIR: NET BAKİYE VURGUSU -->
-                <span class="profile-hero-subtitle m-0">Net Kasa Bakiyesi</span>
+                <span class="profile-hero-subtitle m-0">Net Bakiye</span>
                 <h2 class="profile-hero-name text-3xl my-1 ui-text-primary font-bold">
                     {{ financial_summary.net_balance|floatformat:0 }} TL
                 </h2>
@@ -15,7 +15,7 @@
                 <div class="grid grid-cols-3 gap-2 w-full text-center">
                     <!-- 1. Sütun: Ödenen (Gelir) -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-success-text)] opacity-80">Ödendi</span>
+                        <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-success-text)] opacity-80">Gelirler</span>
                         <span class="text-sm font-bold ui-text-success mt-0.5">
                             {{ financial_summary.total_income|floatformat:0 }}
                         </span>
@@ -23,17 +23,17 @@
                     
                     <!-- 2. Sütun: Harcanan (Gider) -->
                     <div class="flex flex-col items-center border-x border-white/30 px-1">
-                        <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-danger-text)] opacity-80">Harcandı</span>
+                        <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-danger-text)] opacity-80">Giderler</span>
                         <span class="text-sm font-bold ui-text-danger mt-0.5">
                             {{ financial_summary.total_expense|floatformat:0 }}
                         </span>
                     </div>
                     
-                    <!-- 3. Sütun: Bekleyen Tahsilat -->
+                    <!-- 3. Sütun: Bekleyen Gider -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-warning-text)] opacity-80">Bekliyor</span>
+                        <span class="text-[10px] uppercase tracking-wider font-semibold text-[var(--ui-warning-text)] opacity-80">Bekleyen Gider</span>
                         <span class="text-sm font-bold ui-text-warning mt-0.5">
-                            {{ financial_summary.pending_income|floatformat:0 }}
+                            {{ financial_summary.pending_expense|floatformat:0 }}
                         </span>
                     </div>
                 </div>

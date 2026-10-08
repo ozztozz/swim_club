@@ -28,60 +28,7 @@
         </div>
     </div>
 
-    <section class="ui-section">
-        <h2 class="ui-team-group-title">Bugünkü antrenmanlar
-            {% if coach_pending_count %}<span>{{ coach_pending_count }} yoklama bekliyor</span>{% endif %}
-        </h2>
-        <div class="ui-card ui-scroll-list">
-            {% for item in coach_today_sessions %}
-                <div class="ui-list-item"
-                     hx-get="{% url 'training-attendance-schedule' item.schedule.team.pk item.schedule.pk %}?training_date={{ coach_today|date:'Y-m-d' }}"
-                     hx-target="#modal-container"
-                     hx-swap="innerHTML">
-                    <div class="ui-list-content">
-                        <p class="ui-list-title">{{ item.schedule.start_time|time:"H:i" }} – {{ item.schedule.end_time|time:"H:i" }} · {{ item.schedule.team.name }}</p>
-                        <p class="ui-list-subtitle">{{ item.schedule.get_training_type_display }}{% if item.schedule.location %} · {{ item.schedule.location }}{% endif %}</p>
-                    </div>
-                    <div class="ui-list-end">
-                        {% if item.is_taken %}
-                            <span class="ui-badge ui-badge-success">👤 <span class="ui-text-success">{{ item.present }}</span> / <span class="ui-text-danger">{{ item.absent }}</span></span>
-                        {% elif item.is_now %}
-                            <span class="ui-badge ui-badge-primary">Şimdi</span>
-                        {% elif item.is_past %}
-                            <span class="ui-badge ui-badge-warning">Yoklama al</span>
-                        {% else %}
-                            <span class="ui-badge ui-badge-neutral">Bekliyor</span>
-                        {% endif %}
-                    </div>
-                </div>
-            {% empty %}
-                <div class="ui-empty">
-                    <div class="ui-empty-icon">🏊</div>
-                    <p class="ui-empty-description">Bugün antrenman yok.</p>
-                </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section class="ui-section">
-        <h2 class="ui-team-group-title">Yarınki antrenmanlar <span>{{ coach_tomorrow|date:"l" }}</span></h2>
-        <div class="ui-card ui-scroll-list">
-            {% for schedule in coach_tomorrow_sessions %}
-                <div class="ui-list-item">
-                    <div class="ui-list-content">
-                        <p class="ui-list-title">{{ schedule.start_time|time:"H:i" }} – {{ schedule.end_time|time:"H:i" }} · {{ schedule.team.name }}</p>
-                        <p class="ui-list-subtitle">{{ schedule.get_training_type_display }}{% if schedule.location %} · {{ schedule.location }}{% endif %}</p>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="ui-empty">
-                    <div class="ui-empty-icon">🏊</div>
-                    <p class="ui-empty-description">Yarın antrenman yok.</p>
-                </div>
-            {% endfor %}
-        </div>
-    </section>
-
+  {% include "dashboard/partials/_current_training.html" %}
     
 <section class="ui-section">
         <h2 class="ui-team-group-title">Takım bazlı katılım <span>Son 1 hafta</span></h2>

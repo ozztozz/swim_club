@@ -2119,17 +2119,19 @@ svg {
 
 /* Ana Liste Kart Konteyneri */
 .ui-training-list {
-    display: flex;
-    flex-direction: column;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: stretch;
 }
 
 /* Her Bir Antrenman SatÄ±rÄ± */
 .ui-training-item {
+  grid-column: 2;
     display: flex;
     flex-row: row;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--ui-border-dark);
     transition: background-color var(--transition);
 }
@@ -2163,6 +2165,26 @@ svg {
     font-weight: var(--font-weight-bold);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
 }
+
+  .ui-training-time-group-badge {
+    grid-column: 1;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    margin: 10px auto 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--ui-surface-3);
+    box-shadow: none;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+  }
+
+  .ui-training-list > .ui-empty {
+    grid-column: 1 / -1;
+  }
 
 /* Orta KÄ±sÄ±m: TakÄ±m ve BranÅŸ Metin AlanÄ± */
 .ui-training-info-block {
@@ -6397,14 +6419,14 @@ select.select,
     background-color: #242427;
   }
 }
-/* Modal arka plan blur'u mobilde de korunur (tek katman, yalnýzca açýkken) */
+/* Modal arka plan blur'u mobilde de korunur (tek katman, yalnï¿½zca aï¿½ï¿½kken) */
 .app-overlay,
 .ui-modal::backdrop {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
-/* Klavye açýkken modal, görünür alanýn üstünde kalýr */
+/* Klavye aï¿½ï¿½kken modal, gï¿½rï¿½nï¿½r alanï¿½n ï¿½stï¿½nde kalï¿½r */
 .app-overlay {
   padding-bottom: calc(12px + env(safe-area-inset-bottom) + var(--keyboard-inset, 0px));
   height: 100dvh;
@@ -6415,7 +6437,7 @@ select.select,
   max-height: calc(100dvh - var(--keyboard-inset, 0px) - 32px);
 }
 
-/* Kullanýcý menüsü: .ui-card width:100% tetikleyici geniþliðine daralýyordu */
+/* Kullanï¿½cï¿½ menï¿½sï¿½: .ui-card width:100% tetikleyici geniï¿½liï¿½ine daralï¿½yordu */
 #topbar-user-dropdown {
   width: 240px;
   max-width: calc(100vw - 32px);

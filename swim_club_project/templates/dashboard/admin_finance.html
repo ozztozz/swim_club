@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Finans | ALPHA ACADEMY{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <div class="page-header-main">
+            <p class="page-eyebrow">Kulüp yönetimi</p>
+            <h1 class="page-title">Finans</h1>
+            <p class="page-description">Gelir, harcama ve tahsilat durumunu dönem bazında takip edin.</p>
+        </div>
+
+        <form method="get" class="flex items-center gap-2">
+            <label for="finance-period" class="sr-only">Dönem</label>
+            <input id="finance-period"
+                   type="month"
+                   name="period"
+                   value="{{ current_period }}"
+                   onchange="this.form.submit()"
+                   class="ui-input w-36">
+        </form>
+    </header>
+
+    {% include "dashboard/partials/_financial_summary.html" %}
+    
+
+    <section class="ui-section">
+        <div class="ui-section-header">
+            <h2 class="ui-section-title">Ödeme durumu</h2>
+            <span class="ui-section-action">{{ current_period }} dönemi</span>
+        </div>
+        <div class="ui-stat-grid">
+            <a href="{% url 'dashboard:payment-list' 'paid' %}?period={{ current_period }}" class="ui-stat block hover:no-underline">
+                <div class="ui-stat-content">
+                    <span class="ui-stat-label ui-text-success">Ödendi</span>
+                    <span class="ui-stat-value ui-text-success">{{ payment_counts.paid }} kişi</span>
+                </div>
+            </a>
+            <a href="{% url 'dashboard:payment-list' 'pending' %}?period={{ current_period }}" class="ui-stat block hover:no-underline">
+                <div class="ui-stat-content">
+                    <span class="ui-stat-label ui-text-danger">Bekliyor</span>
+                    <span class="ui-stat-value ui-text-danger">{{ payment_counts.pending }} kişi</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
