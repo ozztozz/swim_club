@@ -48,7 +48,7 @@ MANIFEST = """
 """.strip()
 
 SERVICE_WORKER = """
-const CACHE_NAME = "alphaacademy-static-v13";
+const CACHE_NAME = "alphaacademy-static-v14";
 const CACHE_PREFIX = "alphaacademy-static-";
 const STATIC_ASSETS = [
     "/manifest.webmanifest",
