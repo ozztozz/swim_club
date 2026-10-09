@@ -1,5 +1,9 @@
 
+from io import BytesIO
+
 from django.db.models import Sum, Q
+from openpyxl import Workbook
+from openpyxl.styles import Font
 from teams.models import Team
 from finance.models import PaymentRecord, TeamFeeHistory, Expense, ExpenseCategory
 from finance.views import (
@@ -11,6 +15,7 @@ from django.utils import timezone
 from athletes.models import Athlete
 from datetime import datetime
 
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from datetime import date
@@ -347,6 +352,8 @@ def payment_list(request, payment_status):
     athlete_count = len(athlete_payments_list)
     context = {
         "period": period,
+        "payment_status": payment_status,
+        "status_label": "Ödenenler" if payment_status == "paid" else "Bekleyenler",
         "selected_team": team_id,
         "athlete_payments_list": athlete_payments_list,
         "total_amount": total_amount,
@@ -356,6 +363,94 @@ def payment_list(request, payment_status):
         #"skipped_athletes": skipped_athletes,
     }
     return render(request, "dashboard/payment_status_list.html", context)
+
+
+@login_required
+def payment_list_export(request, payment_status):
+    period = _normalize_period(request.GET.get("period"))
+    team_id = request.GET.get("team", "")
+    monthly_payments = PaymentRecord.objects.filter(period=period, status="paid")
+    if team_id:
+        monthly_payments = monthly_payments.filter(athlete__team_id=team_id)
+
+    rows = []
+    if payment_status == "paid":
+        paid_by_athlete = (
+            monthly_payments.filter(payment_type="fee")
+            .values(
+                "athlete_id",
+                "athlete__first_name",
+                "athlete__last_name",
+                "athlete__team__name",
+            )
+            .annotate(total=Sum("amount"))
+        )
+        for payment in paid_by_athlete:
+            last_payment = monthly_payments.filter(
+                athlete_id=payment["athlete_id"]
+            ).order_by("-paid_at").first()
+            rows.append([
+                period,
+                "Ödendi",
+                f'{payment["athlete__first_name"]} {payment["athlete__last_name"]}',
+                payment["athlete__team__name"] or "Takımsız",
+                payment["total"],
+                last_payment.paid_at.strftime("%d.%m.%Y") if last_payment and last_payment.paid_at else "",
+            ])
+    else:
+        prices = _get_teams_subscription_price()
+        active_athletes = _get_active_athletes(period)
+        if team_id:
+            active_athletes = active_athletes.filter(team_id=team_id)
+        for athlete in active_athletes:
+            paid = monthly_payments.filter(
+                athlete=athlete,
+                payment_type="fee",
+            ).aggregate(total=Sum("amount"))["total"] or 0
+            amount_due = prices.get(athlete.team_id, 0)
+            if athlete.custom_fee is not None:
+                amount_due = athlete.custom_fee
+            if athlete.private_lesson_fee is not None:
+                amount_due = athlete.private_lesson_fee
+            amount_due = max(amount_due - paid, 0)
+            if amount_due:
+                rows.append([
+                    period,
+                    "Bekliyor",
+                    athlete.get_full_name(),
+                    athlete.team.name if athlete.team else "Takımsız",
+                    amount_due,
+                    "",
+                ])
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "Ödemeler"
+    worksheet.append(["Period", "Durum", "Sporcu", "Takım", "Tutar", "Son ödeme"])
+    for cell in worksheet[1]:
+        cell.font = Font(bold=True)
+    for row in rows:
+        worksheet.append(row)
+    worksheet.freeze_panes = "A2"
+    worksheet.auto_filter.ref = worksheet.dimensions
+    worksheet.column_dimensions["A"].width = 12
+    worksheet.column_dimensions["B"].width = 14
+    worksheet.column_dimensions["C"].width = 28
+    worksheet.column_dimensions["D"].width = 22
+    worksheet.column_dimensions["E"].width = 14
+    worksheet.column_dimensions["F"].width = 14
+
+    output = BytesIO()
+    workbook.save(output)
+    status_filename = "odenen" if payment_status == "paid" else "bekleyen"
+    response = HttpResponse(
+        output.getvalue(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Disposition"] = (
+        f'attachment; filename="odemeler-{status_filename}-{period}.xlsx"'
+    )
+    return response
 
 
 @login_required(login_url="user-login")

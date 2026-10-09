@@ -41,6 +41,10 @@
                                onchange="this.form.submit()"
                                class="ui-input">
                     </label>
+                    <a href="{% url 'dashboard:payment-list-export' payment_status %}?period={{ period }}{% if selected_team %}&team={{ selected_team }}{% endif %}"
+                       class="ui-btn ui-btn-secondary ui-btn-sm">
+                        Excel'e aktar
+                    </a>
                 </form>
             </div>
         </div>

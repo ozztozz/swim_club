@@ -1,7 +1,9 @@
 import json
 import calendar
+from io import BytesIO
 
 from django.shortcuts import render
+from django.http import HttpResponse
 
 # Create your views here.
 # finance/views.py
@@ -21,6 +23,8 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, date
 from decimal import Decimal
+from openpyxl import Workbook
+from openpyxl.styles import Font
 
 
 @login_required
@@ -434,6 +438,56 @@ def expense_list(request):
         'today': date.today(),
     }
     return render(request, 'finance/expenses.html', context)
+
+
+@login_required
+def expense_export(request):
+    period = request.GET.get('period', date.today().strftime('%Y-%m'))
+    category_id = request.GET.get('category', '')
+    query = request.GET.get('q', '').strip()
+    expenses = get_expenses_for_period(period, category_id, query)
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Harcamalar'
+    worksheet.append([
+        'Dönem', 'Tarih', 'Kategori', 'Alıcı / Firma',
+        'Tutar (TL)', 'Durum', 'Belge No', 'Açıklama',
+    ])
+    for cell in worksheet[1]:
+        cell.font = Font(bold=True)
+
+    for expense in expenses:
+        is_regular_source = getattr(expense, 'is_regular_source', False)
+        worksheet.append([
+            period,
+            expense.expense_date.strftime('%d.%m.%Y') if expense.expense_date else '',
+            expense.category.name if expense.category else '',
+            expense.reciever or '',
+            expense.amount,
+            'Bekliyor' if is_regular_source else expense.get_status_display(),
+            '' if is_regular_source else (expense.receipt_no or ''),
+            expense.notes or '',
+        ])
+
+    worksheet.freeze_panes = 'A2'
+    worksheet.auto_filter.ref = worksheet.dimensions
+    for column, width in {
+        'A': 12, 'B': 14, 'C': 24, 'D': 28,
+        'E': 14, 'F': 14, 'G': 18, 'H': 36,
+    }.items():
+        worksheet.column_dimensions[column].width = width
+
+    output = BytesIO()
+    workbook.save(output)
+    response = HttpResponse(
+        output.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = (
+        f'attachment; filename="harcamalar-{period}.xlsx"'
+    )
+    return response
 
 
 @login_required

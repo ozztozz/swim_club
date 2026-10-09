@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('payments/<str:payment_status>/', views.payment_status_list, name='payment-status-list'),
     path('expenses/', views.expense_list, name='expense-list'),
+    path('expenses/export/', views.expense_export, name='expense-export'),
     path('expenses/summary/', views.expense_summary_htmx, name='expense-summary'),
     path('expenses/new/', views.create_expense_htmx, name='expense-create'),
     path('expenses/<int:pk>/edit/', views.update_expense_htmx, name='expense-update'),

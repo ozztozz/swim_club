@@ -26,6 +26,10 @@
                             <input type="hidden" name="q" value="{{ query }}">
                         {% endif %}
                     </form>
+                        <a href="{% url 'expense-export' %}?period={{ period }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}"
+                           class="ui-btn ui-btn-secondary ui-btn-sm">
+                            Excel'e aktar
+                        </a>
                     <button
                         type="button"
                         class="ui-btn ui-btn-primary ui-btn-sm"

@@ -12,14 +12,17 @@
                     <h2 class="ui-section-title">Harcamalar</h2>
                     <span class="ui-section-description">{{ period }} Dönemi</span>
                 </div>
-                <!-- "Yeni Harcama" Butonu Projenizin ui-btn-dark Kimliğine Kavuşturuldu -->
-                <button
-                    type="button"
-                    class="ui-btn ui-btn-primary ui-btn-sm"
-                    hx-get="{% url 'expense-create' %}?period={{ expense_period }}&dashboard=1"
-                    hx-target="#modal-container"
-                    hx-swap="innerHTML"
-                >Yeni Harcama</button>
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'expense-export' %}?period={{ period }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query|urlencode }}{% endif %}"
+                       class="ui-btn ui-btn-secondary ui-btn-sm">Excel'e aktar</a>
+                    <button
+                        type="button"
+                        class="ui-btn ui-btn-primary ui-btn-sm"
+                        hx-get="{% url 'expense-create' %}?period={{ period }}&dashboard=1"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                    >Yeni Harcama</button>
+                </div>
             </div>
 
             <!-- HARCAMA LİSTE TABLOSU (CSS 33. Table Yapısı Giydirildi) -->
