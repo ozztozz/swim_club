@@ -44,7 +44,7 @@ class Athlete(models.Model):
     photo = models.ImageField(upload_to='athlete_photos/', blank=True, null=True, verbose_name="Fotoğraf")
     
     # Onay ve Aktiflik Yönetimi
-    is_active = models.BooleanField(default=False, verbose_name="Aktif Sporcu mu?")
+    is_active = models.BooleanField(default=True, verbose_name="Aktif Sporcu mu?")
     created_at = models.DateTimeField(auto_now_add=True)
 
     team = models.ForeignKey(

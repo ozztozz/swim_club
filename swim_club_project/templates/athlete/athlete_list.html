@@ -7,6 +7,21 @@
                 <h1 class="page-title">Sporcular</h1>
             </div>
         </div>
+         <button
+                type="button"
+                class="dashboard-quick-action"
+                hx-get="{% url 'athlete-manage-create' %}?period={{ current_period }}&dashboard=1"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+             >
+                <span class="dashboard-quick-action-icon">
+                    +
+                </span>
+
+                <span>
+                    Sporcu ekle
+                </span>
+            </button>
 
         <section class="ui-section">
             <form hx-get="{% url 'athlete-manage-list' %}"
