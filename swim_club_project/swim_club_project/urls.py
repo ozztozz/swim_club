@@ -65,6 +65,10 @@ urlpatterns = [
         "teams/",
         include("teams.urls"),
     ),
+        path(
+        "sms/",
+        include("sendSMS.urls"),
+    ),
 ]
 
 

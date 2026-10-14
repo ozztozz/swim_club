@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from teams.models import Team, TeamTrainingAttendance, TeamTrainingSchedule
+from sendSMS.models import GunlukBulten
 
 
 
@@ -110,4 +111,5 @@ def _get_coach_dashboard_context(user):
         "coach_week_session_count": len(schedules),
         "coach_attendance_rate": rate,
         "coach_attendance_url": reverse("training-attendance"),
+        "bulten": GunlukBulten.objects.filter(aktif=True).order_by("-yayin_tarihi", "-id").first(),
     }
