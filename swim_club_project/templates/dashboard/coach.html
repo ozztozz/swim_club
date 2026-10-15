@@ -27,36 +27,62 @@
     </div>
         </div>
     </div>
+    {% include "dashboard/partials/_bulten_card.html" %}
 
   {% include "dashboard/partials/_current_training.html" %}
-    
-<section class="ui-section">
+ <style>
+        .team-ring-legend { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 14px; font-size: 10px; color: var(--ui-muted); }
+        .team-ring-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+        .team-bars { display: flex; flex-direction: column; gap: 16px; padding: 18px 16px; }
+        .team-bar-meta { margin: 2px 0 0; font-size: 10px; color: var(--ui-muted); }
+        .team-bar-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 7px; }
+        .team-bar-name { margin: 0; font-size: 12px; font-weight: 600; color: var(--ui-text); }
+        .team-bar-value { font-size: 12px; font-weight: 800; color: var(--ui-text); }
+        .team-bar-track { height: 10px; border-radius: 999px; background: rgba(0, 0, 0, 0.06); overflow: hidden; }
+        .team-bar-fill { height: 100%; border-radius: 999px; transform-origin: left; animation: team-bar-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+        .team-bar-fill.is-success { background: linear-gradient(90deg, #7ad99a, #3fbf6a); }
+        .team-bar-fill.is-warning { background: linear-gradient(90deg, #f0c872, #e0a93b); }
+        .team-bar-fill.is-danger { background: linear-gradient(90deg, #ea8f8e, #d9605f); }
+        @keyframes team-bar-in { from { transform: scaleX(0); } }
+        @media (prefers-color-scheme: dark) {
+            .team-bar-track { background: rgba(255, 255, 255, 0.1); }
+        }
+    </style>
+
+    <section class="ui-section">
         <h2 class="ui-team-group-title">Takım bazlı katılım <span>Son 1 hafta</span></h2>
-        <div class="ui-card ui-scroll-list">
-            {% for team in coach_teams %}
-                <div class="ui-list-item">
-                    <div class="ui-list-content">
-                        <p class="ui-list-title">{{ team.name }}</p>
-                        <p class="ui-list-subtitle">{{ team.athlete_count }} aktif sporcu</p>
+        {% if coach_teams %}
+            <div class="ui-card team-bars">
+                {% for team in coach_teams %}
+                    <div>
+                        <div class="team-bar-head">
+                            <div>
+                                <p class="team-bar-name">{{ team.name }}</p>
+                                <p class="team-bar-meta">{% if team.attendance_rate is None %}Kayıt yok · {% endif %}{{ team.athlete_count }} sporcu</p>
+                            </div>
+                            <span class="team-bar-value">{% if team.attendance_rate is None %}—{% else %}%{{ team.attendance_rate }}{% endif %}</span>
+                        </div>
+                        <div class="team-bar-track" role="img" aria-label="{{ team.name }} katılım oranı">
+                            {% if team.attendance_rate is not None %}
+                                <div class="team-bar-fill {% if team.attendance_rate >= 75 %}is-success{% elif team.attendance_rate >= 50 %}is-warning{% else %}is-danger{% endif %}"
+                                     style="width: {{ team.attendance_rate }}%"></div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="ui-list-end">
-                        {% if team.attendance_rate is None %}
-                            <span class="ui-badge ui-badge-neutral">Kayıt yok</span>
-                        {% elif team.attendance_rate >= 75 %}
-                            <span class="ui-badge ui-badge-success">%{{ team.attendance_rate }}</span>
-                        {% elif team.attendance_rate >= 50 %}
-                            <span class="ui-badge ui-badge-warning">%{{ team.attendance_rate }}</span>
-                        {% else %}
-                            <span class="ui-badge ui-badge-danger">%{{ team.attendance_rate }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-            {% empty %}
+                {% endfor %}
+            </div>
+            <div class="team-ring-legend">
+                <span><i style="background:#3fbf6a"></i>%75+</span>
+                <span><i style="background:#e0a93b"></i>%50–74</span>
+                <span><i style="background:#d9605f"></i>%50 altı</span>
+            </div>
+        {% else %}
+            <div class="ui-card">
                 <div class="ui-empty">
                     <p class="ui-empty-description">Size atanmış takım yok.</p>
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% endif %}
     </section>
 
 {% endblock %}

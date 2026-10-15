@@ -71,6 +71,12 @@ urlpatterns = [
         "events/",
         include("events.urls"),
     ),
+
+    # SMS
+    path(
+        "sms/",
+        include("sendSMS.urls"),
+    ),
 ]
 
 
