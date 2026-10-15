@@ -6488,3 +6488,210 @@ select.select,
     background-color: rgba(36, 36, 39, 0.97);
   }
 }
+
+/* =========================================================
+   GÜNLÜK BÜLTEN KARTI (ALPHA UI - GLASSMORPHISM)
+   ========================================================= */
+.bulten-card {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.bulten-card:hover {
+  box-shadow: var(--glass-shadow-lg);
+  transform: translateY(-1px);
+}
+
+/* Üst marka renk şeridi */
+.bulten-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--ui-primary-strong) 0%,
+    var(--teal) 50%,
+    var(--dusty-denim) 100%
+  );
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  pointer-events: none;
+}
+
+/* Kart Başlığı / Header Bölümü */
+.bulten-card > div:first-child,
+.bulten-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--ui-border-dark);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Tarih Rozeti / Meta */
+.bulten-card > div:first-child > div > span,
+.bulten-card-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ui-muted);
+}
+
+.bulten-card > div:first-child > div > span::before,
+.bulten-card-date::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--teal);
+  box-shadow: 0 0 8px rgba(72, 130, 134, 0.6);
+}
+
+/* Bülten Başlığı */
+.bulten-card > div:first-child > div > h3,
+.bulten-card-title {
+  margin: 3px 0 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--ui-text);
+  line-height: 1.35;
+}
+
+/* Günlük Bülten Rozeti */
+.bulten-card > div:first-child > span,
+.bulten-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  min-height: 26px;
+  border-radius: var(--radius-control);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  background: linear-gradient(
+    135deg,
+    rgba(197, 221, 250, 0.95) 0%,
+    rgba(172, 208, 246, 0.95) 100%
+  );
+  color: var(--ui-primary-text);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 10px rgba(172, 208, 246, 0.35);
+  flex-shrink: 0;
+}
+
+/* İçerik Gövdesi */
+.bulten-card > div:last-child,
+.bulten-card-content {
+  padding: 18px 20px 20px;
+  color: var(--ui-text);
+  font-size: 13.5px;
+  line-height: 1.65;
+  word-break: break-word;
+}
+
+.bulten-card > div:last-child p,
+.bulten-card-content p {
+  margin: 0.6em 0;
+  color: var(--ui-text-soft);
+}
+
+.bulten-card > div:last-child a,
+.bulten-card-content a {
+  color: #3b72c4;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.bulten-card > div:last-child a:hover,
+.bulten-card-content a:hover {
+  text-decoration: underline;
+  color: #1d4ed8;
+}
+
+.bulten-card > div:last-child blockquote,
+.bulten-card-content blockquote {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border-left: 3px solid var(--ui-primary-strong);
+  border-radius: var(--radius-xs);
+  font-style: italic;
+  color: var(--ui-text);
+}
+
+/* Koyu Tema Uyumluluğu */
+@media (prefers-color-scheme: dark) {
+  .bulten-card {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .bulten-card > div:first-child,
+  .bulten-card-header {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .bulten-card > div:first-child > div > span::before,
+  .bulten-card-date::before {
+    background-color: var(--teal);
+    box-shadow: 0 0 8px rgba(72, 130, 134, 0.8);
+  }
+
+  .bulten-card > div:first-child > span,
+  .bulten-card-badge {
+    background: rgba(197, 221, 250, 0.16);
+    color: #c5ddfa;
+    border-color: rgba(197, 221, 250, 0.25);
+    box-shadow: none;
+  }
+
+  .bulten-card > div:last-child a,
+  .bulten-card-content a {
+    color: #60a5fa;
+  }
+
+  .bulten-card > div:last-child blockquote,
+  .bulten-card-content blockquote {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* Mobil Ekran İyileştirmeleri */
+@media (max-width: 640px) {
+  .bulten-card > div:first-child,
+  .bulten-card-header {
+    padding: 14px 16px 12px;
+  }
+
+  .bulten-card > div:last-child,
+  .bulten-card-content {
+    padding: 14px 16px 16px;
+  }
+}
+
+

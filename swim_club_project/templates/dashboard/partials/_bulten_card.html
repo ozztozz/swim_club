@@ -1,20 +1,20 @@
 
 
 {% if bulten %}
-    <div class="ui-card p-5 mb-4 border border-[var(--ui-border-dark)] bg-[var(--ui-white)] shadow-[var(--shadow-card)]">
-        <div class="flex items-center justify-between pb-3 mb-3 border-b border-[var(--ui-border-dark)]">
+    <div class="bulten-card">
+        <div>
             <div>
-                <span class="text-[10px] font-semibold text-[var(--ui-muted)] uppercase tracking-wider">
+                <span>
                     {{ bulten.yayin_tarihi|date:"d F Y" }}
                 </span>
-                <h3 class="text-base font-bold text-[var(--ui-text)] m-0 mt-0.5">
+                <h3>
                     {{ bulten.baslik }}
                 </h3>
             </div>
-            <span class="ui-badge ui-badge-primary text-[10px]">Günlük Bülten</span>
+            <span>Günlük Bülten</span>
         </div>
 
-        <div class="prose prose-sm max-w-none text-[var(--ui-text)]">
+        <div>
             {{ bulten.icerik_html|safe }}
         </div>
     </div>
