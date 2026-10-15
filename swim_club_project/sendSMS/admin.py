@@ -1,6 +1,6 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import SMSMessage
+from .models import GunlukBulten
 
-admin.site.register(SMSMessage) 
+admin.site.register(GunlukBulten)
