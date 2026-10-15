@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} | ALPHA ACADEMY{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <div class="page-header-main">
+            <a href="{% url 'event-list' %}" class="page-eyebrow">← Yarışmalar ve etkinlikler</a>
+            <h1 class="page-title">{{ title }}</h1>
+        </div>
+    </header>
+
+    <section class="ui-card">
+        <div class="ui-card-header">
+            <div>
+                <h2 class="ui-card-title">Etkinlik bilgileri</h2>
+                <p class="ui-card-subtitle">Yarışma ve yaş grubu bilgilerini girin.</p>
+            </div>
+        </div>
+        <div class="ui-card-body">
+            <form method="post" enctype="multipart/form-data" class="ui-form-grid">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="ui-field">
+                        <label for="{{ field.id_for_label }}" class="ui-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<span class="ui-error">{{ field.errors|striptags }}</span>{% endif %}
+                    </div>
+                {% endfor %}
+                <div class="ui-field ui-field-full">
+                    <label for="{{ attachments_form.files.id_for_label }}" class="ui-label">{{ attachments_form.files.label }}</label>
+                    {{ attachments_form.files }}
+                    <span class="ui-help">PDF, Excel veya görsel dosyalarını birlikte seçebilirsiniz.</span>
+                    {% if attachments_form.files.errors %}<span class="ui-error">{{ attachments_form.files.errors|striptags }}</span>{% endif %}
+                </div>
+                <div class="ui-modal-actions ui-field-full">
+                    <a href="{% url 'event-list' %}" class="ui-btn ui-btn-secondary">Vazgeç</a>
+                    <button type="submit" class="ui-btn ui-btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

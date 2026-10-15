@@ -4530,7 +4530,47 @@ details[open] > summary .ui-form-details-icon {
 .ui-danger-details-body {
   grid-template-columns: 1fr;
 }
+/* =========================================================
+   DOSYA YÜKLEME ALANI (FILE INPUT STYLING)
+   ========================================================= */
+.ui-field .ui-input.ui-input-file {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.75rem 1rem;
+  background-color: var(--glass-bg-soft);
+  border: 2px dashed var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--ui-text);
+  cursor: pointer;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  transition: all var(--transition);
+  box-shadow: inset 0 1px 2px rgba(35, 38, 43, 0.04);
+}
 
+.ui-field .ui-input.ui-input-file:hover {
+  background-color: var(--glass-bg);
+  border-color: var(--ui-text-muted);
+}
+
+/* Tarayıcının varsayılan "Dosya Seç" butonunu tasarım dilinize uyarlama */
+.ui-field .ui-input.ui-input-file::file-selector-button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background-color: var(--ui-surface);
+  color: var(--ui-text);
+  font-weight: var(--font-weight-medium);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.ui-field .ui-input.ui-input-file::file-selector-button:hover {
+  background-color: var(--ui-surface-2);
+}
 /* Onay satiri */
 .ui-checkbox-row {
   display: flex;

@@ -1,0 +1,215 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ event.name }} | ALPHA ACADEMY{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+
+    <!-- SAYFA BAŞLIĞI -->
+    <header class="page-header">
+        <div class="page-header-main">
+            <a href="{% url 'event-list' %}" class="page-eyebrow">
+                ← Yarışmalar ve etkinlikler
+            </a>
+
+            <h1 class="page-title">{{ event.name }}</h1>
+
+            <p class="page-description">
+                {{ event.event_date|date:"d.m.Y" }} · {{ event.place }}
+            </p>
+        </div>
+
+        {% if can_manage %}
+            <button
+                type="button"
+                class="ui-btn ui-btn-primary ui-btn-sm"
+                hx-get="{% url 'event-update' event.pk %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML">
+                Düzenle
+            </button>
+        {% endif %}
+    </header>
+
+
+    <!-- ETKİNLİK BİLGİLERİ -->
+    <section class="ui-stat-grid mb-6">
+
+        <div class="ui-stat">
+            <span class="ui-stat-label">Tarih</span>
+            <strong class="ui-stat-value text-xl">
+                {{ event.event_date|date:"d.m.Y" }}
+            </strong>
+        </div>
+
+        <div class="ui-stat">
+            <span class="ui-stat-label">Havuz</span>
+            <strong class="ui-stat-value text-xl">
+                {{ event.get_pool_type_display }}
+            </strong>
+        </div>
+
+        <div class="ui-stat">
+            <span class="ui-stat-label">Yaş başlangıç</span>
+            <strong class="ui-stat-value text-xl">
+                {{ event.age_group_start }}
+            </strong>
+        </div>
+
+        <div class="ui-stat">
+            <span class="ui-stat-label">Yaş bitiş</span>
+            <strong class="ui-stat-value text-xl">
+                {{ event.age_group_end }}
+            </strong>
+        </div>
+
+        <div class="ui-stat">
+            <span class="ui-stat-label">Yer</span>
+            <strong class="ui-stat-value text-xl">
+                {{ event.place }}
+            </strong>
+        </div>
+
+    </section>
+
+
+    <!-- DOSYALAR -->
+    <section class="ui-section">
+
+        <div class="ui-section-header">
+            <div>
+                <h2 class="ui-section-title">Dosyalar</h2>
+                <p class="ui-section-description">
+                    Etkinliğe ait belgeler ve ekler
+                </p>
+            </div>
+        </div>
+
+
+        <!-- YÜKLENMİŞ DOSYALAR -->
+        <div class="ui-list">
+
+            {% for attachment in event.attachments.all %}
+
+            <div class="ui-training-item">
+    <div class="ui-training-meta-left">
+        <div class="ui-training-info-block">
+            <div class="ui-training-team-row">
+                <span class="ui-team-dot dot-orange"></span>
+                <span class="ui-training-team-name">{{ attachment.file_name|title }}</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ui-training-meta-right">
+        <span class="ui-training-duration">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
+
+                <spanclass="ui-badge ui-badge-success"> <span class="ui-text-success">
+
+                                    <a href="{{ attachment.file.url }}"
+                    target="_blank"
+                    rel="noopener">
+
+                         <span class="ui-btn ui-btn-secondary ui-btn-sm">
+                        Görüntüle
+                    </span>
+                </a>
+                   
+
+{% if can_manage %}
+    <a href="{% url 'attachment-delete' event.pk attachment.pk %}" 
+       class="ui-btn ui-btn-danger ui-btn-sm"
+       onclick="return confirm('Bu dosyayı silmek istediğinizden emin misiniz?');">
+        Sil
+    </a>
+{% endif %}
+                </span></span>
+
+    </div>
+</div>
+
+            
+
+                
+            {% empty %}
+
+                <div class="ui-empty">
+                    <p class="ui-empty-description">
+                        Bu etkinliğe henüz dosya eklenmemiş.
+                    </p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- DOSYA EKLEME -->
+        {% if can_manage %}
+            <div class="ui-card">
+
+
+
+                <form
+                    method="post"
+                    action="{% url 'attachment-add' event.pk %}"
+                    enctype="multipart/form-data">
+
+                    {% csrf_token %}
+                    {{ attachments_formset.management_form }}
+
+                    <div class="ui-form" style="display: flex; flex-direction: column; gap: 16px;">
+                        {% for form in attachments_formset %}
+                            <div class="ui-card" style="padding: 16px; background: var(--ui-surface-2, #f2f3f5); border: 1px solid var(--ui-border-dark);">
+                                
+                                {{ form.id }}
+
+                                <!-- Dosya Adı Alanı -->
+                                <div class="ui-field" style="margin-bottom: 12px;">
+                                    <label for="{{ form.file_name.id_for_label }}" class="ui-label">
+                                        Dosya Adı
+                                    </label>
+                                    {{ form.file_name }}
+                                    {% if form.file_name.errors %}
+                                        <p class="ui-error">{{ form.file_name.errors|striptags }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Dosya Seçme Alanı -->
+                                <div class="ui-field">
+                                    <label for="{{ form.file.id_for_label }}" class="ui-label">
+                                        Dosya Seç
+                                    </label>
+                                    {{ form.file }}
+                                    {% if form.file.errors %}
+                                        <p class="ui-error">{{ form.file.errors|striptags }}</p>
+                                    {% endif %}
+                                                     <div class="ui-form-actions" style="margin-top: 20px;">
+                        <button
+                            type="submit"
+                            class="ui-btn ui-btn-primary">
+                            Dosyayı Yükle
+                        </button>
+                    </div>
+                                </div>
+
+                            </div>
+                        {% endfor %}
+                        
+                    </div>
+
+
+                </form>
+
+            </div>
+        {% endif %}
+
+
+
+    </section>
+
+</div>
+{% endblock %}
+

@@ -65,6 +65,12 @@ urlpatterns = [
         "teams/",
         include("teams.urls"),
     ),
+
+    # Yarışmalar ve etkinlikler
+    path(
+        "events/",
+        include("events.urls"),
+    ),
 ]
 
 

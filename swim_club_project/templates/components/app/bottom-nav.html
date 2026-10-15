@@ -162,6 +162,21 @@
                 </span>
             </a>
 
+            <!-- YARIŞMALAR VE ETKİNLİKLER -->
+            <a
+                href="{% url 'event-list' %}"
+                class="app-bottom-nav-item {% if 'event-' in request.resolver_match.url_name %}active{% endif %}"
+            >
+                <span class="app-bottom-nav-item-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 5h16v15H4z"/>
+                        <path d="M8 3v4M16 3v4M4 9h16"/>
+                        <path d="M8 13h3M13 13h3M8 17h3"/>
+                    </svg>
+                </span>
+                <span class="app-bottom-nav-item-label">Yarışmalar</span>
+            </a>
+
 
             {% if request.user.is_club_admin %}
 

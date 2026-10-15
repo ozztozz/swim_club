@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "finance",
     "sendSMS",
     'dashboard',
+    "events",
 ]
 
 MIDDLEWARE = [

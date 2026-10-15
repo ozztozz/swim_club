@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Yarışmalar ve Etkinlikler | ALPHA ACADEMY{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <div class="page-header-main">
+            <p class="page-eyebrow">Kulüp takvimi</p>
+            <h1 class="page-title">Yarışmalar ve etkinlikler</h1>
+            <p class="page-description">Müsabaka bilgilerine ve ilgili dosyalara erişin.</p>
+        </div>
+        {% if can_manage %}
+            <button type="button"
+                    class="ui-btn ui-btn-primary ui-btn-sm"
+                    hx-get="{% url 'event-create' %}"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML">
+                Yeni kayıt
+            </button>
+        {% endif %}
+    </header>
+
+    <form method="get" class="ui-card ui-modal-form p-4 mb-4">
+        <label class="ui-field flex-1">
+            <span class="sr-only">Yarışma ara</span>
+            <input type="search" name="q" value="{{ query }}" class="ui-input" placeholder="Müsabaka, yaş grubu veya yer ara">
+        </label>
+        <div class="ui-modal-actions">
+            <button type="submit" class="ui-btn ui-btn-secondary ui-btn-sm">Ara</button>
+        </div>
+    </form>
+
+    {% include "events/partials/_event_list.html" %}
+</div>
+{% endblock %}
