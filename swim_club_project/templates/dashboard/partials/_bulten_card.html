@@ -1,22 +1,142 @@
-
-
 {% if bulten %}
-    <div class="bulten-card">
+<div class="ui-card ui-bulten-card">
+    <!-- Başlık ve Tarih -->
+    <div class="ui-card-header">
         <div>
-            <div>
-                <span>
-                    {{ bulten.yayin_tarihi|date:"d F Y" }}
-                </span>
-                <h3>
-                    {{ bulten.baslik }}
-                </h3>
-            </div>
-            <span>Günlük Bülten</span>
+            <span class="ui-card-subtitle">
+                {{ bulten.yayin_tarihi|date:"d F Y" }}
+            </span>
+            <h3 class="ui-card-title">
+                {{ bulten.baslik }}
+            </h3>
         </div>
-
-        <div>
-            {{ bulten.icerik_html|safe }}
-        </div>
+        <span class="ui-badge ui-badge-primary">📰 Günlük Bülten</span>
     </div>
-{% endif %}
 
+    <div class="ui-card-body ui-bulten-body">
+        <!-- 1. Antrenör Masası & Günün Sözü -->
+        {% if bulten.icerik_json.antrenor_masasi %}
+        <div class="ui-bulten-section">
+            <h4 class="ui-bulten-section-title">
+                🏊‍♂️ Antrenör Masası & Günün Sözü
+            </h4>
+            <div class="ui-bulten-quote">
+                <blockquote>
+                    "{{ bulten.icerik_json.antrenor_masasi.soz }}"
+                </blockquote>
+                <p class="ui-bulten-quote-author">
+                    — {{ bulten.icerik_json.antrenor_masasi.soyleyen }} 
+                    <span>({{ bulten.icerik_json.antrenor_masasi.unvan }})</span>
+                </p>
+                <p class="ui-bulten-note">
+                    <strong>📌 Havuz Kenarı Notu:</strong> 
+                    {{ bulten.icerik_json.antrenor_masasi.havuz_kenari_notu }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 2, 3, 4. Bülten Akışı & Haberler (Açılır Menü) -->
+        {% if bulten.icerik_json.turkiye_gundemi or bulten.icerik_json.uluslararasi_analiz or bulten.icerik_json.antrenman_bilimi %}
+        <details class="ui-bulten-collapse-wrapper">
+            <summary class="ui-bulten-collapse-trigger">
+                <span class="ui-bulten-collapse-label">
+                    <span>📰</span> Günün Bülten Akışı & Haberler
+                </span>
+                <span class="ui-bulten-collapse-badge">
+                    <span class="ui-bulten-closed-text">Detayları Gör</span>
+                    <span class="ui-bulten-open-text">Kapat</span>
+                    <span class="ui-bulten-chevron">▾</span>
+                </span>
+            </summary>
+
+            <div class="ui-bulten-collapse-body">
+                <!-- 2. Türkiye Performans ve Gelişim -->
+                {% if bulten.icerik_json.turkiye_gundemi %}
+                <div class="ui-bulten-section">
+                    <h4 class="ui-bulten-section-title">
+                        🇹🇷 Türkiye Yüzme Haberleri
+                    </h4>
+                    <div class="ui-bulten-list">
+                        {% for item in bulten.icerik_json.turkiye_gundemi %}
+                        <details class="ui-bulten-item">
+                            <summary class="ui-bulten-item-header">
+                                <span class="ui-bulten-item-title">{{ item.baslik }}</span>
+                                <div class="ui-bulten-item-meta">
+                                    <span class="ui-bulten-chevron">▾</span>
+                                </div>
+                            </summary>
+                            <div class="ui-bulten-item-content">
+                                <p class="ui-bulten-item-desc">{{ item.ozet }}</p>
+                                <a href="{{ item.kaynak_url }}" target="_blank" rel="noopener noreferrer" class="ui-bulten-link">
+                                    Kaynak: {{ item.kaynak_adi }} &rarr;
+                                </a>
+                            </div>
+                        </details>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 3. Uluslararası Elit Performans -->
+                {% if bulten.icerik_json.uluslararasi_analiz %}
+                <div class="ui-bulten-section">
+                    <h4 class="ui-bulten-section-title">
+                        🌍 Uluslararası Haberler
+                    </h4>
+                    <div class="ui-bulten-list">
+                        {% for item in bulten.icerik_json.uluslararasi_analiz %}
+                        <details class="ui-bulten-item">
+                            <summary class="ui-bulten-item-header">
+                                <span class="ui-bulten-item-title">{{ item.baslik }}</span>
+                                <div class="ui-bulten-item-meta">
+                                    <span class="ui-bulten-chevron">▾</span>
+                                </div>
+                            </summary>
+                            <div class="ui-bulten-item-content">
+                                <p class="ui-bulten-item-desc">{{ item.ozet }}</p>
+                                <a href="{{ item.kaynak_url }}" target="_blank" rel="noopener noreferrer" class="ui-bulten-link">
+                                    Kaynak: {{ item.kaynak_adi }} &rarr;
+                                </a>
+                            </div>
+                        </details>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 4. Antrenman Bilimi & Biyomekanik -->
+                {% if bulten.icerik_json.antrenman_bilimi %}
+                <div class="ui-bulten-section">
+                    <h4 class="ui-bulten-section-title">
+                        🔬 Spor Bilimleri Makaleleri
+                    </h4>
+                    <div class="ui-bulten-list">
+                        {% for item in bulten.icerik_json.antrenman_bilimi %}
+                        <details class="ui-bulten-item">
+                            <summary class="ui-bulten-item-header">
+                                <span class="ui-bulten-item-title">{{ item.baslik }}</span>
+                                <div class="ui-bulten-item-meta">
+                                    {% if item.kategori %}
+                                    <span class="ui-badge ui-badge-primary">{{ item.kategori }}</span>
+                                    {% endif %}
+                                    <span class="ui-bulten-chevron">▾</span>
+                                </div>
+                            </summary>
+                            <div class="ui-bulten-item-content">
+                                <p class="ui-bulten-item-desc">{{ item.ozet }}</p>
+                                <a href="{{ item.kaynak_url }}" target="_blank" rel="noopener noreferrer" class="ui-bulten-link">
+                                    Kaynak: {{ item.kaynak_adi }} &rarr;
+                                </a>
+                            </div>
+                        </details>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </details>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

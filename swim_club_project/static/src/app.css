@@ -6492,6 +6492,7 @@ select.select,
 /* =========================================================
    GÜNLÜK BÜLTEN KARTI (ALPHA UI - GLASSMORPHISM)
    ========================================================= */
+.ui-bulten-card,
 .bulten-card {
   position: relative;
   width: 100%;
@@ -6506,12 +6507,14 @@ select.select,
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
+.ui-bulten-card:hover,
 .bulten-card:hover {
   box-shadow: var(--glass-shadow-lg);
   transform: translateY(-1px);
 }
 
 /* Üst marka renk şeridi */
+.ui-bulten-card::before,
 .bulten-card::before {
   content: "";
   position: absolute;
@@ -6530,21 +6533,14 @@ select.select,
   pointer-events: none;
 }
 
-/* Kart Başlığı / Header Bölümü */
-.bulten-card > div:first-child,
-.bulten-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+/* Kart Header & Tarih */
+.ui-bulten-card .ui-card-header {
   padding: 16px 20px 14px;
   border-bottom: 1px solid var(--ui-border-dark);
   background: rgba(255, 255, 255, 0.4);
 }
 
-/* Tarih Rozeti / Meta */
-.bulten-card > div:first-child > div > span,
-.bulten-card-date {
+.ui-bulten-card .ui-card-subtitle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -6553,10 +6549,10 @@ select.select,
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--ui-muted);
+  margin-bottom: 2px;
 }
 
-.bulten-card > div:first-child > div > span::before,
-.bulten-card-date::before {
+.ui-bulten-card .ui-card-subtitle::before {
   content: "";
   display: inline-block;
   width: 6px;
@@ -6566,10 +6562,7 @@ select.select,
   box-shadow: 0 0 8px rgba(72, 130, 134, 0.6);
 }
 
-/* Bülten Başlığı */
-.bulten-card > div:first-child > div > h3,
-.bulten-card-title {
-  margin: 3px 0 0;
+.ui-bulten-card .ui-card-title {
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.015em;
@@ -6577,121 +6570,351 @@ select.select,
   line-height: 1.35;
 }
 
-/* Günlük Bülten Rozeti */
-.bulten-card > div:first-child > span,
-.bulten-card-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 12px;
-  min-height: 26px;
-  border-radius: var(--radius-control);
+/* Bülten Gövde & Bölümler */
+.ui-bulten-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 18px 20px 20px;
+}
+
+/* 1. Antrenör Masası & Alıntı */
+.ui-bulten-quote {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border-dark);
+}
+
+.ui-bulten-quote blockquote {
+  font-style: italic;
+  font-weight: 500;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ui-text);
+  margin: 0;
+}
+
+.ui-bulten-quote-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-muted);
+  margin: 6px 0 8px;
+}
+
+.ui-bulten-quote-author span {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.ui-bulten-note {
+  font-size: 12px;
+  color: var(--ui-text);
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--ui-border-dark);
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
+.ui-bulten-note strong {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+/* 2. Bölüm ve Liste Yapısı */
+.ui-bulten-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ui-bulten-section-title {
+  margin: 0;
   font-size: 11px;
   font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  background: linear-gradient(
-    135deg,
-    rgba(197, 221, 250, 0.95) 0%,
-    rgba(172, 208, 246, 0.95) 100%
-  );
-  color: var(--ui-primary-text);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 2px 10px rgba(172, 208, 246, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ui-muted);
+}
+
+.ui-bulten-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Akordiyon / Açılır Bülten Maddeleri */
+.ui-bulten-item {
+  border-radius: var(--radius-sm);
+  background: var(--ui-white);
+  border: 1px solid var(--ui-border-dark);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  overflow: hidden;
+}
+
+details.ui-bulten-item {
+  padding: 0;
+}
+
+details.ui-bulten-item[open] {
+  border-color: #3b82f6;
+  box-shadow: var(--shadow-soft);
+}
+
+details.ui-bulten-item summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  user-select: none;
+  transition: background-color var(--transition);
+}
+
+details.ui-bulten-item summary::-webkit-details-marker {
+  display: none;
+}
+
+details.ui-bulten-item summary:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.ui-bulten-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ui-bulten-item-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ui-text);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.ui-bulten-item-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-/* İçerik Gövdesi */
-.bulten-card > div:last-child,
-.bulten-card-content {
-  padding: 18px 20px 20px;
-  color: var(--ui-text);
-  font-size: 13.5px;
-  line-height: 1.65;
-  word-break: break-word;
+.ui-bulten-chevron {
+  font-size: 11px;
+  color: var(--ui-muted);
+  display: inline-block;
+  transition: transform var(--transition);
 }
 
-.bulten-card > div:last-child p,
-.bulten-card-content p {
-  margin: 0.6em 0;
-  color: var(--ui-text-soft);
+details.ui-bulten-item[open] .ui-bulten-chevron {
+  transform: rotate(180deg);
 }
 
-.bulten-card > div:last-child a,
-.bulten-card-content a {
-  color: #3b72c4;
-  font-weight: 600;
+.ui-bulten-item-content {
+  padding: 8px 14px 12px;
+  border-top: 1px dashed var(--ui-border-dark);
+  animation: bulten-slide-down 0.2s ease-out;
+}
+
+@keyframes bulten-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ui-bulten-item-desc {
+  font-size: 12px;
+  color: var(--ui-muted);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.ui-bulten-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #2563eb;
   text-decoration: none;
   transition: color var(--transition);
 }
 
-.bulten-card > div:last-child a:hover,
-.bulten-card-content a:hover {
+.ui-bulten-link:hover {
   text-decoration: underline;
   color: #1d4ed8;
 }
 
-.bulten-card > div:last-child blockquote,
-.bulten-card-content blockquote {
-  margin: 12px 0;
+/* Bülten Genişletilebilir Alt Blok */
+.ui-bulten-collapse-wrapper {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--ui-border-dark);
+  background: var(--ui-surface-2);
+  transition: all var(--transition);
+  overflow: hidden;
+}
+
+.ui-bulten-collapse-wrapper[open] {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: var(--ui-primary-strong);
+  box-shadow: var(--shadow-soft);
+}
+
+.ui-bulten-collapse-trigger {
+  list-style: none;
+  cursor: pointer;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border-left: 3px solid var(--ui-primary-strong);
-  border-radius: var(--radius-xs);
-  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  user-select: none;
+  font-weight: 600;
+  font-size: 13px;
   color: var(--ui-text);
+  transition: background-color var(--transition);
+}
+
+.ui-bulten-collapse-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.ui-bulten-collapse-trigger:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.ui-bulten-collapse-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ui-bulten-collapse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ui-muted);
+  background: var(--ui-white);
+  padding: 4px 10px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--ui-border-dark);
+}
+
+.ui-bulten-collapse-wrapper[open] .ui-bulten-collapse-badge {
+  color: var(--ui-primary-text);
+  background: var(--ui-primary);
+  border-color: transparent;
+}
+
+.ui-bulten-collapse-wrapper:not([open]) .ui-bulten-open-text,
+.ui-bulten-collapse-wrapper[open] .ui-bulten-closed-text {
+  display: none;
+}
+
+.ui-bulten-collapse-wrapper[open] .ui-bulten-chevron {
+  transform: rotate(180deg);
+}
+
+.ui-bulten-collapse-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--ui-border-dark);
+  animation: bulten-slide-down 0.22s ease-out;
 }
 
 /* Koyu Tema Uyumluluğu */
 @media (prefers-color-scheme: dark) {
+  .ui-bulten-card,
   .bulten-card {
     background: var(--glass-bg);
     border-color: var(--glass-border);
     box-shadow: var(--glass-shadow);
   }
 
-  .bulten-card > div:first-child,
-  .bulten-card-header {
+  .ui-bulten-card .ui-card-header {
     background: rgba(255, 255, 255, 0.03);
     border-bottom-color: rgba(255, 255, 255, 0.08);
   }
 
-  .bulten-card > div:first-child > div > span::before,
-  .bulten-card-date::before {
-    background-color: var(--teal);
-    box-shadow: 0 0 8px rgba(72, 130, 134, 0.8);
+  .ui-bulten-quote {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
-  .bulten-card > div:first-child > span,
-  .bulten-card-badge {
-    background: rgba(197, 221, 250, 0.16);
-    color: #c5ddfa;
-    border-color: rgba(197, 221, 250, 0.25);
-    box-shadow: none;
+  .ui-bulten-note {
+    border-top-color: rgba(255, 255, 255, 0.08);
   }
 
-  .bulten-card > div:last-child a,
-  .bulten-card-content a {
-    color: #60a5fa;
+  .ui-bulten-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
-  .bulten-card > div:last-child blockquote,
-  .bulten-card-content blockquote {
+  details.ui-bulten-item summary:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .ui-bulten-item-content {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ui-bulten-item:hover {
+    border-color: #60a5fa;
+  }
+
+  .ui-bulten-collapse-wrapper {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ui-bulten-collapse-wrapper[open] {
     background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(197, 221, 250, 0.3);
+  }
+
+  .ui-bulten-collapse-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .ui-bulten-collapse-badge {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .ui-bulten-collapse-body {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ui-bulten-link,
+  .ui-bulten-note strong {
+    color: #60a5fa;
   }
 }
 
 /* Mobil Ekran İyileştirmeleri */
 @media (max-width: 640px) {
-  .bulten-card > div:first-child,
-  .bulten-card-header {
+  .ui-bulten-card .ui-card-header {
     padding: 14px 16px 12px;
   }
 
-  .bulten-card > div:last-child,
-  .bulten-card-content {
+  .ui-bulten-body {
     padding: 14px 16px 16px;
+    gap: 16px;
   }
 }
+
 
 
