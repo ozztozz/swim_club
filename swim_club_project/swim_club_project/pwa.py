@@ -1,3 +1,5 @@
+import hashlib
+from django.conf import settings
 from django.http import HttpResponse
 
 
@@ -47,8 +49,38 @@ MANIFEST = """
 }
 """.strip()
 
-SERVICE_WORKER = """
-const CACHE_NAME = "alphaacademy-static-v16";
+TRACKED_STATIC_FILES = (
+    "css/app.css",
+    "js/app.js",
+    "js/form-controls.js",
+    "js/pwa-install.js",
+    "js/pwa-runtime.js",
+    "offline.html",
+)
+
+
+def _get_cache_version():
+    """
+    Takip edilen statik dosyaların son değiştirilme zamanı (mtime) ve boyutuna göre
+    otomatik önbellek sürüm özeti (hash) üretir. Dosyalardan biri değiştiğinde
+    CACHE_NAME otomatik değişir ve istemcilerde PWA güncelleme bildirimi tetiklenir.
+    """
+    hasher = hashlib.sha256()
+    static_dir = settings.BASE_DIR / "static"
+
+    for rel_path in TRACKED_STATIC_FILES:
+        file_path = static_dir / rel_path
+        try:
+            stat = file_path.stat()
+            hasher.update(f"{rel_path}:{stat.st_mtime_ns}:{stat.st_size};".encode("utf-8"))
+        except OSError:
+            hasher.update(f"{rel_path}:missing;".encode("utf-8"))
+
+    return hasher.hexdigest()[:10]
+
+
+SERVICE_WORKER_TEMPLATE = """
+const CACHE_NAME = "alphaacademy-static-__CACHE_VERSION__";
 const CACHE_PREFIX = "alphaacademy-static-";
 const STATIC_ASSETS = [
     "/manifest.webmanifest",
@@ -155,8 +187,13 @@ def manifest(request):
 
 
 def service_worker(request):
+    sw_body = SERVICE_WORKER_TEMPLATE.replace("__CACHE_VERSION__", _get_cache_version())
     return HttpResponse(
-        SERVICE_WORKER,
+        sw_body,
         content_type="application/javascript; charset=utf-8",
-        headers={"Service-Worker-Allowed": "/"},
+        headers={
+            "Service-Worker-Allowed": "/",
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+        },
     )
+

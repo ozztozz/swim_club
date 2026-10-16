@@ -1,9 +1,9 @@
 
 {
   "id": "/",
-  "name": "Alpha Academy Kul\u00fcp Y\u00f6netim Paneli",
+  "name": "Alpha Academy Kulüp Yönetim Paneli",
   "short_name": "Alpha",
-  "description": "Alpha Academy spor kul\u00fcb\u00fc y\u00f6netim paneli",
+  "description": "Alpha Academy spor kulübü yönetim paneli",
   "start_url": "/dashboard/",
   "scope": "/",
   "display": "standalone",
