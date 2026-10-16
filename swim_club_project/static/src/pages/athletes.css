@@ -1,0 +1,448 @@
+/* =========================================================
+   MODERN GLASSMORPHISM (CAM EFEKTİ) PROFİL KARTI
+   ========================================================= */
+
+.profile-hero-card {
+  position: relative;
+  /* Yarı saydam beyaz taban (Arka plan ışığını şık bir şekilde geçirir) */
+  background: rgba(255, 255, 255, 0.45); 
+  
+  /* Arkadaki elementleri ve gradyanları yumuşatarak buzlu cam hissi verir */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  
+  border-radius: 20px;
+  padding: 16px 20px;
+  text-align: center;
+  color: var(--ui-text); /* Yazılar artık koyu ve okunabilir */
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  
+  /* Işığın camın kenarına vurma efekti (İnce, zarif kristal sınır) */
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  max-width: 100%;
+}
+
+/* Camın derinliğini artırmak için iç ışık efektini hafifletiyoruz */
+.profile-hero-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.profile-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-hero-back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--ui-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(35, 38, 43, 0.05);
+  color: var(--ui-text);
+  text-decoration: none;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.profile-hero-back-btn:hover {
+  transform: scale(1.05);
+}
+
+.profile-hero-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ui-muted);
+  margin: 0;
+}
+
+.profile-hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-hero-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.profile-hero-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--ui-text-soft);
+  margin: 0 0 2px 0;
+  letter-spacing: -0.01em;
+}
+
+.profile-hero-subtitle {
+  font-size: 0.825rem;
+  color: var(--ui-text-soft);
+  margin: 0 0 10px 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.profile-hero-badges {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.profile-hero-badge {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  color: var(--ui-text-soft);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  font-weight: var(--font-weight-medium);
+}
+
+.profile-hero-badge span {
+  font-weight: var(--font-weight-bold);
+  color: var(--ui-text);
+}
+
+.profile-hero-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+
+/* =========================================================
+   ÖZEL TAKVİM INPUTU ŞEKİLLENDİRMESİ
+   ========================================================= */
+
+/* 1. Tarayıcının varsayılan çirkin takvim/ok ikonunu gizliyoruz */
+.ui-input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* 2. Input kutusunun kendisini modern bir yapıya kavuşturuyoruz */
+.ui-input[type="date"] {
+    position: relative;
+    padding-left: 42px; /* Sol tarafa ikon için boşluk bırakıyoruz */
+    
+    /* Arka plana şık, minimalist bir takvim ikonu (SVG) yerleştiriyoruz */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' fill='none' viewBox='0 0 24 24' stroke='%2372767d' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 14px center; /* İkonun kutu içindeki konumu */
+    background-size: 18px 18px; /* İkonun boyutu */
+}
+
+/* 3. Input odaklandığında (focus) veya üzerine gelindiğinde ikon rengini değiştirmek isterseniz (isteğe bağlı) */
+.ui-input[type="date"]:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' fill='none' viewBox='0 0 24 24' stroke='%233b72c4' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z' /%3E%3C/svg%3E");
+}
+
+
+/* =========================================================
+   38. ANTRENMAN AKIŞ LİSTESİ (TRAINING FLOW LIST)
+   ========================================================= */
+
+/* Ana Liste Kart Konteyneri */
+.ui-training-list {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+/* Her Bir Antrenman Satırı */
+.ui-training-item {
+  grid-column: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--ui-border-dark);
+  transition: background-color var(--transition);
+}
+
+.ui-training-item:last-child {
+    border-bottom: 0;
+}
+
+.ui-training-item:hover {
+    background-color: rgba(0, 0, 0, 0.012);
+}
+
+/* Sol Blok (Saat ve Takım Bilgisi Gruplayıcı) */
+.ui-training-meta-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Sol Taraf: Öne Çıkan Gömülü Saat Yuvarlağı */
+.ui-training-time-badge {
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background-color: var(--ui-surface-3);
+    color: var(--ui-text);
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+  .ui-training-time-group-badge {
+    grid-column: 1;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    margin: 10px auto 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--ui-surface-3);
+    box-shadow: none;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+  }
+
+  .ui-training-list > .ui-empty {
+    grid-column: 1 / -1;
+  }
+
+/* Orta Kısım: Takım ve Branş Metin Alanı */
+.ui-training-info-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-training-team-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ui-training-team-name {
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--ui-text-soft);
+}
+
+.ui-training-branch-name {
+    font-size: 11px;
+    color: var(--ui-muted);
+    margin-top: 2px;
+}
+
+/* Takım Renk Noktaları */
+.ui-team-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Dinamik Nokta Renkleri (HTML'den basılacak sınıflar) */
+.ui-team-dot.dot-orange { background-color: #f97316; }
+.ui-team-dot.dot-red    { background-color: #ef4444; }
+.ui-team-dot.dot-blue   { background-color: #3b82f6; }
+
+/* Aktif Antrenman Noktası İçin Canlılık Efekti */
+.ui-team-dot.is-active {
+    animation: ui-dot-pulse 2s infinite;
+}
+
+@keyframes ui-dot-pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.5); }
+    70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(249, 115, 22, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+}
+
+/* Sağ Blok (Saat Aralığı ve Sporcu Rozeti Gruplayıcı) */
+.ui-training-meta-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.ui-training-duration {
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    color: var(--ui-text-soft);
+}
+
+/* =========================================================
+   GENEL METİN RENK YARDIMCILARI (UI TEXT COLOR UTILITIES)
+   ========================================================= */
+
+/* Başarı / Pozitif Durum Metni (Yeşil) */
+.ui-text-success {
+    color: var(--ui-success-text) !important;
+    font-weight: var(--font-weight-medium);
+}
+
+/* Uyarı / Beklemede Durumu Metni (Sarı/Turuncu) */
+.ui-text-warning {
+    color: var(--ui-warning-text) !important;
+    font-weight: var(--font-weight-medium);
+}
+
+/* Tehlike / İptal / Negatif Durum Metni (Kırmızı) */
+.ui-text-danger {
+    color: var(--ui-danger-text) !important;
+    font-weight: var(--font-weight-medium);
+}
+
+/* Bilgi / Vurgu Metni (Sizin Buton Maviniz) */
+.ui-text-primary {
+    color: #3b72c4 !important;
+    font-weight: var(--font-weight-medium);
+}
+
+/* Yumuşak / Yardımcı Metin Rengi (Gri) */
+.ui-text-muted {
+    color: var(--ui-muted) !important;
+}
+
+.ui-text-subtle {
+    color: var(--ui-subtle) !important;
+}
+
+
+/* =========================================================
+   39. SPORCU PROFİLİ ÖZEL BİLEŞENLERİ (ATHLETE PROFILE COMPONENTS)
+   ========================================================= */
+
+/* İstatistik Kartı İçi Branş Dağılım Çizgisi */
+.ui-stat-divider {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--ui-border-dark);
+    font-size: 11px;
+    color: var(--ui-muted);
+}
+
+.ui-stat-divider strong {
+    color: var(--ui-text);
+}
+
+/* Ödeme Başlık Grubu ve Dinamik Rakam Alanı */
+.ui-payment-header-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ui-payment-group-title {
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--ui-text-soft);
+    margin: 0;
+}
+
+.ui-payment-group-amount {
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+}
+
+/* Özel Takvim Grid Yerleşimi (Tarayıcı Bağımsız 7 Sütunlu Yapı) */
+.ui-custom-calendar {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+.ui-calendar-month-title {
+    font-size: 15px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--ui-text);
+    margin: 0;
+}
+
+.ui-calendar-week-row {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    text-align: center;
+    font-size: 11px;
+    font-weight: var(--font-weight-medium);
+    color: var(--ui-subtle);
+    margin-bottom: 8px;
+    margin-top: 14px;
+}
+
+.ui-calendar-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    text-align: center;
+    font-size: 13px;
+    gap: 4px 0;
+}
+
+.ui-calendar-day-cell {
+    padding: 8px 0;
+    font-weight: var(--font-weight-medium);
+    color: var(--ui-text-soft);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: background-color var(--transition);
+}
+
+.ui-calendar-day-cell:hover {
+    background-color: var(--ui-surface-2);
+}
+
+.ui-calendar-day-cell.is-passive {
+    color: var(--ui-subtle);
+    opacity: 0.5;
+}
+
+.ui-calendar-day-cell.is-today {
+    background-color: var(--ui-primary);
+    color: #ffffff;
+    font-weight: var(--font-weight-bold);
+}
+
+.ui-badge-dot {
+    width: 5px;
+    height: 5px;
+    flex: 0 0 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+

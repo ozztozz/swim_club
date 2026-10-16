@@ -1,0 +1,279 @@
+/* =========================================================
+   99. GLASS + PWA LAYER
+   Mevcut bileşenlerin üstüne cam (glassmorphism) ve
+   mobil uygulama hissi katan katman.
+   ========================================================= */
+
+
+/* Arka plan: cam yuzeylerin bulaniklastiracagi pastel isik lekeleri */
+html {
+  background: #f1f1ef;
+  overscroll-behavior-y: none;
+}
+body {
+  background: radial-gradient(
+      60% 40% at 15% 0%,
+      rgba(255, 255, 255, 0.9),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 40% at 100% 30%,
+      rgba(224, 225, 221, 0.75),
+      transparent 70%
+    ),
+    radial-gradient(
+      60% 45% at 0% 100%,
+      rgba(232, 230, 224, 0.7),
+      transparent 70%
+    ),
+    #f1f1ef;
+  background-attachment: fixed;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.app {
+  background: transparent;
+}
+
+/* Cam yuzeyler */
+.ui-card,
+.ui-list,
+.ui-stat,
+.ui-payment-summary {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.ui-list-item {
+  border-bottom-color: rgba(255, 255, 255, 0.55);
+}
+.ui-list-item:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* Ust bar: ekran ust cizgisine kadar uzanan cam */
+.app-topbar {
+  background: rgba(255, 255, 255, 0.55);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 24px rgba(35, 38, 43, 0.04);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+/* Modal: mobilde bottom-sheet hissi */
+@media (max-width: 640px) {
+  .ui-modal {
+    align-items: flex-end;
+    padding: 12px 10px calc(12px + env(safe-area-inset-bottom));
+  }
+  .ui-modal-panel {
+    border-radius: var(--radius-xl) var(--radius-xl) var(--radius-lg)
+      var(--radius-lg);
+  }
+}
+
+/* Form alanlari */
+.ui-input,
+.ui-select,
+.ui-textarea {
+  background: var(--glass-bg-soft);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 2px rgba(35, 38, 43, 0.04);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.ui-input:focus,
+.ui-select:focus,
+.ui-textarea:focus {
+  background: var(--glass-bg-strong);
+}
+/* iOS odaklanirken yakinlastirmasin */
+.ui-input,
+.ui-select,
+.ui-textarea {
+  font-size: 16px;
+}
+
+/* Butonlar */
+.ui-btn {
+  min-height: 46px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.ui-btn-primary {
+  box-shadow: 0 6px 16px rgba(27, 38, 59, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.ui-btn-secondary,
+.ui-btn-ghost {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+/* Rozetler */
+.ui-badge {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Tarayici destegi olmayan ortamlarda okunabilir kalsin */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ui-card,
+  .ui-list,
+  .ui-stat,
+  .ui-payment-summary,
+  .app-topbar,
+  .app-bottom-nav,
+  .ui-modal-panel {
+    background: rgba(250, 251, 253, 0.96);
+  }
+}
+
+a,
+button,
+.ui-list-item {
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-list-item,
+.ui-btn,
+.app-bottom-nav-item {
+  touch-action: manipulation;
+}
+/* =========================================================
+   100. MOTION - sayfa geçişleri ve modal açılışları
+   ========================================================= */
+
+/* Sayfa girisi: yalnizca CSS animasyonu (cross-document view transition PWA acilisinda splash'ta takiliyor) */
+.app-main {
+  animation: page-in 320ms var(--ease-out) both;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes page-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Gecis API'si olmayan tarayicilar icin sayfa giris animasyonu */
+@supports not (view-transition-name: none) {
+  .app-main {
+    animation: page-in 320ms var(--ease-out) both;
+  }
+}
+
+/* HTMX ile gelen icerikler yumusakca belirsin */
+.htmx-added {
+  opacity: 0;
+}
+.htmx-settling .ui-card,
+.htmx-settling .ui-list-item,
+.app-main > .htmx-settling {
+  animation: page-in 260ms var(--ease-out) both;
+}
+
+/* Modal: arka plan solar, panel alttan yaylanarak gelir */
+.app-overlay.is-open {
+  animation: overlay-in 220ms ease-out both;
+}
+.ui-modal-panel {
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.ui-modal::backdrop {
+  animation: overlay-in 220ms ease-out both;
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(36px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Dokunma geri bildirimi */
+.ui-list-item,
+.ui-card,
+.app-bottom-nav-item {
+  transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+a.ui-list-item:active,
+.ui-list-item[hx-get]:active,
+.ui-modal-form.ui-list-item:active {
+  transform: scale(0.985);
+}
+.app-bottom-nav-item.active .app-bottom-nav-item-icon {
+  animation: nav-pop 320ms var(--ease-spring);
+}
+@keyframes nav-pop {
+  0% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Modal kapanis animasyonu */
+.app-overlay.is-closing {
+  animation: overlay-out 220ms ease-in both;
+  pointer-events: none;
+}
+.app-overlay.is-closing .ui-modal-panel {
+  animation: sheet-out 220ms ease-in both;
+}
+@keyframes overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes sheet-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+}
+

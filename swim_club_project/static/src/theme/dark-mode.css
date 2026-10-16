@@ -1,0 +1,270 @@
+/* =========================================================
+   106. DARK MODE (Sistem Ayarı & Koyu Tema Desteği)
+   Nötr/sıcak koyu gri palet, dengeli kontrast.
+   ========================================================= */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --ui-bg: #18181a;
+    --ui-bg-soft: #1e1e20;
+    --ui-bg-success: #3ddc8a2e;
+    --ui-bg-error: #ff6b6b2e;
+    --ui-surface: #232326;
+    --ui-surface-2: #2a2a2e;
+    --ui-surface-3: #323237;
+    --ui-white: #2f2f34;
+    --ui-dark: #3a3a3f;
+    --ui-dark-2: #46464c;
+    --ui-dark-3: #52525a;
+    --ui-text: #f0efec;
+    --ui-text-soft: #d2d1cd;
+    --ui-muted: #a09fa5;
+    --ui-subtle: #7d7c83;
+    --ui-border: rgba(255, 255, 255, 0.08);
+    --ui-border-dark: rgba(255, 255, 255, 0.09);
+
+    --ui-primary: #34343a;
+    --ui-primary-strong: #3f3f46;
+    --ui-primary-text: #f0efec;
+    --ui-brand: #3b72c4;
+    --ui-brand-hover: #4b82d4;
+    --ui-brand-accent: #7cb3f5;
+    --ui-brand-soft: rgba(124, 179, 245, 0.14);
+
+    --ui-success: #1f3a2a;
+    --ui-success-text: #6fdc96;
+    --ui-warning: #403618;
+    --ui-warning-text: #f0cf85;
+    --ui-danger: #482325;
+    --ui-danger-text: #ff9a98;
+
+    --glass-bg: rgba(44, 44, 48, 0.62);
+    --glass-bg-strong: rgba(54, 54, 59, 0.8);
+    --glass-bg-soft: rgba(40, 40, 44, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.09);
+    --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --glass-shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    --shadow-soft: 0 5px 22px rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 10px 32px rgba(0, 0, 0, 0.35);
+    --shadow-card-hover: 0 14px 38px rgba(0, 0, 0, 0.42);
+    --shadow-floating: 0 16px 42px rgba(0, 0, 0, 0.5);
+    --shadow-button: 0 6px 18px rgba(0, 0, 0, 0.4);
+
+    --ink-black: #f0efec;
+    --prussian-blue: #e6e5e1;
+    --dusk-blue: #d2d1cd;
+    --dusty-denim: #a09fa5;
+    --slate-grey: #a09fa5;
+    --dark-slate-grey: #d2d1cd;
+    --gunmetal: #d2d1cd;
+    --teal: #9bc4c0;
+
+    --ui-overdue-bg: rgba(251, 191, 36, 0.12);
+    --ui-overdue-accent: rgba(251, 191, 36, 0.4);
+  }
+
+  html {
+    background: #18181a;
+  }
+  body {
+    background: radial-gradient(
+        60% 40% at 15% 0%,
+        rgba(70, 70, 76, 0.55),
+        transparent 70%
+      ),
+      radial-gradient(
+        55% 40% at 100% 30%,
+        rgba(50, 50, 55, 0.6),
+        transparent 70%
+      ),
+      radial-gradient(
+        60% 45% at 0% 100%,
+        rgba(46, 44, 42, 0.6),
+        transparent 70%
+      ),
+      #18181a;
+    background-attachment: fixed;
+    color: var(--ui-text);
+  }
+
+  /* Sabit yüzeyler */
+  .ui-modal-panel,
+  .ui-modal-panel .ui-modal-actions,
+  .app-modal,
+  .modal-box {
+    background: rgba(36, 36, 40, 0.97);
+    border-color: rgba(255, 255, 255, 0.09);
+  }
+  .ui-modal-close {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .ui-modal-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+  dialog.modal::backdrop,
+  .ui-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .ui-list-item:hover,
+  .ui-list-item:hover:not(.bg-ui-bg-success):not(.bg-ui-bg-error) {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .app-topbar {
+    background: rgba(28, 28, 31, 0.7);
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+  }
+  .app-bottom-nav {
+    border-top-color: rgba(255, 255, 255, 0.07);
+  }
+  .app-brand-logo {
+    background: #ffffff;
+  }
+  .app-bottom-nav-item.active {
+    background: var(--ui-brand-soft);
+    color: var(--ui-brand-accent);
+    border-color: rgba(124, 179, 245, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .profile-hero-card {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+  }
+  .profile-hero-badge {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ui-text-soft);
+  }
+  .profile-hero-badge span {
+    color: var(--ui-text);
+  }
+  .profile-hero-back-btn {
+    background: var(--ui-surface-3);
+    color: var(--ui-text);
+  }
+  .profile-hero-avatar {
+    border-color: var(--ui-surface-3);
+  }
+  .profile-hero-subtitle {
+    color: var(--ui-muted);
+  }
+  .ui-badge {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .ui-btn-primary {
+    background: linear-gradient(180deg, #35588a 0%, #27436b 100%);
+    color: #ffffff;
+    border-color: rgba(124, 179, 245, 0.28);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+  .ui-btn-primary:hover {
+    background: linear-gradient(180deg, #3e669e 0%, #2f507f 100%);
+  }
+  .ui-btn-primary:active {
+    background: #243e63;
+  }
+  .ui-btn-dark {
+    background: #4a4a50;
+    border-color: #4a4a50;
+    color: #ffffff;
+  }
+  .ui-btn-dark:hover {
+    background: #57575e;
+    border-color: #57575e;
+  }
+  .ui-btn-dark:active {
+    background: #3e3e44;
+  }
+  .ui-badge-dark {
+    color: #ffffff;
+  }
+  .ui-btn-success {
+    background: #1f3a2a;
+    color: var(--ui-success-text);
+    border-color: rgba(111, 220, 150, 0.25);
+  }
+  .ui-btn-success:hover { background: #26462f; }
+  .ui-btn-success:active { background: #2c5237; }
+  .ui-btn-danger {
+    background: #482325;
+    color: var(--ui-danger-text);
+    border-color: rgba(255, 154, 152, 0.25);
+  }
+  .ui-btn-danger:hover { background: #562a2c; }
+  .ui-btn-danger:active { background: #643032; }
+  .ui-error {
+    color: var(--ui-danger-text);
+  }
+  .dashboard-tab.active,
+  .dashboard-action-card:hover,
+  .dashboard-quick-action:hover {
+    background: var(--ui-surface-3);
+    color: var(--ui-text);
+  }
+  .dashboard-quick-action,
+  .dashboard-action-card {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .dashboard-quick-action-icon,
+  .dashboard-action-icon {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ui-text);
+  }
+  .ui-text-primary,
+  .ui-text-primary-strong {
+    color: var(--ui-text) !important;
+  }
+  .ui-text-success { color: var(--ui-success-text) !important; }
+  .ui-text-danger { color: var(--ui-danger-text) !important; }
+  .ui-text-warning { color: var(--ui-warning-text) !important; }
+
+  .ui-input,
+  .ui-select,
+  .ui-textarea,
+  .input,
+  .select,
+  input,
+  select,
+  textarea {
+    color: var(--ui-text);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ui-subtle);
+  }
+  .ui-input:focus,
+  .ui-select:focus,
+  .ui-textarea:focus,
+  .input:focus,
+  .select:focus {
+    background: var(--ui-surface-3);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.07);
+  }
+  .ui-switch-input::after {
+    background: #f0efec;
+  }
+  .app-toast {
+    background: #f0efec;
+    color: #18181a;
+  }
+  .ui-btn,
+  .btn {
+    color: var(--ui-text-soft);
+  }
+  .btn-primary {
+    color: #ffffff;
+  }
+  .alert-error {
+    background: rgba(72, 35, 37, 0.7);
+  }
+  .alert-success {
+    background: rgba(31, 58, 42, 0.7);
+    color: var(--ui-success-text);
+  }
+}
+

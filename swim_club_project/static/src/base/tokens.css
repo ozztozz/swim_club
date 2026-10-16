@@ -1,0 +1,161 @@
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("../fonts/Manrope-Variable.woff2") format("woff2");
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  .select-none {
+    user-select: none;
+  }
+}
+
+/* =========================================================
+   ALPHA ACADEMY - APP UI SYSTEM
+   ========================================================= */
+
+/* =========================================================
+   01. DESIGN TOKENS
+   ========================================================= */
+:root {
+  /* Colors */
+  --c75146: #c75146;
+--ink-black: #0d1b2aff;
+--prussian-blue: #1b263bff;
+--dusk-blue: #415a77ff;
+--dusty-denim: #778da9ff;
+--alabaster-grey: #e0e1ddff;
+  --slate-grey: #77878bff;
+--dark-slate-grey: #305252ff;
+--gunmetal: #373e40ff;
+--teal: #488286ff;
+--light-blue: #b7d5d4ff;
+
+
+  --ui-bg: #e9eaec44;
+  --ui-bg-soft: #f0f1f3;
+  --ui-bg-success: #a7f8d828;
+  --ui-bg-error: #f8a7a728;
+  --ui-surface: #f8f9fa;
+  --ui-surface-2: #f2f3f5;
+  --ui-surface-3: #eceef1;
+  --ui-white: #ffffff;
+  --ui-dark: #292929;
+  --ui-dark-2: #333335;
+  --ui-dark-3: #414144;
+  --ui-text: #1f2022;
+  --ui-text-soft: #3f4145;
+  --ui-muted: #72767d;
+  --ui-subtle: #969ba2;
+  --ui-border: rgba(255, 255, 255, 0.82);
+  --ui-border-dark: rgba(13, 27, 42, 0.075);
+
+  /* Pale blue accent & Aquatic Brand Tokens */
+  --ui-primary: #c5ddfa;
+  --ui-primary-strong: #acd0f6;
+  --ui-primary-text: #273646;
+  --ui-brand: #1b263b;
+  --ui-brand-hover: #253551;
+  --ui-brand-accent: #2b5b84;
+  --ui-brand-soft: #e6f0fa;
+
+  /* Status */
+    /* -----------------------------------------------------
+       Status (Durum Renkleri - Yenilenmiş & Dengelenmiş)
+       ----------------------------------------------------- */
+
+    /* Başarı / Pozitif Durum (Yeşil) */
+    --ui-success: #d8ebdc;
+    --ui-success-text: #1b6b3a; /* Yüksek kontrastlı koyu zümrüt yeşili (havuz kenarı okunabilirliği) */
+
+    /* Uyarı / Beklemede Durumu (Sarı/Turuncu) */
+    --ui-warning: #f5e5be;
+    --ui-warning-text: #614e21; /* Çamurlu görüntü giderildi, asil bir altın/kahve tonu yapıldı */
+
+    /* Tehlike / İptal / Negatif Durum (Kırmızı) */
+    --ui-danger: #fbe2e3; /* Arka planı biraz daha yumuşak ve temiz bir pastel pembe yapıldı */
+    --ui-danger-text: #8a3335; /* Hatalı mavi ton arındırıldı; koyu, okunaklı bir vişne/kırmızı yapıldı */
+
+
+  /* Typography */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 650;
+
+  /* Radius */
+  --radius-xs: 12px;
+  --radius-sm: 16px;
+  --radius-md: 20px;
+  --radius-lg: 24px;
+  --radius-xl: 30px;
+  --radius-2xl: 38px;
+  --radius-control: 999px;
+
+  /* Shadows */
+  --shadow-soft: 0 5px 22px rgba(27, 38, 59, 0.05);
+  --shadow-card: 0 10px 32px rgba(27, 38, 59, 0.07);
+  --shadow-card-hover: 0 14px 38px rgba(27, 38, 59, 0.09);
+  --shadow-floating: 0 16px 42px rgba(27, 38, 59, 0.12);
+  --shadow-button: 0 6px 18px rgba(27, 38, 59, 0.14);
+  --shadow-dark: 0 14px 36px rgba(0, 0, 0, 0.15);
+
+  /* App */
+  --topbar-height: 64px;
+  --bottom-nav-height: 74px;
+  --content-max: 680px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition: 180ms var(--ease);
+
+  /* Glassmorphism Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-bg-soft: rgba(255, 255, 255, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-blur: blur(20px) saturate(160%);
+  --glass-shadow: 0 8px 30px rgba(35, 38, 43, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --glass-shadow-lg: 0 18px 50px rgba(35, 38, 43, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  /* Motion & Easing */
+  --ease-spring: cubic-bezier(0.32, 1.2, 0.4, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Overdue Status */
+  --ui-overdue-bg: rgba(245, 158, 11, 0.1);
+  --ui-overdue-accent: rgba(217, 119, 6, 0.4);
+
+  /* Token Aliases & Fallbacks (Tanımsız değişkenlerin önüne geçmek için) */
+  --ui-text-muted: var(--ui-muted);
+  --text-muted: var(--ui-muted);
+  --primary: var(--ui-primary);
+  --primary-strong: var(--ui-primary-strong);
+  --border-color: var(--ui-border);
+  --surface: var(--ui-surface);
+  --radius-20: var(--radius-md);
+  --radius-24: var(--radius-lg);
+  --keyboard-inset: 0px;
+}
+

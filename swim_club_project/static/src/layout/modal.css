@@ -1,0 +1,315 @@
+/* =========================================================
+   21. MODAL
+   ========================================================= */
+.app-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(28, 30, 34, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+.app-overlay.is-open {
+  display: flex;
+  pointer-events: auto;
+}
+
+/* Dialog */
+.ui-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 501;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ui-text);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.ui-modal::backdrop {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Panel */
+.ui-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 40px);
+  margin: 0;
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--ui-text);
+  box-shadow: var(--glass-shadow-lg);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  animation: ui-modal-in 180ms var(--ease);
+}
+
+/* Header */
+.ui-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.ui-modal-eyebrow {
+  margin: 0 0 4px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+}
+.ui-modal-title {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+}
+.ui-modal-heading {
+  min-width: 0;
+}
+.ui-modal-description {
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ui-muted);
+}
+
+/* Close */
+.ui-modal-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  margin: -2px -2px 0 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: 0 4px 14px rgba(28, 30, 34, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: var(--ui-muted);
+  font-family: inherit;
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition),
+    transform var(--transition), box-shadow var(--transition);
+}
+.ui-modal-close:hover {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--ui-text);
+}
+.ui-modal-close:active {
+  transform: scale(0.94);
+}
+
+/* Form */
+.ui-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.ui-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.ui-field-full {
+  grid-column: 1 / -1;
+}
+
+/* Modal actions */
+.ui-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-border-dark);
+}
+.ui-modal-actions .ui-btn {
+  min-width: 100px;
+}
+.ui-modal-actions-payment {
+  margin-top: 18px;
+}
+
+/* Payment summary */
+.ui-payment-summary {
+  overflow: hidden;
+  border: 1px solid var(--ui-border-dark);
+  border-radius: var(--radius-md);
+  background: var(--ui-surface-2);
+}
+.ui-payment-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ui-border-dark);
+}
+.ui-payment-summary-row:last-child {
+  border-bottom: 0;
+}
+.ui-payment-summary-label {
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: var(--font-weight-medium);
+}
+.ui-payment-summary-value {
+  min-width: 0;
+  color: var(--ui-text);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+}
+
+/* Fee information */
+.ui-payment-fee-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: 12px;
+}
+.ui-payment-fee-info > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--ui-surface);
+}
+.ui-payment-fee-info span {
+  color: var(--ui-muted);
+  font-size: 10px;
+  line-height: 1.3;
+}
+.ui-payment-fee-info strong {
+  color: var(--ui-text);
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Payment input */
+.ui-payment-input-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+}
+.ui-payment-input-row .ui-input {
+  width: 130px;
+  margin-left: auto;
+  text-align: right;
+}
+.ui-payment-amount-input {
+  font-size: 16px !important;
+  font-weight: var(--font-weight-semibold);
+}
+@keyframes ui-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile modal */
+@media (max-width: 640px) {
+  .app-overlay {
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  }
+  .ui-modal {
+    align-items: center;
+    padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
+  }
+  .ui-modal-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100dvh - 32px);
+    padding: 18px;
+    border-radius: 26px;
+  }
+  .ui-modal-header {
+    margin-bottom: 18px;
+  }
+  .ui-modal-title {
+    font-size: 20px;
+  }
+  .ui-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .ui-field-full {
+    grid-column: auto;
+  }
+  .ui-modal-actions {
+    gap: 8px;
+  }
+  .ui-modal-actions .ui-btn {
+    flex: 1;
+    min-width: 0;
+  }
+  .ui-payment-summary-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ui-payment-summary-value {
+    text-align: left;
+  }
+  .ui-payment-input-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ui-payment-input-row .ui-input {
+    width: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
+  .ui-payment-fee-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+

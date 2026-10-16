@@ -1,0 +1,230 @@
+/* =========================================================
+   10. CARD
+   ========================================================= */
+.ui-card {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.ui-card-header {
+  padding: 17px 18px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ui-card-title {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.ui-card-subtitle {
+  margin-top: 4px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.45;
+  font-weight: var(--font-weight-regular);
+}
+
+.ui-card-body {
+  padding: 17px 18px;
+}
+
+/* =========================================================
+   11. LIST
+   ========================================================= */
+.ui-list {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-soft);
+  margin: 8px 0;
+}
+
+.ui-list-items {
+  width: 100%;
+}
+
+.ui-list-item {
+  min-height: 24px;
+  justify-content: space-between;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.045);
+  transition: background var(--transition);
+}
+
+.ui-list-item:last-child {
+  border-bottom: 0;
+}
+.ui-list-item:hover {
+  background: rgba(255, 255, 255, 0.58);
+}
+.ui-list-item.bg-ui-bg-success:hover {
+  background: var(--ui-bg-success, #dcfce7);
+}
+.ui-list-item.bg-ui-bg-error:hover {
+  background: var(--ui-bg-error, #fee2e2);
+}
+.ui-list-item:active {
+  background: rgba(0, 0, 0, 0.025);
+}
+.ui-list-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.ui-list-title {
+  overflow: hidden;
+  color: var(--ui-text);
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ui-list-subtitle {
+  margin-top: 3px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: var(--font-weight-regular);
+}
+
+.ui-list-end,
+.ui-list-trailing {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.ui-list-value {
+  color: var(--ui-text);
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: var(--font-weight-semibold);
+}
+
+.ui-list-meta {
+  margin-top: 3px;
+  color: var(--ui-subtle);
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: var(--font-weight-regular);
+}
+
+/* =========================================================
+   12. STAT
+   ========================================================= */
+.ui-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.ui-stat {
+  padding: 18px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-lg);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.ui-stat-content {
+  min-width: 0;
+}
+.ui-stat-label {
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+}
+
+.ui-stat-value {
+  display: block;
+  margin-top: 7px;
+  color: var(--ui-text);
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ui-stat-description {
+  margin-top: 5px;
+  color: var(--ui-subtle);
+  font-size: 10px;
+  line-height: 1.4;
+  font-weight: var(--font-weight-regular);
+}
+.ui-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+
+/* =========================================================
+   17. DIVIDER
+   ========================================================= */
+.ui-divider {
+  width: 100%;
+  height: 1px;
+  margin: 15px 0;
+  background: rgba(0, 0, 0, 0.055);
+}
+
+/* =========================================================
+   18. EMPTY STATE
+   ========================================================= */
+.ui-empty {
+  padding: 42px 20px;
+  text-align: center;
+  color: var(--ui-muted);
+}
+.ui-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 13px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--ui-surface-3);
+  color: var(--ui-muted);
+  font-size: 18px;
+}
+.ui-empty-title {
+  color: var(--ui-text);
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-empty-description {
+  max-width: 340px;
+  margin: 5px auto 0;
+  color: var(--ui-muted);
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: var(--font-weight-regular);
+}
+.ui-empty-action {
+  margin-top: 16px;
+}
+

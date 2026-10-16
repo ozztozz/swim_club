@@ -6,10 +6,12 @@
 
     var DISMISS_KEY = "pwa-install-dismissed-at";
     var DISMISS_DAYS = 7;
+    var SHOW_DELAY_MS = 2500;
     var text = banner.querySelector("[data-pwa-text]");
     var installBtn = banner.querySelector("[data-pwa-install]");
     var closeBtn = banner.querySelector("[data-pwa-dismiss]");
     var deferredPrompt = null;
+    var showTimer = null;
 
     var isStandalone =
         window.matchMedia("(display-mode: standalone)").matches ||
@@ -21,17 +23,33 @@
     function dismissedRecently() {
         try {
             var at = parseInt(localStorage.getItem(DISMISS_KEY), 10);
-            return at && Date.now() - at < DISMISS_DAYS * 86400000;
+            return Boolean(at && Date.now() - at < DISMISS_DAYS * 86400000);
         } catch (e) {
             return false;
         }
     }
 
-    function show() {
-        banner.hidden = false;
+    function saveDismissal() {
+        try {
+            localStorage.setItem(DISMISS_KEY, String(Date.now()));
+        } catch (e) {}
+    }
+
+    function scheduleShow() {
+        if (showTimer || isStandalone || dismissedRecently()) return;
+        showTimer = window.setTimeout(function () {
+            showTimer = null;
+            if (!isStandalone && !dismissedRecently()) {
+                banner.hidden = false;
+            }
+        }, SHOW_DELAY_MS);
     }
 
     function hide() {
+        if (showTimer) {
+            clearTimeout(showTimer);
+            showTimer = null;
+        }
         banner.hidden = true;
     }
 
@@ -40,7 +58,8 @@
     window.addEventListener("beforeinstallprompt", function (event) {
         event.preventDefault();
         deferredPrompt = event;
-        show();
+        if (installBtn) installBtn.hidden = false;
+        scheduleShow();
     });
 
     window.addEventListener("appinstalled", function () {
@@ -49,25 +68,35 @@
     });
 
     if (isIos) {
-        text.textContent =
-            "Uygulamayı yüklemek için Paylaş simgesine dokunup “Ana Ekrana Ekle”yi seçin.";
-        installBtn.hidden = true;
-        show();
+        if (text) {
+            text.textContent =
+                "Uygulamayı yüklemek için Paylaş simgesine dokunup “Ana Ekrana Ekle”yi seçin.";
+        }
+        if (installBtn) installBtn.hidden = true;
+        scheduleShow();
     }
 
-    installBtn.addEventListener("click", function () {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.finally(function () {
-            deferredPrompt = null;
+    if (installBtn) {
+        installBtn.addEventListener("click", function () {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice
+                .then(function (choiceResult) {
+                    if (choiceResult && choiceResult.outcome === "dismissed") {
+                        saveDismissal();
+                    }
+                })
+                .finally(function () {
+                    deferredPrompt = null;
+                    hide();
+                });
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", function () {
+            saveDismissal();
             hide();
         });
-    });
-
-    closeBtn.addEventListener("click", function () {
-        try {
-            localStorage.setItem(DISMISS_KEY, String(Date.now()));
-        } catch (e) {}
-        hide();
-    });
+    }
 })();

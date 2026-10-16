@@ -1,0 +1,918 @@
+/* =========================================================
+   101. FORM BILESENLERI (secim kartlari, detay panelleri, uyari)
+   ========================================================= */
+.ui-field {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.ui-field .ui-label {
+  padding: 0 2px;
+  letter-spacing: 0.01em;
+}
+.ui-input-money {
+  font-size: 18px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Segment / secim kartlari */
+.ui-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+  box-shadow: inset 0 1px 2px rgba(35, 38, 43, 0.05);
+}
+.ui-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: calc(var(--radius-md) - 4px);
+  color: var(--ui-muted);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition),
+    box-shadow var(--transition), transform var(--transition);
+}
+.ui-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ui-choice:active {
+  transform: scale(0.97);
+}
+.ui-choice:has(input:checked) {
+  background: var(--glass-bg-strong);
+  color: var(--ui-text);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 3px 10px rgba(35, 38, 43, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* Acilir detay panelleri */
+.ui-form-details,
+.ui-danger-details {
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+}
+.ui-form-details-summary,
+.ui-danger-details-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 16px;
+  color: var(--ui-text-soft);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ui-form-details-summary::-webkit-details-marker,
+.ui-danger-details-summary::-webkit-details-marker {
+  display: none;
+}
+.ui-form-details-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  color: var(--ui-muted);
+  font-size: 16px;
+  line-height: 1;
+  transition: transform var(--transition);
+}
+details[open] > summary .ui-form-details-icon {
+  transform: rotate(45deg);
+}
+.ui-form-details-body,
+.ui-danger-details-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 4px 16px 16px;
+  animation: page-in 220ms var(--ease-out) both;
+}
+.ui-danger-details {
+  border-color: rgba(199, 81, 70, 0.22);
+  background: rgba(251, 226, 227, 0.35);
+}
+.ui-danger-details-summary {
+  color: var(--ui-danger-text);
+}
+.ui-danger-details-body {
+  grid-template-columns: 1fr;
+}
+/* =========================================================
+   DOSYA YÜKLEME ALANI (FILE INPUT STYLING)
+   ========================================================= */
+.ui-field .ui-input.ui-input-file {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.75rem 1rem;
+  background-color: var(--glass-bg-soft);
+  border: 2px dashed var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--ui-text);
+  cursor: pointer;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  transition: all var(--transition);
+  box-shadow: inset 0 1px 2px rgba(35, 38, 43, 0.04);
+}
+
+.ui-field .ui-input.ui-input-file:hover {
+  background-color: var(--glass-bg);
+  border-color: var(--ui-text-muted);
+}
+
+/* Tarayıcının varsayılan "Dosya Seç" butonunu tasarım dilinize uyarlama */
+.ui-field .ui-input.ui-input-file::file-selector-button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background-color: var(--ui-surface);
+  color: var(--ui-text);
+  font-weight: var(--font-weight-medium);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.ui-field .ui-input.ui-input-file::file-selector-button:hover {
+  background-color: var(--ui-surface-2);
+}
+/* Onay satiri */
+.ui-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  cursor: pointer;
+}
+.ui-checkbox {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: var(--ui-dark);
+}
+.ui-checkbox-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ui-checkbox-content strong {
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-checkbox-content small {
+  color: var(--ui-muted);
+  font-size: 11px;
+}
+
+/* Form uyarisi */
+.ui-form-alert {
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ui-form-alert-error {
+  background: rgba(251, 226, 227, 0.7);
+  color: var(--ui-danger-text);
+  border-color: rgba(199, 81, 70, 0.25);
+}
+.ui-form-alert ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-error {
+  margin-top: 4px;
+  padding: 0 2px;
+  color: var(--ui-danger-text);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Modal govdesi: uzun formlarda eylem cubugu sabit kalsin */
+.ui-modal-actions {
+  position: sticky;
+  bottom: -20px;
+  z-index: 2;
+  margin: 22px -20px -20px;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.ui-modal-actions .ui-btn {
+  flex: 1 1 0;
+}
+@media (max-width: 640px) {
+  .ui-form-grid,
+  .ui-form-details-body {
+    grid-template-columns: 1fr;
+  }
+  .ui-modal-actions {
+    bottom: -18px;
+    margin: 20px -18px -18px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+/* Kategori secici */
+.ui-category-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.ui-category-head .ui-btn {
+  min-height: 34px;
+  padding: 0 12px;
+}
+.ui-category-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ui-category-picker .ui-help {
+  margin-bottom: 6px;
+  padding: 0 2px;
+}
+.ui-choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ui-choice-pill {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--glass-bg-soft);
+  font-size: 12px;
+}
+.ui-choice-pill:has(input:checked) {
+  border-color: rgba(35, 38, 43, 0.18);
+}
+.ui-category-children {
+  padding: 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+  animation: page-in 220ms var(--ease-out) both;
+}
+
+/* =========================================================
+   102. MODAL: beyaz yuzey (uygulama grisinden ayrisir)
+   ========================================================= */
+.ui-modal-panel .ui-input,
+.ui-modal-panel .ui-select,
+.ui-modal-panel .ui-textarea,
+.ui-modal-panel .ui-choice-grid,
+.ui-modal-panel .ui-choice-pill,
+.ui-modal-panel .ui-form-details,
+.ui-modal-panel .ui-category-children {
+  background: var(--ui-surface-2);
+  border-color: var(--ui-border-dark);
+}
+.ui-modal-panel .ui-input:focus,
+.ui-modal-panel .ui-select:focus,
+.ui-modal-panel .ui-textarea:focus {
+  background: var(--ui-white);
+}
+.ui-modal-panel .ui-choice:has(input:checked) {
+  background: var(--ui-white);
+}
+.ui-modal-panel .ui-modal-actions {
+  background: rgba(255, 255, 255, 0.96);
+  border-top-color: var(--ui-border-dark);
+}
+.ui-modal-panel .ui-payment-summary,
+.ui-modal-panel .ui-checkbox-row {
+  background: var(--ui-surface-2);
+  border-color: var(--ui-border-dark);
+}
+
+/* =========================================================
+   103. EKSIK SINIFLAR (sablonlarda kullanilan, daha once tanimsiz)
+   ========================================================= */
+
+/* Alt navigasyon */
+.app-bottom-nav-item-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+.app-bottom-nav-inner-coach,
+.app-bottom-nav-inner-admin {
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+.app-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Eski app-btn-* butonlari -> ui-btn gorunumu */
+.app-btn-primary,
+.app-btn-secondary {
+  min-height: 46px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform var(--transition), background-color var(--transition),
+    box-shadow var(--transition);
+}
+.app-btn-primary {
+  background: var(--ui-dark);
+  border-color: var(--ui-dark);
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-button);
+}
+.app-btn-primary:hover {
+  background: var(--ui-dark-2);
+}
+.app-btn-secondary {
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-weight: var(--font-weight-medium);
+}
+.app-btn-secondary:hover {
+  background: var(--glass-bg-strong);
+}
+.app-btn-primary:active,
+.app-btn-secondary:active {
+  transform: scale(0.97);
+}
+.ui-btn-neutral {
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  border-color: var(--glass-border);
+}
+.ui-btn-neutral:hover {
+  background: var(--glass-bg-strong);
+}
+
+/* Genel modal bileseni (components/overlay/modal.html) */
+.app-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 32px);
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ui-text);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  overscroll-behavior: contain;
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.app-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.app-modal-title {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+}
+.app-modal-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--glass-bg);
+  color: var(--ui-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: background-color var(--transition), transform var(--transition);
+}
+.app-modal-close:hover {
+  background: var(--glass-bg-strong);
+}
+.app-modal-close:active {
+  transform: scale(0.94);
+}
+.app-modal-body {
+  min-width: 0;
+}
+.app-overlay.is-closing .app-modal {
+  animation: sheet-out 220ms ease-in both;
+}
+
+/* Basliklar ve bolum eylemleri */
+.ui-eyebrow {
+  margin: 0 0 4px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ui-section-action {
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+}
+.ui-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+.ui-required {
+  margin-left: 2px;
+  color: var(--ui-danger-text);
+  font-weight: var(--font-weight-semibold);
+}
+.ui-list-leading {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+}
+
+/* Takvimde seans yok */
+.ui-calendar-no-sessions {
+  padding: 18px 14px;
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-soft);
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Odeme modali */
+.ui-payment-summary-highlight {
+  color: var(--ui-text);
+  font-weight: var(--font-weight-bold);
+}
+.ui-payment-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--ui-surface-2);
+}
+.ui-payment-total-value {
+  color: var(--ui-text);
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.ui-payment-error {
+  padding: 12px 14px;
+  border: 1px solid rgba(199, 81, 70, 0.25);
+  border-radius: var(--radius-sm);
+  background: rgba(251, 226, 227, 0.7);
+  color: var(--ui-danger-text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Spinner bileseni */
+.ui-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(35, 38, 43, 0.15);
+  border-top-color: var(--ui-dark);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+.ui-spinner-sm {
+  width: 14px;
+  height: 14px;
+}
+.ui-spinner-md {
+  width: 20px;
+  height: 20px;
+}
+.ui-spinner-lg {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+/* =========================================================
+   104. HERO PANEL / METIN YARDIMCILARI (inline stillerin yerine)
+   ========================================================= */
+.ui-hero-panel {
+  padding: 20px;
+  text-align: left;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.ui-hero-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ui-hero-eyebrow {
+  margin: 0 0 4px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ui-hero-title {
+  margin: 0 0 4px;
+  color: var(--ui-text);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+}
+.ui-hero-description {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.ui-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.ui-hero-body {
+  margin-top: 20px;
+}
+.ui-btn-plus {
+  margin-right: 4px;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.ui-text-soft {
+  color: var(--ui-text-soft);
+}
+.ui-text-primary-strong {
+  color: var(--ui-text);
+  font-weight: var(--font-weight-bold);
+}
+
+/* =========================================================
+   105. DAISYUI SINIFLARI -> UYGULAMA STILI
+   daisyUI eklentisi Tailwind'de etkin degil; sablonlarda kalan
+   siniflar cam/beyaz tasarima uyarlandi.
+   ========================================================= */
+
+/* Modal */
+dialog.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 501;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ui-text);
+  overflow: hidden;
+}
+dialog.modal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+dialog.modal::backdrop {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.modal-box {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100dvh - 40px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ui-text);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  overscroll-behavior: contain;
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.app-overlay.is-closing .modal-box {
+  animation: sheet-out 220ms ease-in both;
+}
+.modal-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+@media (max-width: 640px) {
+  dialog.modal[open] {
+    align-items: flex-end;
+  }
+  dialog.modal.modal-bottom[open] {
+    align-items: flex-end;
+  }
+}
+
+/* Form kontrolleri */
+.form-control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px;
+}
+.label-text {
+  color: var(--ui-text-soft);
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-medium);
+}
+input.input,
+select.select,
+.input,
+.select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--ui-border-dark);
+  border-radius: var(--radius-md);
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+  transition: border-color var(--transition), background-color var(--transition),
+    box-shadow var(--transition);
+}
+.input:focus,
+.select:focus {
+  outline: none;
+  background: var(--ui-white);
+  border-color: rgba(35, 38, 43, 0.22);
+  box-shadow: 0 0 0 3px rgba(35, 38, 43, 0.06);
+}
+.input-sm {
+  min-height: 38px;
+  font-size: 14px;
+}
+.input-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--ui-dark);
+}
+.checkbox-xs {
+  width: 14px;
+  height: 14px;
+}
+.checkbox-error {
+  accent-color: var(--ui-danger-text);
+}
+.radio {
+  accent-color: var(--ui-dark);
+}
+
+/* Butonlar */
+.btn {
+  min-height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform var(--transition), background-color var(--transition);
+}
+.btn:hover {
+  background: var(--glass-bg-strong);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-sm {
+  min-height: 36px;
+  padding: 0 12px;
+}
+.btn-xs {
+  min-height: 28px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+.btn-circle {
+  width: 38px;
+  min-height: 38px;
+  padding: 0;
+  border-radius: 50%;
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.btn-ghost:hover {
+  background: var(--glass-bg);
+}
+.btn-primary {
+  background: var(--ui-dark);
+  border-color: var(--ui-dark);
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold);
+}
+.btn-primary:hover {
+  background: var(--ui-dark-2);
+}
+.btn-success {
+  background: var(--ui-success);
+  border-color: transparent;
+  color: var(--ui-success-text);
+}
+.btn-error {
+  background: var(--ui-danger);
+  border-color: transparent;
+  color: var(--ui-danger-text);
+}
+
+/* Rozet, uyari, tablo */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-control);
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: var(--font-weight-medium);
+}
+.badge-ghost {
+  background: var(--ui-surface-2);
+}
+.badge-outline {
+  background: transparent;
+  border-color: var(--ui-border-dark);
+}
+.badge-success {
+  background: var(--ui-success);
+  color: var(--ui-success-text);
+}
+.badge-error {
+  background: var(--ui-danger);
+  color: var(--ui-danger-text);
+}
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.alert-error {
+  background: rgba(251, 226, 227, 0.7);
+  border-color: rgba(199, 81, 70, 0.25);
+  color: var(--ui-danger-text);
+}
+.alert-success {
+  background: rgba(216, 235, 220, 0.7);
+  border-color: rgba(81, 207, 123, 0.3);
+  color: var(--ui-success-text);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th,
+.table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--ui-border-dark);
+}
+.table th {
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+}
+

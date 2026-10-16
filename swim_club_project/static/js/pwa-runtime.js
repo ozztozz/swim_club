@@ -25,13 +25,14 @@
     }
 
     function refreshStatus() {
-        offlineMessage.hidden = navigator.onLine;
-        status.hidden = navigator.onLine && updatePanel.hidden;
+        if (offlineMessage) offlineMessage.hidden = navigator.onLine;
+        status.hidden = navigator.onLine && (!updatePanel || updatePanel.hidden);
     }
 
     function showUpdate() {
-        if (updateDismissedRecently()) return;
+        if (updateDismissedRecently() || !updatePanel) return;
         updatePanel.hidden = false;
+        if (updateButton) updateButton.disabled = false;
         refreshStatus();
     }
 
@@ -39,53 +40,76 @@
         refreshStatus();
 
         if (wasOffline && typeof window.showToast === "function") {
-            window.showToast("Ağ bağlantısı yeniden etkin.");
+            window.showToast("Ağ bağlantısı yeniden etkin.", "success");
         }
         wasOffline = false;
     });
+
     window.addEventListener("offline", function () {
         wasOffline = true;
         refreshStatus();
     });
 
-    if (dismissButton) dismissButton.addEventListener("click", function () {
-        updatePanel.hidden = true;
-        try {
-            localStorage.setItem(UPDATE_DISMISSED_KEY, String(Date.now()));
-        } catch (error) {
-            console.warn("Unable to save the PWA update dismissal preference.", error);
-        }
-        refreshStatus();
-    });
+    if (dismissButton) {
+        dismissButton.addEventListener("click", function () {
+            if (updatePanel) updatePanel.hidden = true;
+            try {
+                localStorage.setItem(UPDATE_DISMISSED_KEY, String(Date.now()));
+            } catch (error) {
+                console.warn("Unable to save the PWA update dismissal preference.", error);
+            }
+            refreshStatus();
+        });
+    }
 
-    if (updateButton) updateButton.addEventListener("click", function () {
-        if (!registration || !registration.waiting) return;
-        updateAccepted = true;
-        registration.waiting.postMessage({ type: "SKIP_WAITING" });
-        updateButton.disabled = true;
-    });
+    if (updateButton) {
+        updateButton.addEventListener("click", function () {
+            if (!registration || !registration.waiting) {
+                window.location.reload();
+                return;
+            }
+            updateAccepted = true;
+            updateButton.disabled = true;
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        });
+    }
 
     refreshStatus();
 
     if (!("serviceWorker" in navigator)) return;
 
     navigator.serviceWorker.addEventListener("controllerchange", function () {
-        if (updateAccepted) window.location.reload();
+        if (updateAccepted) {
+            window.location.reload();
+        }
     });
 
-    navigator.serviceWorker.register("/sw.js", {
-        scope: "/",
-        updateViaCache: "none"
-    })
+    // Uygulama arka plandan ön plana geldiğinde güncelleme kontrolü yap
+    document.addEventListener("visibilitychange", function () {
+        if (
+            document.visibilityState === "visible" &&
+            registration &&
+            navigator.onLine
+        ) {
+            registration.update().catch(function () {});
+        }
+    });
+
+    navigator.serviceWorker
+        .register("/sw.js", {
+            scope: "/",
+            updateViaCache: "none"
+        })
         .then(function (currentRegistration) {
             registration = currentRegistration;
-
             return registration.update();
         })
         .then(function () {
             if (!registration) return;
 
-            if (registration.waiting) showUpdate();
+            if (registration.waiting) {
+                showUpdate();
+            }
 
             registration.addEventListener("updatefound", function () {
                 var installing = registration.installing;
@@ -104,7 +128,7 @@
         .catch(function (error) {
             console.error("PWA service worker registration failed.", error);
             if (typeof window.showToast === "function") {
-                window.showToast("Çevrimdışı destek başlatılamadı.");
+                window.showToast("Çevrimdışı destek başlatılamadı.", "warning");
             }
         });
 })();

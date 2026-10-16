@@ -1,0 +1,336 @@
+/* =========================================================
+   RESPONSIVE TABLET & DESKTOP LAYOUT
+   Mobil (< 768px) PWA deneyimine hiç dokunmadan,
+   Tablet (768px+) ve Masaüstü (1024px+) ekranlarda
+   uygulamayı geniş ekran estetiğine ve işlevselliğine kavuşturur.
+   ========================================================= */
+
+/* =========================================================
+   1. TABLET VE ÜZERİ (768px+)
+   ========================================================= */
+@media (min-width: 768px) {
+  :root {
+    --content-max: 920px;
+  }
+
+  .app-main {
+    padding: 24px 24px 36px;
+  }
+
+  /* Sayfa başlığı ve sağ aksiyonları yan yana */
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 30px;
+  }
+
+  /* Kart ve Liste İç Boşlukları */
+  .ui-card-header {
+    padding: 18px 22px 14px;
+  }
+
+  .ui-card-body {
+    padding: 18px 22px;
+  }
+
+  .ui-list-item {
+    padding: 13px 18px;
+  }
+
+  /* Tablet Yüzen Dock Navigasyon (768px - 1023px arası) */
+  .app-bottom-nav {
+    max-width: 580px;
+    height: 66px;
+    padding: 6px 8px;
+    border-radius: 999px;
+  }
+
+  .app-bottom-nav-item {
+    flex-direction: row;
+    gap: 8px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+
+  .app-bottom-nav-item-label {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .app-bottom-nav-item.active::after {
+    display: none;
+  }
+
+  /* Dashboard Sekmeleri: Geniş ekranda tam genişlik yerine kompakt segment */
+  .dashboard-tabs {
+    max-width: 420px;
+  }
+
+  /* İstatistik Kartları: 2 yerine 4 sütuna kadar esnek ızgara */
+  .ui-stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    gap: 14px;
+  }
+
+  /* Takım Listesi: Tek sütun yerine 2 sütunlu cam kartlar */
+  .ui-teams-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .ui-teams-row {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    padding: 16px 18px;
+  }
+
+  .ui-teams-row + .ui-teams-row {
+    border-top: 1px solid var(--glass-border);
+  }
+
+  /* Haftalık Antrenman Programı: 2 Sütunlu Izgara */
+  .ui-week {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+  }
+
+  /* Antrenör Dashboard Takım Katılım Çubukları: 2 Sütun */
+  .team-bars {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 28px !important;
+    padding: 22px !important;
+  }
+
+  /* Profil / Koç Hero Kartı */
+  .profile-hero-card {
+    padding: 22px 28px;
+  }
+
+  .profile-hero-avatar {
+    width: 78px;
+    height: 78px;
+  }
+
+  .profile-hero-name {
+    font-size: 1.5rem;
+  }
+}
+
+/* =========================================================
+   2. MASAÜSTÜ & GENİŞ EKRANLAR (1024px+)
+   Alt navigasyon -> Sol Yüzen Cam Kenar Çubuğuna (Sidebar) dönüşür,
+   İçerik alanı ve paneller çok sütunlu yerleşime geçer.
+   ========================================================= */
+@media (min-width: 1024px) {
+  :root {
+    --content-max: 1140px;
+    --sidebar-width: 232px;
+  }
+
+  /* Üst Bar: Geniş ekran hizalaması */
+  .app-topbar-inner {
+    width: min(100%, 1440px);
+    padding: 8px 28px;
+  }
+
+  /* İçerik Alanı: Sol kenar çubuğu için boşluk bırakılır, alt boşluk kaldırılır */
+  .app-content {
+    padding-left: calc(var(--sidebar-width) + 36px);
+    padding-right: 24px;
+    padding-bottom: 40px;
+  }
+
+  .app-main {
+    width: min(100%, var(--content-max));
+    padding: 28px 16px 44px;
+  }
+
+  /* Alt Menü -> Sol Yüzen Cam Sidebar */
+  .app-bottom-nav {
+    top: calc(var(--topbar-height) + env(safe-area-inset-top) + 20px);
+    left: max(20px, env(safe-area-inset-left));
+    right: auto;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    width: var(--sidebar-width);
+    max-width: none;
+    height: auto;
+    margin: 0;
+    padding: 14px 10px;
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-bottom-nav-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .app-bottom-nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 13.5px;
+  }
+
+  .app-bottom-nav-item-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+  }
+
+  .app-bottom-nav-item-label {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  /* Aktif menü göstergesi sol kenarda dikey vurgu çizgisi olur */
+  .app-bottom-nav-item.active::after {
+    display: block;
+    left: 4px;
+    top: 50%;
+    bottom: auto;
+    width: 3.5px;
+    height: 20px;
+    transform: translateY(-50%);
+  }
+
+  /* Arama / Sporcu butonunu sol menünün en altına sabitle */
+  #more-menu-button {
+    margin-top: auto;
+    border-top: 1px solid var(--ui-border-dark);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding-top: 12px;
+  }
+
+  /* Dashboard Tahsilat Paneli: Arama Listesi (Sol) ve Son Tahsilatlar (Sağ) Yan Yana */
+  #collections-tab:not(.hidden) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 0 24px;
+    align-items: start;
+  }
+
+  #collections-tab > .ui-section-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #collections-tab > .ui-list {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 0;
+  }
+
+  #collections-tab > .ui-section {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+  }
+
+  /* Dashboard Harcama Paneli: Toplam Harcama Kartı ve Dönem Filtresi Yan Yana */
+  #expenses-tab:not(.hidden) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 20px;
+    align-items: stretch;
+  }
+
+  #expenses-tab > .ui-section-header {
+    grid-column: 1 / -1;
+  }
+
+  #expenses-tab > .ui-stat {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  #expenses-tab > .ui-section:nth-of-type(2) {
+    grid-column: 2;
+    margin-top: 0;
+    display: flex;
+  }
+
+  #expenses-tab > .ui-section:nth-of-type(2) > .ui-card {
+    display: flex;
+    align-items: center;
+  }
+
+  #expenses-tab > .ui-section:nth-of-type(2) .ui-card-body {
+    width: 100%;
+  }
+
+  #expenses-tab > .ui-section:nth-of-type(3) {
+    grid-column: 1 / -1;
+  }
+
+  /* Günlük Bülten: Açılır detay içindeki 3 kategori masaüstünde 3 sütun yan yana */
+  .ui-bulten-collapse-body {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* Haftalık Program: Masaüstünde 3 Sütun */
+  .ui-week {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  /* Modallar: Masaüstünde daha ferah iletişim kutusu */
+  .ui-modal-panel,
+  .app-modal,
+  .modal-box {
+    max-width: 580px;
+  }
+}
+
+/* =========================================================
+   3. GENİŞ MASAÜSTÜ MONİTÖRLER (1280px+)
+   ========================================================= */
+@media (min-width: 1280px) {
+  :root {
+    --content-max: 1260px;
+    --sidebar-width: 248px;
+  }
+
+  .app-content {
+    padding-left: calc(var(--sidebar-width) + 48px);
+    padding-right: 32px;
+  }
+
+  /* Takım Listesi: Çok geniş ekranda 3 sütun */
+  .ui-teams-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+

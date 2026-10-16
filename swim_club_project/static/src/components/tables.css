@@ -1,0 +1,227 @@
+/* =========================================================
+   33. TABLE
+   ========================================================= */
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.ui-table-row {
+  border-bottom: 1px solid var(--ui-border-dark);
+  transition: background-color var(--transition), opacity var(--transition);
+}
+.ui-table-row:last-child {
+  border-bottom: 0;
+}
+.ui-table-row:hover {
+  background: rgba(0, 0, 0, 0.018);
+}
+.ui-table-row-scheduled {
+  background: rgba(0, 0, 0, 0.018);
+}
+.ui-table-row-inactive {
+  opacity: 0.58;
+}
+.ui-table-cell {
+  padding: 12px 10px;
+  vertical-align: top;
+  font-size: 12px;
+}
+.ui-table-cell-date {
+  white-space: nowrap;
+}
+.ui-table-cell-recipient {
+  max-width: 180px;
+}
+.ui-table-cell-receipt {
+  display: none;
+  color: var(--ui-muted);
+}
+.ui-table-cell-amount {
+  white-space: nowrap;
+  text-align: right;
+}
+.ui-table-date {
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: var(--font-weight-medium);
+}
+.ui-table-label {
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-table-label-primary {
+  color: var(--ui-primary-text);
+  opacity: 0.72;
+}
+.ui-table-recipient {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ui-text-soft);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-table-category {
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.ui-table-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 7px;
+}
+.ui-table-amount {
+  color: var(--ui-text-soft);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-table-action {
+  margin-top: 5px;
+}
+.ui-table-action.ui-btn-sm {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 10px;
+}
+
+/* =========================================================
+   34. MOBILE
+   ========================================================= */
+@media (max-width: 520px) {
+  .ui-payment-normal {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+  }
+  .ui-payment-normal-status {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .ui-payment-action {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .ui-payment-normal-info {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+  .ui-payment-equipment-header,
+  .ui-payment-equipment-item {
+    column-gap: 8px;
+  }
+  .ui-payment-equipment-header {
+    font-size: 8px;
+  }
+  .ui-payment-equipment-item {
+    font-size: 11px;
+  }
+  .ui-table-cell {
+    padding: 10px 7px;
+  }
+  .ui-table-cell-recipient {
+    max-width: 150px;
+  }
+}
+
+/* =========================================================
+   35. SMALL MOBILE
+   ========================================================= */
+@media (max-width: 420px) {
+  :root {
+    --topbar-height: 78px;
+    --bottom-nav-height: 78px;
+  }
+  .app-main {
+    padding: 18px 13px 28px;
+  }
+  .page-header {
+    margin-bottom: 22px;
+  }
+  .page-title {
+    font-size: 27px;
+  }
+  .page-description {
+    font-size: 12px;
+  }
+  .ui-card-header,
+  .ui-card-body {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .ui-list-title {
+    font-size: 13px;
+  }
+
+  .dashboard-tabs {
+    margin-bottom: 20px;
+  }
+  .dashboard-tab {
+    min-height: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .dashboard-tab-icon {
+    width: 26px;
+    height: 26px;
+  }
+  .ui-btn {
+    min-height: 42px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .ui-btn-sm {
+    min-height: 36px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* =========================================================
+   36. TABLET / DESKTOP
+   ========================================================= */
+@media (min-width: 700px) {
+  .app-content {
+    display: flex;
+    justify-content: center;
+  }
+  .app-main {
+    width: min(100%, var(--content-max));
+  }
+  .ui-modal-panel {
+    max-width: 520px;
+  }
+  .ui-table-cell-receipt {
+    display: table-cell;
+  }
+}
+
+/* =========================================================
+   37. REDUCED MOTION
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

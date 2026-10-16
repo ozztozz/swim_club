@@ -1,0 +1,853 @@
+/* 109. Yoklama seçimleri: radyo gizli, sade metin; yalnızca seçili olan vurgulu */
+.ui-attendance-choice {
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: var(--ui-text-muted, #6b7280);
+  box-shadow: none;
+}
+.ui-attendance-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ui-attendance-choice:has(input:checked).ui-attendance-present {
+  background: rgba(22, 163, 74, 0.14);
+  color: #15803d;
+  font-weight: 700;
+}
+.ui-attendance-choice:has(input:checked).ui-attendance-absent {
+  background: rgba(220, 38, 38, 0.14);
+  color: #b91c1c;
+  font-weight: 700;
+}
+/* 110. Modal kapatma düğmesi: sade */
+.ui-modal-close {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  margin: 0;
+  border: 0;
+  background: rgba(120, 120, 128, 0.12);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: var(--ui-text-muted, #6b7280);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+}
+.ui-modal-close:hover {
+  background: rgba(120, 120, 128, 0.2);
+  color: var(--ui-text);
+}
+/* 111. Takım listesi */
+.ui-teams-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ui-teams-eyebrow {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-teams-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ui-text);
+}
+.ui-teams-actions {
+  display: flex;
+  gap: 8px;
+}
+.ui-teams-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.ui-teams-tabs {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.12);
+}
+.ui-teams-tab {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ui-text-muted, #6b7280);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.ui-teams-tab.is-active {
+  background: var(--ui-white, #fff);
+  color: var(--ui-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.ui-teams-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--ui-white, #fff);
+  box-shadow: 0 2px 14px rgba(28, 30, 34, 0.06);
+}
+.ui-teams-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.ui-teams-row + .ui-teams-row {
+  border-top: 1px solid rgba(120, 120, 128, 0.14);
+}
+.ui-teams-row:hover {
+  background: rgba(120, 120, 128, 0.08);
+}
+.ui-teams-row:active {
+  background: rgba(120, 120, 128, 0.14);
+}
+.ui-teams-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(120, 120, 128, 0.14);
+  color: var(--ui-text);
+  font-size: 17px;
+  font-weight: 800;
+}
+.ui-teams-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.ui-teams-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ui-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-teams-meta {
+  font-size: 13px;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-teams-arrow {
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ui-text-muted, #9ca3af);
+}
+@media (min-width: 640px) {
+  .ui-teams-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ui-teams-search {
+    max-width: 320px;
+    flex: 1;
+  }
+}
+/* 112. Takım detay */
+.ui-teams-back {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-text-muted, #6b7280);
+  text-decoration: none;
+}
+.ui-team-hero {
+  align-items: center;
+}
+.ui-team-hero-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.ui-team-hero-avatar {
+  flex-basis: 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  font-size: 22px;
+}
+.ui-team-hero .ui-teams-title {
+  font-size: 24px;
+}
+.ui-team-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+  border-radius: 20px;
+  background: var(--ui-white, #fff);
+  box-shadow: 0 2px 14px rgba(28, 30, 34, 0.06);
+}
+.ui-team-summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 16px 8px;
+}
+.ui-team-summary-item + .ui-team-summary-item {
+  border-left: 1px solid rgba(120, 120, 128, 0.14);
+}
+.ui-team-summary-item strong {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ui-text);
+}
+.ui-team-summary-item span {
+  font-size: 12px;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-team-links {
+  margin-bottom: 4px;
+}
+.ui-team-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 4px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ui-text-muted, #6b7280);
+}
+.ui-team-group-title span {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(120, 120, 128, 0.14);
+  font-size: 12px;
+}
+/* 113. Takım formu */
+.ui-checklist {
+  display: flex;
+  flex-direction: column;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: rgba(120, 120, 128, 0.08);
+}
+.ui-checklist > div + div {
+  border-top: 1px solid rgba(120, 120, 128, 0.14);
+}
+.ui-checklist label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--ui-text);
+  cursor: pointer;
+}
+.ui-checklist input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin: 0;
+  accent-color: var(--ui-dark, #1c1e22);
+}
+.ui-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(120, 120, 128, 0.08);
+  cursor: pointer;
+}
+.ui-switch-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ui-switch-row-text strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-text);
+}
+.ui-switch-row-text small {
+  font-size: 12px;
+  color: var(--ui-text-muted, #6b7280);
+}
+/* 114. Kompakt modal formlari: radyo grupları tek satırlık segment */
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 2px !important;
+  padding: 3px !important;
+  overflow-x: auto;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: rgba(120, 120, 128, 0.12) !important;
+  box-shadow: none !important;
+}
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) > label {
+  position: relative;
+  display: flex !important;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: max-content;
+  min-height: 32px !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ui-text-muted, #6b7280);
+  font-size: 12.5px !important;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) > label > input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ui-modal-panel :has(> label > input[type="radio"]):not(.ui-choice-group):not(.ui-list-end) > label:has(input:checked) {
+  background: var(--ui-white, #fff) !important;
+  color: var(--ui-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12) !important;
+}
+.ui-modal-form {
+  gap: 12px;
+}
+.ui-modal-panel .ui-input,
+.ui-modal-panel .ui-select {
+  min-height: 40px;
+}
+.ui-modal-panel .ui-textarea {
+  min-height: 72px;
+}
+.ui-modal-panel .ui-label {
+  margin-bottom: 4px;
+}
+/* 115. Yoklama modalı: liste kendi içinde kaymaz, sayfa gibi kayar; üst kartlar kompakt */
+.attendance-modal {
+  align-items: flex-start;
+  overflow-y: auto;
+}
+.attendance-modal .attendance-modal-box {
+  max-height: none;
+  margin: auto;
+  overflow: visible;
+  padding: 14px;
+}
+.attendance-modal .attendance-modal-box > div:first-child {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+}
+.attendance-modal .ui-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.attendance-modal .ui-card-header {
+  padding: 4px 40px 0 4px;
+}
+.attendance-modal .ui-card-title {
+  font-size: 16px;
+}
+.attendance-modal .ui-card-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 4px 0;
+}
+.attendance-modal .ui-card:first-child {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.attendance-modal .ui-card-body > .ui-list-item {
+  flex: 1 1 auto;
+  width: auto;
+  min-height: 0;
+  padding: 6px 10px;
+  gap: 8px;
+  border: 1px solid var(--ui-border-dark);
+  border-radius: 12px;
+}
+.attendance-modal .ui-card.ui-card-body {
+  display: block;
+  padding: 8px 10px;
+}
+.attendance-modal .ui-card.ui-card-body .ui-label {
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+.attendance-modal .ui-card.ui-card-body .ui-input {
+  min-height: 36px;
+}
+.attendance-modal #attendance-athlete-list .ui-list-item {
+  padding: 8px 12px;
+}
+.attendance-modal .ui-modal-actions {
+  bottom: 0;
+  margin: 12px -14px -14px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+}
+
+/* 116. Yoklama modalı: gövde ve butonlar aynı blokta birlikte kayar */
+.attendance-modal .attendance-modal-box {
+  max-height: calc(100dvh - 24px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.attendance-modal #attendance-athlete-list {
+  overflow: visible;
+}
+.attendance-modal .ui-modal-actions {
+  position: static;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* 117. Haftalık program */
+.ui-week {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ui-week-teams {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ui-week-team {
+  flex: none;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--ui-text, inherit);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ui-week-team.is-active {
+  background: var(--ui-dark, #1f2937);
+  color: #fff;
+}
+.ui-week-day {
+  padding: 10px 12px;
+}
+.ui-week-day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ui-week-day-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.ui-week-day-count {
+  margin: 1px 0 0;
+  font-size: 11px;
+  color: var(--ui-subtle, #6b7280);
+}
+.ui-week-day.is-off .ui-week-day-name {
+  color: var(--ui-subtle, #6b7280);
+}
+.ui-week-add {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ui-dark, #1f2937);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+}
+.ui-week-sessions {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+  border-top: 1px solid var(--ui-border-dark, rgba(0, 0, 0, 0.08));
+}
+.ui-week-session {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.ui-week-session + .ui-week-session {
+  border-top: 1px solid var(--ui-border-dark, rgba(0, 0, 0, 0.06));
+}
+.ui-week-type {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 12px;
+  font-weight: 800;
+}
+.ui-week-type.is-land {
+  background: rgba(217, 119, 6, 0.15);
+  color: #b45309;
+}
+.ui-week-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+.ui-week-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ui-subtle, #6b7280);
+  font-size: 15px;
+}
+.ui-week-icon:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.ui-week-icon.is-danger {
+  color: #dc2626;
+  font-size: 18px;
+}
+/* 118. Hero kart içindeki özet: düz, kompakt metrikler */
+.profile-hero-card .ui-stat-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.45);
+  text-align: center;
+}
+.profile-hero-card .ui-stat {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.profile-hero-card .ui-stat-value {
+  margin-top: 3px;
+  font-size: 18px;
+}
+/* 119. PWA yükleme uyarısı */
+.pwa-install {
+  position: fixed;
+  right: 12px;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  left: 12px;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow-lg);
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.pwa-install[hidden] {
+  display: none;
+}
+.pwa-install-text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pwa-install-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+/* 120. PWA uyarısı: cam efekti */
+.pwa-install {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow: var(--glass-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.pwa-install .ui-btn-secondary {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-soft);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+/* 121. PWA uyarısı: ortada kart, arkada cam perde */
+.pwa-install {
+  inset: 0;
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  max-width: none;
+  margin: 0;
+  padding: 24px;
+  border: 0;
+  border-radius: 0;
+  background: rgba(241, 241, 239, 0.35);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: none;
+  animation: overlay-in 220ms ease-out both;
+}
+.pwa-install-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow: var(--glass-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  animation: sheet-in 380ms var(--ease-spring) both;
+}
+.pwa-install-card .pwa-install-text {
+  font-size: 14px;
+  text-align: center;
+}
+.pwa-install-card .pwa-install-actions {
+  justify-content: center;
+}
+@media (prefers-color-scheme: dark) {
+  .pwa-install {
+    background: rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* 122. Ödeme günü geçmiş satırlar */
+.ui-list-item.ui-list-item-overdue {
+  background: var(--ui-overdue-bg);
+  box-shadow: inset 3px 0 0 var(--ui-overdue-accent);
+}
+
+/* 123. Mobil erişilebilirlik: güvenli alanlar ve dokunma hedefleri */
+.app-bottom-nav-item,
+.dashboard-tab,
+.ui-btn-sm,
+.ui-table-action.ui-btn-sm {
+  min-height: 44px;
+}
+.ui-teams-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+/* 124. PWA bağlantı ve güncelleme durumu */
+.pwa-status {
+  position: fixed;
+  top: calc(var(--topbar-height) + env(safe-area-inset-top) + 8px);
+  right: max(12px, env(safe-area-inset-right));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 450;
+  width: min(calc(100% - 24px), 430px);
+  margin-inline: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg-strong);
+  color: var(--ui-text);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  font-size: 12px;
+  font-weight: 600;
+}
+.pwa-status[hidden],
+.pwa-status [hidden] {
+  display: none;
+}
+.pwa-status p {
+  margin: 0;
+}
+.pwa-update,
+.pwa-status-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pwa-status-actions {
+  flex: none;
+}
+.pwa-offline-page {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px;
+}
+.pwa-offline-card {
+  display: flex;
+  width: min(100%, 380px);
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 22px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-shadow-lg);
+  text-align: center;
+}
+.pwa-offline-card h1,
+.pwa-offline-card p {
+  margin: 0;
+}
+.pwa-offline-card h1 {
+  font-size: 20px;
+}
+.pwa-offline-card p {
+  color: var(--ui-text-soft);
+  line-height: 1.6;
+}
+.pwa-offline-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--glass-bg);
+  color: var(--ui-text-soft);
+  font-size: 24px;
+}
+.athlete-calendar-nav {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+.athlete-calendar-nav .ui-btn {
+  min-width: 44px;
+}
+
+@media (max-width: 768px), (hover: none) and (pointer: coarse), (prefers-reduced-transparency: reduce) {
+  body {
+    background-attachment: scroll;
+  }
+
+  .ui-card,
+  .ui-list,
+  .ui-stat,
+  .ui-payment-summary,
+  .app-topbar,
+  .app-bottom-nav,
+  .ui-modal-panel,
+  .ui-input,
+  .ui-select,
+  .ui-textarea,
+  .ui-btn,
+  .ui-badge,
+  .pwa-status,
+  .pwa-install,
+  .pwa-install-card,
+  .pwa-offline-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .app-topbar,
+  .app-topbar .app-topbar-actions > button,
+  .app-bottom-nav {
+    background-color: #f1f1ef;
+  }
+}
+
+@media (prefers-color-scheme: dark) and (max-width: 768px),
+  (prefers-color-scheme: dark) and (hover: none) and (pointer: coarse),
+  (prefers-color-scheme: dark) and (prefers-reduced-transparency: reduce) {
+  .app-topbar,
+  .app-topbar .app-topbar-actions > button,
+  .app-bottom-nav {
+    background-color: #242427;
+  }
+}
+/* Modal arka plan blur'u mobilde de korunur (tek katman, yaln�zca a��kken) */
+.app-overlay,
+.ui-modal::backdrop {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Klavye a��kken modal, g�r�n�r alan�n �st�nde kal�r */
+.app-overlay {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom) + var(--keyboard-inset, 0px));
+  height: 100dvh;
+}
+.app-overlay .app-modal,
+.app-overlay .ui-modal-panel,
+.app-overlay .modal-box {
+  max-height: calc(100dvh - var(--keyboard-inset, 0px) - 32px);
+}
+
+/* Kullan�c� men�s�: .ui-card width:100% tetikleyici geni�li�ine daral�yordu */
+#topbar-user-dropdown {
+  width: 240px;
+  max-width: calc(100vw - 32px);
+  background-color: rgba(255, 255, 255, 0.97);
+}
+@media (prefers-color-scheme: dark) {
+  #topbar-user-dropdown {
+    background-color: rgba(36, 36, 39, 0.97);
+  }
+}
+

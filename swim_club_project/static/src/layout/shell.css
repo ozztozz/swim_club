@@ -1,0 +1,265 @@
+/* =========================================================
+   03. APP SHELL
+   ========================================================= */
+.app {
+  min-height: 100dvh;
+  background: radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 255, 255, 0.32),
+      transparent 34%
+    ),
+    var(--ui-bg);
+}
+
+.app-content {
+  min-height: 100dvh;
+  padding-top: calc(var(--topbar-height) + env(safe-area-inset-top));
+  padding-bottom: calc(
+    var(--bottom-nav-height) + env(safe-area-inset-bottom) + 26px
+  );
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-main {
+  width: min(100%, var(--content-max));
+  margin: 0 auto;
+  padding: 16px 16px 28px;
+}
+
+/* =========================================================
+   04. TOPBAR
+   ========================================================= */
+.app-topbar {
+  position: fixed;
+  inset: env(safe-area-inset-top) 0 auto 0;
+  z-index: 100;
+  height: var(--topbar-height);
+  background: rgba(233, 234, 236, 0.86);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.app-topbar-inner {
+  width: min(100%, var(--content-max));
+  height: 100%;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-brand-logo {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  object-fit: contain;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--ui-white);
+  box-shadow: var(--shadow-soft);
+}
+
+.app-brand-name {
+  display: block;
+  color: var(--ui-text);
+  font-size: 14px;
+  line-height: 1.1;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.app-brand-label {
+  display: block;
+  margin-top: 2px;
+  color: var(--ui-muted);
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: var(--font-weight-medium);
+}
+
+/* =========================================================
+   06. PAGE HEADER
+   ========================================================= */
+.page-header {
+  margin-bottom: 20px;
+}
+.page-header-main {
+  min-width: 0;
+}
+
+.page-eyebrow {
+  margin: 0 0 5px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.page-title {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.page-description {
+  max-width: 500px;
+  margin: 7px 0 0;
+  color: var(--ui-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: var(--font-weight-regular);
+}
+
+/* =========================================================
+   07. SECTIONS
+   ========================================================= */
+.ui-section {
+  margin-top: 22px;
+}
+
+.ui-section-header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.ui-section-title {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 16.5px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ui-section-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.ui-section-description {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ui-muted);
+}
+
+.ui-section-count {
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  color: var(--ui-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================================
+   20. BOTTOM NAVIGATION
+   ========================================================= */
+.app-bottom-nav {
+  position: fixed;
+  z-index: 100;
+  right: max(12px, env(safe-area-inset-right));
+  left: max(12px, env(safe-area-inset-left));
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  width: auto;
+  max-width: 430px;
+  height: var(--bottom-nav-height);
+  margin-inline: auto;
+  padding: 6px;
+  transform: none;
+
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 26px;
+  box-shadow: var(--glass-shadow-lg);
+}
+
+.app-bottom-nav-inner {
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    gap: 5px;
+}
+
+/* Pasif Durumdaki Menü Elemanları */
+.app-bottom-nav-item {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 19px;
+    background: transparent;
+    color: var(--ui-muted); /* #72767d */
+    font-family: inherit;
+    font-size: 9.5px;
+    line-height: 1;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+
+.app-bottom-nav-item:hover {
+    color: var(--ui-text);
+}
+
+.app-bottom-nav-item:active {
+    transform: scale(.94);
+}
+/* YENİ AKTİF DURUM: Kulüp su/okyanus paletiyle uyumlu cam hap vurgusu */
+.app-bottom-nav-item.active {
+    background: var(--ui-brand-soft);
+    color: var(--ui-brand-accent);
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(43, 91, 132, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.app-bottom-nav-item.active::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    width: 14px;
+    height: 2.5px;
+    border-radius: 999px;
+    background: var(--ui-brand-accent);
+    opacity: 0.75;
+}
+
+.app-bottom-nav-item-icon {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+    line-height: 1;
+}
+

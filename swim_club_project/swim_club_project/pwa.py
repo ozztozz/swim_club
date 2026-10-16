@@ -1,12 +1,12 @@
-﻿from django.http import HttpResponse
+from django.http import HttpResponse
 
 
 MANIFEST = """
 {
     "id": "/",
-    "name": "Alpha Academy KulÃ¼p YÃ¶netim Paneli",
+    "name": "Alpha Academy Kulüp Yönetim Paneli",
     "short_name": "Alpha",
-    "description": "Alpha Academy spor kulÃ¼bÃ¼ yÃ¶netim paneli",
+    "description": "Alpha Academy spor kulübü yönetim paneli",
     "start_url": "/dashboard/",
     "scope": "/",
     "display": "standalone",
@@ -48,7 +48,7 @@ MANIFEST = """
 """.strip()
 
 SERVICE_WORKER = """
-const CACHE_NAME = "alphaacademy-static-v15";
+const CACHE_NAME = "alphaacademy-static-v16";
 const CACHE_PREFIX = "alphaacademy-static-";
 const STATIC_ASSETS = [
     "/manifest.webmanifest",
@@ -101,10 +101,12 @@ self.addEventListener("fetch", (event) => {
         event.respondWith(
             fetch(event.request)
                 .catch(async () => {
-                    const offlinePage = await caches.match("/static/offline.html");
+                    const offlinePage = await caches.match("/static/offline.html", {
+                        ignoreSearch: true
+                    });
                     if (offlinePage) return offlinePage;
 
-                    return new Response("You are offline.", {
+                    return new Response("Çevrimdışısınız.", {
                         status: 503,
                         headers: { "Content-Type": "text/plain; charset=utf-8" }
                     });
@@ -118,23 +120,30 @@ self.addEventListener("fetch", (event) => {
 
     if (isStaticAsset || isAppIcon) {
         event.respondWith(
-            fetch(event.request)
-                .then(async (response) => {
-                    if (!response.ok) return response;
+            caches.open(CACHE_NAME).then(async (cache) => {
+                const cachedResponse = await cache.match(event.request, {
+                    ignoreSearch: true
+                });
 
-                    try {
-                        const cache = await caches.open(CACHE_NAME);
-                        await cache.put(event.request, response.clone());
-                    } catch (error) {
-                        console.error("Unable to cache a static resource.", error);
-                    }
-                    return response;
-                })
-                .catch(async () => {
-                    const cachedResponse = await caches.match(event.request);
-                    if (cachedResponse) return cachedResponse;
-                    throw new Error("Static resource unavailable while offline.");
-                })
+                const networkFetch = fetch(event.request)
+                    .then((networkResponse) => {
+                        if (networkResponse && networkResponse.ok) {
+                            cache.put(event.request, networkResponse.clone()).catch(() => {});
+                        }
+                        return networkResponse;
+                    })
+                    .catch(() => null);
+
+                if (cachedResponse) {
+                    event.waitUntil(networkFetch);
+                    return cachedResponse;
+                }
+
+                const freshResponse = await networkFetch;
+                if (freshResponse) return freshResponse;
+
+                throw new Error("Static resource unavailable while offline.");
+            })
         );
     }
 });
@@ -142,12 +151,12 @@ self.addEventListener("fetch", (event) => {
 
 
 def manifest(request):
-    return HttpResponse(MANIFEST, content_type="application/manifest+json")
+    return HttpResponse(MANIFEST, content_type="application/manifest+json; charset=utf-8")
 
 
 def service_worker(request):
     return HttpResponse(
         SERVICE_WORKER,
-        content_type="application/javascript",
+        content_type="application/javascript; charset=utf-8",
         headers={"Service-Worker-Allowed": "/"},
     )

@@ -1,0 +1,200 @@
+/* =========================================================
+   13. BUTTON
+   ========================================================= */
+.ui-btn {
+  min-height: 44px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--transition), background-color var(--transition),
+    border-color var(--transition), box-shadow var(--transition),
+    color var(--transition);
+}
+.ui-btn:active {
+  transform: scale(0.97);
+}
+.ui-btn:disabled,
+.ui-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary */
+.ui-btn-primary {
+  background: linear-gradient(180deg, var(--ui-brand-hover) 0%, var(--ui-brand) 100%);
+  color: #ffffff;
+  border-color: var(--ui-brand);
+  box-shadow: 0 6px 16px rgba(27, 38, 59, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  font-weight: var(--font-weight-semibold);
+}
+.ui-btn-primary:hover {
+  background: linear-gradient(180deg, #2d4062 0%, var(--ui-brand-hover) 100%);
+  border-color: var(--ui-brand-hover);
+  box-shadow: 0 8px 20px rgba(27, 38, 59, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.ui-btn-primary:active {
+  background: var(--ui-brand);
+}
+
+/* Dark */
+.ui-btn-dark {
+  background: var(--ui-dark);
+  color: #ffffff;
+  border-color: var(--ui-dark);
+  box-shadow: var(--shadow-button);
+  font-weight: var(--font-weight-semibold);
+}
+.ui-btn-dark:hover {
+  background: #171719;
+  border-color: #171719;
+}
+.ui-btn-dark:active {
+  background: #101012;
+}
+
+/* Secondary */
+.ui-btn-secondary {
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+  box-shadow: 0 1px 3px rgba(28, 30, 34, 0.04);
+}
+.ui-btn-secondary:hover {
+  background: var(--ui-surface-2);
+  border-color: var(--ui-border-dark);
+}
+.ui-btn-secondary:active {
+  background: var(--ui-surface-3);
+}
+
+/* Ghost */
+.ui-btn-ghost {
+  background: transparent;
+  color: var(--ui-text-soft);
+  border-color: transparent;
+  box-shadow: none;
+}
+.ui-btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.035);
+  color: var(--ui-text);
+}
+.ui-btn-ghost:active {
+  background: rgba(0, 0, 0, 0.055);
+}
+
+/* Success */
+.ui-btn-success {
+  background: #e7f7ef;
+  color: var(--ui-success-text);
+  border-color: #d0eddd;
+  box-shadow: none;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-btn-success:hover {
+  background: #dcf3e7;
+  border-color: #c3e7d3;
+}
+.ui-btn-success:active {
+  background: #d2eedf;
+}
+
+/* Danger */
+.ui-btn-danger {
+  background: #fff0f0;
+  color: var(--ui-danger-text);
+  border-color: #f4d5d5;
+  box-shadow: none;
+  font-weight: var(--font-weight-semibold);
+}
+.ui-btn-danger:hover {
+  background: #ffe7e7;
+  border-color: #edc7c7;
+}
+.ui-btn-danger:active {
+  background: #ffdddd;
+}
+.ui-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+.ui-btn-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.ui-btn-sm {
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+.ui-btn-full,
+.ui-btn.w-full {
+  width: 100%;
+}
+.ui-btn:focus-visible {
+  outline: 3px solid rgba(43, 91, 132, 0.22);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   15. BADGE
+   ========================================================= */
+.ui-badge {
+  min-height: 26px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: var(--radius-control);
+  font-size: 10px;
+  line-height: 1;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ui-badge-neutral {
+  background: var(--ui-surface-3);
+  color: var(--ui-muted);
+}
+.ui-badge-primary {
+  background: var(--ui-primary);
+  color: var(--ui-primary-text);
+}
+.ui-badge-success {
+  background: var(--ui-success);
+  color: var(--ui-success-text);
+}
+.ui-badge-warning {
+  background: var(--ui-warning);
+  color: var(--ui-warning-text);
+}
+.ui-badge-danger {
+  background: var(--ui-danger);
+  color: var(--ui-danger-text);
+}
+.ui-badge-dark {
+  background: var(--ui-dark);
+  color: #ffffff;
+}
+
