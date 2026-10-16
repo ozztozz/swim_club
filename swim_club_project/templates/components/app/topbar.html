@@ -1,22 +1,36 @@
 {% load static %}
 
 <!-- =========================================================
-   APP TOPBAR (ÜST BAR - YENİ CAM EFEKTİ & MODERLEŞTİRME)
+   APP TOPBAR (ÜST BAR - CAM EFEKTİ & AKILLI GERİ BUTONU)
    ========================================================= -->
 <div class="app-topbar">
     <div class="app-topbar-inner">
         
-        <!-- Sol Taraf: Logo ve Kulüp Markası -->
-        <a href="/" class="app-brand hover:opacity-90 transition-opacity">
-            <!-- Alpha Academy Logo Görseli (Eğer statik logo varsa src kısmına ekleyebilirsiniz) -->
-            <div class="app-brand-logo flex items-center justify-center font-black text-xs text-[var(--ui-primary-text)] bg-[var(--ui-primary)]">
-                <img src="/media/logos/new_logo.png" alt="Alpha Academy Logo" class="w-full h-full object-cover" />
-            </div>
-            <div class="min-w-0">
-                <span class="app-brand-name">ALPHA ACADEMY</span>
-                
-            </div>
-        </a>
+        <!-- Sol Taraf: Genel Geri Butonu, Logo ve Kulüp Markası -->
+        <div class="app-topbar-start">
+            <button
+                type="button"
+                class="app-topbar-back"
+                data-app-back
+                data-fallback-url="{% url 'dashboard:index' %}"
+                aria-label="Geri dön"
+                title="Geri dön"
+                {% if request.path == '/' or request.path == '/dashboard/' or request.path == '/login/' %}hidden{% endif %}
+            >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+            </button>
+
+            <a href="/" class="app-brand hover:opacity-90 transition-opacity">
+                <div class="app-brand-logo flex items-center justify-center font-black text-xs text-[var(--ui-primary-text)] bg-[var(--ui-primary)]">
+                    <img src="/media/logos/new_logo.png" alt="Alpha Academy Logo" class="w-full h-full object-cover" />
+                </div>
+                <div class="min-w-0">
+                    <span class="app-brand-name">ALPHA ACADEMY</span>
+                </div>
+            </a>
+        </div>
 
         <!-- Sağ Taraf: Kullanıcı Profil ve Açılır Menü Alanı -->
         {% if request.user.is_authenticated %}

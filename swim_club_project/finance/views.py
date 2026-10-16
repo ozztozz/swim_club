@@ -1,30 +1,25 @@
-import json
 import calendar
+import json
+from datetime import date, datetime
+from decimal import Decimal
 from io import BytesIO
 
-from django.shortcuts import render
-from django.http import HttpResponse
-
-# Create your views here.
-# finance/views.py
-from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, F, Q, Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from .models import PaymentRecord
-from .forms import EquipmentForm, EquipmentImagesForm, ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
-from .services import get_athlete_fee_for_period, get_equipment_central_stock, get_equipment_coach_stock, get_or_create_monthly_payments, get_financial_summary
-from athletes.models import Team, Athlete
-from .models import Equipment, EquipmentImage, EquipmentSaleItem, EquipmentStockMovement, Expense, ExpenseCategory, RegularExpense, TeamFeeHistory
-from django.contrib import messages
-from django.utils import timezone
-from datetime import datetime, date
-from decimal import Decimal
 from openpyxl import Workbook
 from openpyxl.styles import Font
+
+from athletes.models import Athlete, Team
+from .forms import EquipmentForm, EquipmentImagesForm, ExpenseCategoryForm, ExpenseForm, ProcessPaymentForm, RegularExpenseForm
+from .models import Equipment, EquipmentImage, EquipmentSaleItem, EquipmentStockMovement, Expense, ExpenseCategory, PaymentRecord, RegularExpense, TeamFeeHistory
+from .services import get_athlete_fee_for_period, get_equipment_central_stock, get_equipment_coach_stock, get_financial_summary, get_or_create_monthly_payments
 
 
 @login_required

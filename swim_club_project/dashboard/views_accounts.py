@@ -348,7 +348,6 @@ def payment_list(request, payment_status):
         )
     teams = Team.objects.filter(is_active=True)
     team = Team.objects.filter(id=team_id).first() if team_id else None
-    #skipped_athletes = [athlete for athlete in active_athletes if athlete.id not in [a["athlete_id"] for a in athlete_payments_list]]
     athlete_count = len(athlete_payments_list)
     context = {
         "period": period,
@@ -360,7 +359,6 @@ def payment_list(request, payment_status):
         "athlete_count": athlete_count,
         "teams": teams,
         "team": team,
-        #"skipped_athletes": skipped_athletes,
     }
     return render(request, "dashboard/payment_status_list.html", context)
 

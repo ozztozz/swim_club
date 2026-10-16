@@ -1,12 +1,13 @@
 # dashboard/views.py
 
 from django.contrib.auth.decorators import login_required
-
 from django.shortcuts import render
+
 from users.models import User
-from .views_accounts import _get_admin_dashboard_context
 from .views_coach import _get_coach_dashboard_context
 from .views_parent import _get_parent_dashboard_context
+
+
 @login_required(login_url="user-login")
 def dashboard(request):
     """
@@ -22,7 +23,6 @@ def dashboard(request):
 
     if role == User.Role.ADMIN:
         template = "dashboard/admin.html"
-
         context.update(_get_coach_dashboard_context(request.user))
 
     elif role == User.Role.COACH:
@@ -45,8 +45,10 @@ def dashboard(request):
         context,
     )
 
+
 @login_required(login_url="user-login")
 def athlete_search(request):
-    # Implement the athlete search view logic here
+    """Alt menüdeki hızlı sporcu arama modalını döndürür."""
     return render(request, "dashboard/partials/_athlete_search.html", {})
+
     

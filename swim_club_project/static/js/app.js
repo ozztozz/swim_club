@@ -411,12 +411,29 @@
             return;
         }
 
-        // 4. Yoklama sporcu ekleme / çıkarma
+        // 4. Genel Geri Butonu (Smart Back Navigation)
+        const backButton = event.target.closest("[data-app-back]");
+        if (backButton) {
+            event.preventDefault();
+            const fallbackUrl = backButton.dataset.fallbackUrl || "/dashboard/";
+            const hasSameOriginReferrer =
+                document.referrer &&
+                document.referrer.indexOf(window.location.origin) === 0;
+
+            if (window.history.length > 1 && hasSameOriginReferrer) {
+                window.history.back();
+            } else {
+                window.location.href = fallbackUrl;
+            }
+            return;
+        }
+
+        // 5. Yoklama sporcu ekleme / çıkarma
         if (handleAttendanceClick(event)) {
             return;
         }
 
-        // 5. Sekme (Tab) geçişleri
+        // 6. Sekme (Tab) geçişleri
         handleTabClick(event);
     });
 
@@ -665,10 +682,342 @@
         if (bestMatch) {
             bestMatch.classList.add("active");
         }
+
+        const backButton = qs("[data-app-back]");
+        if (backButton) {
+            const isRootPage =
+                currentPath === "/" ||
+                currentPath === "/dashboard/" ||
+                currentPath === "/login/";
+            backButton.hidden = isRootPage;
+        }
     }
 
     updateActiveNav();
     document.body.addEventListener("htmx:afterSettle", updateActiveNav);
+    window.addEventListener("popstate", updateActiveNav);
+
+    /* =========================================================
+       SMART SWIPE NAVIGATION (TABS, BOTTOM NAV & BACK/FORWARD)
+       ========================================================= */
+
+    (function initSwipeNavigation() {
+        const SWIPE_THRESHOLD = 72;
+        const SWIPE_LOCK_MIN = 18;
+        const MAX_SWIPE_DURATION = 650;
+
+        let startX = 0;
+        let startY = 0;
+        let startTime = 0;
+        let tracking = false;
+        let axisLocked = null; // "x" | "y" | null
+        let startTarget = null;
+        let indicatorEl = null;
+
+        function getSwipeIndicator() {
+            if (indicatorEl && indicatorEl.isConnected) {
+                return indicatorEl;
+            }
+            indicatorEl = document.createElement("div");
+            indicatorEl.className = "app-swipe-indicator";
+            indicatorEl.setAttribute("aria-hidden", "true");
+            document.body.appendChild(indicatorEl);
+            return indicatorEl;
+        }
+
+        function hideSwipeIndicator() {
+            if (!indicatorEl) return;
+            indicatorEl.classList.remove("is-visible", "is-ready", "is-left", "is-right");
+            indicatorEl.style.transform = "";
+        }
+
+        function shouldIgnoreSwipe(target) {
+            if (!target || !(target instanceof Element)) return true;
+            if (document.body.classList.contains("modal-open")) return true;
+            if (qs("#pwa-install:not([hidden])")) return true;
+
+            if (
+                target.closest(
+                    'input, textarea, select, [contenteditable="true"], [data-no-swipe], .app-bottom-nav, .app-topbar'
+                )
+            ) {
+                return true;
+            }
+
+            let el = target;
+            while (el && el !== document.body && el !== document.documentElement) {
+                if (el.scrollWidth > el.clientWidth + 6) {
+                    const style = window.getComputedStyle(el);
+                    if (
+                        style.overflowX === "auto" ||
+                        style.overflowX === "scroll"
+                    ) {
+                        return true;
+                    }
+                }
+                el = el.parentElement;
+            }
+            return false;
+        }
+
+        function resolveSwipeAction(direction, target) {
+            // direction: "prev" (sağa çekme / geri) veya "next" (sola çekme / ileri)
+
+            // 1. Öncelik: Sayfa içi sekme grubu ([data-tab-group])
+            const tabGroup =
+                (target && target.closest("[data-tab-group]")) ||
+                qs("[data-tab-group]");
+            if (tabGroup) {
+                const tabs = qsa(
+                    "[data-dashboard-tab], [data-tab-button]",
+                    tabGroup
+                ).filter(function (btn) {
+                    return btn.getClientRects().length > 0;
+                });
+
+                if (tabs.length > 1) {
+                    const activeIndex = tabs.findIndex(function (btn) {
+                        return (
+                            btn.classList.contains("active") ||
+                            btn.classList.contains("is-active") ||
+                            btn.getAttribute("aria-selected") === "true"
+                        );
+                    });
+
+                    if (activeIndex !== -1) {
+                        const nextIndex =
+                            direction === "next"
+                                ? activeIndex + 1
+                                : activeIndex - 1;
+                        if (nextIndex >= 0 && nextIndex < tabs.length) {
+                            const nextTab = tabs[nextIndex];
+                            return {
+                                type: "tab",
+                                element: nextTab,
+                                label: nextTab.textContent.replace(/\s+/g, " ").trim()
+                            };
+                        }
+                    }
+                }
+            }
+
+            // 2. Öncelik: Ana navigasyon sekmeleri (Alt menüdeki kök sayfalardaysak)
+            const currentPath = window.location.pathname;
+            const navLinks = qsa("a.app-bottom-nav-item[href]").filter(
+                function (link) {
+                    const href = link.getAttribute("href");
+                    return Boolean(href && href !== "#");
+                }
+            );
+
+            const exactNavIndex = navLinks.findIndex(function (link) {
+                const href = link.getAttribute("href");
+                return (
+                    href === currentPath ||
+                    (currentPath === "/" && href === "/dashboard/")
+                );
+            });
+
+            if (exactNavIndex !== -1) {
+                const targetIndex =
+                    direction === "next"
+                        ? exactNavIndex + 1
+                        : exactNavIndex - 1;
+                if (targetIndex >= 0 && targetIndex < navLinks.length) {
+                    const targetLink = navLinks[targetIndex];
+                    const labelEl = qs(".app-bottom-nav-item-label", targetLink);
+                    return {
+                        type: "nav",
+                        url: targetLink.getAttribute("href"),
+                        label: labelEl
+                            ? labelEl.textContent.trim()
+                            : "Sekme"
+                    };
+                }
+                return null;
+            }
+
+            // 3. Öncelik: Alt sayfalarda İleri / Geri gezinme
+            const isRootPage =
+                currentPath === "/" ||
+                currentPath === "/dashboard/" ||
+                currentPath === "/login/";
+
+            if (!isRootPage) {
+                if (direction === "prev") {
+                    return {
+                        type: "back",
+                        label: "Geri"
+                    };
+                }
+                if (direction === "next" && window.history.length > 1) {
+                    return {
+                        type: "forward",
+                        label: "İleri"
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        function executeSwipeAction(action) {
+            if (!action) return;
+
+            if (action.type === "tab" && action.element) {
+                action.element.click();
+                return;
+            }
+
+            if (action.type === "nav" && action.url) {
+                window.location.href = action.url;
+                return;
+            }
+
+            if (action.type === "back") {
+                const backButton = qs("[data-app-back]");
+                const fallbackUrl =
+                    (backButton && backButton.dataset.fallbackUrl) ||
+                    "/dashboard/";
+                const hasSameOriginReferrer =
+                    document.referrer &&
+                    document.referrer.indexOf(window.location.origin) === 0;
+
+                if (window.history.length > 1 && hasSameOriginReferrer) {
+                    window.history.back();
+                } else {
+                    window.location.href = fallbackUrl;
+                }
+                return;
+            }
+
+            if (action.type === "forward") {
+                window.history.forward();
+            }
+        }
+
+        document.addEventListener(
+            "touchstart",
+            function (event) {
+                if (event.touches.length !== 1) {
+                    tracking = false;
+                    hideSwipeIndicator();
+                    return;
+                }
+
+                const target = event.target;
+                if (shouldIgnoreSwipe(target)) {
+                    tracking = false;
+                    return;
+                }
+
+                const touch = event.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+                startTime = Date.now();
+                tracking = true;
+                axisLocked = null;
+                startTarget = target;
+            },
+            { passive: true }
+        );
+
+        document.addEventListener(
+            "touchmove",
+            function (event) {
+                if (!tracking || event.touches.length !== 1) return;
+
+                const touch = event.touches[0];
+                const dx = touch.clientX - startX;
+                const dy = touch.clientY - startY;
+                const absX = Math.abs(dx);
+                const absY = Math.abs(dy);
+
+                if (!axisLocked) {
+                    if (absX < SWIPE_LOCK_MIN && absY < SWIPE_LOCK_MIN) {
+                        return;
+                    }
+                    axisLocked = absX > absY * 1.35 ? "x" : "y";
+                }
+
+                if (axisLocked !== "x") {
+                    tracking = false;
+                    hideSwipeIndicator();
+                    return;
+                }
+
+                const direction = dx > 0 ? "prev" : "next";
+                const action = resolveSwipeAction(direction, startTarget);
+                if (!action) {
+                    hideSwipeIndicator();
+                    return;
+                }
+
+                const indicator = getSwipeIndicator();
+                const isReady = absX >= SWIPE_THRESHOLD;
+                const progress = Math.min(1, absX / SWIPE_THRESHOLD);
+                const shift = (dx > 0 ? 1 : -1) * Math.min(24, Math.round(progress * 20));
+
+                indicator.textContent =
+                    dx > 0
+                        ? "‹ " + action.label
+                        : action.label + " ›";
+                indicator.classList.toggle("is-left", dx > 0);
+                indicator.classList.toggle("is-right", dx < 0);
+                indicator.classList.add("is-visible");
+                indicator.classList.toggle("is-ready", isReady);
+                indicator.style.transform =
+                    "translate3d(" + shift + "px, -50%, 0) scale(" + (0.9 + progress * 0.1) + ")";
+            },
+            { passive: true }
+        );
+
+        document.addEventListener(
+            "touchend",
+            function (event) {
+                if (!tracking) return;
+                tracking = false;
+
+                const elapsed = Date.now() - startTime;
+                const touch =
+                    event.changedTouches && event.changedTouches[0];
+                hideSwipeIndicator();
+
+                if (
+                    axisLocked !== "x" ||
+                    !touch ||
+                    elapsed > MAX_SWIPE_DURATION
+                ) {
+                    return;
+                }
+
+                const dx = touch.clientX - startX;
+                const dy = touch.clientY - startY;
+
+                if (
+                    Math.abs(dx) < SWIPE_THRESHOLD ||
+                    Math.abs(dx) < Math.abs(dy) * 1.35
+                ) {
+                    return;
+                }
+
+                const direction = dx > 0 ? "prev" : "next";
+                const action = resolveSwipeAction(direction, startTarget);
+                executeSwipeAction(action);
+            },
+            { passive: true }
+        );
+
+        document.addEventListener(
+            "touchcancel",
+            function () {
+                tracking = false;
+                axisLocked = null;
+                hideSwipeIndicator();
+            },
+            { passive: true }
+        );
+    })();
 
     /* =========================================================
        MOBILE KEYBOARD & VISUAL VIEWPORT

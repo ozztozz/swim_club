@@ -123,6 +123,14 @@
   .app-brand-logo {
     background: #ffffff;
   }
+  .app-topbar-back {
+    background: var(--ui-surface-3);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ui-text);
+  }
+  .app-topbar-back:hover {
+    background: var(--ui-dark);
+  }
   .app-bottom-nav-item.active {
     background: var(--ui-brand-soft);
     color: var(--ui-brand-accent);

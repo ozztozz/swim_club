@@ -183,4 +183,52 @@ time,
   }
 }
 
+/* 7. Akıllı Kaydırma (Swipe) Görsel Kenar Göstergesi */
+.app-swipe-indicator {
+  position: fixed;
+  top: 50%;
+  z-index: 480;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-lg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  color: var(--ui-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(0, -50%, 0) scale(0.9);
+  transition: opacity 150ms ease, background-color 150ms ease, color 150ms ease,
+    border-color 150ms ease;
+}
+
+.app-swipe-indicator.is-left {
+  left: max(12px, env(safe-area-inset-left));
+}
+
+.app-swipe-indicator.is-right {
+  right: max(12px, env(safe-area-inset-right));
+}
+
+.app-swipe-indicator.is-visible {
+  opacity: 0.85;
+}
+
+.app-swipe-indicator.is-ready {
+  opacity: 1;
+  background: var(--ui-brand);
+  border-color: var(--ui-brand);
+  color: #ffffff;
+}
+
+
 
