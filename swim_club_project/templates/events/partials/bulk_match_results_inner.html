@@ -95,7 +95,7 @@
                                 <form method="post" action="{% url 'events-bulk-match-select' %}" hx-post="{% url 'events-bulk-match-select' %}" hx-target="#potential-row-{{ item.athlete.pk }}" hx-swap="outerHTML" style="margin: 0;">
                                     {% csrf_token %}
                                     <input type="hidden" name="athlete_id" value="{{ item.athlete.pk }}">
-                                    <input type="hidden" name="swimmer_id" value="{{ c.id }}">
+                                    <input type="hidden" name="swimmer_id" value="{{ c.id|stringformat:'d' }}">
                                     <input type="hidden" name="swimmer_name" value="{{ c.sporcu_adi }}">
                                     <button type="submit" class="ui-btn ui-btn-xs ui-btn-primary flex items-center gap-1" style="white-space: nowrap;">
                                         <span>✓</span>
@@ -172,3 +172,4 @@
         </div>
     </details>
 {% endif %}
+

@@ -1258,10 +1258,11 @@ def athlete_match_save(request, pk):
         else:
             swimmer_id = request.POST.get('swimmer_id')
             swimmer_name = request.POST.get('swimmer_name', '')
-            if swimmer_id and str(swimmer_id).isdigit():
-                athlete.external_swimmer_id = int(swimmer_id)
+            clean_id = str(swimmer_id).replace('.', '').replace(',', '').strip() if swimmer_id else ''
+            if clean_id.isdigit():
+                athlete.external_swimmer_id = int(clean_id)
                 athlete.save(update_fields=['external_swimmer_id'])
-                message = f'Sporcu {swimmer_name} (ID: {swimmer_id}) ile başarıyla eşleştirildi.'
+                message = f'Sporcu {swimmer_name} (ID: {clean_id}) ile başarıyla eşleştirildi.'
             else:
                 message = 'Geçersiz sporcu ID.'
 

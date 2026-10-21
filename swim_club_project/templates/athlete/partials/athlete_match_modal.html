@@ -128,7 +128,7 @@
                             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #bbf7d0; display: flex; justify-content: flex-end;">
                                 <form method="post" action="{% url 'athlete-manage-match-save' athlete.pk %}" hx-post="{% url 'athlete-manage-match-save' athlete.pk %}" hx-target="#modal-container" hx-swap="innerHTML">
                                     {% csrf_token %}
-                                    <input type="hidden" name="swimmer_id" value="{{ api_response.sporcu.id }}">
+                                    <input type="hidden" name="swimmer_id" value="{{ api_response.sporcu.id|stringformat:'d' }}">
                                     <input type="hidden" name="swimmer_name" value="{{ api_response.sporcu.sporcu_adi }}">
                                     <button type="submit" class="ui-btn ui-btn-sm ui-btn-primary">
                                         ✓ Bu Sporcuyla Eşleştir (ID: {{ api_response.sporcu.id }})
@@ -178,7 +178,7 @@
                                         {% else %}
                                             <form method="post" action="{% url 'athlete-manage-match-save' athlete.pk %}" hx-post="{% url 'athlete-manage-match-save' athlete.pk %}" hx-target="#modal-container" hx-swap="innerHTML" style="margin: 0;">
                                                 {% csrf_token %}
-                                                <input type="hidden" name="swimmer_id" value="{{ m.id }}">
+                                                <input type="hidden" name="swimmer_id" value="{{ m.id|stringformat:'d' }}">
                                                 <input type="hidden" name="swimmer_name" value="{{ m.sporcu_adi }}">
                                                 <button type="submit" class="ui-btn ui-btn-xs ui-btn-primary" style="white-space: nowrap; font-size: 11.5px; padding: 5px 10px;">
                                                     Seç

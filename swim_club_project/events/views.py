@@ -327,12 +327,13 @@ def events_bulk_match_select(request):
     swimmer_name = request.POST.get('swimmer_name', '')
 
     athlete = get_object_or_404(Athlete, pk=athlete_id)
-    if swimmer_id and str(swimmer_id).isdigit():
-        athlete.external_swimmer_id = int(swimmer_id)
+    clean_id = str(swimmer_id).replace('.', '').replace(',', '').strip() if swimmer_id else ''
+    if clean_id.isdigit():
+        athlete.external_swimmer_id = int(clean_id)
         athlete.save(update_fields=['external_swimmer_id'])
         return render(request, 'events/partials/bulk_match_row_selected.html', {
             'athlete': athlete,
-            'swimmer_id': swimmer_id,
+            'swimmer_id': clean_id,
             'swimmer_name': swimmer_name,
         })
     return HttpResponse('Geçersiz ID', status=400)
