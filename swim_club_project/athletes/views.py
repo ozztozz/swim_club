@@ -1271,3 +1271,95 @@ def athlete_match_save(request, pk):
         return response
         
     return HttpResponse(status=405)
+
+
+@login_required
+def athlete_swim_results(request, pk):
+    """Sporcunun harici yüzme veritabanındaki en iyi derecelerini ve yarış sonuçlarını çeker."""
+    import json
+    import urllib.request
+    import urllib.error
+    from django.core.cache import cache
+    from django.shortcuts import get_object_or_404, render
+    from .models import Athlete
+
+    athlete = get_object_or_404(Athlete, pk=pk)
+    
+    if not athlete.external_swimmer_id:
+        return render(request, 'athlete/partials/athlete_swim_results_tab.html', {
+            'athlete': athlete,
+            'is_matched': False,
+        })
+
+    swimmer_id = athlete.external_swimmer_id
+    force_refresh = request.GET.get('refresh') == '1'
+    cache_key = f'swim_results_data_{swimmer_id}'
+    
+    data = None if force_refresh else cache.get(cache_key)
+    error_message = None
+    
+    if not data:
+        api_url = f'https://ozztozz.pythonanywhere.com/api/sporcular/{swimmer_id}/sonuclar/'
+        try:
+            req = urllib.request.Request(
+                api_url,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SwimClub/1.0',
+                    'Accept': 'application/json',
+                }
+            )
+            with urllib.request.urlopen(req, timeout=10) as response:
+                raw_body = response.read().decode('utf-8')
+                data = json.loads(raw_body)
+                # Başarılı ise 15 dakika önbelleğe al
+                if data and data.get('durum') == 'basarili':
+                    cache.set(cache_key, data, 60 * 15)
+        except urllib.error.HTTPError as exc:
+            error_message = f'API Hatası ({exc.code}): Henüz bu sporcu için sonuç verisi yayınlanmamış olabilir.'
+        except Exception as exc:
+            error_message = f'Bağlantı hatası: {str(exc)}'
+
+    # Branşlara göre PB gruplaması
+    en_iyi_sonuclar = (data or {}).get('en_iyi_sonuclar', [])
+    grouped_pb = {
+        'Serbest': [],
+        'Sırtüstü': [],
+        'Kurbağalama': [],
+        'Kelebek': [],
+        'Karışık': [],
+        'Diğer': [],
+    }
+    
+    for r in en_iyi_sonuclar:
+        stil = (r.get('stil') or '').strip()
+        if stil in grouped_pb:
+            grouped_pb[stil].append(r)
+        else:
+            # Benzer eşleşmeler
+            matched = False
+            for key in grouped_pb.keys():
+                if key.lower() in stil.lower():
+                    grouped_pb[key].append(r)
+                    matched = True
+                    break
+            if not matched:
+                grouped_pb['Diğer'].append(r)
+
+    # Boş grupları temizle
+    grouped_pb = {k: v for k, v in grouped_pb.items() if v}
+
+    context = {
+        'athlete': athlete,
+        'is_matched': True,
+        'swimmer_id': swimmer_id,
+        'data': data,
+        'sporcu_info': (data or {}).get('sporcu', {}),
+        'en_iyi_sonuclar': en_iyi_sonuclar,
+        'grouped_pb': grouped_pb,
+        'sonuclar': (data or {}).get('sonuclar', []),
+        'kulup_tarihcesi': (data or {}).get('kulup_tarihcesi', []),
+        'toplam_brans_sayisi': (data or {}).get('toplam_brans_sayisi', 0),
+        'error_message': error_message,
+        'is_cached': bool(cache.get(cache_key)) and not force_refresh,
+    }
+    return render(request, 'athlete/partials/athlete_swim_results_tab.html', context)

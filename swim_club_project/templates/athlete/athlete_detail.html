@@ -112,6 +112,26 @@
                 </span>
 
             </button>
+            <button
+                type="button"
+                id="swim-results-tab-button"
+                data-dashboard-tab="swim-results"
+                class="dashboard-tab"
+                role="tab"
+                aria-selected="false"
+                aria-controls="swim-results-tab"
+                hx-get="{% url 'athlete-manage-swim-results' athlete.pk %}"
+                hx-target="#swim-results-content"
+                hx-trigger="click once"
+             >
+
+                <span class="dashboard-tab-icon" aria-hidden="true">⏱</span>
+
+                <span>
+                    Yarışlar & PB
+                </span>
+
+            </button>
         </div>
 
         <!-- YENİ MODÜLER TAKVİM BİLEŞENİ -->
@@ -430,6 +450,20 @@
                         <p class="ui-empty-description">Malzeme satışı bulunmuyor. Malzeme satışları burada görünecek.</p>
                     </div>
                 {% endfor %}
+            </div>
+        </section>
+
+        <!-- RESMİ YARIŞLAR & PB DERECELERİ PANELİ -->
+        <section id="swim-results-tab"
+                 data-tab-panel="swim-results"
+                 class="dashboard-panel hidden"
+                 role="tabpanel"
+                 aria-labelledby="swim-results-tab-button">
+            <div id="swim-results-content">
+                <div class="ui-card p-10 text-center text-[var(--ui-muted)]">
+                    <div class="text-3xl mb-2">⏱</div>
+                    <p class="text-xs font-medium">Yarış sonuçları ve en iyi dereceler yükleniyor...</p>
+                </div>
             </div>
         </section>
     </div>

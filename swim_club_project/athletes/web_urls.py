@@ -17,5 +17,6 @@ urlpatterns = [
     path('<int:pk>/edit/', views.athlete_update, name='athlete-manage-update'),
     path('<int:pk>/match-preview/', views.athlete_match_preview, name='athlete-manage-match-preview'),
     path('<int:pk>/match-save/', views.athlete_match_save, name='athlete-manage-match-save'),
+    path('<int:pk>/swim-results/', views.athlete_swim_results, name='athlete-manage-swim-results'),
 
 ]

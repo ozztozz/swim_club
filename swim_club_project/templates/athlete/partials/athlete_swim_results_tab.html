@@ -1,0 +1,322 @@
+{% if not is_matched %}
+    <!-- EŞLEŞMEMİŞ DURUM -->
+    <div class="ui-empty py-12">
+        <div class="ui-empty-icon" style="font-size: 42px; margin-bottom: 8px;">🏊</div>
+        <h3 class="font-bold text-base text-[var(--ui-text)]">Yüzme Veritabanı Eşleştirmesi Yapılmamış</h3>
+        <p class="ui-empty-description mt-2 max-w-md mx-auto">
+            Bu sporcunun federasyon yarış geçmişini, kulüp tarihçesini ve en iyi derecelerini (PB) görüntülemek için lütfen önce eşleştirme yapın.
+        </p>
+        <div class="mt-4">
+            <button
+                type="button"
+                class="ui-btn ui-btn-primary ui-btn-sm"
+                hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+            >
+                🏊 Sporcuyu Eşleştir
+            </button>
+        </div>
+    </div>
+{% elif error_message %}
+    <!-- HATA DURUMU -->
+    <div class="ui-card p-6 text-center my-4">
+        <div class="text-amber-500 text-3xl mb-2">⚠</div>
+        <h4 class="font-bold text-sm text-[var(--ui-text)]">Sonuçlar Yüklenemedi</h4>
+        <p class="text-xs text-[var(--ui-muted)] mt-1 max-w-md mx-auto">{{ error_message }}</p>
+        <div class="mt-4 flex justify-center gap-2">
+            <button
+                type="button"
+                class="ui-btn ui-btn-sm ui-btn-secondary"
+                hx-get="{% url 'athlete-manage-swim-results' athlete.pk %}?refresh=1"
+                hx-target="#swim-results-content"
+                hx-swap="innerHTML"
+            >
+                ↻ Tekrar Dene
+            </button>
+            <button
+                type="button"
+                class="ui-btn ui-btn-sm ui-btn-secondary"
+                hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+            >
+                Eşleştirmeyi Kontrol Et
+            </button>
+        </div>
+    </div>
+{% else %}
+    <!-- =====================================================
+         ÜST BİLGİ & AKSİYON BANDI
+    ====================================================== -->
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+        <div>
+            <h3 class="ui-section-title flex items-center gap-2">
+                <span>Resmi Yarışlar & En İyi Dereceler</span>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    ID #{{ swimmer_id|stringformat:'d' }}
+                </span>
+            </h3>
+            {% if sporcu_info.kulup %}
+                <p class="text-xs text-[var(--ui-muted)] mt-0.5">
+                    Kulüp: <strong class="text-[var(--ui-text)]">{{ sporcu_info.kulup }}</strong>
+                    {% if sporcu_info.okul %} | Okul: {{ sporcu_info.okul }}{% endif %}
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button
+                type="button"
+                class="ui-btn ui-btn-xs ui-btn-secondary flex items-center gap-1"
+                hx-get="{% url 'athlete-manage-swim-results' athlete.pk %}?refresh=1"
+                hx-target="#swim-results-content"
+                hx-swap="innerHTML"
+                title="Sonuçları API'den yeniden sorgula"
+            >
+                <span>↻</span>
+                <span>Yenile</span>
+            </button>
+            <button
+                type="button"
+                class="ui-btn ui-btn-xs ui-btn-secondary"
+                hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+                title="Eşleşme detaylarını gör veya değiştir"
+            >
+                ⚙ Eşleşme
+            </button>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         İSTATİSTİK KARTLARI (UI STAT GRID)
+    ====================================================== -->
+    <div class="ui-stat-grid mb-6">
+        <div class="ui-stat">
+            <div class="ui-stat-content">
+                <span class="ui-stat-label">Toplam Yarış</span>
+                <span class="ui-stat-value text-sky-600">
+                    {{ sporcu_info.toplam_yaris_sayisi|default:sonuclar|length }}
+                </span>
+                <div class="ui-stat-divider text-xs text-[var(--ui-muted)]">
+                    <span>İlk: {{ sporcu_info.ilk_yaris_tarihi|default:"-" }}</span>
+                    <span>Son: {{ sporcu_info.son_yaris_tarihi|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-stat">
+            <div class="ui-stat-content">
+                <span class="ui-stat-label">Yarıştığı Branş</span>
+                <span class="ui-stat-value text-indigo-600">
+                    {{ toplam_brans_sayisi|default:en_iyi_sonuclar|length }}
+                </span>
+                <div class="ui-stat-divider text-xs text-[var(--ui-muted)]">
+                    <span>En İyi Dereceler (PB)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui-stat">
+            <div class="ui-stat-content">
+                <span class="ui-stat-label">Geçilen Barajlar</span>
+                <span class="ui-stat-value text-emerald-600">
+                    {% with passed=0 %}
+                        {% for r in en_iyi_sonuclar %}
+                            {% if r.baraj == 'EVET' %}{% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                    {{ sporcu_info.yas_dogum_yili|default:athlete.birth_date|date:"Y" }}
+                </span>
+                <div class="ui-stat-divider text-xs text-[var(--ui-muted)]">
+                    <span>Doğum Yılı / Yaş Grubu</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         EN İYİ DERECELER (PERSONAL BESTS - PB)
+    ====================================================== -->
+    <div class="mb-6">
+        <div class="ui-payment-header-group mb-3">
+            <h3 class="ui-section-title flex items-center gap-2">
+                <span>⏱ En İyi Dereceler (Personal Bests)</span>
+                <span class="text-xs text-[var(--ui-muted)] font-normal">({{ en_iyi_sonuclar|length }} branş)</span>
+            </h3>
+        </div>
+
+        {% if en_iyi_sonuclar %}
+            <!-- STİLLERE GÖRE PB GRUPLARI -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for stil_adi, sonuclar_list in grouped_pb.items %}
+                    <div class="ui-card p-4">
+                        <div class="flex items-center justify-between pb-2 mb-3 border-b border-[var(--ui-border-dark)]">
+                            <h4 class="font-bold text-sm text-[var(--ui-text)] flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full 
+                                    {% if stil_adi == 'Serbest' %}bg-sky-500
+                                    {% elif stil_adi == 'Sırtüstü' %}bg-indigo-500
+                                    {% elif stil_adi == 'Kurbağalama' %}bg-emerald-500
+                                    {% elif stil_adi == 'Kelebek' %}bg-amber-500
+                                    {% else %}bg-purple-500{% endif %}">
+                                </span>
+                                <span>{{ stil_adi }}</span>
+                            </h4>
+                            <span class="text-xs text-[var(--ui-muted)] font-medium">{{ sonuclar_list|length }} mesafe</span>
+                        </div>
+
+                        <div class="space-y-2.5">
+                            {% for pb in sonuclar_list %}
+                                <div class="flex items-center justify-between p-2 rounded-lg bg-[var(--ui-surface-subtle)] hover:bg-[var(--ui-surface-hover)] transition-colors">
+                                    <div>
+                                        <div class="font-bold text-sm text-[var(--ui-text)] flex items-center gap-2">
+                                            <span>{{ pb.etkinlik }}</span>
+                                            {% if pb.baraj == 'EVET' %}
+                                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                    ✓ BARAJ
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-[11px] text-[var(--ui-muted)] truncate max-w-[200px] sm:max-w-xs mt-0.5" title="{{ pb.musabaka_adi }}">
+                                            {{ pb.tarih }} • {{ pb.musabaka_adi }}
+                                        </div>
+                                    </div>
+
+                                    <div class="text-right flex-shrink-0 ml-3">
+                                        <div class="font-mono font-bold text-base text-[var(--ui-text)] tracking-tight">
+                                            {{ pb.derece }}
+                                        </div>
+                                        <div class="text-[11px] flex items-center justify-end gap-1.5 text-[var(--ui-muted)] font-medium">
+                                            {% if pb.puan %}
+                                                <span class="text-sky-600 font-semibold">{{ pb.puan }} Puan</span>
+                                            {% endif %}
+                                            {% if pb.sira %}
+                                                <span>#{{ pb.sira }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="ui-card p-6 text-center text-xs text-[var(--ui-muted)]">
+                Henüz kayıtlı en iyi derece bulunmuyor.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- =====================================================
+         KULÜP & OKUL TARİHÇESİ
+    ====================================================== -->
+    {% if kulup_tarihcesi %}
+        <div class="mb-6">
+            <div class="ui-payment-header-group mb-3">
+                <h3 class="ui-section-title">🏛 Kulüp & Okul Tarihçesi</h3>
+            </div>
+
+            <div class="ui-card divide-y divide-[var(--ui-border-dark)] overflow-hidden">
+                {% for k in kulup_tarihcesi %}
+                    <div class="p-3.5 flex items-center justify-between flex-wrap gap-2 hover:bg-[var(--ui-surface-subtle)] transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs 
+                                {% if k.aktif_kulup_mu %}bg-emerald-100 text-emerald-800 border border-emerald-300
+                                {% elif k.okul_mu %}bg-indigo-100 text-indigo-800
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {% if k.aktif_kulup_mu %}✓{% elif k.okul_mu %}🎓{% else %}{{ forloop.counter }}{% endif %}
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm text-[var(--ui-text)] flex items-center gap-2">
+                                    <span>{{ k.kulup_adi }}</span>
+                                    {% if k.aktif_kulup_mu %}
+                                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-600 text-white">
+                                            AKTİF KULÜP
+                                        </span>
+                                    {% endif %}
+                                    {% if k.okul_mu %}
+                                        <span class="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                            Okul Takımı
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-xs text-[var(--ui-muted)] mt-0.5">
+                                    Dönem: {{ k.ilk_yaris_tarihi }} — {{ k.son_yaris_tarihi }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-right">
+                            <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full bg-[var(--ui-surface-subtle)] text-[var(--ui-text)] border border-[var(--ui-border-dark)]">
+                                {{ k.toplam_yaris_sayisi }} Yarış
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- =====================================================
+         SON RESMİ YARIŞLAR TABLOSU
+    ====================================================== -->
+    {% if sonuclar %}
+        <div class="mb-6">
+            <div class="ui-payment-header-group mb-3">
+                <h3 class="ui-section-title">📋 Son Yarış Dereceleri</h3>
+                <span class="text-xs text-[var(--ui-muted)]">Toplam {{ sonuclar|length }} kayıt</span>
+            </div>
+
+            <div class="ui-card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-[var(--ui-border-dark)] bg-[var(--ui-surface-subtle)] text-[var(--ui-muted)] font-semibold uppercase tracking-wider text-[11px]">
+                                <th class="py-2.5 px-3">Tarih</th>
+                                <th class="py-2.5 px-3">Etkinlik</th>
+                                <th class="py-2.5 px-3">Derece</th>
+                                <th class="py-2.5 px-3">Puan</th>
+                                <th class="py-2.5 px-3">Sıra</th>
+                                <th class="py-2.5 px-3">Baraj</th>
+                                <th class="py-2.5 px-3">Müsabaka / Şehir</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--ui-border-dark)] text-[var(--ui-text)]">
+                            {% for r in sonuclar %}
+                                <tr class="hover:bg-[var(--ui-surface-subtle)] transition-colors">
+                                    <td class="py-2.5 px-3 font-mono whitespace-nowrap text-[var(--ui-muted)]">{{ r.tarih }}</td>
+                                    <td class="py-2.5 px-3 font-bold whitespace-nowrap">{{ r.etkinlik }}</td>
+                                    <td class="py-2.5 px-3 font-mono font-bold text-sm whitespace-nowrap text-sky-700 dark:text-sky-400">
+                                        {{ r.derece }}
+                                    </td>
+                                    <td class="py-2.5 px-3 whitespace-nowrap">
+                                        {% if r.puan %}
+                                            <span class="font-semibold text-emerald-600">{{ r.puan }}</span>
+                                        {% else %}
+                                            <span class="text-[var(--ui-muted)]">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2.5 px-3 whitespace-nowrap">{{ r.sira|default:"-" }}</td>
+                                    <td class="py-2.5 px-3 whitespace-nowrap">
+                                        {% if r.baraj == 'EVET' %}
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">EVET</span>
+                                        {% else %}
+                                            <span class="text-[var(--ui-muted)] text-[11px]">HAYIR</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2.5 px-3 text-[var(--ui-muted)] truncate max-w-xs" title="{{ r.musabaka_adi }}">
+                                        {{ r.musabaka_adi }}{% if r.sehir %} ({{ r.sehir }}){% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endif %}
