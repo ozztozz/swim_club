@@ -3,21 +3,23 @@
     class="ui-modal"
     data-modal-backdrop-close="true"
 >
-    <div class="ui-modal-panel" style="max-width: 820px; width: 100%;">
+    <div class="ui-modal-panel" style="max-width: 860px; width: 100%;">
         <!-- =====================================================
              MODAL HEADER
         ====================================================== -->
-        <div class="ui-modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--ui-border, #e5e7eb);">
+        <div class="ui-modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 1px solid var(--ui-border, #e5e7eb);">
             <div>
-                <p class="ui-modal-eyebrow" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ui-muted, #6b7280); margin: 0 0 2px 0;">
-                    🏊 {{ athlete.get_full_name }} — Yüzme Veritabanı
+                <p class="ui-modal-eyebrow" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ui-muted, #64748b); margin: 0 0 3px 0; font-weight: 600;">
+                    🏊 {{ athlete.get_full_name }} — Federasyon Resmi Yarış Kayıtları
                 </p>
-                <h3 class="ui-modal-title" style="font-size: 18px; font-weight: 700; margin: 0; color: var(--ui-text, #111827); display: flex; align-items: center; gap: 8px;">
-                    <span>⏱ {{ etkinlik }}</span>
-                    <span style="font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #e0f2fe; color: #0369a1;">
-                        Branş Detayı
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h3 class="ui-modal-title" style="font-size: 20px; font-weight: 800; margin: 0; color: var(--ui-text, #0f172a); letter-spacing: -0.02em;">
+                        {{ etkinlik }}
+                    </h3>
+                    <span style="font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">
+                        Derece Gelişimi & Yarışlar
                     </span>
-                </h3>
+                </div>
             </div>
 
             <button
@@ -25,7 +27,7 @@
                 class="ui-modal-close"
                 data-modal-close
                 aria-label="Kapat"
-                style="background: transparent; border: none; font-size: 20px; line-height: 1; cursor: pointer; color: var(--ui-muted, #9ca3af); padding: 4px;"
+                style="background: transparent; border: none; font-size: 22px; line-height: 1; cursor: pointer; color: var(--ui-muted, #94a3b8); padding: 4px; transition: color 0.15s;"
             >
                 ✕
             </button>
@@ -36,173 +38,280 @@
         ====================================================== -->
         <div class="ui-modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 16px;">
 
-            <!-- ÖZET İSTATİSTİK ROZETLERİ -->
-            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; background: var(--ui-surface-subtle, #f8fafc); border: 1px solid var(--ui-border, #e2e8f0); border-radius: 10px; padding: 10px 14px;">
-                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-                    <!-- PB -->
-                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
-                        🏆 PB: {{ pb_race.derece|default:"-" }}
-                    </span>
-                    <!-- Toplam Yarış -->
-                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #ffffff; color: var(--ui-text, #334155); border: 1px solid var(--ui-border, #cbd5e1);">
-                        🏊 {{ total_races }} Müsabaka Kaydı
-                    </span>
-                    <!-- Gelişim Farkı -->
-                    {% if diff_str %}
-                        <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; {% if diff_positive %}background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% else %}background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;{% endif %}">
-                            {{ diff_str }}
+            <!-- 4'LÜ PERFORMANS METRİK KARTLARI -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;">
+                <!-- 1. Kişisel En İyi (PB) -->
+                <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fde68a; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 11px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 5px;">
+                        <span>🏆</span> En İyi Derece (PB)
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 22px; font-weight: 800; color: #78350f; letter-spacing: -0.03em;">
+                            {{ pb_race.derece|default:"-" }}
                         </span>
-                    {% endif %}
+                    </div>
+                    <div style="font-size: 11px; color: #a16207; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ pb_race.tarih }} - {{ pb_race.musabaka_adi }}">
+                        📅 {{ pb_race.tarih|default:"-" }}
+                    </div>
                 </div>
 
-                <div style="font-size: 11px; color: var(--ui-muted, #64748b);">
-                    Son Yarış: {{ last_race.tarih|default:"-" }}
+                <!-- 2. Toplam Gelişim -->
+                <div style="background: {% if diff_positive %}linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%){% else %}linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%){% endif %}; border: 1px solid {% if diff_positive %}#bbf7d0{% else %}#e2e8f0{% endif %}; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 11px; font-weight: 700; color: {% if diff_positive %}#166534{% else %}#475569{% endif %}; text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 5px;">
+                        <span>🚀</span> Toplam Gelişim
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <span style="font-size: 18px; font-weight: 800; color: {% if diff_positive %}#14532d{% else %}#334155{% endif %}; letter-spacing: -0.02em;">
+                            {{ diff_str|default:"Derece Eşit" }}
+                        </span>
+                        {% if pct_improvement %}
+                            <span style="font-size: 11px; font-weight: 700; color: #16a34a; margin-left: 4px;">
+                                (%{{ pct_improvement }})
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 11px; color: {% if diff_positive %}#15803d{% else %}#64748b{% endif %}; margin-top: 4px;">
+                        {% if first_race and pb_race and first_race.id != pb_race.id %}
+                            İlk: {{ first_race.derece }} &rarr; PB: {{ pb_race.derece }}
+                        {% else %}
+                            Tekil Kayıt
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 3. Müsabaka Sayısı -->
+                <div style="background: #ffffff; border: 1px solid var(--ui-border, #e2e8f0); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 11px; font-weight: 700; color: var(--ui-muted, #64748b); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 5px;">
+                        <span>🏊</span> Müsabaka Geçmişi
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <span style="font-size: 22px; font-weight: 800; color: var(--ui-text, #0f172a); letter-spacing: -0.02em;">
+                            {{ total_races }}
+                        </span>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--ui-muted, #64748b); margin-left: 2px;">Yarış</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--ui-muted, #64748b); margin-top: 4px;">
+                        Son: {{ last_race.tarih|default:"-" }}
+                    </div>
+                </div>
+
+                <!-- 4. En Yüksek FINA Puanı -->
+                <div style="background: #ffffff; border: 1px solid var(--ui-border, #e2e8f0); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-size: 11px; font-weight: 700; color: var(--ui-muted, #64748b); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 5px;">
+                        <span>⭐</span> En İyi FINA Puanı
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 22px; font-weight: 800; color: #0284c7; letter-spacing: -0.02em;">
+                            {% if max_puan %}{{ max_puan }} P{% else %}-{% endif %}
+                        </span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--ui-muted, #64748b); margin-top: 4px;">
+                        Resmi federasyon skoru
+                    </div>
                 </div>
             </div>
 
-            <!-- 1. ZAMAN / DERECE GELİŞİM GRAFİĞİ (SVG) -->
-            <div style="background: #ffffff; border: 1px solid var(--ui-border, #e2e8f0); border-radius: 12px; padding: 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ui-muted, #64748b); display: flex; align-items: center; gap: 6px;">
-                        <span>📈 Zaman / Derece Gelişim Grafiği</span>
-                    </span>
-                    <span style="font-size: 11px; color: var(--ui-muted, #94a3b8);">
-                        (Yukarı çıktıkça derece iyileşir / hızlanır)
-                    </span>
+            <!-- =====================================================
+                 1. ESTETİK ZAMAN / DERECE GELİŞİM GRAFİĞİ (SVG)
+            ====================================================== -->
+            <div style="background: #ffffff; border: 1px solid var(--ui-border, #e2e8f0); border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 8px; height: 8px; border-radius: 999px; background: #0284c7;"></span>
+                        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ui-text, #1e293b);">
+                            Kronolojik Derece Gelişimi
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--ui-muted, #64748b);">
+                        <span style="display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 999px; background: #f59e0b; border: 1px solid #ffffff; box-shadow: 0 0 0 1.5px #f59e0b;"></span>
+                            Kişisel En İyi (PB)
+                        </span>
+                        <span style="display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: #0284c7;"></span>
+                            Yarış Derecesi
+                        </span>
+                        <span style="color: #94a3b8;">
+                            &bull; Yukarı çıktıkça hızlanır
+                        </span>
+                    </div>
                 </div>
 
                 {% if pts %}
-                    <div style="width: 100%; overflow-x: auto;">
-                        <svg viewBox="0 0 {{ chart_w }} {{ chart_h }}" style="width: 100%; height: auto; min-width: 500px; display: block; overflow: visible;">
+                    <div style="width: 100%; overflow-x: auto; position: relative;">
+                        <svg viewBox="0 0 {{ chart_w }} {{ chart_h }}" style="width: 100%; height: auto; min-width: 540px; display: block; overflow: visible; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
                             <defs>
-                                <linearGradient id="modalSwimGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#0284c7" stop-opacity="0.32"/>
-                                    <stop offset="100%" stop-color="#0284c7" stop-opacity="0.01"/>
+                                <!-- Degrade Alan Dolgusu -->
+                                <linearGradient id="modalAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#0284c7" stop-opacity="0.30"/>
+                                    <stop offset="65%" stop-color="#38bdf8" stop-opacity="0.08"/>
+                                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.00"/>
                                 </linearGradient>
+
+                                <!-- Çizgi Gradyanı -->
+                                <linearGradient id="modalLineGrad" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#0369a1"/>
+                                    <stop offset="50%" stop-color="#0284c7"/>
+                                    <stop offset="100%" stop-color="#38bdf8"/>
+                                </linearGradient>
+
+                                <!-- Yumuşak Gölge Filtresi -->
+                                <filter id="svgSoftShadow" x="-10%" y="-10%" width="120%" height="120%">
+                                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0284c7" flood-opacity="0.22"/>
+                                </filter>
+
+                                <!-- Rozet Gölgesi -->
+                                <filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.08"/>
+                                </filter>
                             </defs>
 
-                            <!-- Grid Çizgileri -->
+                            <!-- Yatay Grid Çizgileri ve Saniye Değerleri -->
                             {% for g in grid_lines %}
-                                <line x1="{{ pad_l }}" y1="{{ g.y }}" x2="{{ plot_right }}" y2="{{ g.y }}" stroke="#e2e8f0" stroke-dasharray="3,3" stroke-width="1"/>
-                                <text x="{{ pad_l_text }}" y="{{ g.y_text }}" font-size="10" font-family="monospace" text-anchor="end" fill="#94a3b8">{{ g.label }}</text>
+                                <line x1="{{ pad_l }}" y1="{{ g.y }}" x2="{{ plot_right }}" y2="{{ g.y }}" stroke="#f1f5f9" stroke-dasharray="3,3" stroke-width="1.2"/>
+                                <text x="{{ pad_l_text }}" y="{{ g.y_text }}" font-size="10.5" font-weight="500" text-anchor="end" fill="#94a3b8">
+                                    {{ g.label }}
+                                </text>
+                            {% endfor %}
+
+                            <!-- Dikey Kesikli Kılavuz Çizgileri (Stem Lines) -->
+                            {% for p in pts %}
+                                <line x1="{{ p.x }}" y1="{{ p.y }}" x2="{{ p.x }}" y2="{{ p.stem_y2 }}" stroke="#e2e8f0" stroke-dasharray="2,3" stroke-width="1"/>
                             {% endfor %}
 
                             <!-- Degrade Alan -->
                             {% if pts|length > 1 and area_d %}
-                                <path d="{{ area_d }}" fill="url(#modalSwimGrad)"/>
+                                <path d="{{ area_d }}" fill="url(#modalAreaGrad)"/>
                             {% endif %}
 
-                            <!-- Çizgi -->
+                            <!-- Yumuşak Parıltı Alt Çizgisi -->
                             {% if pts|length > 1 and path_d %}
-                                <path d="{{ path_d }}" fill="none" stroke="#0284c7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="{{ path_d }}" fill="none" stroke="#38bdf8" stroke-width="6" stroke-opacity="0.25" stroke-linecap="round" stroke-linejoin="round"/>
                             {% endif %}
 
-                            <!-- Noktalar ve Etiketler -->
-                            {% for p in pts %}
-                                {% if p.is_pb %}
-                                    <circle cx="{{ p.x }}" cy="{{ p.y }}" r="12" fill="#f59e0b" fill-opacity="0.25">
-                                        <animate attributeName="r" values="8;13;8" dur="2s" repeatCount="indefinite"/>
-                                    </circle>
-                                    <circle cx="{{ p.x }}" cy="{{ p.y }}" r="6.5" fill="#f59e0b" stroke="#ffffff" stroke-width="2.5">
-                                        <title>{{ p.race.derece }} (PB) - {{ p.race.tarih }} - {{ p.race.musabaka_adi }}</title>
-                                    </circle>
-                                    <text x="{{ p.x }}" y="{{ p.y_label }}" font-size="10.5" font-weight="700" font-family="monospace" text-anchor="middle" fill="#d97706">
-                                        {{ p.race.derece }} 🏆
-                                    </text>
-                                {% else %}
-                                    <circle cx="{{ p.x }}" cy="{{ p.y }}" r="4.5" fill="#0284c7" stroke="#ffffff" stroke-width="2">
-                                        <title>{{ p.race.derece }} - {{ p.race.tarih }} - {{ p.race.musabaka_adi }}</title>
-                                    </circle>
-                                    <text x="{{ p.x }}" y="{{ p.y_label }}" font-size="10" font-weight="600" font-family="monospace" text-anchor="middle" fill="#0284c7">
-                                        {{ p.race.derece }}
-                                    </text>
-                                {% endif %}
+                            <!-- Ana İlerleme Çizgisi -->
+                            {% if pts|length > 1 and path_d %}
+                                <path d="{{ path_d }}" fill="none" stroke="url(#modalLineGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#svgSoftShadow)"/>
+                            {% endif %}
 
-                                <text x="{{ p.x }}" y="{{ date_y }}" font-size="9" text-anchor="middle" fill="#64748b">
-                                    {{ p.date_short }}
-                                </text>
+                            <!-- Noktalar, Etiketler ve Tarihler -->
+                            {% for p in pts %}
+                                <g class="swim-pt-group" style="cursor: pointer;">
+                                    {% if p.is_pb %}
+                                        <!-- PB Parlayan Altın Aura -->
+                                        <circle cx="{{ p.x }}" cy="{{ p.y }}" r="14" fill="#f59e0b" fill-opacity="0.20">
+                                            <animate attributeName="r" values="10;15;10" dur="2.2s" repeatCount="indefinite"/>
+                                        </circle>
+                                        <circle cx="{{ p.x }}" cy="{{ p.y }}" r="7" fill="#f59e0b" stroke="#ffffff" stroke-width="2.5" filter="url(#svgSoftShadow)"/>
+
+                                        <!-- PB Derece Rozet Kutusu -->
+                                        <rect x="{{ p.badge_x }}" y="{{ p.y_label|add:'-13' }}" width="{{ p.badge_w }}" height="18" rx="9" fill="#fef3c7" stroke="#fde68a" stroke-width="1.2" filter="url(#badgeShadow)"/>
+                                        <text x="{{ p.x }}" y="{{ p.y_label }}" font-size="10.5" font-weight="800" text-anchor="middle" fill="#92400e">
+                                            {{ p.race.derece }} 🏆
+                                        </text>
+                                    {% else %}
+                                        <!-- Normal Yarış Noktası -->
+                                        <circle cx="{{ p.x }}" cy="{{ p.y }}" r="5" fill="#0284c7" stroke="#ffffff" stroke-width="2.2" filter="url(#svgSoftShadow)"/>
+
+                                        <!-- Derece Rozet Kutusu -->
+                                        <rect x="{{ p.badge_x }}" y="{{ p.y_label|add:'-13' }}" width="{{ p.badge_w }}" height="17" rx="8.5" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#badgeShadow)"/>
+                                        <text x="{{ p.x }}" y="{{ p.y_label }}" font-size="10" font-weight="700" text-anchor="middle" fill="#0369a1">
+                                            {{ p.race.derece }}
+                                        </text>
+                                    {% endif %}
+
+                                    <!-- Tarih Etiketi -->
+                                    <text x="{{ p.x }}" y="{{ date_y }}" font-size="9.5" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600" text-anchor="middle" fill="#64748b">
+                                        {{ p.date_short }}
+                                    </text>
+
+                                    <!-- SVG Native Tooltip -->
+                                    <title>⏱ {{ p.race.derece }}{% if p.is_pb %} (🏆 Kişisel En İyi - PB){% endif %}&#10;📅 {{ p.race.tarih }}&#10;🏊 {{ p.race.musabaka_adi }}&#10;🏛 {{ p.race.kulup }}&#10;🏅 Sıra: #{{ p.race.sira|default:"-" }} | ⭐ Puan: {{ p.race.puan|default:"-" }}</title>
+                                </g>
                             {% endfor %}
                         </svg>
                     </div>
                 {% else %}
-                    <div style="text-align: center; padding: 30px; font-size: 12px; color: var(--ui-muted, #94a3b8);">
-                        Bu branşta geçerli derece / zaman verisi bulunamadı.
+                    <div style="text-align: center; padding: 36px; font-size: 12px; color: var(--ui-muted, #94a3b8);">
+                        Bu branşta geçerli derece verisi bulunamadı.
                     </div>
                 {% endif %}
             </div>
 
-            <!-- 2. FİLTRELİ YARIŞ SONUÇLARI LİSTESİ (TABLO) -->
+            <!-- =====================================================
+                 2. FİLTRELİ MÜSABAKA LİSTESİ (TABLO)
+            ====================================================== -->
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ui-muted, #64748b);">
-                        📋 Tüm Müsabaka Kayıtları (Yeniden Eskiye)
+                    <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ui-text, #1e293b);">
+                        📋 Müsabaka Geçmişi
                     </span>
                     <span style="font-size: 11px; font-weight: 600; color: var(--ui-muted, #64748b);">
-                        {{ sonuclar|length }} yarış
+                        {{ sonuclar|length }} müsabaka kaydı
                     </span>
                 </div>
 
-                <div style="overflow-x: auto; border: 1px solid var(--ui-border, #e2e8f0); border-radius: 8px;">
+                <div style="overflow-x: auto; border: 1px solid var(--ui-border, #e2e8f0); border-radius: 10px; background: #ffffff;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
                         <thead>
-                            <tr style="background: var(--ui-surface-subtle, #f8fafc); border-bottom: 1px solid var(--ui-border, #e2e8f0); font-size: 11px; font-weight: 600; color: var(--ui-muted, #64748b); text-transform: uppercase;">
-                                <th style="padding: 8px 10px;">Tarih</th>
-                                <th style="padding: 8px 10px;">Derece</th>
-                                <th style="padding: 8px 10px;">Puan</th>
-                                <th style="padding: 8px 10px; text-align: center;">Sıra</th>
-                                <th style="padding: 8px 10px; text-align: center;">Seri / Kulvar</th>
-                                <th style="padding: 8px 10px; text-align: center;">Baraj</th>
-                                <th style="padding: 8px 10px;">Müsabaka & Şehir</th>
-                                <th style="padding: 8px 10px;">Temsil Ettiği Kulüp</th>
+                            <tr style="background: var(--ui-surface-subtle, #f8fafc); border-bottom: 1px solid var(--ui-border, #e2e8f0); font-size: 11px; font-weight: 700; color: var(--ui-muted, #64748b); text-transform: uppercase;">
+                                <th style="padding: 9px 12px;">Tarih</th>
+                                <th style="padding: 9px 12px;">Derece</th>
+                                <th style="padding: 9px 12px;">Puan</th>
+                                <th style="padding: 9px 12px; text-align: center;">Sıra</th>
+                                <th style="padding: 9px 12px; text-align: center;">Seri / Kulvar</th>
+                                <th style="padding: 9px 12px; text-align: center;">Baraj</th>
+                                <th style="padding: 9px 12px;">Müsabaka & Şehir</th>
+                                <th style="padding: 9px 12px;">Kulüp / Temsil</th>
                             </tr>
                         </thead>
-                        <tbody style="divide-y: 1px solid var(--ui-border, #f1f5f9);">
+                        <tbody>
                             {% for r in sonuclar %}
-                                <tr style="border-bottom: 1px solid var(--ui-border, #f1f5f9); {% if r.is_pb %}background: #fffbeb;{% endif %}">
-                                    <td style="padding: 8px 10px; font-family: monospace; color: var(--ui-muted, #64748b); white-space: nowrap;">
+                                <tr style="border-bottom: 1px solid var(--ui-border, #f1f5f9); transition: background 0.15s; {% if r.is_pb %}background: #fffbeb;{% endif %}" onmouseover="this.style.background='{% if r.is_pb %}#fef3c7{% else %}#f8fafc{% endif %}'" onmouseout="this.style.background='{% if r.is_pb %}#fffbeb{% else %}transparent{% endif %}'">
+                                    <td style="padding: 9px 12px; font-family: ui-monospace, monospace; color: var(--ui-muted, #64748b); white-space: nowrap;">
                                         {{ r.tarih|default:"-" }}
                                     </td>
-                                    <td style="padding: 8px 10px; font-family: monospace; font-weight: 700; color: #0369a1; white-space: nowrap;">
+                                    <td style="padding: 9px 12px; font-family: ui-monospace, monospace; font-weight: 800; font-size: 13px; color: #0369a1; white-space: nowrap;">
                                         {{ r.derece }}
                                         {% if r.is_pb %}
-                                            <span style="margin-left: 4px; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
+                                            <span style="margin-left: 5px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
                                                 🏆 PB
                                             </span>
                                         {% endif %}
                                     </td>
-                                    <td style="padding: 8px 10px; white-space: nowrap;">
+                                    <td style="padding: 9px 12px; white-space: nowrap;">
                                         {% if r.puan %}
-                                            <span style="font-weight: 600; color: #0284c7; font-family: monospace;">{{ r.puan }} P</span>
+                                            <span style="font-weight: 700; color: #0284c7; font-family: ui-monospace, monospace;">{{ r.puan }} P</span>
                                         {% else %}
                                             <span style="color: var(--ui-muted, #94a3b8);">-</span>
                                         {% endif %}
                                     </td>
-                                    <td style="padding: 8px 10px; text-align: center; font-weight: 500; white-space: nowrap;">
+                                    <td style="padding: 9px 12px; text-align: center; font-weight: 600; white-space: nowrap;">
                                         {% if r.sira %}#{{ r.sira }}{% else %}-{% endif %}
                                     </td>
-                                    <td style="padding: 8px 10px; text-align: center; font-size: 11px; color: var(--ui-muted, #64748b); white-space: nowrap;">
+                                    <td style="padding: 9px 12px; text-align: center; font-size: 11px; color: var(--ui-muted, #64748b); white-space: nowrap;">
                                         {% if r.seri or r.kulvar %}
                                             {{ r.seri|default:"" }}{% if r.kulvar %} (K:{{ r.kulvar }}){% endif %}
                                         {% else %}
                                             -
                                         {% endif %}
                                     </td>
-                                    <td style="padding: 8px 10px; text-align: center; white-space: nowrap;">
+                                    <td style="padding: 9px 12px; text-align: center; white-space: nowrap;">
                                         {% if r.baraj == 'EVET' or r.baraj == 'BARAJ' %}
-                                            <span style="font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #dcfce7; color: #166534;">
+                                            <span style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">
                                                 EVET
                                             </span>
                                         {% else %}
                                             <span style="color: var(--ui-muted, #94a3b8); font-size: 11px;">-</span>
                                         {% endif %}
                                     </td>
-                                    <td style="padding: 8px 10px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ r.musabaka_adi }}">
+                                    <td style="padding: 9px 12px; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ r.musabaka_adi }}">
                                         {{ r.musabaka_adi|default:"-" }}{% if r.sehir %} ({{ r.sehir }}){% endif %}
                                     </td>
-                                    <td style="padding: 8px 10px; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ui-muted, #64748b);" title="{{ r.kulup }}">
+                                    <td style="padding: 9px 12px; max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ui-muted, #64748b);" title="{{ r.kulup }}">
                                         {{ r.kulup|default:"-" }}
                                         {% if r.kulup_okul_mu %}
-                                            <span style="font-size: 9px; padding: 1px 4px; border-radius: 4px; background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; margin-left: 2px;">Okul</span>
+                                            <span style="font-size: 9.5px; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; margin-left: 2px;">Okul</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -223,7 +332,7 @@
         <!-- =====================================================
              MODAL FOOTER
         ====================================================== -->
-        <div class="ui-modal-footer" style="padding-top: 12px; border-top: 1px solid var(--ui-border, #e5e7eb); display: flex; justify-content: flex-end;">
+        <div class="ui-modal-footer" style="padding-top: 14px; border-top: 1px solid var(--ui-border, #e5e7eb); display: flex; justify-content: flex-end;">
             <button
                 type="button"
                 class="ui-btn ui-btn-secondary ui-btn-sm"
@@ -234,4 +343,3 @@
         </div>
     </div>
 </dialog>
-

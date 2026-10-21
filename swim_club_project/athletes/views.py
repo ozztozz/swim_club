@@ -1455,7 +1455,7 @@ def athlete_swim_branch_data(request, pk):
 
 @login_required
 def athlete_swim_branch_modal(request, pk):
-    """Sporcunun belirli bir stil ve mesafedeki yarış geçmişini ve SVG zaman grafiğini modal içinde gösterir."""
+    """Sporcunun belirli bir stil ve mesafedeki yarış geçmişini ve estetik SVG zaman grafiğini modal içinde gösterir."""
     import urllib.request
     import urllib.parse
     import json
@@ -1515,14 +1515,23 @@ def athlete_swim_branch_modal(request, pk):
 
     # Kronolojik sıralama (SVG grafiği ve gelişim hesabı için)
     chrono = sorted(valid_with_sec, key=lambda r: str(r.get('tarih') or ''))
+    first_race = chrono[0] if chrono else None
+
+    # En yüksek puan
+    puans = [int(r['puan']) for r in sonuclar if r.get('puan') and str(r['puan']).isdigit()]
+    max_puan = max(puans) if puans else None
 
     diff_str = None
     diff_positive = True
+    pct_improvement = None
     if len(chrono) >= 2:
         try:
             first_sec = float(chrono[0]['derece_saniye'])
             last_sec = float(chrono[-1]['derece_saniye'])
             diff = first_sec - last_sec
+            if first_sec > 0:
+                pct_improvement = round(abs(diff) / first_sec * 100, 1)
+
             if diff > 0:
                 diff_str = f"▼ {diff:.2f} sn Gelişim"
                 diff_positive = True
@@ -1535,11 +1544,18 @@ def athlete_swim_branch_modal(request, pk):
         except (ValueError, TypeError):
             pass
 
-    # SVG Çizim Koordinatları
-    W, H = 740, 230
-    pad_l, pad_r, pad_t, pad_b = 60, 40, 32, 38
+    # SVG Çizim Koordinatları (Geniş & Rahat Çizim Alanı)
+    W, H = 760, 240
+    pad_l, pad_r, pad_t, pad_b = 64, 45, 34, 42
     plot_w = W - pad_l - pad_r
     plot_h = H - pad_t - pad_b
+
+    def format_sec_label(sec):
+        if sec >= 60:
+            m = int(sec // 60)
+            s = sec % 60
+            return f"{m}:{s:04.1f}"
+        return f"{sec:.1f}s"
 
     pts = []
     path_d = ""
@@ -1551,19 +1567,21 @@ def athlete_swim_branch_modal(request, pk):
         min_s = min(times)
         max_s = max(times)
         rng = max_s - min_s
-        sec_pad = rng * 0.15 if rng > 0 else 1.5
+        sec_pad = rng * 0.16 if rng > 0 else 1.5
         y_min = max(0.0, min_s - sec_pad)
         y_max = max_s + sec_pad
         total_range = (y_max - y_min) or 1.0
 
-        for g in range(5):
-            frac = g / 4.0
+        # Grid çizgileri (5 seviye)
+        grid_count = 4
+        for g in range(grid_count + 1):
+            frac = g / float(grid_count)
             g_y = pad_t + frac * plot_h
             g_sec = y_min + frac * total_range
             grid_lines.append({
                 'y': round(g_y, 1),
                 'y_text': round(g_y + 3.5, 1),
-                'label': f"{g_sec:.1f}s"
+                'label': format_sec_label(g_sec)
             })
 
         N = len(chrono)
@@ -1573,19 +1591,42 @@ def athlete_swim_branch_modal(request, pk):
             y = pad_t + ((sec - y_min) / total_range) * plot_h
             tarih_raw = str(r.get('tarih') or '')
             date_short = tarih_raw[2:].replace('-', '.') if len(tarih_raw) >= 10 else tarih_raw
+            is_pb = (sec == min_s or r.get('is_pb'))
 
+            derece_txt = str(r.get('derece') or '')
             pts.append({
                 'x': round(x, 1),
                 'y': round(y, 1),
-                'y_label': round(y - 10, 1),
+                'stem_y2': pad_t + plot_h,
+                'y_label': round(y - 12, 1),
+                'badge_w': max(46, len(derece_txt) * 7.5 + (22 if is_pb else 10)),
+                'badge_x': round(x - (max(46, len(derece_txt) * 7.5 + (22 if is_pb else 10)) / 2), 1),
                 'date_short': date_short,
                 'race': r,
-                'is_pb': (sec == min_s or r.get('is_pb'))
+                'is_pb': is_pb
             })
 
-        if N > 1:
-            path_d = "M " + " L ".join(f"{p['x']} {p['y']}" for p in pts)
-            area_d = f"M {pts[0]['x']} {pad_t + plot_h} L " + " L ".join(f"{p['x']} {p['y']}" for p in pts) + f" L {pts[-1]['x']} {pad_t + plot_h} Z"
+        # Pürüzsüz Kübik Bézier Eğrisi Hesabı
+        if N == 2:
+            bezier_path = f"M {pts[0]['x']} {pts[0]['y']} L {pts[1]['x']} {pts[1]['y']}"
+            path_d = bezier_path
+            area_d = f"M {pts[0]['x']} {pad_t + plot_h} L {pts[0]['x']} {pts[0]['y']} L {pts[1]['x']} {pts[1]['y']} L {pts[1]['x']} {pad_t + plot_h} Z"
+        elif N > 2:
+            curve_cmds = [f"M {pts[0]['x']} {pts[0]['y']}"]
+            tension = 0.18
+            for i in range(N - 1):
+                p0 = pts[i - 1] if i > 0 else pts[i]
+                p1 = pts[i]
+                p2 = pts[i + 1]
+                p3 = pts[i + 2] if i + 2 < N else p2
+                cp1x = p1['x'] + (p2['x'] - p0['x']) * tension
+                cp1y = p1['y'] + (p2['y'] - p0['y']) * tension
+                cp2x = p2['x'] - (p3['x'] - p1['x']) * tension
+                cp2y = p2['y'] - (p3['y'] - p1['y']) * tension
+                curve_cmds.append(f"C {round(cp1x, 1)} {round(cp1y, 1)}, {round(cp2x, 1)} {round(cp2y, 1)}, {p2['x']} {p2['y']}")
+
+            path_d = " ".join(curve_cmds)
+            area_d = f"M {pts[0]['x']} {pad_t + plot_h} L {pts[0]['x']} {pts[0]['y']} " + " ".join(curve_cmds[1:]) + f" L {pts[-1]['x']} {pad_t + plot_h} Z"
 
     context = {
         'athlete': athlete,
@@ -1595,6 +1636,9 @@ def athlete_swim_branch_modal(request, pk):
         'sonuclar': sonuclar_desc,
         'pb_race': pb_race,
         'last_race': last_race,
+        'first_race': first_race,
+        'max_puan': max_puan,
+        'pct_improvement': pct_improvement,
         'diff_str': diff_str,
         'diff_positive': diff_positive,
         'total_races': len(sonuclar),
@@ -1605,8 +1649,8 @@ def athlete_swim_branch_modal(request, pk):
         'chart_w': W,
         'chart_h': H,
         'pad_l': pad_l,
-        'pad_l_text': pad_l - 8,
+        'pad_l_text': pad_l - 10,
         'plot_right': W - pad_r,
-        'date_y': H - 10,
+        'date_y': H - 12,
     }
     return render(request, 'athlete/partials/athlete_swim_branch_modal.html', context)
