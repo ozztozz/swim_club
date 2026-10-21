@@ -91,19 +91,17 @@
     </div>
 
     <!-- =====================================================
-         İSTATİSTİK KARTLARI (UI STAT GRID)
-    ====================================================== -->
-
-
-    <!-- =====================================================
          EN İYİ DERECELER (PERSONAL BESTS - PB)
     ====================================================== -->
     <div class="mb-6">
-        <div class="ui-payment-header-group mb-3">
+        <div class="ui-payment-header-group mb-3 flex items-center justify-between">
             <h3 class="ui-section-title flex items-center gap-2">
                 <span>⏱ En İyi Dereceler</span>
                 <span class="text-xs text-[var(--ui-muted)] font-normal">({{ en_iyi_sonuclar|length }} branş)</span>
             </h3>
+            <span class="text-[11px] text-[var(--ui-muted)]">
+                👇 Bir branşa tıklayarak zaman grafiğini ve tüm yarışlarını görün
+            </span>
         </div>
 
         {% if en_iyi_sonuclar %}
@@ -127,28 +125,40 @@
 
                         <div class="space-y-2.5">
                             {% for pb in sonuclar_list %}
-                                <div class="flex items-center justify-between p-2 rounded-lg bg-[var(--ui-surface-subtle)] hover:bg-[var(--ui-surface-hover)] transition-colors">
+                                <div 
+                                    class="swim-branch-card flex items-center justify-between p-2.5 rounded-lg bg-[var(--ui-surface-subtle)] hover:bg-sky-50 dark:hover:bg-sky-950/40 hover:border-sky-300 border border-transparent transition-all cursor-pointer group"
+                                    data-stil="{{ pb.stil }}"
+                                    data-mesafe="{{ pb.mesafe }}"
+                                    data-etkinlik="{{ pb.etkinlik }}"
+                                    hx-get="{% url 'athlete-manage-swim-branch-modal' athlete.pk %}?stil={{ pb.stil|urlencode }}&mesafe={{ pb.mesafe }}"
+                                    hx-target="#modal-container"
+                                    hx-swap="innerHTML"
+                                    title="{{ pb.etkinlik }} zaman grafiğini ve yarış listesini aç"
+                                >
                                     <div>
-                                        <div class="font-bold text-sm text-[var(--ui-text)] flex items-center gap-2">
+                                        <div class="font-bold text-sm text-[var(--ui-text)] flex items-center gap-2 group-hover:text-sky-600 transition-colors">
                                             <span>{{ pb.etkinlik }}</span>
+                                            <span class="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300">
+                                                📈 Grafik
+                                            </span>
                                             {% if pb.baraj == 'EVET' %}
                                                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                                                     ✓ BARAJ
                                                 </span>
                                             {% endif %}
                                         </div>
-                                        <div class="text-[11px] text-[var(--ui-muted)] truncate max-w-[220px] sm:max-w-sm mt-0.5" title="{{ pb.musabaka_adi }}">
-                                            {{ pb.tarih }} • {{ pb.kisa_musabaka_adi|default:pb.musabaka_adi|truncatechars:32 }}
+                                        <div class="text-[11px] text-[var(--ui-muted)] truncate max-w-[200px] sm:max-w-xs mt-0.5" title="{{ pb.musabaka_adi }}">
+                                            {{ pb.tarih }} • {{ pb.kisa_musabaka_adi|default:pb.musabaka_adi|truncatechars:30 }}
                                         </div>
                                     </div>
 
                                     <div class="text-right flex-shrink-0 ml-3">
-                                        <div class="font-mono font-bold text-base text-[var(--ui-text)] tracking-tight">
+                                        <div class="font-mono font-bold text-base text-[var(--ui-text)] tracking-tight group-hover:text-sky-600 transition-colors">
                                             {{ pb.derece }}
                                         </div>
                                         <div class="text-[11px] flex items-center justify-end gap-1.5 text-[var(--ui-muted)] font-medium">
                                             {% if pb.puan %}
-                                                <span class="text-sky-600 font-semibold">{{ pb.puan }} Puan</span>
+                                                <span class="text-sky-600 font-semibold">{{ pb.puan }} P</span>
                                             {% endif %}
                                             {% if pb.sira %}
                                                 <span>#{{ pb.sira }}</span>
@@ -224,7 +234,7 @@
     {% if sonuclar %}
         <div class="mb-6">
             <div class="ui-payment-header-group mb-3">
-                <h3 class="ui-section-title">📋 Son Yarış Dereceleri</h3>
+                <h3 class="ui-section-title">📋 Tüm Sonuçlar Özeti</h3>
                 <span class="text-xs text-[var(--ui-muted)]">Toplam {{ sonuclar|length }} kayıt</span>
             </div>
 

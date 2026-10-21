@@ -1339,7 +1339,7 @@ def athlete_swim_results(request, pk):
                 raw_body = response.read().decode('utf-8')
                 data = json.loads(raw_body)
                 # Başarılı ise 15 dakika önbelleğe al
-                if data and data.get('durum') == 'basarili':
+                if data and (data.get('durum') == 'basarili' or 'en_iyi_sonuclar' in data or 'en_iyi_derece' in data or 'sonuclar' in data):
                     cache.set(cache_key, data, 60 * 15)
         except urllib.error.HTTPError as exc:
             error_message = f'API Hatası ({exc.code}): Henüz bu sporcu için sonuç verisi yayınlanmamış olabilir.'
@@ -1347,7 +1347,13 @@ def athlete_swim_results(request, pk):
             error_message = f'Bağlantı hatası: {str(exc)}'
 
     # Branşlara göre PB gruplaması ve müsabaka adı kısaltma
-    en_iyi_sonuclar = (data or {}).get('en_iyi_sonuclar', [])
+    en_raw = (data or {}).get('en_iyi_sonuclar') or (data or {}).get('en_iyi_derece') or (data or {}).get('sonuclar') or []
+    if isinstance(en_raw, dict):
+        en_iyi_sonuclar = [en_raw]
+    elif isinstance(en_raw, list):
+        en_iyi_sonuclar = en_raw
+    else:
+        en_iyi_sonuclar = []
     for item in en_iyi_sonuclar:
         item['kisa_musabaka_adi'] = _clean_competition_name(item.get('musabaka_adi', ''))
 
@@ -1396,3 +1402,211 @@ def athlete_swim_results(request, pk):
         'is_cached': bool(cache.get(cache_key)) and not force_refresh,
     }
     return render(request, 'athlete/partials/athlete_swim_results_tab.html', context)
+
+
+@login_required
+def athlete_swim_branch_data(request, pk):
+    """Sporcunun belirli bir stil ve mesafedeki tüm yarış sonuçlarını harici API'den çeker."""
+    import urllib.request
+    import urllib.parse
+    import json
+    from django.http import JsonResponse
+    from .models import Athlete
+
+    athlete = get_object_or_404(Athlete, pk=pk)
+    if not athlete.external_swimmer_id:
+        return JsonResponse({'durum': 'hata', 'mesaj': 'Eşleştirilmiş sporcu bulunamadı.'}, status=400)
+
+    stil = request.GET.get('stil', '').strip()
+    mesafe = request.GET.get('mesafe', '').strip()
+    swimmer_id = athlete.external_swimmer_id
+
+    query_params = f"?sporcu_id={swimmer_id}"
+    if stil:
+        query_params += f"&stil={urllib.parse.quote(stil)}"
+    if mesafe:
+        query_params += f"&mesafe={urllib.parse.quote(mesafe)}"
+
+    candidate_urls = [
+        f"http://127.0.0.1:8001/api/sporcu-sonuclari/{query_params}",
+        f"https://ozztozz.pythonanywhere.com/api/sporcu-sonuclari/{query_params}",
+    ]
+
+    last_exc = None
+    for api_url in candidate_urls:
+        try:
+            timeout_sec = 0.5 if "127.0.0.1" in api_url else 10
+            req = urllib.request.Request(
+                api_url,
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SwimClub/1.0',
+                    'Accept': 'application/json',
+                }
+            )
+            with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                return JsonResponse(data, safe=False)
+        except Exception as exc:
+            last_exc = exc
+            continue
+
+    return JsonResponse({'durum': 'hata', 'mesaj': str(last_exc)}, status=500)
+
+
+@login_required
+def athlete_swim_branch_modal(request, pk):
+    """Sporcunun belirli bir stil ve mesafedeki yarış geçmişini ve SVG zaman grafiğini modal içinde gösterir."""
+    import urllib.request
+    import urllib.parse
+    import json
+    from django.shortcuts import get_object_or_404, render
+    from .models import Athlete
+
+    athlete = get_object_or_404(Athlete, pk=pk)
+    stil = request.GET.get('stil', '').strip()
+    mesafe = request.GET.get('mesafe', '').strip()
+    swimmer_id = athlete.external_swimmer_id
+
+    sonuclar = []
+    if swimmer_id:
+        query_params = f"?sporcu_id={swimmer_id}"
+        if stil:
+            query_params += f"&stil={urllib.parse.quote(stil)}"
+        if mesafe:
+            query_params += f"&mesafe={urllib.parse.quote(mesafe)}"
+
+        candidate_urls = [
+            f"http://127.0.0.1:8001/api/sporcu-sonuclari/{query_params}",
+            f"https://ozztozz.pythonanywhere.com/api/sporcu-sonuclari/{query_params}",
+        ]
+        for api_url in candidate_urls:
+            try:
+                timeout_sec = 0.5 if "127.0.0.1" in api_url else 10
+                req = urllib.request.Request(
+                    api_url,
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SwimClub/1.0',
+                        'Accept': 'application/json',
+                    }
+                )
+                with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    sonuclar = data.get('sonuclar') or data.get('en_iyi_sonuclar') or []
+                    if sonuclar:
+                        break
+            except Exception:
+                continue
+
+    # PB tespiti (en küçük derece_saniye)
+    valid_with_sec = [r for r in sonuclar if r.get('derece_saniye') and float(r['derece_saniye']) > 0]
+    min_sec = min((float(r['derece_saniye']) for r in valid_with_sec), default=None)
+
+    for r in sonuclar:
+        try:
+            r_sec = float(r.get('derece_saniye', 0))
+            r['is_pb'] = bool(r.get('kisisel_en_iyi_mi')) or (min_sec is not None and r_sec == min_sec)
+        except (ValueError, TypeError):
+            r['is_pb'] = False
+
+    # Yeniden eskiye sıralı müsabaka listesi
+    sonuclar_desc = sorted(sonuclar, key=lambda r: str(r.get('tarih') or ''), reverse=True)
+    pb_race = next((r for r in sonuclar if r.get('is_pb')), sonuclar[0] if sonuclar else None)
+    last_race = sonuclar_desc[0] if sonuclar_desc else None
+
+    # Kronolojik sıralama (SVG grafiği ve gelişim hesabı için)
+    chrono = sorted(valid_with_sec, key=lambda r: str(r.get('tarih') or ''))
+
+    diff_str = None
+    diff_positive = True
+    if len(chrono) >= 2:
+        try:
+            first_sec = float(chrono[0]['derece_saniye'])
+            last_sec = float(chrono[-1]['derece_saniye'])
+            diff = first_sec - last_sec
+            if diff > 0:
+                diff_str = f"▼ {diff:.2f} sn Gelişim"
+                diff_positive = True
+            elif diff < 0:
+                diff_str = f"▲ {abs(diff):.2f} sn"
+                diff_positive = False
+            else:
+                diff_str = "Derece Eşit"
+                diff_positive = True
+        except (ValueError, TypeError):
+            pass
+
+    # SVG Çizim Koordinatları
+    W, H = 740, 230
+    pad_l, pad_r, pad_t, pad_b = 60, 40, 32, 38
+    plot_w = W - pad_l - pad_r
+    plot_h = H - pad_t - pad_b
+
+    pts = []
+    path_d = ""
+    area_d = ""
+    grid_lines = []
+
+    if chrono:
+        times = [float(r['derece_saniye']) for r in chrono]
+        min_s = min(times)
+        max_s = max(times)
+        rng = max_s - min_s
+        sec_pad = rng * 0.15 if rng > 0 else 1.5
+        y_min = max(0.0, min_s - sec_pad)
+        y_max = max_s + sec_pad
+        total_range = (y_max - y_min) or 1.0
+
+        for g in range(5):
+            frac = g / 4.0
+            g_y = pad_t + frac * plot_h
+            g_sec = y_min + frac * total_range
+            grid_lines.append({
+                'y': round(g_y, 1),
+                'y_text': round(g_y + 3.5, 1),
+                'label': f"{g_sec:.1f}s"
+            })
+
+        N = len(chrono)
+        for i, r in enumerate(chrono):
+            x = pad_l + (plot_w / 2.0 if N == 1 else (i / (N - 1)) * plot_w)
+            sec = float(r['derece_saniye'])
+            y = pad_t + ((sec - y_min) / total_range) * plot_h
+            tarih_raw = str(r.get('tarih') or '')
+            date_short = tarih_raw[2:].replace('-', '.') if len(tarih_raw) >= 10 else tarih_raw
+
+            pts.append({
+                'x': round(x, 1),
+                'y': round(y, 1),
+                'y_label': round(y - 10, 1),
+                'date_short': date_short,
+                'race': r,
+                'is_pb': (sec == min_s or r.get('is_pb'))
+            })
+
+        if N > 1:
+            path_d = "M " + " L ".join(f"{p['x']} {p['y']}" for p in pts)
+            area_d = f"M {pts[0]['x']} {pad_t + plot_h} L " + " L ".join(f"{p['x']} {p['y']}" for p in pts) + f" L {pts[-1]['x']} {pad_t + plot_h} Z"
+
+    context = {
+        'athlete': athlete,
+        'stil': stil,
+        'mesafe': mesafe,
+        'etkinlik': f"{mesafe}m {stil}" if mesafe and stil else (stil or "Branş"),
+        'sonuclar': sonuclar_desc,
+        'pb_race': pb_race,
+        'last_race': last_race,
+        'diff_str': diff_str,
+        'diff_positive': diff_positive,
+        'total_races': len(sonuclar),
+        'pts': pts,
+        'path_d': path_d,
+        'area_d': area_d,
+        'grid_lines': grid_lines,
+        'chart_w': W,
+        'chart_h': H,
+        'pad_l': pad_l,
+        'pad_l_text': pad_l - 8,
+        'plot_right': W - pad_r,
+        'date_y': H - 10,
+    }
+    return render(request, 'athlete/partials/athlete_swim_branch_modal.html', context)
