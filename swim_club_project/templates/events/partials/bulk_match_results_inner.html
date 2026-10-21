@@ -1,0 +1,174 @@
+<!-- ÖZET İSTATİSTİK SAYAÇLARI -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+    <div class="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-center">
+        <span class="block text-2xl font-extrabold text-emerald-700 dark:text-emerald-400">
+            {{ auto_matched_count }}
+        </span>
+        <span class="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300">
+            ✓ Tam Eşleşti (Eklendi)
+        </span>
+    </div>
+
+    <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-center">
+        <span class="block text-2xl font-extrabold text-amber-700 dark:text-amber-400">
+            {{ potential_matches_count }}
+        </span>
+        <span class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+            🔍 Seçim Bekleyen
+        </span>
+    </div>
+
+    <div class="p-3 rounded-lg bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 text-center">
+        <span class="block text-2xl font-extrabold text-sky-700 dark:text-sky-400">
+            {{ already_matched_count }}
+        </span>
+        <span class="text-[11px] font-semibold text-sky-800 dark:text-sky-300">
+            Önceden Eşleşmişti
+        </span>
+    </div>
+
+    <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 text-center">
+        <span class="block text-2xl font-extrabold text-slate-700 dark:text-slate-400">
+            {{ unmatched_count }}
+        </span>
+        <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+            Eşleşme Bulunamadı
+        </span>
+    </div>
+</div>
+
+<!-- BÖLÜM 1: BENZER EŞLEŞMELER (SEÇİM BEKLEYENLER) -->
+{% if potential_matches %}
+    <div class="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/50 dark:bg-amber-950/20 p-4">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-amber-200 dark:border-amber-800">
+            <div class="flex items-center gap-2">
+                <span class="text-base">🔍</span>
+                <h4 class="font-bold text-sm text-amber-950 dark:text-amber-100">
+                    Benzer Eşleşmeler ({{ potential_matches_count }} Sporcu)
+                </h4>
+            </div>
+            <span class="text-xs text-amber-800 dark:text-amber-300 font-medium">
+                Adaylardan doğru olanını "Seç" butonuna basarak eşleştirin
+            </span>
+        </div>
+
+        <div class="space-y-3">
+            {% for item in potential_matches %}
+                <div id="potential-row-{{ item.athlete.pk }}" class="bg-white dark:bg-slate-900 rounded-lg p-3.5 border border-amber-200 dark:border-amber-900/60 shadow-sm">
+                    <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <strong class="text-sm text-[var(--ui-text)]">{{ item.athlete.get_full_name }}</strong>
+                            <span class="text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[var(--ui-muted)]">
+                                Doğum: {{ item.athlete.birth_date|date:"Y"|default:"Belirtilmemiş" }}
+                            </span>
+                            {% if item.athlete.team %}
+                                <span class="text-xs px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">
+                                    {{ item.athlete.team.name }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <span class="text-xs text-amber-700 dark:text-amber-300 font-semibold">
+                            {{ item.candidates|length }} Olası Aday
+                        </span>
+                    </div>
+
+                    <div class="space-y-1.5 pl-2 border-l-2 border-amber-300 dark:border-amber-700">
+                        {% for c in item.candidates %}
+                            <div class="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-xs gap-3">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-[var(--ui-text)]">{{ c.sporcu_adi }}</span>
+                                        <span class="text-[11px] text-[var(--ui-muted)]">({{ c.dogum_yili }} - {{ c.cinsiyet|default:"-" }})</span>
+                                        {% if c.benzerlik_orani %}
+                                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 font-bold">
+                                                %{{ c.benzerlik_orani }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-[11px] text-[var(--ui-muted)] mt-0.5">
+                                        Kulüp: <strong>{{ c.kulup|default:"Belirtilmemiş" }}</strong>
+                                        {% if c.okul %} | Okul: {{ c.okul }}{% endif %}
+                                        | Yarış: {{ c.toplam_yaris_sayisi|default:0 }}
+                                    </div>
+                                </div>
+
+                                <form method="post" action="{% url 'events-bulk-match-select' %}" hx-post="{% url 'events-bulk-match-select' %}" hx-target="#potential-row-{{ item.athlete.pk }}" hx-swap="outerHTML" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="athlete_id" value="{{ item.athlete.pk }}">
+                                    <input type="hidden" name="swimmer_id" value="{{ c.id }}">
+                                    <input type="hidden" name="swimmer_name" value="{{ c.sporcu_adi }}">
+                                    <button type="submit" class="ui-btn ui-btn-xs ui-btn-primary flex items-center gap-1" style="white-space: nowrap;">
+                                        <span>✓</span>
+                                        <span>Seç (ID: {{ c.id }})</span>
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- BÖLÜM 2: OTOMATİK EŞLEŞENLER (DİREKT EKLENENLER) -->
+{% if auto_matched %}
+    <div class="rounded-xl border border-emerald-300 dark:border-emerald-700/60 bg-emerald-50/40 dark:bg-emerald-950/20 p-4">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-emerald-200 dark:border-emerald-800">
+            <div class="flex items-center gap-2">
+                <span class="text-base">🎉</span>
+                <h4 class="font-bold text-sm text-emerald-950 dark:text-emerald-100">
+                    Tam Eşleşen ve Otomatik Eklenenler ({{ auto_matched_count }} Sporcu)
+                </h4>
+            </div>
+            <span class="text-xs text-emerald-800 dark:text-emerald-300 font-semibold">
+                Sisteme Kaydedildi ✓
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1">
+            {% for item in auto_matched %}
+                <div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between text-xs">
+                    <div>
+                        <strong class="text-[var(--ui-text)] text-sm block">{{ item.athlete.get_full_name }}</strong>
+                        <span class="text-[11px] text-[var(--ui-muted)]">
+                            {{ item.sporcu.sporcu_adi }} • Doğum: {{ item.sporcu.dogum_yili }}
+                        </span>
+                        {% if item.sporcu.kulup %}
+                            <div class="text-[10.5px] text-emerald-700 dark:text-emerald-400 truncate max-w-[200px]" title="{{ item.sporcu.kulup }}">
+                                {{ item.sporcu.kulup }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <span class="text-xs font-mono font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        ID #{{ item.db_id }}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- BÖLÜM 3: EŞLEŞME BULUNAMAYANLAR -->
+{% if unmatched %}
+    <details class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/30 p-3 text-xs">
+        <summary class="font-bold text-slate-700 dark:text-slate-300 cursor-pointer user-select-none flex items-center justify-between">
+            <span>⚪ Eşleşme Bulunamayan Sporcular ({{ unmatched_count }} Sporcu)</span>
+            <span class="text-[11px] text-[var(--ui-muted)] font-normal">Görüntülemek için tıklayın</span>
+        </summary>
+        <p class="text-[11px] text-[var(--ui-muted)] mt-2 mb-2">
+            Bu sporcular federasyon veri tabanında henüz kayıtlı olmayabilir (küçük yaş grubu, yeni başlayanlar vb.).
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            {% for a in unmatched %}
+                <div class="p-1.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 truncate">
+                    <strong>{{ a.get_full_name }}</strong>
+                    <span class="text-[10px] text-[var(--ui-muted)] block">
+                        {{ a.birth_date|date:"Y"|default:"Tarih yok" }}
+                        {% if a.team %} • {{ a.team.name }}{% endif %}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    </details>
+{% endif %}

@@ -11,13 +11,23 @@
             <p class="page-description">Müsabaka bilgilerine ve ilgili dosyalara erişin.</p>
         </div>
         {% if can_manage %}
-            <button type="button"
-                    class="ui-btn ui-btn-primary ui-btn-sm"
-                    hx-get="{% url 'event-create' %}"
-                    hx-target="#modal-container"
-                    hx-swap="innerHTML">
-                Yeni kayıt
-            </button>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button type="button"
+                        class="ui-btn ui-btn-secondary ui-btn-sm border-sky-400 text-sky-800 bg-sky-50 dark:bg-sky-950/40 dark:text-sky-300"
+                        hx-get="{% url 'events-bulk-match' %}"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML"
+                        title="Tüm aktif kulüp sporcularını yarış veritabanıyla otomatik eşleştirir">
+                    🏊 Bütün Sporcuları Eşleştir
+                </button>
+                <button type="button"
+                        class="ui-btn ui-btn-primary ui-btn-sm"
+                        hx-get="{% url 'event-create' %}"
+                        hx-target="#modal-container"
+                        hx-swap="innerHTML">
+                    Yeni kayıt
+                </button>
+            </div>
         {% endif %}
     </header>
 

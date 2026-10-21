@@ -1,0 +1,14 @@
+<div id="potential-row-{{ athlete.pk }}" class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 rounded-lg flex items-center justify-between transition-all">
+    <div class="flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">✓</span>
+        <div>
+            <strong class="text-sm text-emerald-950 dark:text-emerald-100">{{ athlete.get_full_name }}</strong>
+            <span class="text-xs text-emerald-700 dark:text-emerald-300 ml-2">
+                Başarıyla eşleştirildi: <strong>{{ swimmer_name }}</strong> (ID: {{ swimmer_id }})
+            </span>
+        </div>
+    </div>
+    <span class="text-xs font-bold text-emerald-800 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-900/60 px-2.5 py-1 rounded-md border border-emerald-300">
+        Eşleştirildi
+    </span>
+</div>

@@ -1,0 +1,116 @@
+<dialog
+    id="bulk_match_modal"
+    class="ui-modal"
+    data-modal-backdrop-close="true"
+>
+    <div class="ui-modal-panel" style="max-width: 860px; width: 100%;">
+        <!-- =====================================================
+             MODAL HEADER
+        ====================================================== -->
+        <div class="ui-modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--ui-border, #e5e7eb);">
+            <div>
+                <p class="ui-modal-eyebrow" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ui-muted, #6b7280); margin: 0 0 2px 0;">
+                    Yüzme Veritabanı Toplu Eşleştirme (API)
+                </p>
+                <h3 class="ui-modal-title" style="font-size: 18px; font-weight: 700; margin: 0; color: var(--ui-text, #111827);">
+                    Tüm Aktif Sporcuları Eşleştir
+                </h3>
+            </div>
+
+            <button
+                type="button"
+                class="ui-modal-close"
+                data-modal-close
+                aria-label="Kapat"
+                style="background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--ui-muted, #9ca3af); padding: 4px;"
+            >
+                ✕
+            </button>
+        </div>
+
+        <!-- =====================================================
+             MODAL BODY CONTAINER
+        ====================================================== -->
+        <div id="bulk-match-modal-container" class="ui-modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 16px; max-height: 75vh; overflow-y: auto;">
+            {% if mode == 'init' %}
+                <!-- BAŞLATMA ÖNCESİ BİLGİ VE ONAY KARTI -->
+                <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-3xl">🏊</span>
+                        <div>
+                            <h4 class="font-bold text-base text-[var(--ui-text)]">Otomatik ve Akıllı Sporcu Eşleştirme</h4>
+                            <p class="text-xs text-[var(--ui-muted)] mt-0.5">
+                                Kulübünüzdeki tüm aktif yüzücüler yarış veritabanında taranacak.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- İSTATİSTİK ÖZETİ -->
+                    <div class="grid grid-cols-3 gap-3 mb-5">
+                        <div class="p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center">
+                            <span class="text-xs text-[var(--ui-muted)] block">Toplam Aktif</span>
+                            <strong class="text-lg text-[var(--ui-text)]">{{ total_active_count }} Sporcu</strong>
+                        </div>
+                        <div class="p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center">
+                            <span class="text-xs text-emerald-600 dark:text-emerald-400 block font-semibold">Zaten Eşleşmiş</span>
+                            <strong class="text-lg text-emerald-700 dark:text-emerald-300">{{ already_matched_count }} Sporcu</strong>
+                        </div>
+                        <div class="p-3 rounded-lg bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-center">
+                            <span class="text-xs text-sky-700 dark:text-sky-300 block font-semibold">Taranacak</span>
+                            <strong class="text-lg text-sky-800 dark:text-sky-200">{{ to_scan_count }} Sporcu</strong>
+                        </div>
+                    </div>
+
+                    <!-- ÇALIŞMA PRENSİBİ -->
+                    <div class="space-y-2 text-xs text-[var(--ui-muted)] mb-5 bg-white dark:bg-slate-800/60 p-3.5 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <div class="flex items-start gap-2">
+                            <span class="text-emerald-600 font-bold">✓</span>
+                            <span><strong>Tam Eşleşenler:</strong> Ad-soyad ve doğum yılı birebir tutan sporcular doğrudan sistem tarafından otomatik olarak bağlanır.</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-amber-500 font-bold">🔍</span>
+                            <span><strong>Benzer Eşleşmeler:</strong> İsim benzerliği olan sporcular adaylarıyla birlikte listelenir ve koç tek tıkla doğru kişiyi seçebilir.</span>
+                        </div>
+                    </div>
+
+                    <!-- BAŞLAT BUTONU & SPINNER -->
+                    <div class="flex flex-col items-center gap-3">
+                        <button
+                            type="button"
+                            class="ui-btn ui-btn-primary w-full sm:w-auto px-8 py-2.5 text-sm font-bold flex items-center justify-center gap-2"
+                            hx-get="{% url 'events-bulk-match' %}?run=1"
+                            hx-target="#bulk-match-modal-container"
+                            hx-indicator="#bulk-scan-loading"
+                        >
+                            <span>🚀 Taramayı ve Eşleştirmeyi Başlat</span>
+                        </button>
+
+                        <div id="bulk-scan-loading" class="htmx-indicator py-4 text-center">
+                            <div class="inline-block animate-spin text-2xl mb-1">⏳</div>
+                            <p class="text-xs font-semibold text-[var(--ui-text)]">
+                                Sporcular API üzerinden taranıyor ve eşleştiriliyor, lütfen bekleyin...
+                            </p>
+                            <p class="text-[11px] text-[var(--ui-muted)]">Bu işlem birkaç saniye sürebilir.</p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                {% include "events/partials/bulk_match_results_inner.html" %}
+            {% endif %}
+        </div>
+
+        <!-- =====================================================
+             MODAL ACTIONS
+        ====================================================== -->
+        <div class="ui-modal-actions" style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid var(--ui-border, #e5e7eb);">
+            <button
+                type="button"
+                class="ui-btn ui-btn-sm ui-btn-secondary"
+                data-modal-close
+                onclick="if (window.location) window.location.reload();"
+            >
+                Kapat
+            </button>
+        </div>
+    </div>
+</dialog>

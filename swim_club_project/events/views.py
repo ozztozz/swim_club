@@ -212,3 +212,127 @@ def attachment_delete(request, event_pk, attachment_pk):
     attachment.delete()
     messages.success(request, "Dosya başarıyla silindi.")
     return redirect("event-detail", pk=event_pk)
+
+@login_required
+def events_bulk_match(request):
+    """Aktif sporcuları topluca tarar, tam eşleşenleri otomatik bağlar, benzerleri listeler."""
+    if not (request.user.is_superuser or request.user.is_club_admin or getattr(request.user, 'is_coach', False)):
+        raise PermissionDenied
+
+    from athletes.models import Athlete
+
+    all_active = Athlete.objects.filter(is_active=True).order_by('first_name', 'last_name')
+    total_active_count = all_active.count()
+    already_matched = list(all_active.filter(external_swimmer_id__isnull=False))
+    to_scan = list(all_active.filter(external_swimmer_id__isnull=True))
+
+    run_scan = request.GET.get('run') == '1'
+
+    if not run_scan:
+        return render(request, 'events/partials/bulk_match_modal.html', {
+            'mode': 'init',
+            'total_active_count': total_active_count,
+            'already_matched_count': len(already_matched),
+            'to_scan_count': len(to_scan),
+        })
+
+    import json
+    import urllib.request
+    from concurrent.futures import ThreadPoolExecutor
+
+    auto_matched = []
+    potential_matches = []
+    unmatched = []
+
+    def scan_one(athlete):
+        api_url = 'https://ozztozz.pythonanywhere.com/api/sporcu-eslestir/'
+        payload = {'sporcu_adi': athlete.get_full_name().strip()}
+        if athlete.birth_date:
+            payload['dogum_yili'] = athlete.birth_date.year
+        req_data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(
+            api_url,
+            data=req_data,
+            headers={
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 BulkMatch/1.0',
+            },
+            method='POST',
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                return athlete, data
+        except Exception as exc:
+            return athlete, {'durum': 'hata', 'mesaj': str(exc)}
+
+    if to_scan:
+        # PythonAnywhere için nazik worker sayısı (3 worker)
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            scan_results = list(executor.map(scan_one, to_scan))
+
+        for athlete, res in scan_results:
+            sonuc = res.get('sonuc')
+            if res.get('durum') == 'basarili' and sonuc == 'tam_eslesme':
+                bulunan_id = res.get('bulunan_id') or (res.get('sporcu') or {}).get('id')
+                if bulunan_id:
+                    try:
+                        athlete.external_swimmer_id = int(bulunan_id)
+                        athlete.save(update_fields=['external_swimmer_id'])
+                        auto_matched.append({
+                            'athlete': athlete,
+                            'db_id': bulunan_id,
+                            'sporcu': res.get('sporcu') or {},
+                        })
+                    except Exception:
+                        unmatched.append(athlete)
+                else:
+                    unmatched.append(athlete)
+            elif res.get('muhtemel_eslesmeler'):
+                potential_matches.append({
+                    'athlete': athlete,
+                    'candidates': res.get('muhtemel_eslesmeler', []),
+                })
+            else:
+                unmatched.append(athlete)
+
+    context = {
+        'mode': 'results',
+        'total_active_count': total_active_count,
+        'already_matched_count': len(already_matched),
+        'auto_matched': auto_matched,
+        'auto_matched_count': len(auto_matched),
+        'potential_matches': potential_matches,
+        'potential_matches_count': len(potential_matches),
+        'unmatched': unmatched,
+        'unmatched_count': len(unmatched),
+    }
+
+    if request.headers.get('HX-Request') and request.GET.get('run') == '1':
+        return render(request, 'events/partials/bulk_match_results_inner.html', context)
+    return render(request, 'events/partials/bulk_match_modal.html', context)
+
+
+@login_required
+def events_bulk_match_select(request):
+    """Benzer eşleşmeler listesinden tek bir adayın seçilip kaydedilmesi (inline HTMX)."""
+    if not (request.user.is_superuser or request.user.is_club_admin or getattr(request.user, 'is_coach', False)):
+        raise PermissionDenied
+
+    from athletes.models import Athlete
+    from django.http import HttpResponse
+
+    athlete_id = request.POST.get('athlete_id')
+    swimmer_id = request.POST.get('swimmer_id')
+    swimmer_name = request.POST.get('swimmer_name', '')
+
+    athlete = get_object_or_404(Athlete, pk=athlete_id)
+    if swimmer_id and str(swimmer_id).isdigit():
+        athlete.external_swimmer_id = int(swimmer_id)
+        athlete.save(update_fields=['external_swimmer_id'])
+        return render(request, 'events/partials/bulk_match_row_selected.html', {
+            'athlete': athlete,
+            'swimmer_id': swimmer_id,
+            'swimmer_name': swimmer_name,
+        })
+    return HttpResponse('Geçersiz ID', status=400)
