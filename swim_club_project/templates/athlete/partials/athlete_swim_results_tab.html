@@ -93,49 +93,7 @@
     <!-- =====================================================
          İSTATİSTİK KARTLARI (UI STAT GRID)
     ====================================================== -->
-    <div class="ui-stat-grid mb-6">
-        <div class="ui-stat">
-            <div class="ui-stat-content">
-                <span class="ui-stat-label">Toplam Yarış</span>
-                <span class="ui-stat-value text-sky-600">
-                    {{ sporcu_info.toplam_yaris_sayisi|default:sonuclar|length }}
-                </span>
-                <div class="ui-stat-divider text-xs text-[var(--ui-muted)]">
-                    <span>İlk: {{ sporcu_info.ilk_yaris_tarihi|default:"-" }}</span>
-                    <span>Son: {{ sporcu_info.son_yaris_tarihi|default:"-" }}</span>
-                </div>
-            </div>
-        </div>
 
-        <div class="ui-stat">
-            <div class="ui-stat-content">
-                <span class="ui-stat-label">Yarıştığı Branş</span>
-                <span class="ui-stat-value text-indigo-600">
-                    {{ toplam_brans_sayisi|default:en_iyi_sonuclar|length }}
-                </span>
-                <div class="ui-stat-divider text-xs text-[var(--ui-muted)]">
-                    <span>En İyi Dereceler (PB)</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="ui-stat">
-            <div class="ui-stat-content">
-                <span class="ui-stat-label">Geçilen Barajlar</span>
-                <span class="ui-stat-value text-emerald-600">
-                    {% with passed=0 %}
-                        {% for r in en_iyi_sonuclar %}
-                            {% if r.baraj == 'EVET' %}{% endif %}
-                        {% endfor %}
-                    {% endwith %}
-                    {{ sporcu_info.yas_dogum_yili|default:athlete.birth_date|date:"Y" }}
-                </span>
-                <div class="ui-stat-divider text-xs text-[var(--ui-muted)]">
-                    <span>Doğum Yılı / Yaş Grubu</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- =====================================================
          EN İYİ DERECELER (PERSONAL BESTS - PB)
@@ -143,7 +101,7 @@
     <div class="mb-6">
         <div class="ui-payment-header-group mb-3">
             <h3 class="ui-section-title flex items-center gap-2">
-                <span>⏱ En İyi Dereceler (Personal Bests)</span>
+                <span>⏱ En İyi Dereceler</span>
                 <span class="text-xs text-[var(--ui-muted)] font-normal">({{ en_iyi_sonuclar|length }} branş)</span>
             </h3>
         </div>
