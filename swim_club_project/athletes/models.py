@@ -77,6 +77,13 @@ class Athlete(models.Model):
         blank=True,
         verbose_name="Son SMS Gönderim Zamanı"
     )
+    external_swimmer_id = models.IntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name="Yüzme DB Sporcu ID",
+        help_text="Harici yarış veritabanındaki sporcu ID'si"
+    )
     @property
     def current_monthly_fee(self):
         """Sporcunun ödemesi gereken güncel net aidat tutarını döner."""

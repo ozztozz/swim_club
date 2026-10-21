@@ -3,7 +3,7 @@
     class="ui-modal"
     data-modal-backdrop-close="true"
 >
-    <div class="ui-modal-panel" style="max-width: 650px; width: 100%;">
+    <div class="ui-modal-panel" style="max-width: 680px; width: 100%;">
         <!-- =====================================================
              MODAL HEADER
         ====================================================== -->
@@ -31,107 +31,180 @@
         <!-- =====================================================
              MODAL BODY
         ====================================================== -->
-        <div class="ui-modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 16px;">
+        <div class="ui-modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 14px;">
 
-            <!-- GÖNDERİLEN SORGU KARTI -->
-            <div style="background: var(--ui-surface-subtle, #f9fafb); border: 1px solid var(--ui-border, #e5e7eb); border-radius: 8px; padding: 12px 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 12px; font-weight: 600; color: var(--ui-muted, #4b5563);">GÖNDERİLEN SORGU</span>
-                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: {% if status_code == 200 %}#ecfdf5; color: #047857;{% else %}#fef2f2; color: #b91c1c;{% endif %} font-weight: 600;">
-                        HTTP {{ status_code|default:"Bağlantı Hatası" }}
+            <!-- GÜNCEL EŞLEŞME BİLGİ BANDI -->
+            <div style="background: {% if athlete.external_swimmer_id %}#ecfdf5; border-color: #a7f3d0; color: #065f46;{% else %}#f8fafc; border-color: #e2e8f0; color: #475569;{% endif %} border: 1px solid; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 13px;">
+                    <strong>Sporcu:</strong> {{ athlete.get_full_name }} ({{ athlete.birth_date|date:"Y"|default:"Doğum yılı yok" }})
+                    <span style="margin-left: 8px;">
+                        {% if athlete.external_swimmer_id %}
+                            <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;">
+                                ✓ Eşleşti: ID #{{ athlete.external_swimmer_id }}
+                            </span>
+                        {% else %}
+                            <span style="background: #94a3b8; color: white; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;">
+                                Henüz Eşleşmedi
+                            </span>
+                        {% endif %}
                     </span>
                 </div>
-                <div style="font-size: 13px; color: var(--ui-text, #1f2937);">
-                    <strong>Sporcu:</strong> {{ athlete.get_full_name }} | 
-                    <strong>Doğum Yılı:</strong> {{ athlete.birth_date|date:"Y"|default:"Belirtilmemiş" }}
-                </div>
+
+                {% if athlete.external_swimmer_id %}
+                    <form method="post" action="{% url 'athlete-manage-match-save' athlete.pk %}" hx-post="{% url 'athlete-manage-match-save' athlete.pk %}" hx-target="#modal-container" hx-swap="innerHTML" style="margin: 0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action_type" value="unlink">
+                        <button type="submit" class="ui-btn ui-btn-xs" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer;">
+                            Eşleşmeyi Kaldır
+                        </button>
+                    </form>
+                {% endif %}
             </div>
+
+            <!-- OTOMATİK EŞLEŞTİRME BİLDİRİMİ -->
+            {% if just_auto_matched %}
+                <div style="background: #d1fae5; border: 1px solid #34d399; border-radius: 8px; padding: 12px 14px; color: #065f46; font-size: 13px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">🎉</span>
+                    <div>
+                        <strong>Tam Eşleşme Bulundu!</strong> Sporcu profili otomatik olarak <strong>ID: {{ athlete.external_swimmer_id }}</strong> ile eşleştirildi ve kaydedildi.
+                    </div>
+                </div>
+            {% endif %}
 
             <!-- HATA MESAJI VARSA -->
             {% if error_message %}
                 <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; color: #991b1b; font-size: 13px;">
-                    <strong>API Bağlantı Hatası:</strong> {{ error_message }}
+                    <strong>API Hatası:</strong> {{ error_message }}
                 </div>
             {% endif %}
 
-            <!-- API CEVABI DURUM KARTI -->
+            <!-- API CEVABI KARTLARI -->
             {% if api_response %}
                 {% if api_response.sonuc == 'tam_eslesme' and api_response.sporcu %}
-                    <!-- TAM EŞLEŞME BAŞARILI -->
-                    <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 14px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #10b981; color: white; font-size: 13px; font-weight: bold;">✓</span>
-                            <span style="font-weight: 700; color: #065f46; font-size: 14px;">Tam Eşleşme Bulundu!</span>
-                            <span style="background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-left: auto;">
-                                ID: {{ api_response.bulunan_id }}
+                    <!-- TAM EŞLEŞME DETAY KARTI -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="background: #16a34a; color: white; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">✓</span>
+                                <span style="font-weight: 700; color: #166534; font-size: 14px;">Tam Uyumlu Sporcu</span>
+                            </div>
+                            <span style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 6px;">
+                                DB ID: {{ api_response.sporcu.id }}
                             </span>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 13px; color: #064e3b;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 13px; color: #14532d;">
                             <div>
-                                <span style="color: #047857; font-size: 11px; display: block;">SPORCU ADI:</span>
+                                <span style="color: #15803d; font-size: 11px; display: block;">SPORCU ADI:</span>
                                 <strong>{{ api_response.sporcu.sporcu_adi }}</strong>
                             </div>
                             <div>
-                                <span style="color: #047857; font-size: 11px; display: block;">KULÜP:</span>
+                                <span style="color: #15803d; font-size: 11px; display: block;">KULÜP:</span>
                                 <strong>{{ api_response.sporcu.kulup|default:"-" }}</strong>
                             </div>
                             <div>
-                                <span style="color: #047857; font-size: 11px; display: block;">DOĞUM YILI / CİNSİYET:</span>
+                                <span style="color: #15803d; font-size: 11px; display: block;">DOĞUM YILI / CİNSİYET:</span>
                                 <span>{{ api_response.sporcu.dogum_yili }} ({{ api_response.sporcu.cinsiyet }})</span>
                             </div>
                             <div>
-                                <span style="color: #047857; font-size: 11px; display: block;">TOPLAM YARIŞ:</span>
+                                <span style="color: #15803d; font-size: 11px; display: block;">TOPLAM YARIŞ:</span>
                                 <span>{{ api_response.sporcu.toplam_yaris_sayisi }} yarış</span>
                             </div>
                             {% if api_response.sporcu.son_yaris_tarihi %}
                             <div>
-                                <span style="color: #047857; font-size: 11px; display: block;">SON YARIŞ TARİHİ:</span>
+                                <span style="color: #15803d; font-size: 11px; display: block;">SON YARIŞ TARİHİ:</span>
                                 <span>{{ api_response.sporcu.son_yaris_tarihi }}</span>
                             </div>
                             {% endif %}
                             {% if api_response.sporcu.okul %}
                             <div>
-                                <span style="color: #047857; font-size: 11px; display: block;">OKUL:</span>
+                                <span style="color: #15803d; font-size: 11px; display: block;">OKUL:</span>
                                 <span>{{ api_response.sporcu.okul }}</span>
                             </div>
                             {% endif %}
                         </div>
+
+                        {% if athlete.external_swimmer_id != api_response.sporcu.id %}
+                            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #bbf7d0; display: flex; justify-content: flex-end;">
+                                <form method="post" action="{% url 'athlete-manage-match-save' athlete.pk %}" hx-post="{% url 'athlete-manage-match-save' athlete.pk %}" hx-target="#modal-container" hx-swap="innerHTML">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="swimmer_id" value="{{ api_response.sporcu.id }}">
+                                    <input type="hidden" name="swimmer_name" value="{{ api_response.sporcu.sporcu_adi }}">
+                                    <button type="submit" class="ui-btn ui-btn-sm ui-btn-primary">
+                                        ✓ Bu Sporcuyla Eşleştir (ID: {{ api_response.sporcu.id }})
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
+
                 {% elif api_response.muhtemel_eslesmeler %}
-                    <!-- MUHTEMEL EŞLEŞMELER -->
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                            <span style="font-weight: 700; color: #92400e; font-size: 14px;">
-                                ⚠ Muhtemel Eşleşmeler ({{ api_response.muhtemel_eslesmeler|length }})
+                    <!-- MUHTEMEL EŞLEŞMELER LİSTESİ -->
+                    <div style="background: #fffbeb; border: 1px solid #fef08a; border-radius: 8px; padding: 14px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 700; color: #854d0e; font-size: 14px;">
+                                🔍 Muhtemel Eşleşmeler ({{ api_response.muhtemel_eslesmeler|length }} Sonuç)
                             </span>
+                            <span style="font-size: 11px; color: #a16207;">Doğru sporcuyu seçip eşleştirebilirsiniz</span>
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
                             {% for m in api_response.muhtemel_eslesmeler %}
-                                <div style="background: white; border: 1px solid #fef3c7; border-radius: 6px; padding: 8px 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <strong>{{ m.sporcu_adi }}</strong> ({{ m.dogum_yili }}) - <span style="color: #6b7280;">{{ m.kulup|default:"Kulüpsüz" }}</span>
+                                <div style="background: white; border: 1px solid {% if athlete.external_swimmer_id == m.id %}#10b981; box-shadow: 0 0 0 1px #10b981;{% else %}#e2e8f0;{% endif %} border-radius: 6px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <strong style="color: #0f172a; font-size: 13px;">{{ m.sporcu_adi }}</strong>
+                                            <span style="font-size: 11px; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 4px;">
+                                                {{ m.dogum_yili }} ({{ m.cinsiyet|default:"-" }})
+                                            </span>
+                                            {% if m.benzerlik_orani %}
+                                                <span style="font-size: 10px; color: #0284c7; background: #e0f2fe; padding: 1px 5px; border-radius: 4px; font-weight: 600;">
+                                                    %{{ m.benzerlik_orani }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <div style="font-size: 11.5px; color: #475569; margin-top: 3px;">
+                                            <span>Kulüp: <strong>{{ m.kulup|default:"Belirtilmemiş" }}</strong></span>
+                                            {% if m.okul %} | <span>Okul: {{ m.okul }}</span>{% endif %}
+                                            | <span>Yarış: {{ m.toplam_yaris_sayisi|default:0 }}</span>
+                                        </div>
                                     </div>
-                                    <span style="font-size: 11px; color: #b45309; font-weight: 600;">ID: {{ m.id }}</span>
+
+                                    <div>
+                                        {% if athlete.external_swimmer_id == m.id %}
+                                            <span style="background: #10b981; color: white; font-size: 11px; font-weight: bold; padding: 5px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                                ✓ Seçili
+                                            </span>
+                                        {% else %}
+                                            <form method="post" action="{% url 'athlete-manage-match-save' athlete.pk %}" hx-post="{% url 'athlete-manage-match-save' athlete.pk %}" hx-target="#modal-container" hx-swap="innerHTML" style="margin: 0;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="swimmer_id" value="{{ m.id }}">
+                                                <input type="hidden" name="swimmer_name" value="{{ m.sporcu_adi }}">
+                                                <button type="submit" class="ui-btn ui-btn-xs ui-btn-primary" style="white-space: nowrap; font-size: 11.5px; padding: 5px 10px;">
+                                                    Seç
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
                     </div>
                 {% else %}
                     <!-- EŞLEŞME YOK -->
-                    <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; text-align: center; color: #4b5563; font-size: 13px;">
-                        Veritabanında bu isim ve doğum yılıyla eşleşen sporcu bulunamadı.
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; color: #64748b; font-size: 13px;">
+                        Veritabanında bu isim ve doğum yılıyla eşleşen sporcu kaydı bulunamadı.
                     </div>
                 {% endif %}
             {% endif %}
 
-            <!-- HAM JSON ÇIKTISI -->
-            <div style="border-top: 1px solid var(--ui-border, #e5e7eb); padding-top: 12px;">
-                <details open style="cursor: pointer;">
-                    <summary style="font-size: 12px; font-weight: 600; color: var(--ui-muted, #4b5563); margin-bottom: 8px; user-select: none;">
-                        Dönen Ham JSON Yanıtı (İncele)
+            <!-- HAM JSON ÇIKTISI (AKORDİYON) -->
+            <div style="border-top: 1px solid var(--ui-border, #e5e7eb); padding-top: 10px;">
+                <details style="cursor: pointer;">
+                    <summary style="font-size: 11.5px; font-weight: 600; color: var(--ui-muted, #64748b); user-select: none;">
+                        ▸ API Ham JSON Yanıtını Görüntüle
                     </summary>
-                    <pre style="background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-size: 11.5px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; max-height: 200px; overflow: auto; white-space: pre-wrap; margin: 0; line-height: 1.4;">{{ formatted_json|default:"Yanıt yok" }}</pre>
+                    <pre style="background: #0f172a; color: #38bdf8; padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; max-height: 180px; overflow: auto; white-space: pre-wrap; margin-top: 8px; line-height: 1.4;">{{ formatted_json|default:"Yanıt yok" }}</pre>
                 </details>
             </div>
 
@@ -140,25 +213,35 @@
         <!-- =====================================================
              MODAL ACTIONS
         ====================================================== -->
-        <div class="ui-modal-actions" style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid var(--ui-border, #e5e7eb);">
-            <button
-                type="button"
-                class="ui-btn ui-btn-sm ui-btn-secondary"
-                data-modal-close
-            >
-                Kapat
-            </button>
+        <div class="ui-modal-actions" style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--ui-border, #e5e7eb);">
+            <div>
+                {% if athlete.external_swimmer_id %}
+                    <span style="font-size: 12px; color: #166534; font-weight: 600;">
+                        ✓ Kayıtlı Yüzme DB ID: {{ athlete.external_swimmer_id }}
+                    </span>
+                {% endif %}
+            </div>
 
-            <button
-                type="button"
-                class="ui-btn ui-btn-sm ui-btn-primary"
-                hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
-                hx-target="#modal-container"
-                hx-swap="innerHTML"
-            >
-                Yeniden Sorgula
-            </button>
+            <div style="display: flex; gap: 8px;">
+                <button
+                    type="button"
+                    class="ui-btn ui-btn-sm ui-btn-secondary"
+                    data-modal-close
+                    onclick="if (window.location) window.location.reload();"
+                >
+                    Kapat
+                </button>
+
+                <button
+                    type="button"
+                    class="ui-btn ui-btn-sm ui-btn-primary"
+                    hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML"
+                >
+                    Yeniden Sorgula
+                </button>
+            </div>
         </div>
     </div>
 </dialog>
-

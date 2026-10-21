@@ -48,12 +48,12 @@
                         {% endif %}
                         <button
                             type="button"
-                            class="ui-btn ui-btn-sm ui-btn-secondary"
+                            class="ui-btn ui-btn-sm {% if athlete.external_swimmer_id %}ui-btn-secondary border-emerald-500 text-emerald-700 bg-emerald-50{% else %}ui-btn-secondary{% endif %}"
                             hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
                             hx-target="#modal-container"
                             hx-swap="innerHTML"
                             title="Yüzme veritabanı ile eşleştirme sorgusu yap"
-                        >🏊 Eşleştir</button>
+                        >{% if athlete.external_swimmer_id %}🏊 Yüzme DB (#{{ athlete.external_swimmer_id }}){% else %}🏊 Eşleştir{% endif %}</button>
                     </div>
              
             </div>

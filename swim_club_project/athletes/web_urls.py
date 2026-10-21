@@ -16,5 +16,6 @@ urlpatterns = [
     path('<int:pk>/toggle-active/', views.athlete_toggle_active, name='athlete-manage-toggle-active'),
     path('<int:pk>/edit/', views.athlete_update, name='athlete-manage-update'),
     path('<int:pk>/match-preview/', views.athlete_match_preview, name='athlete-manage-match-preview'),
+    path('<int:pk>/match-save/', views.athlete_match_save, name='athlete-manage-match-save'),
 
 ]

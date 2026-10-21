@@ -1156,8 +1156,8 @@ def parent_dashboard(request):
         return Response({'status': 'Sporcu kaydı reddedildi.'})
 
 @login_required
-def athlete_match_preview(request, pk):
-    """Harici yüzme API servisine sporcu eşleştirme isteği atar ve sonucu gösterir."""
+def athlete_match_preview(request, pk, skip_auto_match=False):
+    """Harici yüzme API servisine sporcu eşleştirme isteği atar, tam eşleşmede otomatik kaydeder."""
     import json
     import urllib.request
     import urllib.error
@@ -1181,6 +1181,7 @@ def athlete_match_preview(request, pk):
     formatted_json = None
     status_code = None
     error_message = None
+    just_auto_matched = False
     
     try:
         req_data = json.dumps(payload).encode('utf-8')
@@ -1212,6 +1213,20 @@ def athlete_match_preview(request, pk):
     except Exception as exc:
         error_message = str(exc)
 
+    # TAM EŞLEŞME KONTROLÜ VE OTOMATİK KAYIT
+    # Eğer sporcu henüz eşleştirilmemişse ve tam eşleşme geldiyse otomatik kaydet
+    if not skip_auto_match and api_response and api_response.get('durum') == 'basarili' and api_response.get('sonuc') == 'tam_eslesme':
+        bulunan_id = api_response.get('bulunan_id') or (api_response.get('sporcu') or {}).get('id')
+        if bulunan_id:
+            try:
+                found_id_int = int(bulunan_id)
+                if not athlete.external_swimmer_id:
+                    athlete.external_swimmer_id = found_id_int
+                    athlete.save(update_fields=['external_swimmer_id'])
+                    just_auto_matched = True
+            except (ValueError, TypeError):
+                pass
+
     context = {
         'athlete': athlete,
         'payload': payload,
@@ -1219,5 +1234,40 @@ def athlete_match_preview(request, pk):
         'api_response': api_response,
         'formatted_json': formatted_json,
         'error_message': error_message,
+        'just_auto_matched': just_auto_matched,
     }
     return render(request, 'athlete/partials/athlete_match_modal.html', context)
+
+
+@login_required
+def athlete_match_save(request, pk):
+    """Kullanıcının muhtemel adaylar arasından seçtiği veya girdiği sporcu ID'sini kaydeder."""
+    from django.shortcuts import get_object_or_404, render
+    from django.http import HttpResponse
+    from .models import Athlete
+
+    athlete = get_object_or_404(Athlete, pk=pk)
+    
+    if request.method == 'POST':
+        action_type = request.POST.get('action_type', 'save')
+        
+        if action_type == 'unlink':
+            athlete.external_swimmer_id = None
+            athlete.save(update_fields=['external_swimmer_id'])
+            message = 'Yüzme veritabanı eşleştirmesi kaldırıldı.'
+        else:
+            swimmer_id = request.POST.get('swimmer_id')
+            swimmer_name = request.POST.get('swimmer_name', '')
+            if swimmer_id and str(swimmer_id).isdigit():
+                athlete.external_swimmer_id = int(swimmer_id)
+                athlete.save(update_fields=['external_swimmer_id'])
+                message = f'Sporcu {swimmer_name} (ID: {swimmer_id}) ile başarıyla eşleştirildi.'
+            else:
+                message = 'Geçersiz sporcu ID.'
+
+        # HTMX ile modalı yenile (kullanıcı manuel işlem yaptığı için auto_match atla)
+        response = athlete_match_preview(request, pk, skip_auto_match=True)
+        response['HX-Trigger'] = 'athleteUpdated'
+        return response
+        
+    return HttpResponse(status=405)
