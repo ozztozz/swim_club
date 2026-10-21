@@ -179,8 +179,8 @@
                                                 </span>
                                             {% endif %}
                                         </div>
-                                        <div class="text-[11px] text-[var(--ui-muted)] truncate max-w-[200px] sm:max-w-xs mt-0.5" title="{{ pb.musabaka_adi }}">
-                                            {{ pb.tarih }} • {{ pb.musabaka_adi }}
+                                        <div class="text-[11px] text-[var(--ui-muted)] truncate max-w-[220px] sm:max-w-sm mt-0.5" title="{{ pb.musabaka_adi }}">
+                                            {{ pb.tarih }} • {{ pb.kisa_musabaka_adi|default:pb.musabaka_adi|truncatechars:32 }}
                                         </div>
                                     </div>
 
@@ -307,8 +307,8 @@
                                             <span class="text-[var(--ui-muted)] text-[11px]">HAYIR</span>
                                         {% endif %}
                                     </td>
-                                    <td class="py-2.5 px-3 text-[var(--ui-muted)] truncate max-w-xs" title="{{ r.musabaka_adi }}">
-                                        {{ r.musabaka_adi }}{% if r.sehir %} ({{ r.sehir }}){% endif %}
+                                    <td class="py-2.5 px-3 text-[var(--ui-muted)] truncate max-w-[260px]" title="{{ r.musabaka_adi }}">
+                                        {{ r.kisa_musabaka_adi|default:r.musabaka_adi|truncatechars:36 }}{% if r.sehir %} ({{ r.sehir }}){% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}

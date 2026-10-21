@@ -1274,6 +1274,34 @@ def athlete_match_save(request, pk):
 
 
 @login_required
+
+def _clean_competition_name(name):
+    if not name:
+        return ''
+    import re
+    # Fazla boşlukları tek boşluğa indir
+    name = re.sub(r'\s+', ' ', str(name)).strip()
+    replacements = [
+        ('Ulusal Gelişim Projesi Ligi', 'UGP Ligi'),
+        ('Ulusal Gelişim Projesi', 'UGP'),
+        ('Milli Takım Seçme Yarışmaları', 'Milli Tk. Seçme'),
+        ('Milli Takım Seçme', 'Milli Tk. Seçme'),
+        ('Milli Takım', 'Milli Tk.'),
+        ('İl Baraj Geçme ve', 'Baraj ve'),
+        ('İl Baraj Geçme', 'Baraj'),
+        ('Baraj Geçme', 'Baraj'),
+        ('Performans Tespit', 'Perf. Tespit'),
+        ('İl Birinciliği', 'İl Bir.'),
+        ('Müsabakaları', 'Müs.'),
+        ('Müsabakası', 'Müs.'),
+        ('Yarışmaları', 'Yar.'),
+        ('Yarışması', 'Yar.'),
+    ]
+    for old, new in replacements:
+        name = name.replace(old, new)
+    return name
+
+@login_required
 def athlete_swim_results(request, pk):
     """Sporcunun harici yüzme veritabanındaki en iyi derecelerini ve yarış sonuçlarını çeker."""
     import json
@@ -1319,8 +1347,14 @@ def athlete_swim_results(request, pk):
         except Exception as exc:
             error_message = f'Bağlantı hatası: {str(exc)}'
 
-    # Branşlara göre PB gruplaması
+    # Branşlara göre PB gruplaması ve müsabaka adı kısaltma
     en_iyi_sonuclar = (data or {}).get('en_iyi_sonuclar', [])
+    for item in en_iyi_sonuclar:
+        item['kisa_musabaka_adi'] = _clean_competition_name(item.get('musabaka_adi', ''))
+
+    sonuclar = (data or {}).get('sonuclar', [])
+    for item in sonuclar:
+        item['kisa_musabaka_adi'] = _clean_competition_name(item.get('musabaka_adi', ''))
     grouped_pb = {
         'Serbest': [],
         'Sırtüstü': [],
