@@ -1273,8 +1273,6 @@ def athlete_match_save(request, pk):
     return HttpResponse(status=405)
 
 
-@login_required
-
 def _clean_competition_name(name):
     if not name:
         return ''
