@@ -138,8 +138,8 @@
                 </div>
 
                 {% if pts %}
-                    <div style="width: 100%; overflow-x: auto; position: relative;">
-                        <svg viewBox="0 0 {{ chart_w }} {{ chart_h }}" style="width: 100%; height: auto; min-width: 540px; display: block; overflow: visible; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                    <div id="modalSwimChartWrapper" style="width: 100%; overflow-x: auto; position: relative; -webkit-overflow-scrolling: touch;">
+                        <svg viewBox="0 0 {{ chart_w }} {{ chart_h }}" style="width: 100%; height: auto; max-width: 100%; display: block; overflow: visible; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
                             <defs>
                                 <!-- Degrade Alan Dolgusu -->
                                 <linearGradient id="modalAreaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -231,6 +231,14 @@
                             {% endfor %}
                         </svg>
                     </div>
+                    <script>
+                        (function() {
+                            var w = document.getElementById("modalSwimChartWrapper");
+                            if (w && w.scrollWidth > w.clientWidth) {
+                                w.scrollLeft = w.scrollWidth - w.clientWidth;
+                            }
+                        })();
+                    </script>
                 {% else %}
                     <div style="text-align: center; padding: 36px; font-size: 12px; color: var(--ui-muted, #94a3b8);">
                         Bu branşta geçerli derece verisi bulunamadı.
