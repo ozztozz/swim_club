@@ -1154,3 +1154,70 @@ def parent_dashboard(request):
         athlete.is_active = False
         athlete.save()
         return Response({'status': 'Sporcu kaydı reddedildi.'})
+
+@login_required
+def athlete_match_preview(request, pk):
+    """Harici yüzme API servisine sporcu eşleştirme isteği atar ve sonucu gösterir."""
+    import json
+    import urllib.request
+    import urllib.error
+    from django.shortcuts import get_object_or_404, render
+    from .models import Athlete
+
+    athlete = get_object_or_404(Athlete, pk=pk)
+    
+    sporcu_adi = athlete.get_full_name().strip()
+    dogum_yili = athlete.birth_date.year if athlete.birth_date else None
+    
+    payload = {
+        'sporcu_adi': sporcu_adi,
+    }
+    if dogum_yili:
+        payload['dogum_yili'] = dogum_yili
+    
+    api_url = 'https://ozztozz.pythonanywhere.com/api/sporcu-eslestir/'
+    
+    api_response = None
+    formatted_json = None
+    status_code = None
+    error_message = None
+    
+    try:
+        req_data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(
+            api_url,
+            data=req_data,
+            headers={
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SwimClub/1.0',
+            },
+            method='POST',
+        )
+        with urllib.request.urlopen(req, timeout=12) as response:
+            status_code = response.getcode()
+            raw_body = response.read().decode('utf-8')
+            try:
+                api_response = json.loads(raw_body)
+                formatted_json = json.dumps(api_response, indent=2, ensure_ascii=False)
+            except Exception:
+                formatted_json = raw_body
+    except urllib.error.HTTPError as exc:
+        status_code = exc.code
+        err_body = exc.read().decode('utf-8', errors='ignore')
+        try:
+            api_response = json.loads(err_body)
+            formatted_json = json.dumps(api_response, indent=2, ensure_ascii=False)
+        except Exception:
+            formatted_json = err_body
+    except Exception as exc:
+        error_message = str(exc)
+
+    context = {
+        'athlete': athlete,
+        'payload': payload,
+        'status_code': status_code,
+        'api_response': api_response,
+        'formatted_json': formatted_json,
+        'error_message': error_message,
+    }
+    return render(request, 'athlete/partials/athlete_match_modal.html', context)

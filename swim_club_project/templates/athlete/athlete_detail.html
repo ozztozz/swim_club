@@ -46,6 +46,14 @@
                                     hx-target="#modal-container"
                                     hx-swap="innerHTML">+ Ödeme Ekle</button>
                         {% endif %}
+                        <button
+                            type="button"
+                            class="ui-btn ui-btn-sm ui-btn-secondary"
+                            hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
+                            hx-target="#modal-container"
+                            hx-swap="innerHTML"
+                            title="Yüzme veritabanı ile eşleştirme sorgusu yap"
+                        >🏊 Eşleştir</button>
                     </div>
              
             </div>

@@ -49,3 +49,8 @@ htmlcov/
 # Test and migration artifacts
 .dumpdata
 *.jsonl
+
+# SQLite databases
+*.db
+*.sqlite3
+yuzme_veritabani.db

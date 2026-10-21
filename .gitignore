@@ -1,0 +1,5 @@
+
+# Large DBs
+*.db
+*.sqlite3
+swim_club_project/yuzme_veritabani.db

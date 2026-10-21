@@ -1,0 +1,164 @@
+<dialog
+    id="athlete_match_modal"
+    class="ui-modal"
+    data-modal-backdrop-close="true"
+>
+    <div class="ui-modal-panel" style="max-width: 650px; width: 100%;">
+        <!-- =====================================================
+             MODAL HEADER
+        ====================================================== -->
+        <div class="ui-modal-header" style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--ui-border, #e5e7eb);">
+            <div>
+                <p class="ui-modal-eyebrow" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ui-muted, #6b7280); margin: 0 0 2px 0;">
+                    Yüzme Veritabanı API (ozztozz.pythonanywhere.com)
+                </p>
+                <h3 class="ui-modal-title" style="font-size: 18px; font-weight: 700; margin: 0; color: var(--ui-text, #111827);">
+                    Sporcu Eşleştirme Sorgusu
+                </h3>
+            </div>
+
+            <button
+                type="button"
+                class="ui-modal-close"
+                data-modal-close
+                aria-label="Kapat"
+                style="background: transparent; border: none; font-size: 18px; cursor: pointer; color: var(--ui-muted, #9ca3af); padding: 4px;"
+            >
+                ✕
+            </button>
+        </div>
+
+        <!-- =====================================================
+             MODAL BODY
+        ====================================================== -->
+        <div class="ui-modal-body" style="padding: 16px 0; display: flex; flex-direction: column; gap: 16px;">
+
+            <!-- GÖNDERİLEN SORGU KARTI -->
+            <div style="background: var(--ui-surface-subtle, #f9fafb); border: 1px solid var(--ui-border, #e5e7eb); border-radius: 8px; padding: 12px 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--ui-muted, #4b5563);">GÖNDERİLEN SORGU</span>
+                    <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: {% if status_code == 200 %}#ecfdf5; color: #047857;{% else %}#fef2f2; color: #b91c1c;{% endif %} font-weight: 600;">
+                        HTTP {{ status_code|default:"Bağlantı Hatası" }}
+                    </span>
+                </div>
+                <div style="font-size: 13px; color: var(--ui-text, #1f2937);">
+                    <strong>Sporcu:</strong> {{ athlete.get_full_name }} | 
+                    <strong>Doğum Yılı:</strong> {{ athlete.birth_date|date:"Y"|default:"Belirtilmemiş" }}
+                </div>
+            </div>
+
+            <!-- HATA MESAJI VARSA -->
+            {% if error_message %}
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; color: #991b1b; font-size: 13px;">
+                    <strong>API Bağlantı Hatası:</strong> {{ error_message }}
+                </div>
+            {% endif %}
+
+            <!-- API CEVABI DURUM KARTI -->
+            {% if api_response %}
+                {% if api_response.sonuc == 'tam_eslesme' and api_response.sporcu %}
+                    <!-- TAM EŞLEŞME BAŞARILI -->
+                    <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 14px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #10b981; color: white; font-size: 13px; font-weight: bold;">✓</span>
+                            <span style="font-weight: 700; color: #065f46; font-size: 14px;">Tam Eşleşme Bulundu!</span>
+                            <span style="background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-left: auto;">
+                                ID: {{ api_response.bulunan_id }}
+                            </span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 13px; color: #064e3b;">
+                            <div>
+                                <span style="color: #047857; font-size: 11px; display: block;">SPORCU ADI:</span>
+                                <strong>{{ api_response.sporcu.sporcu_adi }}</strong>
+                            </div>
+                            <div>
+                                <span style="color: #047857; font-size: 11px; display: block;">KULÜP:</span>
+                                <strong>{{ api_response.sporcu.kulup|default:"-" }}</strong>
+                            </div>
+                            <div>
+                                <span style="color: #047857; font-size: 11px; display: block;">DOĞUM YILI / CİNSİYET:</span>
+                                <span>{{ api_response.sporcu.dogum_yili }} ({{ api_response.sporcu.cinsiyet }})</span>
+                            </div>
+                            <div>
+                                <span style="color: #047857; font-size: 11px; display: block;">TOPLAM YARIŞ:</span>
+                                <span>{{ api_response.sporcu.toplam_yaris_sayisi }} yarış</span>
+                            </div>
+                            {% if api_response.sporcu.son_yaris_tarihi %}
+                            <div>
+                                <span style="color: #047857; font-size: 11px; display: block;">SON YARIŞ TARİHİ:</span>
+                                <span>{{ api_response.sporcu.son_yaris_tarihi }}</span>
+                            </div>
+                            {% endif %}
+                            {% if api_response.sporcu.okul %}
+                            <div>
+                                <span style="color: #047857; font-size: 11px; display: block;">OKUL:</span>
+                                <span>{{ api_response.sporcu.okul }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% elif api_response.muhtemel_eslesmeler %}
+                    <!-- MUHTEMEL EŞLEŞMELER -->
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="font-weight: 700; color: #92400e; font-size: 14px;">
+                                ⚠ Muhtemel Eşleşmeler ({{ api_response.muhtemel_eslesmeler|length }})
+                            </span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
+                            {% for m in api_response.muhtemel_eslesmeler %}
+                                <div style="background: white; border: 1px solid #fef3c7; border-radius: 6px; padding: 8px 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>{{ m.sporcu_adi }}</strong> ({{ m.dogum_yili }}) - <span style="color: #6b7280;">{{ m.kulup|default:"Kulüpsüz" }}</span>
+                                    </div>
+                                    <span style="font-size: 11px; color: #b45309; font-weight: 600;">ID: {{ m.id }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- EŞLEŞME YOK -->
+                    <div style="background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; text-align: center; color: #4b5563; font-size: 13px;">
+                        Veritabanında bu isim ve doğum yılıyla eşleşen sporcu bulunamadı.
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- HAM JSON ÇIKTISI -->
+            <div style="border-top: 1px solid var(--ui-border, #e5e7eb); padding-top: 12px;">
+                <details open style="cursor: pointer;">
+                    <summary style="font-size: 12px; font-weight: 600; color: var(--ui-muted, #4b5563); margin-bottom: 8px; user-select: none;">
+                        Dönen Ham JSON Yanıtı (İncele)
+                    </summary>
+                    <pre style="background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-size: 11.5px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; max-height: 200px; overflow: auto; white-space: pre-wrap; margin: 0; line-height: 1.4;">{{ formatted_json|default:"Yanıt yok" }}</pre>
+                </details>
+            </div>
+
+        </div>
+
+        <!-- =====================================================
+             MODAL ACTIONS
+        ====================================================== -->
+        <div class="ui-modal-actions" style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid var(--ui-border, #e5e7eb);">
+            <button
+                type="button"
+                class="ui-btn ui-btn-sm ui-btn-secondary"
+                data-modal-close
+            >
+                Kapat
+            </button>
+
+            <button
+                type="button"
+                class="ui-btn ui-btn-sm ui-btn-primary"
+                hx-get="{% url 'athlete-manage-match-preview' athlete.pk %}"
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+            >
+                Yeniden Sorgula
+            </button>
+        </div>
+    </div>
+</dialog>
+
